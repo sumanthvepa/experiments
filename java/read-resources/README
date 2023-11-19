@@ -1,0 +1,5 @@
+This is an experiment to read a file stored in the resources folder
+of a Java application. 
+
+This useful when you want to ship an application JAR with some
+test data that is stored in the resources folder.

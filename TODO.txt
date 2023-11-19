@@ -1,0 +1,2 @@
+[issue001] java/read-resources:
+  Read files from the resources folder of a Java application JAR.
