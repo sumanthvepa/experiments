@@ -1,3 +1,7 @@
-[issue002] publish-opensource: Publish the repository as open source [DONE]
-[issue001] java/read-resources:
-  Read files from the resources folder of a Java application JAR. [DONE]
+[issue003] jackson-object-mapper:
+  Use Jackson's Object Mapper to serialize and deserialize a complex
+  class.
+[DONE][issue002] publish-opensource:
+  Publish the repository as open source
+[DONE][issue001] java/read-resources:
+  Read files from the resources folder of a Java application JAR.
