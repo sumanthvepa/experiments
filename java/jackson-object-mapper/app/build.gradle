@@ -29,7 +29,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'sv.CohortMapper'
+    mainClass = 'sv.App'
 }
 
 tasks.named('test') {
