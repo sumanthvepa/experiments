@@ -10,10 +10,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jetbrains.annotations.NotNull;
 
 
-public class CohortMapper {
+public class PersonMapper {
   private final ObjectMapper mapper;
 
-  public CohortMapper() {
+  public PersonMapper() {
     this.mapper = new ObjectMapper();
   }
 
@@ -57,34 +57,10 @@ public class CohortMapper {
       https://guava.dev/releases/21.0/api/docs/com/google/common/reflect/TypeToken.html
       https://github.com/google/guava
       https://stackoverflow.com/questions/18471701/passing-a-class-with-type-parameter-as-type-parameter-for-generic-method-in-java
-
-
-
-
-
-
-
      */
     JavaType type
         = mapper.getTypeFactory().constructCollectionType(
             ArrayList.class, Person.class);
     return mapper.readValue(json, type);
-  }
-
-  public static void main(String[] args) {
-    try {
-      var cohortMapper = new CohortMapper();
-      var firstPerson = new Person("First Person", 52);
-      var secondPerson = new Person("Second Person", 32);
-      var persons = new ArrayList<Person>();
-      persons.add(firstPerson);
-      persons.add(secondPerson);
-
-      System.out.println(cohortMapper.serialize(firstPerson));
-      System.out.println(cohortMapper.serialize(persons));
-
-    } catch (Exception ex) {
-      ex.printStackTrace(System.err);
-    }
   }
 }

@@ -1,4 +1,4 @@
-[issue003] jackson-object-mapper:
+[DONE][issue003] jackson-object-mapper:
   Use Jackson's Object Mapper to serialize and deserialize a complex
   class.
 [DONE][issue002] publish-opensource:
