@@ -1,3 +1,5 @@
+[DONE][issue004] jackson-object-mapper:
+  Serialize/deserialze classes without getter/setters or default constructors
 [DONE][issue003] jackson-object-mapper:
   Use Jackson's Object Mapper to serialize and deserialize a complex
   class.

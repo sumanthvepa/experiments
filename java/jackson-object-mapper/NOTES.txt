@@ -1,0 +1,90 @@
+This is not an issue list but a literal backlog of topics and issues
+that need to be explored. Some of these may becoma actual git issues
+but the work on others may fall outside that list.
+
+Tasks 1
+Figure out how to serialize a class of the following form to
+JSON and back using the Java Jackson library.
+
+class Company {
+  private final Map<String, Department> departments;
+
+  public Company(Map<String, Department> departments) {
+    this.departments = departments;
+  }
+}
+
+I'm attempting to serialize this with the following code:
+
+public String serialize(Company company) {
+  ObjectMapper mapper = new ObjectMapper();
+  return mapper.writeValueAsString(company);
+ }
+
+Jackson fails to serialize this to JSON with the following error:
+com.fasterxml.jackson.databind.exc.InvalidDefinitionException: No serializer found for class sv.Company and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS)
+	at com.fasterxml.jackson.databind.exc.InvalidDefinitionException.from(InvalidDefinitionException.java:77)
+	at com.fasterxml.jackson.databind.SerializerProvider.reportBadDefinition(SerializerProvider.java:1330)
+	at com.fasterxml.jackson.databind.DatabindContext.reportBadDefinition(DatabindContext.java:414)
+	at com.fasterxml.jackson.databind.ser.impl.UnknownSerializer.failForEmpty(UnknownSerializer.java:53)
+	at com.fasterxml.jackson.databind.ser.impl.UnknownSerializer.serialize(UnknownSerializer.java:30)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider._serialize(DefaultSerializerProvider.java:502)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider.serializeValue(DefaultSerializerProvider.java:341)
+	at com.fasterxml.jackson.databind.ObjectMapper._writeValueAndClose(ObjectMapper.java:4793)
+	at com.fasterxml.jackson.databind.ObjectMapper.writeValueAsString(ObjectMapper.java:4038)
+	at sv.CompanyMapper.serialize(CompanyMapper.java:14)
+	at sv.CompanyMapperTest.testSerializeCompany(CompanyMapperTest.java:15)
+
+
+
+This is my exploration of the problem.
+
+I first looked up the initial error on Google and found some advice.
+First from StackOverflow:
+https://stackoverflow.com/questions/8367312/serializing-with-jackson-json-getting-no-serializer-found
+
+To summarize the advice here, it seems that Jackson requires that a
+field be public for it to be serializable. Or that it should have a
+getter and setter method.
+
+This does not work for my use case. I do not want to expose the Map
+field.
+
+The second reference from Baeldung, provides more alternatives.
+https://www.baeldung.com/jackson-field-serializable-deserializable-or-not
+
+Use an annotation on the Company class to indicate to the object
+mapper that all fields weather private or not should be serialized.
+
+This is a bit of an all or nothing solution with respect to private
+fields. If you want some fields to be serialized while others are
+ignored for serialization, then use the @JsonIgnore annotation on
+fields that need to be ignored for serialization. Baeldung describes
+how to use the annotation:
+https://www.baeldung.com/jackson-field-serializable-deserializable-or-not
+
+I added a dummy field to company to test this out. It works perfectly.
+
+The next step was deserialization. It turns out that to deserialize
+the the object you must either create an class that takes a default
+constructor and has getters and setters or annotate the non-default
+constructor's parameters with a @JsonProperty("field-name")
+annotation. This allows jackson to call the constructor with the
+correct parameters. This Stack Overflow article describe it perfectly:
+
+https://stackoverflow.com/questions/53191468/no-creators-like-default-construct-exist-cannot-deserialize-from-object-valu
+
+Finally, equality tests were failing on company, because of the dummy field
+containing a random number generated in the constructor. To avoid
+that problem, I followed Baeldung's advice below, and overrode the
+equals and hashCode functions and implemented the equality test to
+not include comparing the dummy field. It all works great.
+https://www.baeldung.com/java-equals-hashcode-contracts#overview
+
+
+Some additional links about the code:
+The pattern matching instanceof operator is used in the code.
+https://www.baeldung.com/java-pattern-matching-instanceof
+
+How to generate random numbers:
+https://www.baeldung.com/java-generating-random-numbers-in-range
