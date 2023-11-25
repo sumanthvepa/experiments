@@ -1,7 +1,9 @@
 package sv;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Data {
   static final Person firstPerson
@@ -54,17 +56,18 @@ public class Data {
   static final String secondDepartmentJson
       = "{\"employees\":" + personList2Json + "}";
 
-  static final List<Department> departmentList = new ArrayList<>();
+  static final Map<String, Department> departments = new HashMap<>();
   static {
-    departmentList.add(firstDepartment);
-    departmentList.add(secondDepartment);
+    departments.put("department1", firstDepartment);
+    departments.put("department2", secondDepartment);
   }
 
-  static final String departmentListJson
-      = "[" + firstDepartmentJson + "," + secondDepartmentJson + "]";
+  static final String departmentMapJson
+      = "{" + "\"department1\":" + firstDepartmentJson + ","
+      + "\"department2\":" + secondDepartmentJson + "}";
 
-  static final Company company = new Company(departmentList);
+  static final Company company = new Company(departments);
 
   static final String companyJson
-      = "{\"departments\":" + departmentListJson + "}";
+      = "{\"departments\":" + departmentMapJson + "}";
 }
