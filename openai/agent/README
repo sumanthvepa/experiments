@@ -1,0 +1,9 @@
+You need to set the environment variable OPENAI_API_KEY for the code
+to work. The value of this is found in the .env file which is NOT
+checked into source control. 
+
+If you are attempting to run the program from within IntelliJ IDEA
+edit your run configuration and add the environment variable
+OPENAI_API_KEY set to your API key.
+
+To run the code, you need to supply your own OpenAI API key.
