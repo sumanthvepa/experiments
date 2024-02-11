@@ -1,3 +1,5 @@
+[DONE][issue006] opeani-callgpt:
+  A python script that calls the OpenAI API
 [DONE][issue005] deterministic-ai-agent:
   An AI agent that always returns the same answers to given question
 [DONE][issue004] jackson-object-mapper:
