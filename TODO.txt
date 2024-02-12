@@ -1,3 +1,5 @@
+[DONE][issue007] python-hashof: python-hashof:
+  Print the MD5 hash of the input
 [DONE][issue006] opeani-callgpt:
   A python script that calls the OpenAI API
 [DONE][issue005] deterministic-ai-agent:
