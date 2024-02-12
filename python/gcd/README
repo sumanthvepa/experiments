@@ -1,0 +1,15 @@
+SETUP and RUN INSTRUCTIONS
+
+Step 1: Create and activate a Python virtual environment
+You have to create and activate a Python virtual environment to
+properly run this code. To create the virtual environment, activate
+the it and install the requirements, you need to run:
+
+python3 -m venv venv
+source venv/bin/activate
+python3 -m pip install -r requirements.txt
+
+Step 2: Run the code
+You can the script by passing it two number as follows:
+
+python3 gcd.py 32 18

@@ -1,5 +1,7 @@
+[DONE][issue009] python-gcd:
+Python progam to find the greatest common divisor
 [DONE][issue008] python-args: Print all the command line args
-[DONE][issue007] python-hashof: python-hashof:
+[DONE][issue007] python-hashof:
   Print the MD5 hash of the input
 [DONE][issue006] opeani-callgpt:
   A python script that calls the OpenAI API
