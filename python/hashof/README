@@ -2,12 +2,12 @@
 You have to create and activate a Python virtual environment to
 properly run this code.
 
-To create the virtual environment, install the requirements, and
-activate the environment, you need to run:
+To create the virtual environment, activate the it and install the
+requirements, you need to run:
 
 python3 -m venv venv
-python3 -m pip install -r requirements.txt
 source venv/bin/activate
+python3 -m pip install -r requirements.txt
 
 
 Finally execute hashof as shown below. Not the use of quotes to group
