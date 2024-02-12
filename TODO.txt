@@ -1,3 +1,4 @@
+[DONE][issue008] python-args: Print all the command line args
 [DONE][issue007] python-hashof: python-hashof:
   Print the MD5 hash of the input
 [DONE][issue006] opeani-callgpt:
