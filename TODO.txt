@@ -1,3 +1,5 @@
+[DONE][issue010] cplusplus-lexical-cast:
+  C++ program showing use of lexical_cast
 [DONE][issue009] python-gcd:
 Python progam to find the greatest common divisor
 [DONE][issue008] python-args: Print all the command line args

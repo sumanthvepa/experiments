@@ -1,0 +1,35 @@
+This is a Makefile and Xcode project to demonstrate how
+boost::lexical_cast works.
+
+Note on Makefile and Xcode projects
+Both the Makefile project and the Xcode project generate 
+code in different places. The output of the Makefile is
+in the build directory, while Xcode's output is not
+directly findable. So building the project in Xcode
+will not result in any outout into the build directory
+and running the Makefile using make will not cause
+the project to be built in Xcode.
+
+The Makefile should work with both MacOS make as well
+as gmake.
+
+Location of the boost library.
+The Makefile assumes that the boost library is
+located at /opt/boost/1_84_0/.
+Header files for boost are assumed to be at
+/opt/boost/1_84_0/include
+Libraries for boost are assumed to be at:
+/opt/boost/1_84_0/lib.
+
+If that is not the case change the Makefile and
+the settings in Xcode
+
+lexical_cast > Build Settings > Search Paths > Header Search Path
+and 
+lexical_cast > Build Settings > Search Paths > Library Search Path
+
+Once you've built the code run it by invoking the executable with
+one or more integers as command line arguments. If you pass a 
+non-integer, an error will be recorded. The program's exit code
+indicates the number of error found. 0 indicating success,
+i.e. zero errors found.
