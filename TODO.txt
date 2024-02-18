@@ -1,3 +1,6 @@
+[issue012] cplusplus-gcd-cross-platform: 
+  Make the GCD program buildable on all 3 major
+  platforms: Windows, Linux MacOS
 [DONE][issue011] cplusplus-gcd:
   C++ program to find the greatest common divisor
 [DONE][issue010] cplusplus-lexical-cast:
