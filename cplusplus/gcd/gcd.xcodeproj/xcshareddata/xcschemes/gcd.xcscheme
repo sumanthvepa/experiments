@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "275CC0F92B7A17E40026FB2D"
+               BlueprintIdentifier = "27B2B1572B84988B003C6993"
                BuildableName = "gcd"
                BlueprintName = "gcd"
                ReferencedContainer = "container:gcd.xcodeproj">
@@ -44,7 +44,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "275CC0F92B7A17E40026FB2D"
+            BlueprintIdentifier = "27B2B1572B84988B003C6993"
             BuildableName = "gcd"
             BlueprintName = "gcd"
             ReferencedContainer = "container:gcd.xcodeproj">
@@ -52,11 +52,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "345"
+            argument = "228"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "910"
+            argument = "456"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -71,7 +71,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "275CC0F92B7A17E40026FB2D"
+            BlueprintIdentifier = "27B2B1572B84988B003C6993"
             BuildableName = "gcd"
             BlueprintName = "gcd"
             ReferencedContainer = "container:gcd.xcodeproj">
