@@ -6,6 +6,10 @@
 	objectVersion = 56;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		27DFE17D2B84AB1A00EFC498 /* gcd.cc in Sources */ = {isa = PBXBuildFile; fileRef = 27DFE17C2B84AB1A00EFC498 /* gcd.cc */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		27B2B1562B84988B003C6993 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -20,7 +24,7 @@
 
 /* Begin PBXFileReference section */
 		27B2B1582B84988B003C6993 /* gcd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gcd; sourceTree = BUILT_PRODUCTS_DIR; };
-		27B2B1622B849909003C6993 /* gcd */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gcd; sourceTree = "<group>"; };
+		27DFE17C2B84AB1A00EFC498 /* gcd.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gcd.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,7 +57,7 @@
 		27B2B15A2B84988B003C6993 /* gcd */ = {
 			isa = PBXGroup;
 			children = (
-				27B2B1622B849909003C6993 /* gcd */,
+				27DFE17C2B84AB1A00EFC498 /* gcd.cc */,
 			);
 			path = gcd;
 			sourceTree = "<group>";
@@ -115,6 +119,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27DFE17D2B84AB1A00EFC498 /* gcd.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
