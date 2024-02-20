@@ -1,0 +1,16 @@
+You have to create and activate a Python virtual environment to
+properly run this code.
+
+To create the virtual environment, activate the it and install the
+requirements, you need to run:
+
+python3 -m venv venv
+source venv/bin/activate
+python3 -m pip install -r requirements.txt
+
+
+Finally execute hashof as shown below.  To group multiple word into
+one arg.
+
+python3 args.py first second 'third arg'
+

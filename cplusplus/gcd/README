@@ -1,0 +1,102 @@
+This is a Makefile and Xcode project for a C++ implementation
+of a program to find the greatest common denomiator of two
+numbers
+
+
+This directory contains setups for building the project
+on one three ways:
+1. Makefile
+2. XCode
+3. IntelliJ CLion
+
+Each of these is builds and generates a different excutable.
+Possibly with different optimization flags, linked libraries
+etc. Typically the user will pick and the build system
+they prefer and use that. However, when changing or adding
+sources and dependencies, all three projects will need to
+be modified.
+
+Using the Makefile Project
+=====================================================================
+The Makefile project generates its artifacts in the
+build directroy. To build the executable issue
+the following commands:
+
+make clean # Clean up any previously generated artifact
+make all
+
+To run the executable, issue the following command:
+cd build
+./gcd 35 10  # Change the numbers to suit your needs
+5  # This is the output.
+
+
+Using the CLion Project
+=====================================================================
+The CLion project essentially uses the Makefile to define the targets
+so it pretty much tracks the Makefile. To make changes to the build
+configuration, simply edit the Makefile and rebuild the project
+in CLion.
+
+Using the XCode Project
+=====================================================================
+The XCode project places the built artifacts in a very wierd
+place, that is deliberately intended to be hard to find. The
+idea is that the code will always be run from within the IDE.
+
+Three things that need to be noted about the XCode project
+1. Setting the Header and Library Search Paths
+2. Setting the C++ language level
+3. Setting Program arguments
+
+Setting Header and Search Library Paths
+---------------------------------------
+You need to change the build settings in XCode. 
+There is a video on the intranet showing how this
+can be done. If time permits, I'll publish it to 
+YouTube and update this document.
+
+
+Setting the C++ Language Level
+------------------------------
+Setting the C++ language level also requires a change
+in the settings. (Search for Level). The level I'm using
+for the clang compiler is --std=c++2b which roughly
+corresponds to the C++23 standard. The same standard
+is used in the Makefile. For a detailed set of
+instructions on how to set the C++ language level
+in the XCode IDE refer to the video on the intranet.
+Once again, I will publish it to YouTube and update
+this document when time permits.
+
+Setting Program Arguments
+-------------------------
+You have to set the program arguments in the XCode IDE.
+There is a video on this topic on the intranet. If
+time permits, I'll publish it to YouTube.
+
+
+
+The Makefile should work with both MacOS make as well
+as gmake.
+
+Location of the boost library.
+=====================================================================
+The Makefile and XCode progjects assume that the boost library is
+located at /opt/boost/1_84_0/
+Header files for boost are assumed to be at
+/opt/boost/1_84_0/include
+Libraries for boost are assumed to be at:
+/opt/boost/1_84_0/lib.
+
+If that is not the case change the Makefile and
+the settings in Xcode.
+
+Running GCD
+=====================================================================
+If you are using XCode, click the play button. Edit arguments as
+described above. If you are using the Makefile project, just go to
+the build directory and run gcd from there.
+
+$ cd build
+$ gcd 48 30

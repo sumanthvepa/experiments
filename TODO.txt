@@ -1,3 +1,17 @@
+[DONE][issue012] cplusplus-gcd-cross-platform:
+  Make the GCD program buildable on all 3 major
+  platforms: Windows, Linux MacOS
+[DONE][issue011] cplusplus-gcd:
+  C++ program to find the greatest common divisor
+[DONE][issue010] cplusplus-lexical-cast:
+  C++ program showing use of lexical_cast
+[DONE][issue009] python-gcd:
+  Python progam to find the greatest common divisor
+[DONE][issue008] python-args: Print all the command line args
+[DONE][issue007] python-hashof:
+  Print the MD5 hash of the input
+[DONE][issue006] opeani-callgpt:
+  A python script that calls the OpenAI API
 [DONE][issue005] deterministic-ai-agent:
   An AI agent that always returns the same answers to given question
 [DONE][issue004] jackson-object-mapper:
