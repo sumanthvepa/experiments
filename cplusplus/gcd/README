@@ -1,20 +1,41 @@
-This is a Makefile and Xcode project for a C++ implementation
-of a program to find the greatest common denomiator of two
-numbers
+This is a project to demonstrate a technique to use the 'native' C++ build
+systems of various platforms: Linux, macOS and Windows to build a
+cross-platform application.
 
+This techniqe works for small to medium sized C++ projects. Although the
+demonstation code here (computing the GCD of two numbers) is a simple
+command line program, it should be possible to build cross-platform
+GUI programs using the same techique.
+
+The this project is set up is for both VisualStudio and XCode to share
+the same directory structure. 
+
+Normally, when you try to create and Xcode project to overlay an 
+existing VisualStudio code project, it will complain and no let
+you proceed. The trick is to create the project in a separate location
+and move the project files to their corresponing locations within
+the VisualStudio code project hierarchy. XCode will ignore VisualStudio
+code project artifacts and vice versa.
+
+For good measure, this proejct also support Makefile builds
+and CLion project. These latter two are quite easy to setup
+becuase they are based on make and as a result extremely
+fleximble.
 
 This directory contains setups for building the project
 on one three ways:
 1. Makefile
 2. XCode
+3. VisualStudio, and 
 3. IntelliJ CLion
 
 Each of these is builds and generates a different excutable.
 Possibly with different optimization flags, linked libraries
-etc. Typically the user will pick and the build system
-they prefer and use that. However, when changing or adding
-sources and dependencies, all three projects will need to
-be modified.
+etc. Although for this project I've made sure that the options
+are the same for all platform. Typically the user will pick and
+the build system they prefer and use that. However, when changing
+or adding sources and dependencies, all three projects will
+need to be modified.
 
 Using the Makefile Project
 =====================================================================
@@ -30,6 +51,8 @@ cd build
 ./gcd 35 10  # Change the numbers to suit your needs
 5  # This is the output.
 
+The Makefile should work with both MacOS make as well
+as gmake. And with any Linux variant
 
 Using the CLion Project
 =====================================================================
@@ -37,6 +60,7 @@ The CLion project essentially uses the Makefile to define the targets
 so it pretty much tracks the Makefile. To make changes to the build
 configuration, simply edit the Makefile and rebuild the project
 in CLion.
+
 
 Using the XCode Project
 =====================================================================
@@ -76,9 +100,22 @@ There is a video on this topic on the intranet. If
 time permits, I'll publish it to YouTube.
 
 
+Using the VisualStudio Project
+=====================================================================
+The VisualStudio project can be built and run by simply opening
+the gcd.sln file in VisualStudio.
 
-The Makefile should work with both MacOS make as well
-as gmake.
+The project assumes that the Boost header files are at
+C:\Boost\1_84_0\include\boost_1_84_0\. To change this exit the
+C++ setting for the gcd project. Will add a link to a
+video demonstration if time permits. 
+
+In additon, you have to change the default language level
+to C++20 to use std::string_view. This has already been
+done, but if you want to verify, check the C++ language
+standard in the project options.
+
+
 
 Location of the boost library.
 =====================================================================
