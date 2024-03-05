@@ -1,0 +1,9 @@
+cppproject: A python script to create a single cross-platform C++
+project from platform specific projects
+
+Invoke cppproject as follows:
+
+cppproject --visualstudio=<visualstudio_project_directory> --xcode=<code_project_directory> --makefile=<location_of_makefile> --project-root=<location of the project root director> project_name
+
+For example if you want to create a project called hello with 3
+platform specific projects hello_vs hello_xcode hello_makefile 
