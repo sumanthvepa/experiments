@@ -3,7 +3,7 @@
   gcd.py : Compute the greatest common divisor of two numbers.
 """
 # -------------------------------------------------------------------
-# args.py: A python script the prints all the arguments passed to it
+# gcd.py: Compute the greatest common divisor of two numbers.
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #

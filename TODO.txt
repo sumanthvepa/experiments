@@ -1,3 +1,5 @@
+[DONE][issue014] python-gcd-copyright:
+  Fix GPL notice on the file. Wrong program name
 [DONE][issue013] cppproject:
   A script to create a cross-platform C++ project
 [DONE][issue012] cplusplus-gcd-cross-platform:
