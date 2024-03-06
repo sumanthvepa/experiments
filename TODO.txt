@@ -1,3 +1,5 @@
+[DONE][issue015] python-parseargs:
+  A simple exploration of the argparse library
 [DONE][issue014] python-gcd-copyright:
   Fix GPL notice on the file. Wrong program name
 [DONE][issue013] cppproject:
