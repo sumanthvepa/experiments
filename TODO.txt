@@ -1,3 +1,5 @@
+[DONE][issue013] cppproject:
+  A script to create a cross-platform C++ project
 [DONE][issue012] cplusplus-gcd-cross-platform:
   Make the GCD program buildable on all 3 major
   platforms: Windows, Linux MacOS
