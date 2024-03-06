@@ -1,6 +1,6 @@
 """
-  cppproject.py: A python script to create cross-platform C++ project
-  given the Visual Studio, Xcode, and Makefile project directories.
+  cppproject.py: Create cross-platform C++ project given the Visual
+  Studio, Xcode, and Makefile project directories.
 
   First source the virtual environment:
   source venv/bin/activate
@@ -12,6 +12,24 @@
   The script will create a new project directory named project, with
   the VisualStudio, Xcode and Makefile projects inside it.
 """
+# -------------------------------------------------------------------
+# cppproject.py: Create Cross-Platform C++ Projects
+#
+# Copyright (C) 2024 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
 import argparse
 import os
 import shutil
@@ -116,7 +134,7 @@ def copy_visual_studio_project_files(project: str, vs_dir: str) -> None:
   for filename in filenames:
     input_filename = os.path.join(vs_dir, filename)
     output_filename = os.path.join(project, filename)
-    print(f'Copying {input_filename} to {output_filename}')
+    # print(f'Copying {input_filename} to {output_filename}')
     shutil.copy(input_filename, output_filename)
 
 
@@ -125,14 +143,14 @@ def copy_xcode_project_files(project: str, xcode_dir: str) -> None:
   directory = project_name + '.xcodeproj'
   input_directory = os.path.join(xcode_dir, directory)
   output_directory = os.path.join(project, directory)
-  print(f'Copying directory {input_directory} to {output_directory}')
+  # print(f'Copying directory {input_directory} to {output_directory}')
   shutil.copytree(input_directory, output_directory)
 
 
 def copy_makefile_project_files(project: str, makefile_dir: str) -> None:
   input_filename = os.path.join(makefile_dir, 'Makefile')
   output_filename = os.path.join(project, 'Makefile')
-  print(f'Copying {input_filename} to {output_filename}')
+  # print(f'Copying {input_filename} to {output_filename}')
   shutil.copy(input_filename, output_filename)
 
 
@@ -150,10 +168,10 @@ def main() -> int:
       = process_command_line()
     project_name = os.path.basename(project_dir)
     # Print all arguments
-    print(f"Project directory: {project_dir}")
-    print(f"Visual Studio directory: {visual_studio_dir}")
-    print(f"Xcode directory: {xcode_dir}")
-    print(f"Makefile directory: {makefile_dir}")
+    # print(f"Project directory: {project_dir}")
+    # print(f"Visual Studio directory: {visual_studio_dir}")
+    # print(f"Xcode directory: {xcode_dir}")
+    # print(f"Makefile directory: {makefile_dir}")
     os.makedirs(project_dir, exist_ok=True)
     os.makedirs(os.path.join(project_dir, project_name), exist_ok=True)
     copy_visual_studio_project_files(project_dir, visual_studio_dir)
