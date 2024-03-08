@@ -1,3 +1,5 @@
+[DONE][issue017] javascript-bascis-01-args:
+  Print all the command line arguments
 [DONE][issue016] javascript-node-00-server:
   A simple server that reutrns Hello World as plain text
 [DONE][issue015] python-parseargs:
