@@ -1,3 +1,5 @@
+[DONE][issue016] javascript-node-00-server:
+  A simple server that reutrns Hello World as plain text
 [DONE][issue015] python-parseargs:
   A simple exploration of the argparse library
 [DONE][issue014] python-gcd-copyright:
