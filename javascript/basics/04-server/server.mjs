@@ -34,12 +34,12 @@ function processCommandLineArguments() {
   program
       .version('4.0.0')
       .description('A configurable express server that returns "Hello, World!"')
-      .option('-h, --hostname, <hostname>', 'Hostname to listen on.', '127.0.0.1')
+      .option('-h, --host, <host', 'Hostname to listen on.', '127.0.0.1')
       .option('-p, --port, <port>', 'Port number to listen on.', '9004')
       .parse();
 
   const options = program.opts();
-  return [options.hostname, options.port];
+  return [options.host, options.port];
 }
 
 /**
