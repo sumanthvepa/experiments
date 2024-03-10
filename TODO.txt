@@ -1,3 +1,6 @@
+[DONE][issue019] javascript-basics-03-server: 
+  A port configurable web server that returns 'Hello World' in plain
+  text.
 [DONE][issue018] javascript-basics-02-cli:
   A CLI program that demonstrates the use of commander to get a
   port number from the command line.
