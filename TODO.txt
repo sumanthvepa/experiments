@@ -1,3 +1,6 @@
+[DONE][issue021] javascript-basics-05-json-server:
+  An interface/port configurable express server that returns a
+  greeting as a JSON response
 [DONE][issue020] javascript-basics-04-server: 
   A interface/port configurable express server that returns
   'Hello World' in plain text.
