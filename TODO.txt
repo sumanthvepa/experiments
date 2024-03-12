@@ -1,3 +1,5 @@
+[DONE][issue022] javascript-basics-06-static-server:
+  An express server that serves static files.
 [DONE][issue021] javascript-basics-05-json-server:
   An interface/port configurable express server that returns a
   greeting as a JSON response
