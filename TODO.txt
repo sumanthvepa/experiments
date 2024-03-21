@@ -1,3 +1,5 @@
+[DONE][issue023]aiml-restructure-directory:
+  Move openai and other ai/ml projects into the aiml directory
 [DONE][issue022] javascript-basics-06-static-server:
   An express server that serves static files.
 [DONE][issue021] javascript-basics-05-json-server:
