@@ -1,3 +1,6 @@
+[DONE][issue024]aiml-pytorch-00-check:
+  Write a Python script to check if pytorch is
+  working correctly on the machine.
 [DONE][issue023]aiml-restructure-directory:
   Move openai and other ai/ml projects into the aiml directory
 [DONE][issue022] javascript-basics-06-static-server:
