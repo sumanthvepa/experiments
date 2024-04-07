@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-""
+"""
   check.py: Check that pytorch has been installed correctly
-""
+"""
 #--------------------------------------------------------------------
 # check.py: Check that pytorch has been installed correctly
 #
