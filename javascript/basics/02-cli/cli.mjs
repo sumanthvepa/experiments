@@ -18,7 +18,7 @@
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
 // Commander is a CLI library to process command line options.
-// You can find it's manual page here:
+// You can find its manual page here:
 // https://www.npmjs.com/package/commander?activeTab=readme.
 // To use this code you have to install commander first:
 // $ npm install commander
