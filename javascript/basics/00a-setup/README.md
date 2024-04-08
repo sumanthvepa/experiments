@@ -158,19 +158,19 @@ Run the following command to update all the dependencies
 of a project. Note that this might break existing code
 
 ```
-  npm update
+  npm update --save
 ```
 If you want to update a single package to the latest
 minor version, then specify the name of the package
 as follows:
 
 ```
-  npm update package-name
+  npm update --save package-name
 ```
 
 For example to update the express package:
 ```
-  npm update express
+  npm update --save express
 ```
 
 This will not change the major version though, 
