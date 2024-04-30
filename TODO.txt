@@ -1,3 +1,5 @@
+[DONE][issue028] dart-hello:
+  The canonical 'Hello World' program for Dart
 [DONE][issue027] cplusplus-basics-language:
   Setup the C++ basics project to explore the C++
   programming language.
