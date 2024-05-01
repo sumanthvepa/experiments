@@ -1,3 +1,5 @@
+[DONE][issue029] java-basics-structure: Setup the
+  structure of the Java Language basics explorations
 [DONE][issue028] dart-hello:
   The canonical 'Hello World' program for Dart
 [DONE][issue027] cplusplus-basics-language:
