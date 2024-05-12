@@ -18,6 +18,11 @@
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
 
+// Accessing command line arguments
+// Command line arguments are stored in the array argv that
+// is part of the process object. This is available as
+// part of the NodeJS runtime. 
+
 // Note that it does not matter how the program was invoked
 // on the command line. i.e. either as
 // $ node args.mjs 

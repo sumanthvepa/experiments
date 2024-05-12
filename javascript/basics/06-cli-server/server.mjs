@@ -20,7 +20,7 @@
  -------------------------------------------------------------------*/
 
 // Import the http module.
-// See 00-server on importing modules.
+// See 03-server on importing modules.
 import http from 'http';
 import { Command } from 'commander';
 
