@@ -1,3 +1,6 @@
+[issue030] javscript-basics-reorder-lesson-numbers:
+  Reorder the lesson numbers to better reflect the order
+  in which the lessons should be learned.
 [DONE][issue029] java-basics-structure: Setup the
   structure of the Java Language basics explorations
 [DONE][issue028] dart-hello:
