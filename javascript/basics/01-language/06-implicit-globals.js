@@ -1,4 +1,9 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 06-implicit-globals.js: Exploring implicit globals
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
  * 06-implicit-globals.js: Exploring implicit globals.
  *
@@ -19,11 +24,21 @@
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
 
-// A variable created without the var keyword is an implicit global
-// variable. You can access this value from language.mjs without
-// an import. This is definitely not recommended.
+/**
+ * @function f1
+ * @description A function that creates an implicit global variable.
+ * A variable created without the var keyword is an implicit global
+ * variable. You can access this value from language.mjs without
+ * an import. This is definitely not recommended.
+ */
 function f1() {
   // noinspection JSUndeclaredVariable
+  /**
+   * @description An implicit global variable.
+   * @type {string}
+   * @global
+   * @default 'This is an implicit global'
+   */
   anImplicitGlobal = 'This is an implicit global';
 }
 f1(); // Call f5 to bring anImplicitGlobal into existence.

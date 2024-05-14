@@ -1,4 +1,9 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 03-const.mjs: Explore the const keyword
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
  * 03-const.mjs: Explore the const keyword.
  *

@@ -1,6 +1,11 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 02-printing.mjs: Explore output to the console in Javascript
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
- * 03-const.mjs: Explore the const keyword.
+ * 02-printing.mjs: Explore output to the console in Javascript.
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
@@ -19,6 +24,10 @@
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
 
+/**
+ * @function explorePrinting
+ * @description Explore output to the console in Javascript
+ */
 export function explorePrinting() {
   // Printing in Javascript is done using the console object.
   // The console object is a global object that is available in all

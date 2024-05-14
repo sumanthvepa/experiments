@@ -1,4 +1,9 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 04-let.mjs: Exploring the let keyword
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
  * 04-let.mjs: Exploring the let keyword.
  *
@@ -63,8 +68,8 @@ console.log(y); // 30
 export let exportedVariable = 40;
 
 /**
- * A function that modifies the exportedVariable.
  * @function modifyExportedVariable
+ * @description A function that modifies the exportedVariable.
  * @param value The new value of the exportedVariable.
  */
 export function modifyExportedVariable(value) {
@@ -91,11 +96,9 @@ for (let i = 0; i < 5; i++) {
 // console.log(j); // ReferenceError: j is not defined
 
 /**
- * An example of the usage of the let keyword within a function.
- * The function demonstrates block scoping and non-hoisting.
- *
  * @function letExample
- * @returns {undefined}
+ * @description An example of the usage of the let keyword within a function.
+ * The function demonstrates block scoping and non-hoisting.
  */
 export function letExample() {
     // The variable k is block-scoped to the function letExample.

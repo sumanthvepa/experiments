@@ -1,4 +1,10 @@
 //-*- coding: utf-8 -*-
+/**
+ * @file language.mjs: A series of notes on the Javascript programming
+ * language, written as a collection of Javascript modules and files.
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @license GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
  * language.mjs: A series of notes on the Javascript programming
  * language, written as a collection of Javascript modules and files.
@@ -27,16 +33,18 @@
 // The notes are written as a series of Javascript modules. Each module
 // explores a specific feature of the Javascript language. The modules
 // are organized as follows:
-// 1. 01-hello.js: A program that prints 'Hello, World!' to the console.
-// 1. 01-comments.js: Explore comments in Javascript.
-// 2. 02-const.js: Explore the const keyword.
-// 3. 03-let.js: Explore the let keyword.
-// 4. 04-vars.js: Explore the var keyword.
-// 5. 06-implicit-globals.js: Explore implicit globals in Javascript.
-// 6. 06-dynamic-typing.js: Explore dynamic typing in Javascript.
-// 7. 07-number.js: Explore numbers in Javascript.
-// 8. 08-strings.js: Explore strings in Javascript.
-// 9. 09-boolean.js: Explore booleans in Javascript.
+// 00-comments.mjs: Explore comments in Javascript
+// 01-hello.js: Print 'Hello, World!' on the console.
+// 02-printing.mjs: Explore printing in Javascript
+// 03-const.mjs: Explore the intricacies of constants
+// 04-let.mjs: Explore the let keyword
+// 05-vars.mjs: Explore the var keyword
+// 06-implicit-globals.js: Explore implicit globals
+// 07-dynamic-typing.mjs: Explore dynamic typing
+// 08-number.mjs: Explore numbers in Javascript
+// 09-strings.mjs: Explore strings in Javascript
+// 10-boolean.mjs: Explore booleans in Javascript
+// 11-regexp.mjs: Explore regular expressions in Javascript
 
 // For more information on the Javascript programming language, see the following
 // references:
@@ -93,13 +101,17 @@
 // statement. They should generally be avoided in production quality
 // code, unless they really are necessary. But are used in these
 // tutorial explorations extensively, because the code is often
-// deliberately written to trigger warning. There presence is in
+// deliberately written to trigger warnings. Their presence is an
 // indication that I am aware of the fact that the code is not
 // good style, but that I suppressed the warnings to avoid cluttering
 // the problems tab of IntelliJ.
+// You can get a complete list of noinspection comment values here:
+// https://gist.github.com/pylover/7870c235867cf22817ac5b096defb768
+
 
 // Note 0: Explore comments in Javascript
-import './00-comments.mjs';
+import {exploreComments } from './00-comments.mjs'
+exploreComments();
 
 // Note1: Print 'Hello, World!' on the console.
 import './01-hello.js';
@@ -148,7 +160,8 @@ console.log(anImplicitGlobal); // defined in 06-implicit-globals.js:f1()
 import './07-dynamic-typing.mjs';
 
 // Note 8: Explore numbers in Javascript
-import './08-number.mjs';
+import { exploreNumbers} from './08-number.mjs';
+exploreNumbers();
 
 // Note 9: Explore strings in Javascript
 import { exploreStrings } from './09-strings.mjs';
@@ -160,3 +173,7 @@ if (!taskCompleted) {
   completeTask();
 }
 console.log('taskCompleted:', taskCompleted); // true
+
+// Note 11: Explore regular expressions in Javascript
+import { exploreRegexps} from "./11-regexp.mjs";
+exploreRegexps();

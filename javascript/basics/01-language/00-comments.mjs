@@ -1,6 +1,12 @@
 //-*- coding: utf-8 -*-
+/**
+ *
+ * @module 00-comments.mjs: Explore comments in Javascript
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @license GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
- * 01-hello.js: A program that prints  "Hello, World!".
+ * 00-comments.mjs: Explore comments in Javascript.
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
@@ -73,3 +79,15 @@
  * get more information on how to use JSDoc here:
  * https://jsdoc.app/
  */
+
+/**
+ * @function exploreComments()
+ * @description A dummy function to allow the 00-comments.mjs
+ * module to be imported and executed.
+ * It is intended to be imported and called from the language.mjs
+ * This is done for consistency with how other modules are
+ * imported and executed.
+ */
+export function exploreComments() {
+  // Just a dummy function.
+}

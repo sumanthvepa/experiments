@@ -21,20 +21,28 @@
 
 // Booleans in Javascript are either true or false.
 /**
- * An example of a boolean variable.
+ * @description An example of a boolean variable.
  * @type {boolean}
  * @default false
  */
 export let taskCompleted = false;
 
 /**
- * A function that sets the taskCompleted variable to true.
  * @function completeTask
+ * @description A function that sets the taskCompleted variable to true.
+ *
  */
 export function completeTask() {
   taskCompleted = true;
   // Booleans are often the result of logical comparisons.
-  let isGreater = 5 > 1
+  /**
+   * @description isGreater is a boolean variable that is the result
+   * of a logical comparison.
+   * @type {boolean}
+   * @constant
+   * @default true
+   */
+  const isGreater = 5 > 1
   if (isGreater) {
     console.log('5 > 1');
   }
