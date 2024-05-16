@@ -75,6 +75,8 @@ function runServer(hostname, port, documentRoot) {
     // Set the document root for static files.
     // Express will serve any URL beginning with / from
     // the document root directory.
+    // See https://expressjs.com/en/starter/static-files.html
+    // for more information.
     app.use(express.static(documentRoot));
     app.listen(port, hostname, () => {
         console.log(`Server running at http://${hostname}:${port}`);
