@@ -17,7 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //--------------------------------------------------------------------
+
+// Ignore pedantic warnings from boost headers
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-compat" 
+#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+#pragma clang diagnostic ignored "-Wdouble-promotion"
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#pragma clang diagnostic ignored "-Wweak-vtables"
+#pragma clang diagnostic ignored "-Wpadded"
 #include <boost/lexical_cast.hpp>
+#pragma clang diagnostic pop
+
 #include <iostream>
 #include <exception>
 
