@@ -28,14 +28,12 @@
 package sv.basics;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class LanguageTest {
-  @Test void appSaysHello() {
-    Language classUnderTest = new Language();
+  @Test void topicsAreNotNull() {
     assertNotNull(
-        classUnderTest.sayHello(),
-        "sayHello should return a non-null string");
+        Language.getTopics(),
+        "getTopics should return a non-null list of topics");
   }
 }

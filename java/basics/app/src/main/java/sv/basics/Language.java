@@ -25,11 +25,40 @@
  -------------------------------------------------------------------*/
 package sv.basics;
 
+import java.util.List;
+
 /**
  * The Language class is the driver class for the exploration
  * of the Java programming language.
  */
 public class Language {
+
+  public static List<String> getTopics() {
+    return List.of(
+        "Comments",
+        "Variables and Constants",
+        "Primitive Data Types",
+        "Arrays",
+        "Operators",
+        "Expressions, Statements and Blocks",
+        "Control Flow Statements",
+        "Classes and Objects",
+        "Enumerations",
+        "Records",
+        "Annotations",
+        "Interfaces and Inheritance",
+        "Numbers",
+        "Strings",
+        "Exceptions",
+        "Generics",
+        "Packages",
+        "Modules",
+        "Basic I/O",
+        "Collections",
+        "Concurrency",
+        "Java Functional Programming"
+    );
+  }
 
   /**
    * The main method is the entry point of the application.

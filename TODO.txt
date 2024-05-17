@@ -1,3 +1,5 @@
+[issue036] java-language-basics: Explore the basics of the Java
+  programming language
 [DONE][issue035] cplusplus-lexical-cast:
   Create IDEA project and add strict warning checks
 [DONE][issue034] cplusplus-gcd: Fix typos in README
