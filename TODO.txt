@@ -1,3 +1,5 @@
+[DONE][issue032] javascript-basics-10-template-server:
+  A dynamic website site generated using the Nunjucks template engine
 [issue031] javascript-basics-language: Explore the basics
   of the javascript language..
 [issue030] javscript-basics-reorder-lesson-numbers:
