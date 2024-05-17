@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpoison-system-directories"
 #include <basics/strings.hh>
 #include <iostream>
 
@@ -15,4 +13,4 @@
 void explore_strings() {
   std::cout << "Exploring strings" << std::endl;
 }
-#pragma clang diagnostic pop
+
