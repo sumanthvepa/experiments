@@ -1,3 +1,4 @@
+[issue034] cplusplus-gcd: Fix typos in README
 [issue033] cplusplus-basics-language: Explore the C++ programming
   language.
 [DONE][issue032] javascript-basics-10-template-server:
