@@ -1,3 +1,5 @@
+[DONE][issue047] dart-hello-gitignore:
+  Update gitignore to ignore more files/dirs
 [DONE][issue046] swift-shebang:
   Demonstrate the use of #! for swift scripts
 [DONE][issue045] swift-gcd:
