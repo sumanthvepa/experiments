@@ -1,3 +1,5 @@
+[issue041] python-basics:
+  Explore the basics of the Python programming language
 [DONE][issue040] cplusplus-explore-printf:
   Restrict places right of decimal point during print
 [DONE][issue039] cplusplus-number-commas:
