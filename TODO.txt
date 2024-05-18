@@ -1,3 +1,4 @@
+[DONE][issue054] aiml-pythorch: Update git ignore files
 [DONE][issue053] vscode-settings: VSCode settings for the repository
 [DONE][issue052] cplusplus-userand: Explore the rand function in C/C++
 [DONE][issue051] java-basics: Java21 upgrade instructions
@@ -51,6 +52,13 @@
   programming language.
 [DONE][issue026] javascript-basics-00a-setup:
   Sample project showing how to setup/manage an NPM project.
+[DONE][issue025]aiml-pytorch-01-dataset:
+  Explore downloading a sample dataset
+[DONE][issue024]aiml-pytorch-00-check:
+  Write a Python script to check if pytorch is
+  working correctly on the machine.
+[DONE][issue023]aiml-restructure-directory:
+  Move openai and other ai/ml projects into the aiml directory
 [DONE][issue022] javascript-basics-06-static-server:
   An express server that serves static files.
 [DONE][issue021] javascript-basics-05-json-server:
