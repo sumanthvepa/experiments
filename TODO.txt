@@ -1,3 +1,4 @@
+[issue050] kotlin: Add empty gitignore file
 [issue049] kotlin-basics:
   Explore the basics of the kotlin programming language
 [DONE][issue048] kotlin-hello:
