@@ -1,3 +1,5 @@
+[DONE][issue048] kotlin-hello:
+  Hello World in Kotlin
 [DONE][issue047] dart-hello-gitignore:
   Update gitignore to ignore more files/dirs
 [DONE][issue046] swift-shebang:
