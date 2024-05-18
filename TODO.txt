@@ -1,3 +1,4 @@
+[DONE][issue052] cplusplus-userand: Explore the rand function in C/C++
 [DONE][issue051] java-basics: Java21 upgrade instructions
 [DONE][issue050] kotlin: Add empty gitignore file
 [issue049] kotlin-basics:
