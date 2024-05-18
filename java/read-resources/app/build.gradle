@@ -16,12 +16,13 @@ repositories {
 }
 
 dependencies {
-    // This dependency is used by the application.
-    implementation 'org.jetbrains:annotations:24.0.0'
-    implementation 'com.google.guava:guava:32.1.1-jre'
-
     // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+
+    // This dependency is used by the application.
+    implementation 'org.jetbrains:annotations:24.1.0'
+    implementation 'com.google.guava:guava:33.1.0-jre'
+
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -29,7 +30,7 @@ dependencies {
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 

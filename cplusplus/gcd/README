@@ -11,16 +11,16 @@ The this project is set up is for both VisualStudio and XCode to share
 the same directory structure. 
 
 Normally, when you try to create and Xcode project to overlay an 
-existing VisualStudio code project, it will complain and no let
+existing VisualStudio code project, it will complain and not let
 you proceed. The trick is to create the project in a separate location
 and move the project files to their corresponing locations within
 the VisualStudio code project hierarchy. XCode will ignore VisualStudio
 code project artifacts and vice versa.
 
-For good measure, this proejct also support Makefile builds
-and CLion project. These latter two are quite easy to setup
+For good measure, this proejct also supports Makefile builds
+and a CLion project. These latter two are quite easy to setup
 becuase they are based on make and as a result extremely
-fleximble.
+flexible.
 
 This directory contains setups for building the project
 on one three ways:

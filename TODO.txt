@@ -1,3 +1,86 @@
+[DONE][issue054] aiml-pythorch: Update git ignore files
+[DONE][issue053] vscode-settings: VSCode settings for the repository
+[DONE][issue052] cplusplus-userand: Explore the rand function in C/C++
+[DONE][issue051] java-basics: Java21 upgrade instructions
+[DONE][issue050] kotlin: Add empty gitignore file
+[issue049] kotlin-basics:
+  Explore the basics of the kotlin programming language
+[DONE][issue048] kotlin-hello:
+  Hello World in Kotlin
+[DONE][issue047] dart-hello-gitignore:
+  Update gitignore to ignore more files/dirs
+[DONE][issue046] swift-shebang:
+  Demonstrate the use of #! for swift scripts
+[DONE][issue045] swift-gcd:
+  Compute the greatest common denominator of two positive numbers
+[DONE][issue044] swift-args:
+  Print command line arguments
+[DONE][issue043] swift-gitignore:
+  Add a gitignore file to the swift directory
+[issue042] swift-basics:
+  Explore the basics of the swift programming language
+[issue041] python-basics:
+  Explore the basics of the Python programming language
+[DONE][issue040] cplusplus-explore-printf:
+  Restrict places right of decimal point during print
+[DONE][issue039] cplusplus-number-commas:
+  Print number with locale specific seprarators
+[DONE][issue038] java-read-resources-upgrade-java21:
+  Upgrade to Java21
+[DONE][issue037] java-jackson-object-mapper-upgrade-java21:
+  Upgrade to Java 21
+[issue036] java-language-basics: Explore the basics of the Java
+  programming language
+[DONE][issue035] cplusplus-lexical-cast:
+  Create IDEA project and add strict warning checks
+[DONE][issue034] cplusplus-gcd: Fix typos in README
+[issue033] cplusplus-basics-language: Explore the C++ programming
+  language.
+[DONE][issue032] javascript-basics-10-template-server:
+  A dynamic website site generated using the Nunjucks template engine
+[issue031] javascript-basics-language: Explore the basics
+  of the javascript language..
+[issue030] javscript-basics-reorder-lesson-numbers:
+  Reorder the lesson numbers to better reflect the order
+  in which the lessons should be learned.
+[DONE][issue029] java-basics-structure: Setup the
+  structure of the Java Language basics explorations
+[DONE][issue028] dart-hello:
+  The canonical 'Hello World' program for Dart
+[DONE][issue027] cplusplus-basics-language:
+  Setup the C++ basics project to explore the C++
+  programming language.
+[DONE][issue026] javascript-basics-00a-setup:
+  Sample project showing how to setup/manage an NPM project.
+[DONE][issue025]aiml-pytorch-01-dataset:
+  Explore downloading a sample dataset
+[DONE][issue024]aiml-pytorch-00-check:
+  Write a Python script to check if pytorch is
+  working correctly on the machine.
+[DONE][issue023]aiml-restructure-directory:
+  Move openai and other ai/ml projects into the aiml directory
+[DONE][issue022] javascript-basics-06-static-server:
+  An express server that serves static files.
+[DONE][issue021] javascript-basics-05-json-server:
+  An interface/port configurable express server that returns a
+  greeting as a JSON response
+[DONE][issue020] javascript-basics-04-server: 
+  A interface/port configurable express server that returns
+  'Hello World' in plain text.
+[DONE][issue019] javascript-basics-03-server: 
+  A port configurable web server that returns 'Hello World' in plain
+  text.
+[DONE][issue018] javascript-basics-02-cli:
+  A CLI program that demonstrates the use of commander to get a
+  port number from the command line.
+[DONE][issue017] javascript-basics-01-args:
+  Print all the command line arguments
+[DONE][issue016] javascript-node-00-server:
+  A simple server that reutrns Hello World as plain text
+[DONE][issue015] python-parseargs:
+  A simple exploration of the argparse library
+[DONE][issue014] python-gcd-copyright:
+  Fix GPL notice on the file. Wrong program name
 [DONE][issue013] cppproject:
   A script to create a cross-platform C++ project
 [DONE][issue012] cplusplus-gcd-cross-platform:

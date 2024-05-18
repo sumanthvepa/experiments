@@ -1,0 +1,22 @@
+{
+  "name": "server",
+  "version": "4.0.0",
+  "description": "An ExpressJS server that returns 'Hello World' in plain text",
+  "main": "server.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "commander",
+    "hello",
+    "world"
+  ],
+  "author": "Sumanth Vepa",
+  "license": "GPL-3.0+",
+  "dependencies": {
+    "commander": "^12.0.0",
+    "express": "^4.19.2"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "language",
+  "version": "1.0.0",
+  "description": "An exploration of the Javascript language",
+  "main": "language.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Javascript",
+    "language",
+    "basics"
+  ],
+  "author": "Sumanth Vepa",
+  "license": "GPL-3.0+"
+}
