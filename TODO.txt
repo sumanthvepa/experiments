@@ -1,3 +1,4 @@
+[DONE][issue054]aiml-pythorch: Update git ignore files
 [DONE][issue025]aiml-pytorch-01-dataset:
   Explore downloading a sample dataset
 [DONE][issue024]aiml-pytorch-00-check:
