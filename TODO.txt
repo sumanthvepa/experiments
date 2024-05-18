@@ -1,3 +1,5 @@
+[DONE][issue045] swift-gcd:
+  Compute the greatest common denominator of two positive numbers
 [DONE][issue044] swift-args:
   Print command line arguments
 [DONE][issue043] swift-gitignore:
