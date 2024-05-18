@@ -1,3 +1,5 @@
+[DONE][issue044] swift-args:
+  Print command line arguments
 [DONE][issue043] swift-gitignore:
   Add a gitignore file to the swift directory
 [issue042] swift-basics:
