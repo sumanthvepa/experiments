@@ -1,0 +1,25 @@
+Upgrade to Java 21
+
+ Install Java 21
+ a. Use macports to install Java21
+ b. Use macports select to set the active java version,
+    or delete the old Java varsion
+  c. Set JAVA_HOME to the its correct value:
+     /Library/Java/JavaVirtualMachines/jdk-21-macports.jdk/Contents/Home
+
+Upgrade Gradle
+  a. Upgrade to the latest gradle version using macports
+     sudo port self update
+     sudo port upgrade outdated
+
+Upgrade Project Gradle Wrapper
+  a. ./gradlew wrapper --gradle-version 8.7 
+
+Set Java Version in IDE
+See Baeldung for instructions on how to upgrade Java version
+in IntelliJ
+https://www.baeldung.com/intellij-change-java-version
+
+Go to File -> Project Structure -> Project (Tab on left) 
+Select the appropriate SDK from the SDK dropdown in the
+menu.
