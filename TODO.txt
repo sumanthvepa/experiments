@@ -1,3 +1,5 @@
+[issue038] java-read-resources-upgrade-java21:
+  Upgrade to Java21
 [issue037] java-jackson-object-mapper-upgrade-java21:
   Upgrade to Java 21
 [issue036] java-language-basics: Explore the basics of the Java
