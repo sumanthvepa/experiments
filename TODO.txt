@@ -1,3 +1,5 @@
+[issue042] swift-basics:
+  Explore the basics of the swift programming language
 [issue041] python-basics:
   Explore the basics of the Python programming language
 [DONE][issue040] cplusplus-explore-printf:
