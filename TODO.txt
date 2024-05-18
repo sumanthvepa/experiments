@@ -1,3 +1,5 @@
+[DONE][issue040] cplusplus-explore-printf:
+  Restrict places right of decimal point during print
 [DONE][issue039] cplusplus-number-commas:
   Print number with locale specific seprarators
 [DONE][issue038] java-read-resources-upgrade-java21:
