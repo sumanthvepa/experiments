@@ -177,3 +177,7 @@ console.log('taskCompleted:', taskCompleted); // true
 // Note 11: Explore regular expressions in Javascript
 import { exploreRegexps} from "./11-regexp.mjs";
 exploreRegexps();
+
+// Note 12: Explore null and undefined in Javascript
+import { exploreNullAndUndefined } from "./12-null-and-undefined.mjs";
+exploreNullAndUndefined();
