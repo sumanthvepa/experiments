@@ -18,17 +18,6 @@
  * along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
-/**
- * @function clampValueToRange0To10
- * @description Clamps a value to the range 0-10.
- * @param setting {number} - A number whose value is to be clamped
- * @returns {number|null} - Returns setting if it is in the range []0-10),
- * otherwise returns null.
- */
-function clampValueToRange0To10(setting) {
-  if (setting >= 0 && setting < 10) return setting;
-  else return null;
-}
 
 /**
  * @function exploreNullAndUndefined
@@ -89,87 +78,128 @@ export function exploreNullAndUndefined() {
   console.log(`Number(null) = ${Number(null)}`); // 0
   console.log(`Number(undefined) = ${Number(undefined)}`); // NaN
 
+  // Null is of course === to null.
+  // noinspection PointlessBooleanExpressionJS
+  /**
+   * @description cmp0 is the result of comparing null to itself using ===.
+   * @type {boolean}
+   * @constant
+   * @default true
+   */
+  const cmp0 = null === null; // true
+  console.log(`null === null: ${cmp0}`);
+
+  // Undefined is also === to undefined.
+  // noinspection PointlessBooleanExpressionJS
+  /**
+   * @description cmp1 is the result of comparing undefined to itself using ===.
+   * @type {boolean}
+   * @constant
+   * @default true
+   */
+  const cmp1 = undefined === undefined; // true
+  console.log(`undefined === undefined: ${cmp1}`);
+
   // Type conversions and comparisons with null and undefined
   // can be tricky. The == operator performs type conversion
   // before comparison. The === operator does not perform
   // type conversion.
   // Null converts to 0 and undefined converts to NaN.
   /**
-   * @description cmp1 is the result of comparing null and 0 using ==.
+   * @description cmp2 is the result of comparing null and 0 using ==.
    * @type {boolean}
    * @constant
    * @default true
    */
-  const cmp1 = null == 0; // true. == converts null to a
+  const cmp2 = null == 0; // true. == converts null to a
                                    // number, 0 and then does the
                                    // comparison.
-  console.log(`null == 0: ${cmp1}`);
+  console.log(`null == 0: ${cmp2}`);
 
   /**
-   * @description cmp2 is the result of comparing null and 0 using ===.
+   * @description cmp3 is the result of comparing null and 0 using ===.
    * @type {boolean}
    * @constant
    * @default false
    */
-  const cmp2 = null === 0; // false, === does not perform type
+  const cmp3 = null === 0; // false, === does not perform type
                                     // conversion. typeof null is
                                     // object and typeof 0 is number.
                                     // So the comparison is false.
-  console.log(`null === 0: ${cmp2}`);
+  console.log(`null === 0: ${cmp3}`);
 
   // undefined converts to NaN when compared using ==.
   // But because Nan is not equal to anything, the result is false.
+  // noinspection JSComparisonWithNaN,EqualityComparisonWithCoercionJS
   /**
-   * @description cmp3 is the result of comparing undefined and NaN using ==.
+   * @description cmp4 is the result of comparing undefined and NaN using ==.
    * @type {boolean}
    * @constant
    * @default false
    */
-  const cmp3 = undefined == NaN; // false.
-  console.log(`undefined == NaN: ${cmp3}`);
+  const cmp4 = undefined == NaN; // false.
+  console.log(`undefined == NaN: ${cmp4}`);
 
   // But when compared using ===, the result is false because
   // undefined is not equal to NaN.
+  // noinspection JSComparisonWithNaN
   /**
-   * @description cmp4 is the result of comparing undefined and NaN using ===.
+   * @description cmp5 is the result of comparing undefined and NaN using ===.
    * @type {boolean}
    * @constant
    * @default false
    */
-  const cmp4 = undefined === NaN; // false.
-  console.log(`undefined === Nan: ${cmp4}`);
+  const cmp5 = undefined === NaN; // false.
+  console.log(`undefined === Nan: ${cmp5}`);
 
   // When using ==, null is equal to undefined because both
   // convert to 0.
+  // noinspection PointlessBooleanExpressionJS
   /**
-   * @description cmp5 is the result of comparing undefined and null using ==.
+   * @description cmp6 is the result of comparing undefined and null using ==.
    * @type {boolean}
    * @constant
    * @default true
    */
-  const cmp5 = undefined == null; // true.
-  console.log(`undefined == null: ${cmp5}`);
+  const cmp6 = undefined == null; // true.
+  console.log(`undefined == null: ${cmp6}`);
+
   // But when using ===, null is not equal to undefined because
   // they are different types.
-  const cmp6 = undefined === null; // false.
-  console.log(`undefined === null: ${cmp6}`);
+  // noinspection PointlessBooleanExpressionJS
+  /**
+   * @description cmp7 is the result of comparing undefined and null using ===.
+   * @type {boolean}
+   * @constant
+   * @default false
+   */
+  const cmp7 = undefined === null; // false.
+  console.log(`undefined === null: ${cmp7}`);
 
   // Comparing undefined to undefined using == will return true, because
   // no type conversion is necessary for the comparison.
+  // noinspection EqualityComparisonWithCoercionJS,PointlessBooleanExpressionJS
   /**
-   * @description cmp7 is the result of comparing undefined to itself using ==.
+   * @description cmp8 is the result of comparing undefined to itself using ==.
    * @type {boolean}
    * @constant
    * @default true
    */
-  const cmp7 = undefined == undefined; // true
-  console.log(`undefined == undefined: ${cmp7}`);
+  const cmp8 = undefined == undefined; // true
+  console.log(`undefined == undefined: ${cmp8}`);
 
   // Comparing undefined to undefine using === will also return true.
-  // This is because the the undefined type is a singleton. There is
+  // This is because the undefined type is a singleton. There is
   // only one instance of it.
-  const cmp8 = undefined === undefined; // true.
-  console.log(`undefined === undefined: ${cmp8}`);
+  // noinspection PointlessBooleanExpressionJS
+  /**
+   * @description cmp9 is the result of comparing undefined to itself using ===.
+   * @type {boolean}
+   * @constant
+   * @default true
+   */
+  const cmp9 = undefined === undefined; // true.
+  console.log(`undefined === undefined: ${cmp9}`);
 
   // One useful operator to know about when dealing with
   // null and undefined is the nullish coalescing operator.
@@ -185,12 +215,27 @@ export function exploreNullAndUndefined() {
   const x = null ?? 5;
   console.log(`x = ${x}`); // 5
 
-  // Consider the a value that is either null or a number.
+  // noinspection GrazieInspection
+  /**
+   * @function clampValueToRange0To10
+   * @description Clamps a value to the range 0-10. This is a helper
+   * function used in {@link exploreNullAndUndefined}.
+   * @param setting {number} - A number whose value is to be clamped
+   * @returns {number|null} - Returns setting if it is in the range [0-10),
+   * otherwise returns null.
+   */
+  function clampValueToRange0To10(setting) {
+    if (setting >= 0 && setting < 10) return setting;
+    else return null;
+  }
+
+  // Consider a value that is either null or a number.
   // You want set another value y to 10 if value is null or undefined
   // or to the value itself if it is not.
   // You can use a ternary conditional operator as shown below for
   // that purpose. However, the same operation can be achieved using
   // the nullish coalescing operator.
+  // noinspection GrazieInspection
   /**
    * @description A value that is either in the range [0-10) or is null
    * @type {number|null}
@@ -199,8 +244,8 @@ export function exploreNullAndUndefined() {
   const value = clampValueToRange0To10(25);
 
   /**
-   * @description: Is set to the given value if it is not null.
-   * Otherwise it is set to 10.
+   * @description: Is set to the given value if it is not null,
+   * otherwise it is set to 10.
    * @type {number}
    * @constant
    */
@@ -210,7 +255,7 @@ export function exploreNullAndUndefined() {
   // The following has the same effect as the ternary conditional
   // operator:
   /**
-   * @description Is set to the gvien vale if it is not null. Otherwise
+   * @description Is set to the given vale if it is not null, otherwise
    * it is set to 10. This value will be identical to y.
    * @type {number}
    * @constant
@@ -249,7 +294,7 @@ export function exploreNullAndUndefined() {
    * @type {{name: string}|{name: string, employer: string}}
    * @constant
    */
-  const person1 = getMockPerson();
+  const person1 = getMockPerson(null);
   // Prints 'Joe is employed by undefined'
   console.log(`${person1.name} is employed by ${person1?.employer}`);
 
