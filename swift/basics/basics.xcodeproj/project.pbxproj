@@ -11,6 +11,7 @@
 		27364E272BC81CE0008168B9 /* comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27364E262BC81CDF008168B9 /* comments.swift */; };
 		277C9AB82BD6AD1E00CB6452 /* typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277C9AB72BD6AD1E00CB6452 /* typealiases.swift */; };
 		277C9ABA2BD6AE6800CB6452 /* booleans.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277C9AB92BD6AE6800CB6452 /* booleans.swift */; };
+		278CA2F32BFDBD5100F52573 /* optionals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 278CA2F22BFDBD5100F52573 /* optionals.swift */; };
 		279926C12BDDD6DA006869D4 /* strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 279926C02BDDD6DA006869D4 /* strings.swift */; };
 		27B61F2C2BD33BCE00081C3E /* numbers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B61F2B2BD33BCE00081C3E /* numbers.swift */; };
 		27E6C78A2BCA05D6006B81F6 /* constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E6C7892BCA05D6006B81F6 /* constants.swift */; };
@@ -36,6 +37,7 @@
 		27364E262BC81CDF008168B9 /* comments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = comments.swift; sourceTree = "<group>"; };
 		277C9AB72BD6AD1E00CB6452 /* typealiases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = typealiases.swift; sourceTree = "<group>"; };
 		277C9AB92BD6AE6800CB6452 /* booleans.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = booleans.swift; sourceTree = "<group>"; };
+		278CA2F22BFDBD5100F52573 /* optionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = optionals.swift; sourceTree = "<group>"; };
 		279926C02BDDD6DA006869D4 /* strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = strings.swift; sourceTree = "<group>"; };
 		27B61F2B2BD33BCE00081C3E /* numbers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = numbers.swift; sourceTree = "<group>"; };
 		27E6C7892BCA05D6006B81F6 /* constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = constants.swift; sourceTree = "<group>"; };
@@ -82,6 +84,7 @@
 				277C9AB72BD6AD1E00CB6452 /* typealiases.swift */,
 				277C9AB92BD6AE6800CB6452 /* booleans.swift */,
 				279926C02BDDD6DA006869D4 /* strings.swift */,
+				278CA2F22BFDBD5100F52573 /* optionals.swift */,
 			);
 			path = basics;
 			sourceTree = "<group>";
@@ -114,7 +117,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1530;
-				LastUpgradeCheck = 1530;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					27364E1B2BC81C12008168B9 = {
 						CreatedOnToolsVersion = 15.3;
@@ -147,6 +150,7 @@
 				27B61F2C2BD33BCE00081C3E /* numbers.swift in Sources */,
 				27364E202BC81C12008168B9 /* main.swift in Sources */,
 				27364E272BC81CE0008168B9 /* comments.swift in Sources */,
+				278CA2F32BFDBD5100F52573 /* optionals.swift in Sources */,
 				27E6C78A2BCA05D6006B81F6 /* constants.swift in Sources */,
 				277C9ABA2BD6AE6800CB6452 /* booleans.swift in Sources */,
 				279926C12BDDD6DA006869D4 /* strings.swift in Sources */,
@@ -193,6 +197,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -256,6 +261,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -281,6 +287,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -292,6 +299,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

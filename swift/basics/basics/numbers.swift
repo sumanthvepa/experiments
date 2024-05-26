@@ -252,11 +252,19 @@ func exploreFloatingPointNumbers() {
   // Double precision numbers are 64bits in size.
   let doubleNumber: Double = 23.72
   print(doubleNumber)
-  print("Word size of Double is: ", MemoryLayout.size(ofValue: doubleNumber)*8)
+  print("Word size of Double is: \(MemoryLayout.size(ofValue: doubleNumber)*8) bits")
   
   // If the type of a floating point number is not specified, then it defaults
   // to double precision.
   let doubleNumber2 = 42.42
   print(doubleNumber2)
-  print("Word size o doubleNumber2 is: ", MemoryLayout.size(ofValue: doubleNumber2)*8)
+  print("Word size of doubleNumber2 is: \(MemoryLayout.size(ofValue: doubleNumber2)*8) bits")
+  
+  // Single precision floating point numbers are 32bits in size.
+  // Single precision numbers must be explicityl specifed as being
+  // single precision with the Float type annotation.
+  let floatNumber: Float = 50.34
+  print("type(of: floatNumber) = \(type(of: floatNumber))")
+  print("floatNumber = \(floatNumber)")
+  print("Word size of floatNumber is: \(MemoryLayout.size(ofValue: floatNumber)*8) bits")
 }

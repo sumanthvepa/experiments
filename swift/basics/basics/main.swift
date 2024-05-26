@@ -110,3 +110,6 @@ exploreBooleans()
 
 // Note 8: typealiases.swift: Explore typealiases
 exploreTypeAliases()
+
+// Note 9: optionals.swift: Explore optionals
+exploreOptionals()
