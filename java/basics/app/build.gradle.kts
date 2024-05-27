@@ -16,13 +16,13 @@ repositories {
 }
 
 dependencies {
+    // Application dependencies
+    implementation("org.jetbrains:annotations:24.1.0")
+    implementation(libs.guava)
+
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
-
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // This dependency is used by the application.
-    implementation(libs.guava)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -34,7 +34,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.Language"
+    mainClass = "sv.basics.Language"
 }
 
 tasks.named<Test>("test") {
