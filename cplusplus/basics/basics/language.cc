@@ -8,6 +8,7 @@
 /* -------------------------------------------------------------------
  * language.cc: A series of notes on the C++ programming language,
  * written as a collection of C++ functions in separate files.
+ * This is part of the basics program that explores C++ concepts.
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
@@ -31,7 +32,11 @@
 // The C++ programming language standard is maintained by the ISO C++ Standards Committee
 // The C++ programming language standard is also known as ISO/IEC 14882
 // This tutorial series, is based on the C++20 standard.
-// This is enforced in the Makefile with --c++2b
+// This is enforced in the Makefile with the --c++20 flag.
+
+// C++ Core Guidelines describe best practices when programming C++.
+// These guidelines should be followed where possible. They can be
+// found at: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines
 
 // Notes on CLion IDE errors
 // When you create a new file, you might get the following warning:
@@ -39,6 +44,7 @@
 // To fix this issue, I set the basics directory as containing 'Project Sources and Headers'
 // This is done by right-clicking on the basics directory and selecting
 // 'Mark Directory as' -> 'Project Sources and Headers'
+
 
 // Note on include file paths in CLion
 // To get CLion to recognize the include file paths for a Makefile project, you need to
@@ -53,11 +59,11 @@
 // and the Makefile. There is no automated way to do this.
 
 // Note on Xcode Header and Library Search Paths
-// Click on the project in the project navigator panel (usually its the left panel.)
+// Click on the project in the project navigator panel (usually it is the left panel.)
 // Click on the files icon if it is not already selected. Then click on the project line.
 // This is the top line in the files tree. It will have the Apple Xcode icon. When
 // selected, the editor panel will open up with various settings. Choose the
-// the 'Build settings' tab and then In the search bar, search for 'Search'
+// 'Build settings' tab and then In the search bar, search for 'Search'
 // In the 'Search Paths' section, look for the 'Header Search Paths' entry.
 // Add the project root folder to it. I do this, by adding .
 // You can also add other paths like boost include paths as you see fit.
@@ -67,27 +73,39 @@
 // Note on setting the language level in Xcode.
 // To set the language level, follow the instructions above for Xcode Header and Library
 // Search Paths, and navigate to the 'Build Settings' tab. Search for Language and
-// find the section named 'Apple Clang Language C++. Choose c++20 to match what is
+// find the section named 'Apple Clang Language C++'. Choose c++20 to match what is
 // specified in the Makefile for the project.
 
+// To match the
+
 // Project specific includes
-#include <basics/strings.hh>
+#include <basics/strings.hh> // provides explore_strings()
+#include <basics/null_pointers.hh> // provides explore_null_pointers()
 
 // System includes
 #include <iostream>
 
-/**
- * Main function
- * This is the simpler form of the main function.
- * In C++ main must be defined in one of two ways:
- * int main() { body }
- * or
- * int main(int argc, char* argv[]) { body }
- * @return 0
+// In C++ main must be defined in one of two ways:
+// int main { body }
+// or
+// int main(int argc, char *argv[])
+/*!
+ Entry point into the basics program.
+ This function a driver that calls all the other explore functions.
+ Use the order in which the functions are called as a guide to the
+ order in which to learn about the topics being explored.
+
+ \returns Program exit status. If the program is working correctly,
+ the return value is always zero.
  */
 int main() {
   std::cout << "C++ basics" << std::endl;
-  explore_strings();
+
+  // Note 1: Explore null pointers in C++
+  sv::basics::explore_null_pointers();
+
+  // Note 2: Explore strings in C++
+  sv::basics::explore_strings();
 
   // The return value in a C++ program is optional.
   // If there is no return statement, the compiler will insert a return 0; statement.

@@ -1,9 +1,9 @@
 /* -*- coding: utf-8 -*- */
 /**
- * strings.cc: Explore strings in C++
+ * null_pointers.hh: Header file for null_pointers.cc
  */
 /* -------------------------------------------------------------------
- * strings.cc:  Explore strings in C++
+ * null_pointers.cc:  Explore null pointers in C++
  * This is part of the basics program that explores C++ concepts.
  *
  * Copyright (C) 2024 Sumanth Vepa.
@@ -22,15 +22,12 @@
  * along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
+#ifndef sv_basics_null_pointers_hh
+#define sv_basics_null_pointers_hh
+#pragma once
 
-#include <basics/strings.hh>
-#include <iostream>
-
-/**
- * Explore strings
- */
-void sv::basics::explore_strings() {
-  std::cout << "Exploring strings...\n";
-  std::cout << "...finished exploring strings\n";
+namespace sv::basics {
+  void explore_null_pointers();
 }
 
+#endif // sv_basics_null_pointers_hh

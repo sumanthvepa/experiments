@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		274573A82BDCEEBE008C82C1 /* language.cc in Sources */ = {isa = PBXBuildFile; fileRef = 274573A72BDCEEBE008C82C1 /* language.cc */; };
 		279926C42BDFE4FF006869D4 /* strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 279926C32BDFE4FF006869D4 /* strings.cc */; };
+		27F2667D2C0437B700FCE90E /* null_pointers.cc in Sources */ = {isa = PBXBuildFile; fileRef = 27F2667C2C0437B700FCE90E /* null_pointers.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,8 @@
 		274573A72BDCEEBE008C82C1 /* language.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language.cc; sourceTree = "<group>"; };
 		279926C22BDFE4F6006869D4 /* strings.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = strings.hh; sourceTree = "<group>"; };
 		279926C32BDFE4FF006869D4 /* strings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = strings.cc; sourceTree = "<group>"; };
+		27F2667B2C0433B100FCE90E /* null_pointers.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = null_pointers.hh; sourceTree = "<group>"; };
+		27F2667C2C0437B700FCE90E /* null_pointers.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = null_pointers.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +66,8 @@
 				274573A72BDCEEBE008C82C1 /* language.cc */,
 				279926C22BDFE4F6006869D4 /* strings.hh */,
 				279926C32BDFE4FF006869D4 /* strings.cc */,
+				27F2667B2C0433B100FCE90E /* null_pointers.hh */,
+				27F2667C2C0437B700FCE90E /* null_pointers.cc */,
 			);
 			path = basics;
 			sourceTree = "<group>";
@@ -94,7 +99,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1530;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					2745739C2BDCEDE6008C82C1 = {
 						CreatedOnToolsVersion = 15.3;
@@ -126,6 +131,7 @@
 			files = (
 				279926C42BDFE4FF006869D4 /* strings.cc in Sources */,
 				274573A82BDCEEBE008C82C1 /* language.cc in Sources */,
+				27F2667D2C0437B700FCE90E /* null_pointers.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,6 +172,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -189,6 +196,15 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-Wno-c++98-compat-pedantic",
+					"-Wno-poison-system-directories",
+					"-Weverything",
+					"--pedantic",
+					"-Wextra",
+					"-Wall",
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -227,6 +243,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -243,6 +260,15 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-Wno-c++98-compat-pedantic",
+					"-Wno-poison-system-directories",
+					"-Weverything",
+					"--pedantic",
+					"-Wextra",
+					"-Wall",
+				);
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -252,6 +278,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = .;
@@ -264,6 +291,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = .;

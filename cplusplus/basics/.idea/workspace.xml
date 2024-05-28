@@ -15,217 +15,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d7d9bbfb-482d-445e-a7fe-2681b5879c3d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../aiml/pytorch/00-check/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../aiml/pytorch/00-check/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../aiml/pytorch/00-check/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../aiml/pytorch/01-datasets/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../aiml/pytorch/01-datasets/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/basics/language.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../explore_printf/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../explore_printf/explore_printf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../explore_printf/explore_printf.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../explore_printf/explore_printf.dSYM/Contents/Info.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../explore_printf/explore_printf.dSYM/Contents/Resources/DWARF/explore_printf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../explore_printf/explore_printf.dSYM/Contents/Resources/Relocations/aarch64/explore_printf.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/.idea/customTargets.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/.idea/makefile.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/build/number_commas" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/build/number_commas.dSYM/Contents/Info.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/build/number_commas.dSYM/Contents/Resources/DWARF/number_commas" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/build/number_commas.dSYM/Contents/Resources/Relocations/aarch64/number_commas.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/number_commas.xcodeproj/project.pbxproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/number_commas.xcodeproj/project.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/number_commas.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/number_commas.xcodeproj/project.xcworkspace/xcuserdata/svepa.xcuserdatad/UserInterfaceState.xcuserstate" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/number_commas.xcodeproj/xcshareddata/xcschemes/number_commas.xcscheme" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/number_commas.xcodeproj/xcuserdata/svepa.xcuserdatad/xcschemes/xcschememanagement.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../number_commas/number_commas/number_commas.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../cs/random/userand/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../cs/random/userand/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../cs/random/userand/userand" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../cs/random/userand/userand.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../cs/random/userand/userand.dSYM/Contents/Info.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../cs/random/userand/userand.dSYM/Contents/Resources/DWARF/userand" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../cs/random/userand/userand.dSYM/Contents/Resources/Relocations/aarch64/userand.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../files.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/app/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/app/src/main/java/sv/basics/Language.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/app/src/test/java/sv/basics/LanguageTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/gradle/libs.versions.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../java/basics/settings.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.idea/00b-language.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.idea/jsLibraryMappings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/00-comments.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/01-hello.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/02-printing.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/03-const.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/04-let.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/05-vars.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/06-implicit-globals.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/07-dynamic-typing.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/08-number.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/09-strings.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/10-boolean.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/language.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/00b-language/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/.idea/jsLibraryMappings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/07-template-server/template-server.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/08-regexp/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/08-regexp/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../javascript/basics/0n-hello/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/.gradle/file-system.probe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.idea/kotlinc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/basics/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/basics/src/main/kotlin/sv/basics/Language.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/basics/src/test/kotlin/sv/basics/LanguageTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/gradle/libs.versions.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/basics/settings.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/.gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/app/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/app/src/main/kotlin/org/example/App.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/app/src/test/kotlin/org/example/AppTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/gradle/libs.versions.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/example/settings.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/.gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/app/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/app/src/main/kotlin/org/example/App.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/app/src/test/kotlin/org/example/AppTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/gradle/libs.versions.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../kotlin/hello/settings.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/.idea/basics.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/.pylintrc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/booleans.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/comments.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/constants.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/language.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/number_literals.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/printing.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/pylintrc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/strings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../python/basics/variables.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/args/args.xcodeproj/project.pbxproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/args/args.xcodeproj/project.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/args/args.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/args/args.xcodeproj/project.xcworkspace/xcuserdata/svepa.xcuserdatad/UserInterfaceState.xcuserstate" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/args/args.xcodeproj/xcuserdata/svepa.xcuserdatad/xcschemes/xcschememanagement.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/args/args/main.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics.xcodeproj/project.pbxproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics.xcodeproj/project.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics.xcodeproj/project.xcworkspace/xcuserdata/svepa.xcuserdatad/UserInterfaceState.xcuserstate" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics.xcodeproj/xcshareddata/xcschemes/basics.xcscheme" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics.xcodeproj/xcuserdata/svepa.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics.xcodeproj/xcuserdata/svepa.xcuserdatad/xcschemes/xcschememanagement.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/booleans.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/comments.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/constants.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/main.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/numbers.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/print.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/select-scheme.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/set-idepreferlogstreaming.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/strings.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/typealiases.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics/basics/variables.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/comments.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/constants" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/constants.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/identifiers.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/print.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/basics0/shebang.swift" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/gcd/gcd.xcodeproj/project.pbxproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/gcd/gcd.xcodeproj/project.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/gcd/gcd.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/gcd/gcd.xcodeproj/project.xcworkspace/xcuserdata/svepa.xcuserdatad/UserInterfaceState.xcuserstate" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/gcd/gcd.xcodeproj/xcshareddata/xcschemes/gcd.xcscheme" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/gcd/gcd.xcodeproj/xcuserdata/svepa.xcuserdatad/xcschemes/xcschememanagement.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../swift/gcd/gcd/main.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gcd/README" beforeDir="false" afterPath="$PROJECT_DIR$/../gcd/README" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lexical_cast/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../lexical_cast/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/jackson-object-mapper/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/jackson-object-mapper/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/jackson-object-mapper/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/jackson-object-mapper/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/jackson-object-mapper/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/jackson-object-mapper/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/jackson-object-mapper/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/jackson-object-mapper/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/jackson-object-mapper/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/jackson-object-mapper/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/jackson-object-mapper/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/jackson-object-mapper/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/jackson-object-mapper/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/jackson-object-mapper/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/read-resources/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/read-resources/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/read-resources/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/read-resources/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/read-resources/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/read-resources/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/read-resources/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/read-resources/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../java/read-resources/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/read-resources/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../javascript/basics/01-args/args.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/../../javascript/basics/01-args/args.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../javascript/basics/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../javascript/basics/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/basics/null_pointers.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/basics/null_pointers.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/basics.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/basics.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/basics.xcodeproj/xcshareddata/xcschemes/basics.xcscheme" beforeDir="false" afterPath="$PROJECT_DIR$/basics.xcodeproj/xcshareddata/xcschemes/basics.xcscheme" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/basics/language.cc" beforeDir="false" afterPath="$PROJECT_DIR$/basics/language.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/basics/strings.cc" beforeDir="false" afterPath="$PROJECT_DIR$/basics/strings.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/basics/strings.hh" beforeDir="false" afterPath="$PROJECT_DIR$/basics/strings.hh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -245,6 +43,9 @@
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="ncjxme9t" />
+  </component>
+  <component name="Make.Settings">
+    <option name="path" value="/opt/local/bin/gmake" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="availableProjects">
@@ -274,7 +75,7 @@
     </option>
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
@@ -282,9 +83,9 @@
     <option name="minorVersion" value="1.1" />
     <option name="productBranch" value="Classic" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="2flqPnUuQMG8FMutm1nStKetiZe" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -308,19 +109,19 @@
     "nodejs_package_manager_path": "npm",
     "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
     "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "reference.settingsdialog.project.make",
+    "settings.editor.selected.configurable": "build.tools",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RunManager" selected="Native Application.all">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="basics" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="$PROJECT_DIR$/build/language">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="clean" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
@@ -343,6 +144,7 @@
       <option name="presentableId" value="Default" />
       <updated>1714385990537</updated>
       <workItem from="1714385991569" duration="6982000" />
+      <workItem from="1716807366107" duration="9535000" />
     </task>
     <servers />
   </component>
