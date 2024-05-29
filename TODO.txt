@@ -1,3 +1,7 @@
+[DONE][issue056] dart-hello-upgrade-pubspec:
+  Upgrade dart hello pubspec.yaml
+[issue055] java-basics:
+  Explore basics of the Java programming language
 [DONE][issue054] aiml-pythorch: Update git ignore files
 [DONE][issue053] vscode-settings: VSCode settings for the repository
 [DONE][issue052] cplusplus-userand: Explore the rand function in C/C++

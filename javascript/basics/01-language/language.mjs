@@ -168,12 +168,16 @@ import { exploreStrings } from './09-strings.mjs';
 exploreStrings()
 
 // Note 10: Explore booleans in Javascript
-import { taskCompleted, completeTask } from "./10-boolean.mjs";
+import { taskCompleted, completeTask } from './10-boolean.mjs';
 if (!taskCompleted) {
   completeTask();
 }
 console.log('taskCompleted:', taskCompleted); // true
 
 // Note 11: Explore regular expressions in Javascript
-import { exploreRegexps} from "./11-regexp.mjs";
+import { exploreRegexps} from './11-regexp.mjs';
 exploreRegexps();
+
+// Note 12: Explore null and undefined in Javascript
+import { exploreNullAndUndefined } from './12-null-and-undefined.mjs';
+exploreNullAndUndefined();

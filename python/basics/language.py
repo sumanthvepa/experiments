@@ -33,6 +33,7 @@ import constants
 import strings
 import variables
 import number_literals
+import none_not_implemented
 
 print('Exploring Python')
 
@@ -250,3 +251,7 @@ strings.explore_byte_string_literals()
 
 # Note 6: Explore boolean literals
 booleans.explore_boolean_literals()
+
+# Note 7: Explore None and NotImplemented
+none_not_implemented.explore_none()
+none_not_implemented.explore_not_implemented()

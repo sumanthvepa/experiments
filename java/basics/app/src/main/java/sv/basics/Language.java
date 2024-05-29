@@ -43,6 +43,7 @@ public class Language {
         "Expressions, Statements and Blocks",
         "Control Flow Statements",
         "Classes and Objects",
+        "Null References",
         "Enumerations",
         "Records",
         "Annotations",
@@ -112,49 +113,52 @@ public class Language {
     // Note 10: Classes and Objects
     ClassesAndObjects.explore();
 
-    // Note 11: Enumerations
+    // Note 11: Null References
+    NullReferences.explore();
+
+    // Note 12: Enumerations
     Enumerations.explore();
 
-    // Note 12: Records
+    // Note 13: Records
     Records.explore();
 
-    // Note 13: Annotations
+    // Note 14: Annotations
     Annotations.exploreUse();
 
-    // Note 14: Interfaces and Inheritance
+    // Note 15: Interfaces and Inheritance
     InterfacesAndInheritance.explore();
 
-    // Note 15: Numbers
+    // Note 16: Numbers
     Numbers.explore();
 
-    // Note 16: Strings
+    // Note 17: Strings
     Strings.explore();
 
-    // Note 17: Exceptions
+    // Note 18: Exceptions
     Exceptions.explore();
 
-    // Note 18: Generics
+    // Note 19: Generics
     Generics.explore();
 
-    // Note 19: Packages
+    // Note 20: Packages
     Packages.explore();
 
-    // Note 20: Modules
+    // Note 21: Modules
     Modules.explore();
 
-    // Note 21: Basic I/O
+    // Note 22: Basic I/O
     BasicIO.explore();
 
-    // Note 22: Collections
+    // Note 23: Collections
     Collections.explore();
 
-    // Note 23: Concurrency
+    // Note 24: Concurrency
     Concurrency.explore();
 
-    // Note 24: Java Functional Programming
+    // Note 25: Java Functional Programming
     FunctionalProgramming.explore();
 
-    // Note 24: Explore Creating Annotations
+    // Note 26: Explore Creating Annotations
     Annotations.exploreCreation();
   }
 }

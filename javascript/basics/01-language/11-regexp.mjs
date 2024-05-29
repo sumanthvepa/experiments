@@ -1,6 +1,6 @@
 //-*- coding: utf-8 -*-
 /* -------------------------------------------------------------------
- * 09-strings.mjs: Explore strings in Javascript
+ * 11-regexp.mjs: Explore regular expressions in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
@@ -78,7 +78,8 @@ export function exploreRegexps() {
   // In this example, which is used in 10-template-server,
   // the objective is to strip the leading / from URL.
   const url = '/page/';
-  const strippedUrl = url.replace(/^\//', '');
+  const strippedUrl = url.replace(/^\//,'');
+  console.log(`Removing the leading / from ${url} results in ${strippedUrl}`);
 
   // This is the proper way to check if two regular expressions are the
   // same.

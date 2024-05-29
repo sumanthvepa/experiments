@@ -86,14 +86,31 @@ package sv.basics
     See Step 2 for instructions on how to do this.
  */
 
-class Language {
-    val hello: String
-        get() {
-            return "Hello World!"
-        }
-}
-
+/**
+ * Explore the Kotlin programming language.
+ *
+ * The main function is the entry point to a
+ * Kotlin program. Unlike Java, there is no necessity for
+ * the main function to be in a class.
+ *
+ * There are two acceptable signatures for a main function:
+ * 1. fun main() { // your code here }
+ * 2. fun main(args: Array<String>) { // your code here }
+ *
+ * The kotlin compiler generates a special class that appends
+ * Kt to the name of the file in which the main function resides.
+ * You need to specify this as the main class in the build.gradle.kts
+ * file.
+ * For example for this main function, the main class would be
+ * LanguageKt.
+ * If you don't specify the main class in build.gradle.kts, the
+ * JVM won't find the entry point to the function.
+ *
+ * See this
+ * [stack overflow post](https://stackoverflow.com/questions/59365267/intellij-idea-how-to-specify-main-class-in-kotlin)
+ * for more information:
+ */
 fun main() {
-    println(Language().hello)
+    exploreComments()
     exploreConstants()
 }

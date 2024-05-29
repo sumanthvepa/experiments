@@ -24,6 +24,9 @@
  * <https://www.gnu.org/licenses/>.
  *-----------------------------------------------------------------*/
 
+/**
+   This function explore strings.
+ */
 func exploreStrings() {
   // String in Swift are Unicode compliant and enclosed within double
   // quotes. The type annnotation is String.
