@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en_US">
+<head>
+  <meta charset="utf-8">
+  <title>confirm | 11-browser-interaction</title>
+  <meta name="description"
+        content="Exploration of the confirm function of Javascript in the browser">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="confirm | 11-browser-interaction">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://localhost:9008/confirm.html">
+  <meta property="og:description"
+        content="Exploration of the confirm function in Javascript in the browser">
+  <meta property="og:image" content="/images/og-image.jpg">
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="apple-touch-icon" href="/icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/main.css">
+
+  <meta name="theme-color" content="#fafafa">
+  <script src="/js/vendor/modernizr-3.11.2.min.js" defer></script>
+  <script src="/js/plugins.js" defer></script>
+  <script src="/js/main.js" defer></script>
+</head>
+<body>
+<h1>The Confirm Function</h1>
+<p>
+  This is an exploration of the <code>confirm</code> function of
+  Javascript in the browser.
+  <script>
+    let okToProceed = confirm("Shall I proceed?");
+    if (okToProceed) {
+      alert('Ok I will proceed.')
+    } else {
+      alert('You cancelled. I will not proceed.')
+    }
+  </script>
+</p>
+
+</body>
+</html>

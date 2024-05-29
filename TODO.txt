@@ -1,3 +1,7 @@
+[DONE][issue058] javascript-basics-11-browser-interactions:
+  Explore alert, prompt and confirm Javascript functions
+[issue057] dart-basics: 
+  Explore the basics of the Dart Programming Language
 [DONE][issue056] dart-hello-upgrade-pubspec:
   Upgrade dart hello pubspec.yaml
 [issue055] java-basics:
