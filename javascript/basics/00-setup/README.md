@@ -192,7 +192,8 @@ the article on
 
 ## Creating an IntelliJ IDEA project
 
-Start IntelliJ IDEA and open the project. Do this only after
+Start IntelliJ IDEA and open the project. i.e the directory containing
+the project. Do this only after
 you've set up the project using npm. Note that
 this only needs to be done once.
 
