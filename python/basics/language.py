@@ -34,6 +34,8 @@ import strings
 import variables
 import number_literals
 import none_not_implemented
+import class_basics
+
 
 print('Exploring Python')
 
@@ -255,3 +257,14 @@ booleans.explore_boolean_literals()
 # Note 7: Explore None and NotImplemented
 none_not_implemented.explore_none()
 none_not_implemented.explore_not_implemented()
+
+# Note 8: Explore class basics
+class_basics.explore_class_basics()
+
+# Future explorations
+# Note: Explore dataclasses
+# Note: Explore Abstract Base Classes
+# Note: Explore Meta Classes
+# Note: Explore Named Tuples
+# Note: Explore slots
+# Note: Explore Enums
