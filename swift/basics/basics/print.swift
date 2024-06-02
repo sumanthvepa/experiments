@@ -59,6 +59,11 @@ func printSomething() {
   // )
   // See, Apples developer documentation for details.
   // https://developer.apple.com/documentation/swift/print(_:separator:terminator:)
+  
+  // You can use string interpolation in swift to embedd expression to be evaluated and
+  // printed within the string. The expression to be evaluated is placed inside \().
+  let value: Double = 23.45
+  print("The value of 'value' = \(value)")
 }
 
 // There is surprisingly no simple way to print to standard error in Swift.

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		27364E202BC81C12008168B9 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27364E1F2BC81C12008168B9 /* main.swift */; };
 		27364E272BC81CE0008168B9 /* comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27364E262BC81CDF008168B9 /* comments.swift */; };
+		2769B62A2C0C0B6F0076A60A /* tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2769B6292C0C0B6F0076A60A /* tuples.swift */; };
 		277C9AB82BD6AD1E00CB6452 /* typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277C9AB72BD6AD1E00CB6452 /* typealiases.swift */; };
 		277C9ABA2BD6AE6800CB6452 /* booleans.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277C9AB92BD6AE6800CB6452 /* booleans.swift */; };
 		278CA2F32BFDBD5100F52573 /* optionals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 278CA2F22BFDBD5100F52573 /* optionals.swift */; };
@@ -35,6 +36,7 @@
 		27364E1C2BC81C12008168B9 /* basics */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = basics; sourceTree = BUILT_PRODUCTS_DIR; };
 		27364E1F2BC81C12008168B9 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		27364E262BC81CDF008168B9 /* comments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = comments.swift; sourceTree = "<group>"; };
+		2769B6292C0C0B6F0076A60A /* tuples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tuples.swift; sourceTree = "<group>"; };
 		277C9AB72BD6AD1E00CB6452 /* typealiases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = typealiases.swift; sourceTree = "<group>"; };
 		277C9AB92BD6AE6800CB6452 /* booleans.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = booleans.swift; sourceTree = "<group>"; };
 		278CA2F22BFDBD5100F52573 /* optionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = optionals.swift; sourceTree = "<group>"; };
@@ -85,6 +87,7 @@
 				277C9AB92BD6AE6800CB6452 /* booleans.swift */,
 				279926C02BDDD6DA006869D4 /* strings.swift */,
 				278CA2F22BFDBD5100F52573 /* optionals.swift */,
+				2769B6292C0C0B6F0076A60A /* tuples.swift */,
 			);
 			path = basics;
 			sourceTree = "<group>";
@@ -152,6 +155,7 @@
 				27364E272BC81CE0008168B9 /* comments.swift in Sources */,
 				278CA2F32BFDBD5100F52573 /* optionals.swift in Sources */,
 				27E6C78A2BCA05D6006B81F6 /* constants.swift in Sources */,
+				2769B62A2C0C0B6F0076A60A /* tuples.swift in Sources */,
 				277C9ABA2BD6AE6800CB6452 /* booleans.swift in Sources */,
 				279926C12BDDD6DA006869D4 /* strings.swift in Sources */,
 				277C9AB82BD6AD1E00CB6452 /* typealiases.swift in Sources */,

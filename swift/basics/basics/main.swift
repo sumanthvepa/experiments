@@ -113,3 +113,6 @@ exploreTypeAliases()
 
 // Note 9: optionals.swift: Explore optionals
 exploreOptionals()
+
+// Note 10: tuples.swift: Explore tuples
+exploreTuples()
