@@ -181,3 +181,7 @@ exploreRegexps();
 // Note 12: Explore null and undefined in Javascript
 import { exploreNullAndUndefined } from './12-null-and-undefined.mjs';
 exploreNullAndUndefined();
+
+// Note 13: Explore type conversions in Javascript
+import { exploreTypeConversion } from './13-type-conversions.mjs';
+exploreTypeConversion();

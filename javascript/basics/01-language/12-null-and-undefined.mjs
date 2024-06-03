@@ -1,4 +1,9 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 12-null-and-undefined.mjs: Explore null and undefined in Javascript
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
  * 12-null-and-undefined.mjs: Explore null and undefined in Javascript
  *

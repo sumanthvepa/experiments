@@ -35,15 +35,17 @@ x = 'hello'; // type of x is now string
 console.log(typeof x); // string
 
 /**
- * @description A variable that is initially a string and then a number.
+ * @description A variable that is initially a string, then a number
+ * and finally a boolean.
+ *
  * But this time the range of values that the variable can take is
  * specified in the JSDoc comment. This has no effect on the runtime
- * behavior of the variable. But many tools like mypy and IntelliJ
+ * behavior of the variable. But many tools like IntelliJ
  * IDEA IDEs can use this information to provide better code
  * completion and type checking. In particular mypy will warn when a
  * variable is assigned a value that is not in the range of types
  * specified in the JSDoc comment.
- * @type {number | string}
+ * @type {number | string | boolean}
  */
 let y = 'hello'; // type of y is string
 console.log(typeof y); // string

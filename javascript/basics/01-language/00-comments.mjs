@@ -91,3 +91,18 @@
 export function exploreComments() {
   // Just a dummy function.
 }
+
+
+// JSDoc is a whole topic in itself. I will cover it in much more
+// detail below, but I'll have to do it in increments, because it is
+// a very large topic. For now I'll just dump a bunch of links
+// I find useful here:
+// This is the canonical documentation for JSDoc: https://jsdoc.app/
+// This is the JSDoc cheatsheet: https://devhints.io/jsdoc
+// This is the JSDoc documentation for type annotations:
+// https://jsdoc.app/tags-type.html
+// This is the JSDoc documentation for type definitions:
+// https://jsdoc.app/tags-typedef.html
+// This stackoverflow question has a good discussion on how to
+// describe object arguments in JSDoc:
+// https://stackoverflow.com/questions/6460604/how-to-describe-object-arguments-in-jsdoc
