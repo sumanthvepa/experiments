@@ -1,6 +1,6 @@
 //-*- coding: utf-8 -*-
 /**
-  optionals.swift: Explore optionalst
+  optionals.swift: Explore optionals
 */
 /* -------------------------------------------------------------------
  * optionals.swift: Explore optionals
