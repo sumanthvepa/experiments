@@ -71,8 +71,8 @@ global_variable_a = 2  # type: ignore[assignment]
 
 def explore_variables() -> None:
   """
-  Explore variables in Python
-  :return: None
+    Explore variables in Python
+    :return: None
   """
   # Since variables are block scoped, the following is a local
   # variable.
@@ -83,7 +83,9 @@ def explore_variables() -> None:
   # type to a variable. However, mypy will complain about it.
   # Mypy: Incompatible types in assignment (expression has type "int",
   # variable has type "str")
-  local_variable_a = 2  # Mypy error!
+  # Mypy error!  It's suppressed for the sake of allowing the code to run
+  # error free.
+  local_variable_a = 2  # type: ignore[assignment]
   print(local_variable_a)
 
   # You can access the value of a variable in an outer scope
@@ -105,10 +107,11 @@ def explore_variables() -> None:
     local_variable_a: str = 'This is not the variable you are looking for'
     print('This version of local_variable_a has the value: ' + local_variable_a)
 
-  def correct_change_variable():
+  def correct_change_variable() -> None:
     """
-    This is an inner function that changes the value of
-    local_variable_a in the outer function correctly.
+      This is an inner function that changes the value of
+      local_variable_a in the outer function correctly.
+      :return: None
     """
     # To change the value of a variable in an outer function
     # you have to first declare it as nonlocal.
@@ -124,8 +127,8 @@ def explore_variables() -> None:
 
 def wrong_change_global_variable() -> None:
   """
-  Explore setting global variables in Python
-  :return: None
+    Explore setting global variables in Python
+    :return: None
   """
   # If you want to modify a global variable from within a function,
   # the following won't work as expected, for the same reason that not
@@ -147,8 +150,8 @@ print(global_variable_a)  # Will print 2
 
 def correct_change_global_variable() -> None:
   """
-  Explore setting global variables in Python
-  :return: None
+    Explore setting global variables in Python
+    :return: None
   """
   # To change the value of a global variable from within a function,
   # you have to first declare it as global.
@@ -166,7 +169,7 @@ print(global_variable_a)  # Will print 'This has been changed from within the fu
 
 def print_global_variable_a() -> None:
   """
-  Print the global variable global_variable_a
-  :return: None
+    Print the global variable global_variable_a
+    :return: None
   """
   print(global_variable_a)
