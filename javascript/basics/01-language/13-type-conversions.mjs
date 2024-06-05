@@ -58,6 +58,47 @@ export function exploreTypeConversion() {
     let b = Number(a);
     console.log(`The value of a is ${a} and the value of b is ${b}`);
 
+    // Unary plus operator is used to convert a value to a number.
+    /**
+     * @description A variable that is a string that will be converted to a number.
+     * @type {string}
+     */
+    let c = '123';
+    /**
+     * @description A variable that is a number representation of the string 'c'.
+     * @type {number}
+     */
+    let d = +c;  // Unary plus operator
+    console.log(`The value of c is ${c} and the value of d is ${d}`);
+
+    // This works for strings that contain numbers. If the string does not contain
+    // a number, the result is NaN (Not a Number).
+    /**
+     * @description A variable that is a string that will be converted to a number.
+     * @type {string}
+     */
+    let e = 'abc';
+    /**
+     * @description A variable that is a number representation of the string 'e'.
+     * @type {number}
+     */
+    let f = +e;  // Unary plus operator
+    console.log(`The value of e is ${e} and the value of f is ${f}`);
+
+    // The unary operator also works on booleans. It converts true to 1 and false to 0.
+    /**
+     * @description A variable that is a boolean that will be converted to a number.
+     * @type {boolean}
+     */
+    let g = true;
+    /**
+     * @description A variable that is a number representation of the boolean 'g'.
+     * @type {number}
+     */
+    let h = +g;  // Unary plus operator
+    console.log(`The value of g is ${g} and the value of h is ${h}`);
+
+
     // 3. Boolean conversion:
     // Boolean conversion is performed using the Boolean() function. The Boolean()
     // function converts a value to a boolean.
