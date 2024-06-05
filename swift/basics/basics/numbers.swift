@@ -1,8 +1,6 @@
 //-*- coding: utf-8 -*-
 /**
   numbers.swift: Explore numbers in Swift
- 
-  This is an exploration of numbers in Swift
 */
 /* -------------------------------------------------------------------
  * numbers.swift: Explore numbers in Swift.
@@ -29,23 +27,23 @@
 import Foundation
 
 /**
- Formats any signed integer type with comma separators
+  Formats any signed integer type with comma separators
  
- This is a generic method that handles Int, Int8, Int16, Int32 and Int64.
- This use Swifts new way of formatting numbers: ``IntegerFormatStyle``
- Which is a generic class for formatting integers. In this implementation, it
- takes a Int parameter.
+  This is a generic method that handles Int, Int8, Int16, Int32 and Int64.
+  This use Swifts new way of formatting numbers: ``IntegerFormatStyle``
+  Which is a generic class for formatting integers. In this implementation, it
+  takes a Int parameter.
  
- See [Apple's Developer Documentation](https://developer.apple.com/documentation/foundation/integerformatstyle)
- for how to use this.
+  See [Apple's Developer Documentation](https://developer.apple.com/documentation/foundation/integerformatstyle)
+  for how to use this.
  
- This is a utility function used by ``exploreNumbers()``
+  This is a utility function used by ``exploreNumbers()``
  
- - parameters
+  - parameters
     - number: The number to be formatted.
- - returns
- A string containing the formatted number.
- */
+  - returns
+    A string containing the formatted number.
+*/
 func withCommas<T: SignedInteger>(number: T) -> String {
   // We use en_US because we want to group digits in 3s,
   // i.e. hundreds, thousands, millions, ...
@@ -57,24 +55,24 @@ func withCommas<T: SignedInteger>(number: T) -> String {
 }
 
 /**
- Formats any signed integer type with comma separators
+  Formats any signed integer type with comma separators
  
- This is a generic method that handles UInt, UInt8, UInt16, UInt32 and UInt64.
+  This is a generic method that handles UInt, UInt8, UInt16, UInt32 and UInt64.
  
- This use Swifts new way of formatting numbers: ``IntegerFormatStyle``. Which
- is a generic class for formatting integers. In this implementation, it
- takes a UInt parameter.
+  This use Swifts new way of formatting numbers: ``IntegerFormatStyle``. Which
+  is a generic class for formatting integers. In this implementation, it
+  takes a UInt parameter.
 
- See [Apple's Developer Documentation](https://developer.apple.com/documentation/foundation/integerformatstyle)
- for how to use this.
+  See [Apple's Developer Documentation](https://developer.apple.com/documentation/foundation/integerformatstyle)
+  for how to use this.
  
- This is a utility function used by ``exploreNumbers()``
+  This is a utility function used by ``exploreNumbers()``
  
- - parameters
+  - parameters
     - number: The number to be formatted.
- - returns
- A string containing the formatted number.
- */
+  - returns
+    A string containing the formatted number.
+*/
 func withCommas<T: UnsignedInteger>(number: T) -> String {
   // Note that for this function the template parameter is UInt.
   let style = IntegerFormatStyle<UInt>(locale: Locale(identifier: "en_US"))
@@ -82,24 +80,24 @@ func withCommas<T: UnsignedInteger>(number: T) -> String {
 }
 
 /**
- Formats a number with comma separators using old-style NumberFormatter.
+  Formats a number with comma separators using old-style NumberFormatter.
  
- This is included for historical interest, and to document another way
- to format numbers, if needed. It is particuarly useful for NSNumber
- which is used for C/Objective-C compatible numbers.
+  This is included for historical interest, and to document another way
+  to format numbers, if needed. It is particuarly useful for NSNumber
+  which is used for C/Objective-C compatible numbers.
  
- Note that this will fail if passed an NSNumber represeting UInt.max or UInt64.max
- due to a bug in the swift Foundation library.
+  Note that this will fail if passed an NSNumber represeting UInt.max or UInt64.max
+  due to a bug in the swift Foundation library.
  
- This function is not used by the code.
- For more details about NumberFormatter, see
- [Apple's Swift Documentation](https://developer.apple.com/documentation/foundation/numberformatter)
+  This function is not used by the code.
+  For more details about NumberFormatter, see
+  [Apple's Swift Documentation](https://developer.apple.com/documentation/foundation/numberformatter)
  
- - parameters
-  - number: The number to be formatted
- - returns
- A string containing the formatted number.
- */
+  - parameters
+    - number: The number to be formatted
+  - returns
+    A string containing the formatted number.
+*/
 func oldStyleWithCommas(number: NSNumber) -> String {
   let formatter = NumberFormatter()
   formatter.locale = Locale(identifier: "en_US")
@@ -111,10 +109,11 @@ func oldStyleWithCommas(number: NSNumber) -> String {
 /**
   Format a UInt with comma separators from first principles.
  
- This function too is included for academic interest, because, it
- is better to use system provided facilities for formatting. But since
- I spent a bunch of time writing it, I figured, I might as well let it remain.
- */
+  This function too is included for academic interest, because, it
+  is better to use system provided facilities for formatting. But since
+  I spent a bunch of time writing it, I figured, I might as well let
+  it remain.
+*/
 func firstPrincipleswithCommas(number: UInt) -> String {
   // No need for complex calculations if the
   // number is zero.
@@ -146,7 +145,7 @@ func firstPrincipleswithCommas(number: UInt) -> String {
 }
 
 /**
- Explore integers
+  Explore integers
  */
 func exploreIntegers() {
   // The type Int defines a signed integer whose size matches the word
@@ -165,9 +164,10 @@ func exploreIntegers() {
   // The range of Int can be obtained as follows (withCommas is a utility function defined above)
   print("range of Int = [\(withCommas(number: Int.min)), \(withCommas(number: Int.max))]")
   
-  // You can also print the range using the old style NSNumber. Its a little more verbose,
-  // and does not work when passed UInt.max (bug in the Foundation library maybe?)
-  // oldStyleWithCommas is a utility function defined above.
+  // You can also print the range using the old style NSNumber.
+  // Its a little more verbose, and does not work when passed UInt.max
+  // (bug in the Foundation library maybe?) oldStyleWithCommas is a
+  // utility function defined above.
   print("range of Int = [\(oldStyleWithCommas(number: NSNumber(value: Int.min))), \(oldStyleWithCommas(number: NSNumber(value: Int.max)))]")
   
   // If you need to explicityl control the size of the integer

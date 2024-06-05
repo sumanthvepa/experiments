@@ -1,8 +1,6 @@
 //-*- coding: utf-8 -*-
 /**
   strings.swift: Explore strings in Swift
- 
-  This is an exploration of stringsin Swift
 */
 /* -------------------------------------------------------------------
  * strings.swift: Explore strings in Swift.
@@ -28,19 +26,23 @@
    This function explore strings.
  */
 func exploreStrings() {
-  // String in Swift are Unicode compliant and enclosed within double
+  // Strings in Swift are Unicode compliant and enclosed within double
   // quotes. The type annnotation is String.
+  // Note that when viewed in VSCode, the IDE automatically adds the
+  // inferred type to the right of the variable declaration in gray.
+  // This text is not really present in the actual code.
   let str = "Hello, World!"
   print(str)
   print(type(of : str))
 
-  // If the the type is not declared, Swift will infer the type as String.
+  // If the the type is not declared, Swift will infer the type as
+  // String. (See note about VSCode above.)
   let str2 = "Hello, World!"
   print(str2)
   print(type(of: str2))
 
   // Strings literal can be multiline. These are enclosed within triple
-  // double quotes.
+  // double quotes. (See note about VSCode above)
   let str3 = """
   This is a multiline string.
   It can span multiple lines.
@@ -97,4 +99,12 @@ func exploreStrings() {
   str12 += " How are you?"
   print(str12) // Hello, World! How are you?
   print(str13) // Hello, World!
+
+  // You can get the number of characters in a string using the count
+  // property.
+  let str14 = "This is a string with a directly entered unicode character: 🐶"
+  print(str14.count) // 61
+
+  // This count may differ from the number of bytes in the string.
+  print(str14.utf8.count) // 64
 }

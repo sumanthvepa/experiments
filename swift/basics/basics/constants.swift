@@ -1,8 +1,6 @@
 //-*- coding: utf-8 -*-
 /**
   constants.swift: Explore constants in Swift
- 
-  This is an exploration of constants in Swift
 */
 /* -------------------------------------------------------------------
  * constants.swift: Explore constants in Swift.
@@ -25,9 +23,13 @@
  *-----------------------------------------------------------------*/
 
 /**
- A function that dummies loading a string from a file.
+  A function that dummies loading a string from a file.
+
+  It is used to demonstrate the initialization of a constant
+  in the ``exploreConstants()`` function.
+ 
  - returns
- The string "dummy string"
+  The string "dummy string"
  */
 func loadFromFile() -> String {
   return "dummy string"
@@ -41,16 +43,18 @@ func exploreConstants() {
   // must be initialized.
   let constant = 10
   print("constant = ", constant)
-  
+
   // The in the initialization above, the type of the constant
   // was inferred from the type of the literal assigned to it.
-  // in this case Int.
+  // in this case Int. (Note that IDEs like VSCode will show the
+  // type of the inferred constant inline in gray. This type 
+  // information is not actually part of the text file itself.)
   print("type(of: constant) = ", type(of: constant))
-  
+
   // You can explitly specify the type using a type annotation
   let constant2: Float = 25.03
   print(constant2)
- 
+
   // You can declare an uninitialized constant. But you must
   // give it a type-annotation, so the compiler knows its type.
   let constant3: String;
@@ -60,29 +64,28 @@ func exploreConstants() {
   // be known at runtime.
   constant3 = loadFromFile();
   print(constant3) // Ok. It's been initialized.
-  
+
   // A constant declaration without either an initializer or a
   // type-annotation is an error.
   // This is because Swift is statically typed. The compiler/interperter
   // needs to know at compile time how much storage to allocate
   // for the constant on the stack.
   // let constant4 // Error: Type annotation missing in pattern.
-  
+
   // You can initialize a constant exactly once.
   // Attempts to assign to an already initializd constant will result
   // in an compile-time error.
   // constant3 = "re-definition" // Error: Immutable value constant3
                                  // may only be initialized once.
-  
-  // You can initialize multiple constans separated by commas,
+
+  // You can initialize multiple constants separated by commas,
   // I don't recommend it, though as it is easy to miss the
   // declaration and initialization of the second constant,
   // particularly if it is of a different type.
   let constant5: Double = 43.2763, constant6: String = "constant5"
   print(constant5)
   print(constant6)
-  
-  
+
   // constant7 is an unitialized constant of type Double,
   // constant8 is inferred to have type of String and is
   // initialized.
@@ -90,7 +93,7 @@ func exploreConstants() {
   constant7 = 34.5689
   print(constant7)
   print(constant8)
-  
+
   // Constants can have unicode symbols.
   let π = 3.1415926535;
   let ℎ: Double = 6.62607105e-34
