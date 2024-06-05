@@ -179,6 +179,111 @@ export function exploreNumbers() {
    */
   const m = 123456789
   console.log(m.toLocaleString());
+
+  // The toLocaleString method is used to format numbers according to
+  // the locale of the user. For example, in the US, the comma is used
+  // as the thousands separator. In Europe, the period is used as the
+  // thousands separator. The toLocaleString method takes an optional
+  // argument that specifies the locale. For example:
+  console.log(j.toLocaleString('en-US'));
+  console.log(j.toLocaleString('de-DE'));
+  console.log(j.toLocaleString('en-IN'));
+  // The toLocaleString method can also be used to format currency.
+  // For example:
+  console.log(j.toLocaleString('en-US', {style: 'currency', currency: 'USD'}));
+  console.log(j.toLocaleString('de-DE', {style: 'currency', currency: 'EUR'}));
+  console.log(j.toLocaleString('en-IN', {style: 'currency', currency: 'INR'}));
+
+  // The toFixed method is used to format a number with a fixed number
+  // of decimal places. For example:
+  const p = 342314245.34587
+  console.log(p.toFixed(2));
+  // The toFixed method rounds the number to the specified number of
+  // decimal places. For example:
+  console.log((1.234).toFixed(2)); // 1.23
+
+  // You can combine the toLocaleString and toFixed methods to format
+  // numbers with commas and a fixed number of decimal places. For example:
+  console.log(p.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2, style: 'currency', currency: 'INR'}));
+
+  // The normal math operators are available for numbers:
+  let q = 1 + 2; // 3
+  console.log(q);
+  q = 1 - 2; // -1
+  console.log(q);
+  q = 7 * 3; // 21
+  console.log(q);
+  q = 10 / 2; // 5
+  console.log(q);
+  q = 2/3 // 0.6666666666666666 - Javascript uses floating point numbers
+  console.log(q);
+  q = 10 % 3; // 1
+  console.log(q);
+  // The exponentiation operator is also available in Javascript.
+  // This represents 2 raised to the power of 3.
+  q = 2 ** 3; // 8
+  console.log(q);
+
+  // The Math object provides a number of mathematical functions.
+  // For example:
+  console.log(Math.sqrt(9)); // 3
+  console.log(Math.abs(-9)); // 9
+  console.log(Math.sin(Math.PI/2)); // 1
+  console.log(Math.cos(Math.PI)); // -1
+  console.log(Math.tan(Math.PI/4)); // 1
+  console.log(Math.log(Math.E)); // 1
+  console.log(Math.log10(100)); // 2
+  console.log(Math.log2(8)); // 3
+  console.log(Math.pow(2, 3)); // 8 power function
+  console.log(Math.floor(3.14)); // 3
+  console.log(Math.ceil(3.14)); // 4
+  console.log(Math.round(3.14)); // 3
+  console.log(Math.round(3.5)); // 4
+  console.log(Math.round(3.4)); // 3
+  console.log(Math.random()); // Random number between 0 and 1
+  console.log(Math.floor(Math.random() * 10)); // Random number between 0 and 9
+  console.log(Math.floor(Math.random() * 10) + 1); // Random number between 1 and 10
+
+  // The atan() method returns the arctangent of a number as a value
+  // between -PI/2 and PI/2 radians. The atan2() method returns the
+  // angle theta of an (x,y) point as a numeric value between
+  // -PI and PI radians.
+  console.log(Math.atan(1)); // 0.7853981633974483
+  console.log(Math.atan2(1, 1)); // 0.785398163397448
+
+  console.log(Math.acos(0.5)); // 1.0471975511965979
+  console.log(Math.asin(0.5)); // 0.5235987755982988
+
+  // The precedence of Javascript operators is the same as in other
+  // programming languages, and for the most part is intuitive.
+  // You can see the formal precedence list at:
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
+  // Parentheses can be used to override the default precedence.
+  // For example:
+  console.log(1 + 2 * 3); // 7
+  console.log((1 + 2) * 3); // 9
+
+  // Assignment is an operator, and it has a low precedence. You use
+  // feature to chain assignments together:
+  let r, s, t;
+  r = s = t = 0;
+  console.log(r, s, t); // 0 0 0
+
+  // Inplace modification operators provide convenient shortcuts for
+  // modifying a variable. For example:
+  let u = 1;
+  u += 2; // u = u + 2
+  console.log(u); // 3
+  u -= 2; // u = u - 2
+  console.log(u); // 1
+  u *= 2; // u = u * 2
+  console.log(u); // 2
+
+  // Like C, C++ and Java, Javascript provides the postfix and
+  // prefix increment operator: ++
+  console.log(++u) // 3 Prefix increment. First increment, then use
+  console.log(u++) // 3 Postfix increment. First use, then increment
+  console.log(u) // 4
 }
 
 // TODO: Explore BigInt in a separate file.

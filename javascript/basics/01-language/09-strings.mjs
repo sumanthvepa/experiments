@@ -118,4 +118,14 @@ export function exploreStrings() {
   }
   changeString(s6); // Goodbye, World!
   console.log(s6); // hello, World!
+
+  // The plus operator works on strings. It concatenates them.
+  /**
+   * @description s7 is a string that is the concatenation of two strings.
+   * @type {string}
+   * @constant
+   * @default 'Hello, World!'
+   */
+  const s7 = 'Hello, ' + 'World!';
+  console.log(s7); // Hello, World!
 }

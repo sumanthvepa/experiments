@@ -128,3 +128,6 @@ exploreTuples()
 
 // Note 11: Explore exceptions
 exploreExceptions()
+
+// Note 12: Explore assertions and preconditions
+exploreAssertionsAndPreConditions()

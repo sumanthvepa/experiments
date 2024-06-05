@@ -36,6 +36,7 @@ import number_literals
 import none_not_implemented
 import class_basics
 import sequences
+import operators
 
 
 print('Exploring Python')
@@ -286,6 +287,9 @@ class_basics.explore_class_basics()
 
 # Note 9: Explore sequences
 sequences.explore_sequences()
+
+# Note 10: Explore operators
+operators.explore_operators()
 
 # Future explorations
 # Note: Explore dataclasses
