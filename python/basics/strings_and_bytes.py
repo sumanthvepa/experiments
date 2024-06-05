@@ -28,22 +28,30 @@ import re
 from typing import Final
 
 
-# Strings in python can be either single or double-quoted. There is no
-# difference between the two. You can use either single or double quotes
-# to define a string. However, if you want to include a single quote in
-# a single quoted string, you must escape it with a backslash. Similarly,
-# if you want to include a double quote in a double-quoted string, you
-# must escape it with a backslash. If you want to include both single
-# and double quotes in a string, you can use triple quotes. Triple quotes
-# can be single or double quotes. Triple quotes are useful for defining
-# multi-line strings.
-
-# Prefer single quote strings where possible.
-def explore_string_literals() -> None:
+def explore_string_literals() -> None:  # pylint: disable=too-many-locals
   """
     Explore string literals in Python
     :return: None
   """
+  # The following description of strings is taken from the Python
+  # documentation at:
+  # https://docs.python.org/3/reference/datamodel.html#sequences
+  # Strings are sequences of values representing Unicode code points.
+  # All code points in the range U+0000 to U+10FFFF can be represented
+  # in a string.
+
+  # Strings in python can be either single or double-quoted. There is no
+  # difference between the two. You can use either single or double quotes
+  # to define a string. However, if you want to include a single quote in
+  # a single quoted string, you must escape it with a backslash. Similarly,
+  # if you want to include a double quote in a double-quoted string, you
+  # must escape it with a backslash. If you want to include both single
+  # and double quotes in a string, you can use triple quotes. Triple quotes
+  # can be single or double quotes. Triple quotes are useful for defining
+  # multi-line strings.
+
+  # Prefer single quote strings where possible.
+
   single_quote_string: Final[str] = '"Hey!" said the mock turtle.'
   print(single_quote_string)
 
@@ -67,6 +75,18 @@ def explore_string_literals() -> None:
   immutable: Final[str] = "Hello, World!"
   # immutable[7] = 'w' # TypeError: 'str' object does not support item assignment
   print(immutable)
+
+  # Python does not have a separate character type. A character is
+  # simply a string of length one. The built-in function ord() converts
+  # a character to its Unicode code point, and the built-in function
+  # chr() converts a Unicode code point to a character. The built-in
+  # function len() returns the length of a string.
+  character: Final[str] = 'A'
+  print(f'The Unicode code point of {character} is {ord(character)}')
+  code_point: Final[int] = 65
+  print(f'The character with Unicode code point {code_point} is {chr(code_point)}')
+  string: Final[str] = 'Hello, World!'
+  print(f'The length of {string} is {len(string)}')
 
   # You can concatenate strings using the '+' operator. This creates a new
   # string that is the concatenation of the two strings. The original strings
@@ -96,6 +116,10 @@ def explore_string_literals() -> None:
   print(value_type)  # Prints 'Hello'
   modify_string(value_type)  # Prints 'Hello!'
   print(value_type)  # Prints 'Hello' so the original string is not changed
+
+  # You can get the length of a string using the len() function.
+  a_string: str = 'Hello, World!'
+  print(len(a_string))  # Prints 13
 
 
 def explore_raw_string_literals() -> None:
@@ -199,3 +223,20 @@ def explore_byte_string_literals() -> None:
   # Use the decode method to convert a byte string to a regular string.
   # You must know what the encoding of the byte string is to decode it.
   print(byte_string.decode('utf-8'))  # Prints 'Hello, World!'
+
+  # If the byte string only contains ASCII characters, you can use the
+  # ASCII encoding to decode it.
+  ascii_byte_string: Final[bytes] = b'Hello, World!'
+  print(ascii_byte_string.decode('ascii'))  # Prints 'Hello, World!'
+
+  # You can convert a string to bytes using the encode method. You must
+  # know what encoding to use. The default encoding is UTF-8.
+  utf8_string: Final[str] = 'π is approximately 3.14159'
+  print(utf8_string)  # Prints 'π is approximately 3.14159'
+  utf8_byte_string: Final[bytes] = utf8_string.encode('utf-8')
+  print(utf8_byte_string)  # Prints b'\xcf\x80 is approximately 3.14159'
+
+  # Note that len returns different values for utf8_string and utf8_byte_string
+  # This is because π is represented by two bytes in UTF-8.
+  print(f'len(utf_8_string) = {len(utf8_string)}')  # Prints 26
+  print(f'len(utf_8_byte_string) = {len(utf8_byte_string)}')  # Prints 27

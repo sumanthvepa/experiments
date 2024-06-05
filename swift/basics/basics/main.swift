@@ -25,9 +25,9 @@ main.swift: Explore the Swift Programming Language.
  This file is the top-level driver codefor a serises of exploratory
  notes and tutorials on the Swift programming language. 
  
- These notes are written as a series of heavily commented Swift file,
+ These notes are written as a series of heavily commented Swift files,
  that are referenced from man.swift either as comments or through
- actual function/method calls. effectively specifes the order in
+ actual function/method calls. This effectively specifes the order in
  which various files in this project should be read. The order of the
  files is as follows:
   0. main.swift: This file describes how to get setup and use Xcode
@@ -36,8 +36,15 @@ main.swift: Explore the Swift Programming Language.
   2. shebang.swift: This is a file separate project outside of xcode
     exploring the use of swift as a scripting language.
   3. print.swift: Printing to the console
-  4. constants.swift: Declaring constants.
- 
+  4. constants.swift: Using constants in Swift
+  5. variables.swift: Using variables in Swift
+  6. numbers.swift: Using numbers in Swift
+  7. strings.swift: Using strings in Swift
+  8. booleans.swift: Using booleans in Swift
+  9. typealiases.swift: Using typealiases in Swift
+  10. optionals.swift: Using optionals in Swift
+  11. tuples.swift: Using tuples in Swift
+
  For more information on the Swift Programming language, see the
  following references:
  1. [The Swift Documentation Websie](https://swift.org/)
@@ -45,14 +52,16 @@ main.swift: Explore the Swift Programming Language.
  2. [The Swift Programming Language Reference](https://www.swift.org/documentation/tspl/)
 */
 
-/**
-  A note on Xcode build error: LoggingError: Failed to initialize logging system. Log messages may be missing.
- This seems to be weird error that started popping up with Xcode. The solution, as described in [this Stackoverflow post](https://stackoverflow.com/questions/78129981/logging-error-failed-to-initialize-logging-system-log-messages-may-be-missing)
- seems to be to set the environment variable IDEPreferLogStreaming
- First select the scheme: ![Show how to select scheme in Xcode](select-scheme.png "Select Scheme")
- Then chose to Edit scheme and set the environment variable IDEPreferLogStreaming to YES : ![SetIDEPreferLogStreaming to YES](set-idepreferlogstreaming.png "Set IDEPreferLogStreaming)
- No idea why that works.
- */
+
+// A note on Xcode build error: LoggingError: Failed to initialize
+// logging system. Log messages may be missing. This seems to be weird
+// error that started popping up with Xcode. The solution, as described
+// in [this Stackoverflow post](https://stackoverflow.com/questions/78129981/logging-error-failed-to-initialize-logging-system-log-messages-may-be-missing)
+// seems to be to set the environment variable IDEPreferLogStreaming
+// First select the scheme: ![Show how to select scheme in Xcode](select-scheme.png "Select Scheme")
+// Then chose to Edit scheme and set the environment variable
+// IDEPreferLogStreaming to YES : ![SetIDEPreferLogStreaming to YES](set-idepreferlogstreaming.png "Set IDEPreferLogStreaming)
+// No idea why that works.
 
 // A note on the filename main.swift
 // XCode requires that the entry point into
@@ -78,7 +87,7 @@ main.swift: Explore the Swift Programming Language.
 
 // Note on statements in Swift.
 // Statements in swift are terminated with a newline token
-// A semicolon is optional but not necessary.
+// A semicolon can also be used, but is not necessary.
 
 // A Note on Swift Programming Style
 // I follow Google's Style Guide for Swift
@@ -116,3 +125,6 @@ exploreOptionals()
 
 // Note 10: tuples.swift: Explore tuples
 exploreTuples()
+
+// Note 11: Explore exceptions
+exploreExceptions()

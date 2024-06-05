@@ -17,6 +17,7 @@
 		27B61F2C2BD33BCE00081C3E /* numbers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B61F2B2BD33BCE00081C3E /* numbers.swift */; };
 		27E6C78A2BCA05D6006B81F6 /* constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E6C7892BCA05D6006B81F6 /* constants.swift */; };
 		27E6C78C2BCAB46D006B81F6 /* print.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E6C78B2BCAB46D006B81F6 /* print.swift */; };
+		27EDC8202C0ECF6E00C05682 /* exceptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EDC81F2C0ECF6E00C05682 /* exceptions.swift */; };
 		27FA38572BD123D8005F28E4 /* variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FA38562BD123D8005F28E4 /* variables.swift */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +45,7 @@
 		27B61F2B2BD33BCE00081C3E /* numbers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = numbers.swift; sourceTree = "<group>"; };
 		27E6C7892BCA05D6006B81F6 /* constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = constants.swift; sourceTree = "<group>"; };
 		27E6C78B2BCAB46D006B81F6 /* print.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = print.swift; sourceTree = "<group>"; };
+		27EDC81F2C0ECF6E00C05682 /* exceptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = exceptions.swift; sourceTree = "<group>"; };
 		27FA38562BD123D8005F28E4 /* variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = variables.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -88,6 +90,7 @@
 				279926C02BDDD6DA006869D4 /* strings.swift */,
 				278CA2F22BFDBD5100F52573 /* optionals.swift */,
 				2769B6292C0C0B6F0076A60A /* tuples.swift */,
+				27EDC81F2C0ECF6E00C05682 /* exceptions.swift */,
 			);
 			path = basics;
 			sourceTree = "<group>";
@@ -155,6 +158,7 @@
 				27364E272BC81CE0008168B9 /* comments.swift in Sources */,
 				278CA2F32BFDBD5100F52573 /* optionals.swift in Sources */,
 				27E6C78A2BCA05D6006B81F6 /* constants.swift in Sources */,
+				27EDC8202C0ECF6E00C05682 /* exceptions.swift in Sources */,
 				2769B62A2C0C0B6F0076A60A /* tuples.swift in Sources */,
 				277C9ABA2BD6AE6800CB6452 /* booleans.swift in Sources */,
 				279926C12BDDD6DA006869D4 /* strings.swift in Sources */,

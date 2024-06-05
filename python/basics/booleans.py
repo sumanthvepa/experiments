@@ -26,11 +26,13 @@
 # -------------------------------------------------------------------
 
 
-# There are two boolean literals in Python: True and False.
-def explore_boolean_literals():
+def explore_boolean_literals() -> None:
   """
-  Explore boolean literals in Python
+    Explore boolean literals in Python
+    :return: None
   """
+  # There are two boolean literals in Python: True and False.
+
   # This is a boolean literal. The value True.
   true_literal = True
   print(true_literal)
@@ -81,7 +83,11 @@ def explore_boolean_literals():
 
   # You can also use the bool() function to convert functions to
   # boolean values.
-  def my_function():
+  def my_function() -> int:
+    """
+      A simple function
+      :return: 42
+    """
     return 42
   print(bool(my_function))  # True
 

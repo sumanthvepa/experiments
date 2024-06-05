@@ -45,45 +45,51 @@
 */
 
 /**
- This is a documentation comment that documents the function makeAComment().
+ This is a documentation comment that documents the function
+ makeAComment().
  
  This function prints the string "This is a comment" to the console.
- Documentation comments can be natively viewed in Xcode with ⌥ - click on
- the symbol you want to explore.
+ Documentation comments can be natively viewed in Xcode with
+ ⌥ - click on the symbol you want to explore.
  
- For more information see [Markup Formatting Reference](https://developer.apple.com/library/archive/documentation/Xcode/Reference/xcode_markup_formatting_ref/)
+ For more information see
+ [Markup Formatting Reference](https://developer.apple.com/library/archive/documentation/Xcode/Reference/xcode_markup_formatting_ref/)
  */
 func documentedWithDocComment() {
   print("This function is documented with a documentation comment")
 }
 
-/// This function is documented with a triple-slash single line documentation comment.
-/// It works the same way as multi-line documentation comments, except that the comment ends at the newline.
-/// Multiple triple-slash comments can combine to document a single function. But multi-line comments should be
-/// preferred in this case.
+/// This function is documented with a triple-slash single line
+/// documentation comment. It works the same way as multi-line
+/// documentation comments, except that the comment ends at the
+/// newline. Multiple triple-slash comments can combine to document a
+/// single function. But multi-line comments should be preferred in
+/// this case.
 func documentedWithTripleSlashComment() {
   print("This is fuction documented with a triple slash documentation comment")
 }
 
 /**
- This function takes an integer and a  double, adds them and converts the result to a string
- The purpose of this function is to demonstrate various aspects involved in documenting a
- function.
+ This function takes an integer and a  double, adds them and converts
+ the result to a string. The purpose of this function is to
+ demonstrate various aspects involved in documenting a function.
  
- Notice that the functions parameters are documented in the parameters section,
- its return value is documented in the return section and the exceptions it raises
- are documented in the throws section.
+ Notice that the functions parameters are documented in the parameters
+ section, its return value is documented in the return section and
+ the exceptions it raises are documented in the throws section.
  
- You can include links in the docmentation comments much like you would with
- markup. [This is the text of a link to Google](https://www.google.com)
+ You can include links in the docmentation comments much like you would
+ with markup.
+ [This is the text of a link to Google](https://www.google.com)
  
- You can reference other functions with double backticks like this: ``documentedWithDocComment()``.
+ You can reference other functions with double backticks like this:
+ ``documentedWithDocComment()``.
  See [this Stackoverflow post](https://stackoverflow.com/questions/38321880/how-to-go-about-adding-a-link-reference-to-another-method-in-documentation-xcode)
  on this feature.
  
- You can create code blocks by leaving one blank line above and below the code block
- and indenting the code block at least 4 spaces or 1 tab from the current indent level.
- This is useful for examples.
+ You can create code blocks by leaving one blank line above and below
+ the code block and indenting the code block at least 4 spaces or 1
+ tab from the current indent level. This is useful for examples.
  
      for (var n = 0; n < 10; n = n+1) {
       print("Hello, World!")
@@ -96,8 +102,8 @@ func documentedWithTripleSlashComment() {
   print("Hello World!")
  }
  ````
- You can find more information about [code blocks in documentationn on the Apple Developer site](https://developer.apple.com/library/archive/documentation/Xcode/Reference/xcode_markup_formatting_ref/CodeBlocks.html)
- 
+ You can find more information about
+ [code blocks in documentation on the Apple Developer site](https://developer.apple.com/library/archive/documentation/Xcode/Reference/xcode_markup_formatting_ref/CodeBlocks.html)
  
  - parameters
     - param1: An integer, must be positive.

@@ -30,11 +30,12 @@ import booleans
 import comments
 import printing
 import constants
-import strings
 import variables
+import strings_and_bytes
 import number_literals
 import none_not_implemented
 import class_basics
+import sequences
 
 
 print('Exploring Python')
@@ -165,6 +166,15 @@ if __name__ == '__main__':
 # plugin repository. Make sure you've modified the pylintrc file as
 # described above.
 
+# To supress pylint warnings. You can use the following directives:
+# \p\y\l\i\n\t: disable=<pylint-short-error-name>
+# This comment should be placed on the line that generates the error.
+# The escape characters are to prevent pylint from treating this
+# instruction itself as a directive. The short error name will be
+# displayed in the pylint output. For example, to suppress the
+# 'invalid-name' error, you would use the following directive:
+# \p\y\l\i\n\t: disable=invalid-name
+
 # A Note on Type Annotations and MyPy:
 # I also use MyPy, a static type checker for Python. MyPy is useful
 # for improving type safety in Python code. You can use MyPy by
@@ -178,8 +188,21 @@ if __name__ == '__main__':
 # Note that MyPy will only check code that has type annotations. In
 # particular, if a function has no type annotations, MyPy will not
 # check anything inside the function. This is why I have added type
-# annotations to all the functions in the code.
+# annotations to all the function signatures in the code.
 
+# To supress mypy warnings. You can use the following directives:
+# # \t\y\p\e: ignore[error-name]
+# This comment should be placed on the line that generates the error.
+# The escape characters are to prevent mypy from treating this
+# instruction itself as a directive. The error name will be displayed
+# in the mypy output. For example, to suppress the 'assignment' error,
+# you would use the following directive:
+# # \t\y\p\e: ignore[assignment]
+
+# IntelliJ IDEA runs mypy with default settings. To get more extensive
+# checking, you can run mypy from the command line with additional
+# options. I use the following command:
+# $ mypy --extra-checks --strict filename.py
 
 # A Note on Python Coding Style:
 # I follow PEP 8, the official Python coding style guide, with
@@ -246,10 +269,10 @@ number_literals.explore_floating_point_literals()
 number_literals.explore_complex_literals()
 
 # Note 5: Explore strings
-strings.explore_string_literals()
-strings.explore_formatted_string_literals()
-strings.explore_raw_string_literals()
-strings.explore_byte_string_literals()
+strings_and_bytes.explore_string_literals()
+strings_and_bytes.explore_formatted_string_literals()
+strings_and_bytes.explore_raw_string_literals()
+strings_and_bytes.explore_byte_string_literals()
 
 # Note 6: Explore boolean literals
 booleans.explore_boolean_literals()
@@ -260,6 +283,9 @@ none_not_implemented.explore_not_implemented()
 
 # Note 8: Explore class basics
 class_basics.explore_class_basics()
+
+# Note 9: Explore sequences
+sequences.explore_sequences()
 
 # Future explorations
 # Note: Explore dataclasses

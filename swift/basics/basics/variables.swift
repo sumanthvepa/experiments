@@ -1,8 +1,6 @@
 //-*- coding: utf-8 -*-
 /**
   variables.swift: Explore variables in Swift
- 
-  This is an exploration of variables in Swift
 */
 /* -------------------------------------------------------------------
  * variables.swift: Explore constants in Swift.
@@ -31,6 +29,9 @@ func exploreVariables() {
   
   // This is a variable that is also initialized, whose type
   // is infrered from the type of the literal assigned to it.
+  // Note that as with constants, the type of the variable shown
+  // by IDEs like VSCode is not part of the text file itself.
+  // It is inferred by the IDE and displayed for convenience.
   var speed = 32.0
   print ("speed = ", speed)
   print("type(of: speed) = ", type(of: speed)) // Double

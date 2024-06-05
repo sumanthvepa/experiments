@@ -1,8 +1,6 @@
 //-*- coding: utf-8 -*-
 /**
   print.swift: Explore basic printing to the console in Swift.
- 
-  This is an exploration of printing to console in swift.
 */
 /* -------------------------------------------------------------------
  * print.swift: Explore basic printing to the console in Swift.
@@ -25,8 +23,8 @@
  *-----------------------------------------------------------------*/
 
 /**
- This prints the name of this file to the console. It is intended
- to be a demonstration of how to use the builtin print function.
+  This prints the name of this file to the console. It is intended
+  to be a demonstration of how to use the builtin print function.
  */
 func printSomething() {
   // Use the print function to generate output.
@@ -60,14 +58,15 @@ func printSomething() {
   // See, Apples developer documentation for details.
   // https://developer.apple.com/documentation/swift/print(_:separator:terminator:)
   
-  // You can use string interpolation in swift to embedd expression to be evaluated and
-  // printed within the string. The expression to be evaluated is placed inside \().
+  // You can use string interpolation in swift to embedd expression to
+  // be evaluated and printed within the string. The expression to be
+  // evaluated is placed inside \().
   let value: Double = 23.45
   print("The value of 'value' = \(value)")
 }
 
-// There is surprisingly no simple way to print to standard error in Swift.
-// Clearly Apple has no interest allowing programmers to use the command line
-// easily.
+// There is surprisingly no simple way to print to standard error in
+// Swift. Clearly Apple has no interest allowing programmers to use
+// the command line easily.
 // See this StackOverflow link on solutions for printing to stderr.
 // https://stackoverflow.com/questions/24041554/how-can-i-output-to-stderr-with-swift

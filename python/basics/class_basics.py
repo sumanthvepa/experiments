@@ -50,7 +50,7 @@ class F:  # pylint: disable=too-few-public-methods
 def explore_class_basics() -> None:  # pylint: disable=too-many-locals, too-many-statements
   """
     Explore the basics of classes in Python
-    :return:
+    :return: None
   """
   # A class is a blueprint for creating objects. An object is an
   # instance of a class. A class is defined using the class keyword.
