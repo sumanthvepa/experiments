@@ -171,3 +171,10 @@ def explore_operators() -> None:  # pylint: disable='too-many-statements
   # Parentheses can be used to override precedence.
   # The precedence of operators can be found at:
   # https://docs.python.org/3/reference/expressions.html#operator-precedence
+
+  # Unlike Javascript Python does not do type coercion during comparison
+  # If the types do not match then the comparison will always return False
+  print(f'5 == "5" = {5 == "5"}')  # False
+
+  # You have to convert the string to an int before comparison
+  print(f'5 == int("5") = {5 == int("5")}')  # True
