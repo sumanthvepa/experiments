@@ -184,3 +184,8 @@ exploreNullAndUndefined();
 // Note 13: Explore type conversions in Javascript
 import { exploreTypeConversion } from './13-type-conversions.mjs';
 exploreTypeConversion();
+
+
+// Note 14: Explore comparisons in Javascript
+import { exploreComparisons } from './14-comparisons.mjs';
+exploreComparisons();

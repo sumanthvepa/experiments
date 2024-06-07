@@ -1,6 +1,6 @@
 //-*- coding: utf-8 -*-
 /* -------------------------------------------------------------------
- * 13-type-conversions.mjs.mjs: Explore type conversions in Javascript
+ * 13-type-conversions.mjs: Explore type conversions in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
