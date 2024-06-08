@@ -189,3 +189,6 @@ exploreTypeConversion();
 // Note 14: Explore comparisons in Javascript
 import { exploreComparisons } from './14-comparisons.mjs';
 exploreComparisons();
+
+import { exploreControlFlow } from './15-control-flow.mjs';
+exploreControlFlow();
