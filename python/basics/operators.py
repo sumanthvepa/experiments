@@ -49,7 +49,15 @@ def explore_operators() -> None:  # pylint: disable='too-many-statements
   print(f'5 - 3 = {5 - 3}')
   print(f'5 * 3 = {5 * 3}')
   print(f'5 / 3 = {5 / 3}')
-  print(f'5 // 3 = {5 // 3}')
+
+  # The operator below is called the floor division operator.
+  # For positive numbers it returns the quotient. For negative numbers
+  # it returns the division rounded down to the nearest integer.
+  print(f'5 // 3 = {5 // 3}')  # 1
+  print(f'-5 // 3 = {-5 // 3}')  # -2 (rounded down to the nearest integer)
+  # If one of the operands is a float then the result will be a float.
+  print(f'5 // 3.0 = {5 // 3.0}')  # 1.0
+
   print(f'5 % 3 = {5 % 3}')
   print(f'5 ** 3 = {5 ** 3}')
 
