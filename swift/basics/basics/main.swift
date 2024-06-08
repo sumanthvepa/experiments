@@ -131,3 +131,6 @@ exploreExceptions()
 
 // Note 12: Explore assertions and preconditions
 exploreAssertionsAndPreConditions()
+
+// Note 13: Explore operators in Swift
+exploreOperators()
