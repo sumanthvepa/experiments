@@ -49,7 +49,15 @@ def explore_operators() -> None:  # pylint: disable='too-many-statements
   print(f'5 - 3 = {5 - 3}')
   print(f'5 * 3 = {5 * 3}')
   print(f'5 / 3 = {5 / 3}')
-  print(f'5 // 3 = {5 // 3}')
+
+  # The operator below is called the floor division operator.
+  # For positive numbers it returns the quotient. For negative numbers
+  # it returns the division rounded down to the nearest integer.
+  print(f'5 // 3 = {5 // 3}')  # 1
+  print(f'-5 // 3 = {-5 // 3}')  # -2 (rounded down to the nearest integer)
+  # If one of the operands is a float then the result will be a float.
+  print(f'5 // 3.0 = {5 // 3.0}')  # 1.0
+
   print(f'5 % 3 = {5 % 3}')
   print(f'5 ** 3 = {5 ** 3}')
 
@@ -171,3 +179,10 @@ def explore_operators() -> None:  # pylint: disable='too-many-statements
   # Parentheses can be used to override precedence.
   # The precedence of operators can be found at:
   # https://docs.python.org/3/reference/expressions.html#operator-precedence
+
+  # Unlike Javascript Python does not do type coercion during comparison
+  # If the types do not match then the comparison will always return False
+  print(f'5 == "5" = {5 == "5"}')  # False
+
+  # You have to convert the string to an int before comparison
+  print(f'5 == int("5") = {5 == int("5")}')  # True
