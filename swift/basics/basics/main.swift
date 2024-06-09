@@ -134,3 +134,6 @@ exploreAssertionsAndPreConditions()
 
 // Note 13: Explore operators in Swift
 exploreOperators()
+
+// Note 14: Explore control flow in Swift
+exploreControlFlow()
