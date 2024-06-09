@@ -107,4 +107,90 @@ func exploreStrings() {
 
   // This count may differ from the number of bytes in the string.
   print(str14.utf8.count) // 64
+  
+  // You can compare strings the obvious way using the == operator:
+  let str15a = "This is str15"
+  let str15b = "This is str15"
+  if str15a == str15b {
+    print("str15a == str15b")
+  } else {
+    print("str15a != str15b")
+  }
+  
+  // You can do more compicated comparisons using the
+  // compare method of the string class
+  let str15c = "THIS IS STR15"
+  let compareResult = str15a.compare(str15c, options: .caseInsensitive)
+  print("type(of: compareResult) = \(type(of: compareResult))")
+  if compareResult == .orderedSame {
+    print("str15a is the same as str15c")
+  } else {
+    print("str15a is NOT the same as str15c")
+  }
+  
+  // Do not make the mistake of converting case and then comparing
+  // strings. This works for strings containing English ASCII characters
+  // but not for other unicode code point.
+  // For example the German work for street is spelled:
+  // straße in lower case and as STRAẞE or STRASSE in uppercase.
+  // All three will be equal under a case insensitive compare.
+  // https://sarunw.com/posts/different-ways-to-compare-string-in-swift/
+  // has a good discussion on how to use string compare.
+  
+  let german_street_lowercase = "straße"
+  let german_street_uppercase1 = "STRAẞE"
+  let german_street_uppercase2 = "STRASSE"
+  if german_street_lowercase.compare(
+    german_street_uppercase1, options: .caseInsensitive)
+      == .orderedSame {
+    print("\(german_street_lowercase) is the same as \(german_street_uppercase1)")
+  } else {
+    print("\(german_street_lowercase) is NOT the same as \(german_street_uppercase1)")
+    
+  }
+  if german_street_lowercase.compare(
+    german_street_uppercase2, options: .caseInsensitive)
+      == .orderedSame {
+    print("\(german_street_lowercase) is the same as \(german_street_uppercase2)")
+  } else {
+    print("\(german_street_lowercase) is NOT the same as \(german_street_uppercase2)")
+  }
+  if german_street_uppercase1.compare(
+    german_street_uppercase2, options: .caseInsensitive)
+      == .orderedSame {
+    print("\(german_street_uppercase1) is the same as \(german_street_uppercase2)")
+  } else {
+    print("\(german_street_uppercase1) is NOT the same as \(german_street_uppercase2)")
+  }
+  
+  // Compare also allows you to ignore things like diacritics etc.
+  let e = "e"
+  let eAcute =  "é"
+  let eAcuteCapital = "É"
+  if e.compare(eAcute, options: .diacriticInsensitive) == .orderedSame {
+    print("\(e) is the same as \(eAcute)")
+  } else {
+    print("\(e) is NOT the same as \(eAcute)")
+  }
+  if e.compare(eAcuteCapital, options: .diacriticInsensitive) == .orderedSame {
+    print("\(e) is the same as \(eAcuteCapital)")
+  } else {
+    print("\(e) is NOT the same as \(eAcuteCapital)")
+  }
+  
+  // You can combine options by passing a list. Now e and É will be considered
+  // the same.
+  if e.compare(eAcuteCapital, options: [.diacriticInsensitive ,.caseInsensitive]) == .orderedSame {
+    print("\(e) is the same as \(eAcuteCapital)")
+  } else {
+    print("\(e) is NOT the same as \(eAcuteCapital)")
+  }
+  
+  
+  // In general prefer using String.compare when comparing text that might be found
+  // in problem domain (for example names, addresses etc.), but use == when comparing
+  // strings that are artifacts of
+  // computer systems (example GUIDs function names etc.)
+  
+  
 }
