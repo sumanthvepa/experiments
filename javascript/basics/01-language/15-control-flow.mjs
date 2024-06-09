@@ -91,6 +91,28 @@ export function exploreControlFlow() {
       console.log('x is not equal to 5 or 10');
   }
 
+  // The switch statement can also be used with strings.
+  let name = 'John';
+  switch (name) {
+    case 'John':
+      console.log('Hello John!');
+      break;
+    case 'Jane':
+      console.log('Hello Jane!');
+      break;
+    default:
+      console.log('Hello!');
+  }
+
+  // Javascript allows multiple case statements to be executed without
+  // a break statement. This can be useful in some cases, but it can also
+  // lead to unintended behavior. It is generally a good practice to use
+  // a break statement after each case to avoid unintended behavior.
+
+  // Unfortunately, the switch statement does not support regular
+  // expression matches. You have to use the re module and if
+  // statements.
+
   // Notice that the break statement is used to exit the switch statement
   // after a case is executed. If the break statement is not used, the
   // switch statement will continue to execute the code blocks after the
