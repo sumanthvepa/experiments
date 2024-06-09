@@ -37,6 +37,7 @@ import none_not_implemented
 import class_basics
 import sequences
 import operators
+import control_flow
 
 
 print('Exploring Python')
@@ -290,6 +291,9 @@ sequences.explore_sequences()
 
 # Note 10: Explore operators
 operators.explore_operators()
+
+# Note 11: Explore control flow
+control_flow.explore_control_flow()
 
 # Future explorations
 # Note: Explore dataclasses
