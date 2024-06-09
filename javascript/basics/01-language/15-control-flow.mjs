@@ -198,4 +198,61 @@ export function exploreControlFlow() {
   for (let val of arr) {
     console.log(val);
   }
+
+  // 3. Jump Statements:
+  // Jump statements are used to control the flow of execution of a program.
+  // The most common jump statements in Javascript are:
+  // 1. break statement
+  // 2. continue statement
+  // 3. return statement
+  // 4. throw statement
+
+  // 1. break statement:
+  // The break statement is used to exit a loop or switch statement.
+  // The break statement is denoted by the 'break' keyword.
+  for (let i = 0; i < 5; i++) {
+    if (i === 3) {
+      break;
+    }
+    console.log(i);
+  }
+
+  // You can also use the break statement to exit a labeled loop.
+  outer: for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+      if (j === 3) {
+        break outer;
+      }
+      console.log(i, j);
+    }
+  }
+
+  // 2. continue statement:
+  // The continue statement is used to skip the current iteration of a loop.
+  // The continue statement is denoted by the 'continue' keyword.
+  for (let i = 0; i < 5; i++) {
+    if (i === 3) {
+      continue;
+    }
+    console.log(i);
+  }
+
+  // Like with the break statement, you can also use the continue
+  // statement to skip the current iteration of a labeled loop.
+  outer: for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+      if (j === 3) {
+        continue outer;
+      }
+      console.log(i, j);
+    }
+  }
+
+  // 3. return statement:
+  // The return statement is used to return a value from a function.
+  // This is discussed in more detail in the  16-functions.mjs module.
+
+  // 4. throw statement:
+  // The throw statement is used to throw an exception.
+  // This is discussed in more detail in the 17-exceptions.mjs module.
 }
