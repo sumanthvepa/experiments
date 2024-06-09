@@ -116,10 +116,37 @@ def explore_control_flow() -> None:  # pylint: disable='too-many-statements, too
   for i in range(5):
     pass
 
+  # for-else statement
+  # For loops can have an else block that is executed when the loop
+  # exits without encountering a break. This is useful for checking
+  # if a value exists in a list and if not raising an exception or
+  # taking some other action.
+  try:
+    a_list = [1, 2, 3, 5, 6]
+    for i in a_list:
+      if i == 4:
+        break
+    else:
+      raise ValueError('Value 4 not found in list')
+  except ValueError as ex:
+    print(f'Exception: {ex}')
+
   # The assert statement is used to check if an expression is True.
-  # assert statement
-  x = 5
-  assert x > 3
+  # assert statement. It will raise an AssertionError if the expression
+  # is False.
+  try:
+    x = 2
+    assert x > 3
+  except AssertionError:
+    print('Caught AssertionError')
+
+  # The assert statement can also have an optional message.
+  # assert statement with message
+  try:
+    x = 1
+    assert x > 3, 'x is not greater than 3'
+  except AssertionError as ex:
+    print(f'AssertionError: {ex}')  # AssertionError: x is not greater than 3
 
   # The return statement is used to return a value from a function.
   # return statement
