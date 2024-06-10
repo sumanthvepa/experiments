@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-  booleans.py: Exploring boolean literals in Python
-
-  This is an exploration on the usage of numeric literals in Python
+  strings_and_bytes.py: Explore string and bytes in Python
 """
 # -------------------------------------------------------------------
-# booleans.py: Exploring boolean literals in python
+# strings_and_bytes.py: Explore string and bytes in Python
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -26,6 +24,11 @@
 # -------------------------------------------------------------------
 import re
 from typing import Final
+
+# Unidecode is a third-party library that can be used to remove accents
+# and normalize Unicode strings. You can install it using pip:
+# pip install unidecode
+import unidecode
 
 
 def explore_string_literals() -> None:  # pylint: disable=too-many-locals
@@ -240,3 +243,93 @@ def explore_byte_string_literals() -> None:
   # This is because π is represented by two bytes in UTF-8.
   print(f'len(utf_8_string) = {len(utf8_string)}')  # Prints 26
   print(f'len(utf_8_byte_string) = {len(utf8_byte_string)}')  # Prints 27
+
+
+def explore_string_comparisons() -> None:  # pylint: disable=too-many-locals
+  """
+    Explore string comparisons in Python
+    :return: None
+  """
+  # Comparison on real world strings can be tricky because of the presence
+  # of accents, diacritics, and other special characters. For example, the
+  # strings "cafe" and "café" are not equal because the second string contains
+  # an accent. Another example is the german word for street, "straße".
+  # The letter ß is equivalent to ss. However, Python does not consider them
+  # equal. You can use the unidecode library to remove accents and normalize
+  # Unicode strings. You can install it using pip:
+  # https://pypi.org/project/Unidecode/
+  # https://stackoverflow.com/questions/517923/what-is-the-best-way-to-remove-accents-normalize-in-a-python-unicode-string
+  # pip install unidecode
+  string1: Final[str] = 'cafe'
+  string2: Final[str] = 'café'
+  print(string1 == string2)  # Prints False
+  string3: Final[str] = 'straße'
+  string4: Final[str] = 'strasse'
+  print(string3 == string4)  # Prints False
+  string5: Final[str] = unidecode.unidecode(string3)
+  string6: Final[str] = unidecode.unidecode(string4)
+  print(string5 == string6)  # Prints True
+
+  # If you want to compare two strings in a case-insensitive manner,
+  # ignoring accents and diacritics, you can do the following:
+  # 1. Convert both strings to lowercase using the 'casefold' method.
+  # 2. Remove accents and diacritics using the unidecode method.
+  # 3. Compare the resulting strings.
+  string7: Final[str] = 'eß'
+  string8: Final[str] = 'Éss'
+  string9: Final[str] = unidecode.unidecode(string7).casefold()
+  string10: Final[str] = unidecode.unidecode(string8).casefold()
+  if string9 == string10:
+    print(f'{string7} compared to {string8}: {string9} == {string10}')
+  else:
+    print(f'{string7} compared to {string8}: {string9} != {string10}')
+
+  # If you want to remove both accents and diacritics, you can use the
+  # normalize method from the unicodedata module. The normalize method
+  # takes two arguments: the form and the string. The form can be 'NFD',
+  # 'NFC', 'NFKD', or 'NFKC'. The 'NFD' form decomposes the string into
+  # its base characters and diacritics. The 'NFC' form composes the string
+  # into precomposed characters. The 'NFKD' form decomposes the string into
+  # its base characters and diacritics, and then applies compatibility
+  # decomposition. The 'NFKC' form composes the string into precomposed
+  # characters, and then applies compatibility composition.
+  # https://docs.python.org/3/library/unicodedata.html#unicodedata.normalize
+  # TODO: Add example of unicodedata.normalize
+
+  # If you want to compare strings in a case-insensitive manner, you can
+  # convert the strings to lowercase using the lower method and then compare
+  # them. You can also use the casefold method, which is more aggressive in
+  # removing case distinctions. The casefold method is useful when comparing
+  # strings in different languages.
+  string11: Final[str] = 'Hello, World!'
+  string12: Final[str] = 'hello, world!'
+  print(string11.lower() == string12.lower())  # Prints True
+  print(string11.casefold() == string12.casefold())  # Prints True
+
+  # You can use the startswith and endswith methods to check if a string
+  # starts or ends with a particular substring. The methods return True
+  # if the string starts or ends with the substring, and False otherwise.
+  string13: Final[str] = 'Hello, World!'
+  print(string13.startswith('Hello'))  # Prints True
+  print(string13.endswith('World!'))  # Prints True
+
+  # You can use the in operator to check if a string contains a particular
+  # substring. The operator returns True if the substring is present in
+  # the string, and False otherwise.
+  string14: Final[str] = 'Hello, World!'
+  print('Hello' in string14)  # Prints True
+  print('World' in string14)  # Prints True
+  print('Python' in string14)  # Prints False
+
+  # You can use the find and index methods to find the index of a substring
+  # in a string. The find method returns the index of the first occurrence
+  # of the substring, or -1 if the substring is not present. The index method
+  # raises a ValueError if the substring is not present.
+  string15: Final[str] = 'Hello, World!'
+  print(string15.find('World'))  # Prints 7
+  print(string15.find('Python'))  # Prints -1
+  print(string15.index('World'))  # Prints 7
+  try:
+    print(string11.index('Python'))  # ValueError: substring not found
+  except ValueError as ex:
+    print(ex)
