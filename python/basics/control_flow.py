@@ -154,3 +154,12 @@ def explore_control_flow() -> None:  # pylint: disable='too-many-statements, too
     return a + b
   c = add(3, 5)
   print(f'c = {c}')
+
+  # The with statement is used wrap the execution of a block of code
+  # with methods defined by a context manager.
+  # In the following code, the open() function returns a file object
+  # that is used to write data to a file. The with statement ensures
+  # that the file is properly closed when the block of code is exited.
+  # With statements are explored in more detail in  exceptions.py
+  with open('data.txt', 'w', encoding='utf-8') as file:
+    file.write('Hello, world!')
