@@ -45,6 +45,17 @@ print('Exploring Python')
 # This is the top-level driver code for a series of notes/tutorials
 # an exploration of the python language.
 
+# Setting up this project
+# This project depends on some third party packages installed with
+# pip. To recreate the environment first create the venv if it
+# does not already exist:
+# 1. python3 -m venv venv
+
+# Then install the required packages
+# 2. python3 -m pip install -r requirements.txt
+
+# TODO: Explain how to upgrade a python package
+
 # These notes are written as a series of heavily commented python files.
 # Each file explores a different aspect of the Python language. The files
 # organized as follows:
@@ -275,6 +286,7 @@ strings_and_bytes.explore_string_literals()
 strings_and_bytes.explore_formatted_string_literals()
 strings_and_bytes.explore_raw_string_literals()
 strings_and_bytes.explore_byte_string_literals()
+strings_and_bytes.explore_string_comparisons()
 
 # Note 6: Explore boolean literals
 booleans.explore_boolean_literals()
