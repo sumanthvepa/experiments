@@ -193,3 +193,7 @@ exploreComparisons();
 // Note 15: Explore control flow
 import { exploreControlFlow } from './15-control-flow.mjs';
 exploreControlFlow();
+
+// Note 16: Explore functions in Javascript
+import { exploreFunctions } from './16-functions.mjs';
+exploreFunctions();
