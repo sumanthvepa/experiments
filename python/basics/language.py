@@ -38,6 +38,7 @@ import class_basics
 import sequences
 import operators
 import control_flow
+import functions
 
 
 print('Exploring Python')
@@ -45,7 +46,7 @@ print('Exploring Python')
 # This is the top-level driver code for a series of notes/tutorials
 # an exploration of the python language.
 
-# Setting up this project
+# Project Setup
 # This project depends on some third party packages installed with
 # pip. To recreate the environment first create the venv if it
 # does not already exist:
@@ -307,6 +308,9 @@ operators.explore_operators()
 # Note 11: Explore control flow
 control_flow.explore_control_flow()
 
+# Note 12: Explore functions
+functions.explore_functions()
+
 # Future explorations
 # Note: Explore dataclasses
 # Note: Explore Abstract Base Classes
@@ -314,3 +318,5 @@ control_flow.explore_control_flow()
 # Note: Explore Named Tuples
 # Note: Explore slots
 # Note: Explore Enums
+# Note: Explore yield an coroutines
+# Note: Explore async and await
