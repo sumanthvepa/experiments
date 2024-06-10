@@ -1,4 +1,5 @@
 //-*- coding: utf-8 -*-
+
 /* -------------------------------------------------------------------
  * 09-strings.mjs: Explore strings in Javascript
  *
@@ -128,4 +129,42 @@ export function exploreStrings() {
    */
   const s7 = 'Hello, ' + 'World!';
   console.log(s7); // Hello, World!
+
+  // The plus operator also works on strings and numbers. It converts
+  // the number to a string and then concatenates it.
+  /**
+   * @description s8 is a string that is the concatenation of a string
+   * and a number.
+   * @type {string}
+   * @constant
+   * @default 'The answer is 42'
+   */
+  const s8 = 'The answer is ' + 42;
+  console.log(s8); // The answer is 42
+
+  // You can compare strings using the comparison operators.
+  // The comparison is done lexicographically.
+  // The comparison is case-sensitive.
+  // noinspection EqualityComparisonWithCoercionJS
+  console.log('a' == 'a'); // true But may cause unexpected type coercion
+  // noinspection EqualityComparisonWithCoercionJS
+
+  // If you want exact comparisons. Using === is a better option.
+  console.log('a' === 'a'); // true
+
+  // If you want locale-insensitive comparisons, you can use
+  // the localeCompare method.
+  const s9= 'e';
+  const s10 = 'É';
+  if (s9.localeCompare(s10, {'sensitivity': 'base'}) === 0) {
+    console.log(`The strings ${s9} and ${s10} are equal`);
+  } else {
+    console.log(`The strings ${s9} and ${s10} are not equal`);
+  }
+
+  // You can of course compare for less than or greater than.
+  // the comparison order is lexicographic. But prefer using
+  // localeCompare for real world strings like names or addresses.
+  console.log(`a < b is ${'a' < 'b'}`); // true
+  console.log(`a < B is ${'a' < 'B'}`); // true
 }
