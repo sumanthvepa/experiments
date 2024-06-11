@@ -25,7 +25,7 @@
 from typing import Callable
 
 
-def explore_functions() -> None:
+def explore_functions() -> None:  # pylint: disable='too-many-locals'
   """
     Explore functions in Python
     :return: None
@@ -70,6 +70,112 @@ def explore_functions() -> None:
   n2: int = 3
   print(f'Sum of {n1} and {n2} is {add(n1, n2)}')
 
+  # Function can be invoked with the arguments specified in the order
+  # in which they are defined. E.g.:
+  def divide(dividend: int, divisor: int) -> int:
+    """
+      Divide quotient by divisor
+      :param int dividend: dividend
+      :param int divisor: divisor
+      :return int: quotient
+    """
+    return int(dividend / divisor)
+  divide(10, 5)  # Arguments are passed in the order in which they are defined
+
+  # You can mix and match positional arguments with named arguments, but
+  # positional arguments must always precede named arguments.
+  # E.g.:
+  def concatenate(a: int, b: int, c: int) -> str:
+    """
+      Concatenate the stings of the decimal representation
+      of a, b and c
+      :param int a: argument 1
+      :param int b: argument 2
+      :param int c: argument 3
+      :return int: Concatenated string of the decimal representation of a, b and c
+    """
+    return str(a) + str(b) + str(c)
+  # In this call to concatenate, arguments are passed in the order in
+  # which they are defined, despite c and b being shuffled around.
+  # 'a' is passed as a positional argument and 'b' and 'c' are
+  # passed as named arguments.
+  print(f'Concatenated string: {concatenate(1, c=3, b=2)}')
+
+  # A Function can take a variable number of arguments using the
+  # *args and *kwargs
+  # If you want to only take multiple positional arguments, you can
+  # use *args. *args is a tuple that contains all the positional
+  # arguments passed to the function. E.g.
+  def add_all(*args: int) -> int:
+    """
+      Add all arguments.
+      :param int args: The arguments to be added.
+      :return int: sum of all the arguments
+    """
+    return sum(args)
+
+  # Note that each call to 'add_all' has a different number of
+  # arguments.
+  print(f'Sum of 1, 2, 3, 4, 5 is {add_all(1, 2, 3, 4, 5)}')
+  print(f'Sum of 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 is {add_all(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)}')
+
+  # Or the arguments can be passed in any order by specifying the
+  # argument name. E.g.:
+  # Arguments are passed in any order, by specifying the argument name
+  divide(divisor=5, dividend=10)
+
+  # If you want to take multiple keyword arguments, you can use **kwargs.
+  # **kwargs is a dictionary that contains all the keyword arguments
+  # passed to the function. E.g.:
+  def print_all(**kwargs: int) -> None:
+    """
+      Print all keyword arguments
+      :param int kwargs: The keyword arguments to be printed
+      :return None
+    """
+    for key, value in kwargs.items():
+      print(f'{key}: {value}')
+  # Note that the calls to print each have a variable number of
+  # arguments and the arguments can have any names.
+  print_all(a=1, b=2, c=3)
+  print_all(x=10, y=20, z=30)
+  print_all(a=1, b=2, c=3, x=10, y=20, z=30)
+
+  # You can combine both *args and **kwargs in the same function.
+  # E.g.:
+  def print_all_args_and_kwargs(*args: int, **kwargs: int) -> None:
+    """
+      Print all arguments and keyword arguments
+      :param int args: The arguments to be printed
+      :param int kwargs: The keyword arguments to be printed
+      :return None
+    """
+    print(f'args: {args}')
+    for key, value in kwargs.items():
+      print(f'{key}: {value}')
+  # Note that the calls to print_all_args_and_kwargs each have a
+  # variable number of arguments, some of which are positional and the
+  # rest are keywords. The arguments can have any names.
+  print_all_args_and_kwargs(1, 2, 3, a=1, b=2, c=3)
+  print_all_args_and_kwargs(10, 30, a=10, b=20, c=30, d=25)
+
+  # You can pass a tuple to a function by unpacking it using the * operator.
+  # E.g.:
+  t = (23, 30)
+  print(f'Sum of {t[0]} and {t[1]} is {add(*t)}')
+
+  # You can pass a dictionary to a function by unpacking it using the ** operator.
+  # E.g.:
+  d = {'a': 23, 'b': 30}
+  print(f'Sum of {d["a"]} and {d["b"]} is {add(**d)}')
+
+  # You can of course use both in order, but *, must precede ** in the
+  # function call. Note that the function itself does not need to
+  # take variable args or kwargs. However, the total number of args
+  # and their types must match the function signature.
+  # E.g.:
+  print_all_args_and_kwargs(*t, **d)
+
   # Python has support for anonymous functions called lambda functions.
   # Lambda functions are defined using the lambda keyword followed by
   # the parameters and the expression.
@@ -94,3 +200,21 @@ def explore_functions() -> None:
   a_list: list[int] = [1, 2, 3, 4, 5]
   squared_list: list[int] = list(map(lambda x: x ** 2, a_list))
   print(f'Squared list: {squared_list}')
+
+  # Escaping closures are nothing special in python,
+  # unlike in swift. Lambdas can outlive the functions that
+  # they are passed to.
+  func_list: list[Callable[[int], int]] = []
+
+  def add_to_func_list(func: Callable[[int], int]) -> None:
+    """
+      Add a function to the function list
+      :param Callable[[int], int] func: The function to be added
+      :return None
+    """
+    func_list.append(func)
+
+  add_to_func_list(lambda x: x + 1)
+  add_to_func_list(lambda x: x + 2)
+  for f in func_list:
+    print(f'f(5) = {f(5)}')  # 6, 7

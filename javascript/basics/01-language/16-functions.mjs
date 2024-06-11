@@ -58,6 +58,20 @@ export function exploreFunctions() {
   const sum = add(10, 20);
   console.log(`The sum of 10 and 20 is ${sum}`);
 
+  // Functions can take a variable number of arguments. The arguments
+  // object is an array-like object that contains all the arguments
+  // passed to a function.
+  /**
+   * @description A function that adds any number of arguments.
+   * @param {...number} args - The arguments to add.
+   * @returns {number}
+   */
+  function addAny(...args) {
+    return args.reduce((acc, val) => acc + val, 0);
+  }
+
+  console.log(addAny(1, 2, 3, 4, 5)); // 15
+
   // 2. Function expression:
   // A function expression is a function that is assigned to a variable.
   // Function expressions are not hoisted. This means that you cannot call
@@ -101,6 +115,7 @@ export function exploreFunctions() {
   // functions as arguments. For documentation purposes, you can
   // use the '@callback' tag to define the function signature of
   // the callback function.
+  // See https://jsdoc.app/tags-param#:~:text=The%20%40param%20tag%20provides%20the,a%20description%20of%20the%20parameter.
   /**
    * @callback two_param_function
    * @description A function that take two numbers as arguments.
@@ -202,4 +217,20 @@ export function exploreFunctions() {
   // methods. It is extensively used to in the definition of classes and
   // objects in Javascript. The use of the 'this' keyword and new keyword
   // is discussed in 17-classes-and-objects.mjs.
+
+  //  An arrow function is a shorthand way to write a function expression.
+  // E.g.
+  const add2 = function(a, b) {
+     return a + b;
+  };
+  console.log(`add2(1, 3) = ${add2(1, 3)}`);
+
+  // can be written as:
+  const add3 = (a, b) => a + b;
+  console.log(`add3(1, 3) = ${add3(1, 3)}`);
+
+  // An Arrow function does not have its own 'this' value. Instead, it
+  // inherits the 'this' value from the enclosing scope. This is useful
+  // when you want to use the 'this' value from the enclosing scope.
+  // This will be explore in more detail in 17-classes-and-objects.mjs.
 }
