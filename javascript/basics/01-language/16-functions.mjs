@@ -217,4 +217,20 @@ export function exploreFunctions() {
   // methods. It is extensively used to in the definition of classes and
   // objects in Javascript. The use of the 'this' keyword and new keyword
   // is discussed in 17-classes-and-objects.mjs.
+
+  //  An arrow function is a shorthand way to write a function expression.
+  // E.g.
+  const add2 = function(a, b) {
+     return a + b;
+  };
+  console.log(`add2(1, 3) = ${add2(1, 3)}`);
+
+  // can be written as:
+  const add3 = (a, b) => a + b;
+  console.log(`add3(1, 3) = ${add3(1, 3)}`);
+
+  // An Arrow function does not have its own 'this' value. Instead, it
+  // inherits the 'this' value from the enclosing scope. This is useful
+  // when you want to use the 'this' value from the enclosing scope.
+  // This will be explore in more detail in 17-classes-and-objects.mjs.
 }
