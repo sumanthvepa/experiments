@@ -137,3 +137,6 @@ exploreOperators()
 
 // Note 14: Explore control flow in Swift
 exploreControlFlow()
+
+// Note 15: Explore functions
+exploreFunctions()
