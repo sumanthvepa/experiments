@@ -197,3 +197,8 @@ exploreControlFlow();
 // Note 16: Explore functions in Javascript
 import { exploreFunctions } from './16-functions.mjs';
 exploreFunctions();
+
+// Note 17: Explore objects and classes
+import { exploreObjects, exploreClasses } from './17-objects-and-classes.mjs';
+exploreObjects();
+exploreClasses();
