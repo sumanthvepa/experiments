@@ -1,5 +1,4 @@
 //-*- coding: utf-8 -*-
-
 /**
  * @module 16-functions.mjs: Explore functions in Javascript
  * @author Sumanth Vepa <svepa@milestone42.com>
@@ -173,7 +172,7 @@ export function exploreFunctions() {
   console.log(addDefault(5, 5)); // 10
   console.log(addDefault(5, 0)); // 5
 
-  // Functions can also have rest parameters.
+  // Functions can also have rest or variadic parameters.
   /**
    * @description A function that takes any number of arguments.
    * @param {...number} args - The arguments to add.
