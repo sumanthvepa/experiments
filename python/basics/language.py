@@ -296,20 +296,24 @@ booleans.explore_boolean_literals()
 none_not_implemented.explore_none()
 none_not_implemented.explore_not_implemented()
 
-# Note 8: Explore class basics
-class_basics.explore_class_basics()
-
-# Note 9: Explore sequences
+# Note 8: Explore sequences
 sequences.explore_sequences()
 
-# Note 10: Explore operators
+# Note 9: Explore operators
 operators.explore_operators()
 
-# Note 11: Explore control flow
+# Note 10: Explore control flow
 control_flow.explore_control_flow()
 
-# Note 12: Explore functions
+# Note 11: Explore functions
 functions.explore_functions()
+
+# Note 12: Explore class basics
+class_basics.explore_class_basics()
+
+# Note 13: Explore enums
+# enumerations.explore_enumerations()
+
 
 # Future explorations
 # Note: Explore dataclasses

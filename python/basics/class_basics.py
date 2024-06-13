@@ -136,6 +136,20 @@ def explore_class_basics() -> None:  # pylint: disable=too-many-locals, too-many
   print(c2.value)  # Displays 11.
   print(c1.value)  # Still displays 10.
 
+  # However, unlike primitive types, classes are reference types.
+  # So, if you assign one instance of a class to another, both
+  # variables will refer to the same object. Changing the value
+  # of the attribute of one instance will change the value of the
+  # attribute of the other instance.
+  c3 = C()
+  c4 = c3
+  c3.value = 20
+  print(c3.value)  # Displays 20.
+  print(c4.value)  # Also displays 20.
+  c4.value = 10
+  print(c4.value)  # Displays 10.
+  print(c3.value)  # Also displays 10.
+
   # Classes can also have class attributes. A class attribute is an
   # attribute that is associated with the class itself rather than
   # any particular instance of the class. A class attribute is defined
