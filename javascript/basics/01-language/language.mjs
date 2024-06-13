@@ -85,9 +85,9 @@
 // by setting "type": "module" in package.json.
 // I usually do both. But NOT for this project. Some features that I
 // want to explore (e.g. implicit globals) are not available in
-// 'strict' mode. Since module automatically enable strict mode, I am
-// not using the "type": "module" which will make all files modules,
-// regardless of the .mjs extension.
+// 'strict' mode. Since modules automatically enable strict mode, I am
+// not using the "type": "module" entry which will make all files
+// modules, regardless of the .mjs extension.
 
 // A Note on Javascript coding style
 // I use the Google Javascript style guide for my code.

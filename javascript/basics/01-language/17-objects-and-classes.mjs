@@ -286,7 +286,7 @@ export function exploreObjects() {
     lastName: 'Doe',
     age: 30,
     email: 'john@example.com'
-  }
+  };
   // noinspection UnnecessaryLocalVariableJS
   /**
    * @description A reference to the person object
@@ -306,7 +306,7 @@ export function exploreObjects() {
     lastName: 'Doe',
     age: 30,
     email: 'john@example.com'
-  }
+  };
 
   // Two objects are equal only if they refer to the same object.
   // In general, even though == does compare references in the case
@@ -391,7 +391,7 @@ export function exploreObjects() {
     city: 'New York',
     state: 'New York',
     country: 'USA'
-  }
+  };
 
   /**
    * @description A person object that is a clone of person7 and
@@ -418,7 +418,7 @@ export function exploreObjects() {
     age: 25,
     email: 'jenny@example.com',
     location: location
-  }
+  };
   /**
    * @description A person object that is a shallow clone of person11
    * @type {{firstName: string, lastName: string, age: number, email: string, location: {country: string, city: string, state: string}}}
@@ -477,7 +477,7 @@ export function exploreObjects() {
     lastName: 'Doe',
     age: 30,
     email: 'doe@example.com',
-  }
+  };
   // noinspection JSUndefinedPropertyAssignment
   person15.greet =  function() {
     console.log(`Hello, my name is ${this.firstName} ${this.lastName}`);
@@ -500,7 +500,7 @@ export function exploreObjects() {
     greet: function () {
       console.log(`Hello, my name is ${this.firstName} ${this.lastName}`);
     }
-  }
+  };
   person16.greet(); // Hello, my name is Jane Doe
 
   // greet: function() can be simplified further by simply defining
@@ -519,7 +519,7 @@ export function exploreObjects() {
     greet() {
       console.log(`Hello, my name is ${this.firstName} ${this.lastName}`);
     }
-  }
+  };
   person17.greet(); // Hello, my name is Jackie McNamara
 
   // Arrow functions are not suitable for object methods. This is because
@@ -544,7 +544,8 @@ export function exploreObjects() {
       arrow()
       return arrow
     }
-  }
+  };
+
   let af = user.sayHi(); // Illya
   af(); // Also Illya, since it was defined in the same context as sayHi
 
@@ -601,6 +602,132 @@ export function exploreObjects() {
     }
   };
   user3.greet();
+
+  // 10. Property Flags
+  // Properties in Javascript objects have flags that define how
+  // the property can be accessed. The flags are set when the property
+  // is created. The flags have default values when the property
+  // is created. The flags can be changed using the Object.defineProperty()
+  // method. The Object.defineProperty() method allows you to define new
+  // properties or modify existing properties on an object. The method
+  // takes three arguments: the object on which the property is defined,
+  // the name of the property, and a property descriptor object that
+  // specifies the attributes of the property.
+  let person18 = {
+    name: 'Harry Potter',
+    age: 18
+  };
+  let descriptor = Object.getOwnPropertyDescriptor(person18, 'name');
+  console.log(descriptor);
+
+  // Standard properties have the following flags:
+  // 1. writable: If 'true', the property can be changed using the assignment operator.
+  // 2. enumerable: If 'true', the property is iterated over by the 'for...in' loop.
+  // 3. configurable: If 'true', the property can be deleted and its attributes can be changed.
+  // By default, all three flags are 'true' for standard properties.
+
+  // Note that it's probably not a good idea to change the flags of regular properties.
+  // In particular if you are trying to make a property read-only, it's better to use
+  // a getter method to simulate a read-only property.
+
+  // You can change the flags using the Object.defineProperty() method.
+  // The method takes three arguments: the object on which the property is defined,
+  // the name of the property, and a property descriptor object that specifies the
+  // attributes of the property.
+  Object.defineProperty(person18, 'name', { writable: false });
+
+  // Now the name property is read-only. You cannot change the value of the name property.
+  // The following statement will throw an error in strict mode.
+  try {
+    person18.name = 'Hermione Granger'; // Throws an error in strict mode
+  } catch (e) {
+    console.error(e);
+  }
+
+  // Note that if the property is a reference type, the reference itself is read-only.
+  // The object that the property refers to is not read-only.
+
+  // You can also use the Object.defineProperty() method to define new properties.
+  // If the property does not exist, the method creates a new property with the
+  // specified attributes. If the property already exists, the method changes the
+  // attributes of the property.
+  Object.defineProperty(person18, 'city', { value: 'London', writable: false });
+  console.log(person18.city); // London
+
+  // 11. Property Getters and Setters
+  // Javascript objects can have properties that are computed on the fly.
+  // These properties are called computed properties. Computed properties
+  // are defined using getter and setter methods. The getter method is
+  // called when you retrieve the value of a property. The setter
+  // method is called when you set a property's value.
+  let person19 = {
+    firstName: 'Harry',
+    lastName: 'Potter',
+    get fullName() {
+      return `${this.firstName} ${this.lastName}`;
+    },
+    set fullName(value) {
+      let parts = value.split(' ');
+      this.firstName = parts[0];
+      this.lastName = parts[1];
+    }
+  };
+
+  // You can access the computed property using the dot notation as
+  // if it were a regular property.
+  console.log(person19.fullName); // Harry Potter
+  person19.fullName = 'Hermione Granger';
+  console.log(person19.fullName); // Hermione Granger
+  console.log(person19.firstName); // Hermione
+  console.log(person19.lastName); // Granger
+
+  // Using a getter without a setter is a good way to simulate a
+  // read-only property.
+  let person20 = {
+    firstName: 'Ron',
+    lastName: 'Weasley',
+    get fullName() {
+      return `${this.firstName} ${this.lastName}`;
+    }
+  };
+  console.log(person20.fullName); // Ron Weasley
+
+  // Using a setter without a getter is a good way to simulate a
+  // write-only property. This is not very common, but it is possible.
+  let person21 = {
+    _password: '',
+    set password(value) {
+      this._password = value;
+    }
+  };
+  person21.password = 'secret';
+
+  // 12. Private properties and methods
+  // Javascript does not have private properties and methods. All
+  // properties and methods of an object are public. By convention,
+  // however, properties and methods that are intended to be private
+  // are prefixed with an underscore. This is a signal to other
+  // developers that the property or method is intended to be private.
+  // The underscore is not enforced by the language. It is a convention
+  // that is followed by developers.
+
+  // In the example below, the _first and _last properties are
+  // intended to be private. They are prefixed with an underscore to
+  // signal that they are private. The fullName property is a computed
+  // property that is public. It is intended to be accessed by other
+  // developers.
+  /**
+   * @description A person object with private properties
+   * @type {{_first: string, _last: string, readonly name: string}}
+   */
+  let person22 = {
+    _first: 'Harry',
+    _last: 'Potter',
+    get name() {
+return `${this._first} ${this._last}`;
+    }
+  };
+  console.log(person22.name); // Harry Potter
 }
 
 /**
@@ -646,6 +773,7 @@ export function exploreClasses() {
       this.firstName = firstName;
       this.lastName = lastName;
       this.age = age;
+      this.email = email;
     }
 
     /**
@@ -659,4 +787,10 @@ export function exploreClasses() {
 
   let user1 = new Person('John', 'Doe', 30, 'john@example.com');
   console.log(user1.greet());
+
+  // 1. Checking for class membership
+  // You can check if an object is an instance of a class using the
+  // instanceof operator. The instanceof operator returns 'true' if
+  // the object is an instance of the class and 'false' otherwise.
+  console.log(user1 instanceof Person); // true
 }
