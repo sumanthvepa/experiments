@@ -61,7 +61,25 @@ func exploreControlFlow() {
     print("It's not a day of the week!")
   }
 
-  // For loops
+  // For loops.
+  // This is the full form of the for loop. The scope of variable
+  // i is restricted to the for loop. Note the lack of a let keyword.
+  // The let is implied in a for statement. If you don't want to
+  // modify the loop variable, then this form works fine.
+  for i: Int in 1...5 {
+    print(i)
+  }
+
+  // In this case the loop variable is being modified
+  // within the loop so it needs to be declared var.
+  // In general, modifying the loop variable within
+  // the loop is not a great idea.
+  for var i: Int in 1...5 {
+    if i == 1 { i = 2 }
+  }
+
+  // This is the short hand version. Notice that there is no type
+  // annotation. The type is inferred from context.
   for i in 1...5 {
     print(i)
   }

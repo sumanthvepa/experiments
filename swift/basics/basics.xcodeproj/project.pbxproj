@@ -22,6 +22,7 @@
 		27E6C78C2BCAB46D006B81F6 /* print.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E6C78B2BCAB46D006B81F6 /* print.swift */; };
 		27EDC8202C0ECF6E00C05682 /* exceptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EDC81F2C0ECF6E00C05682 /* exceptions.swift */; };
 		27FA38572BD123D8005F28E4 /* variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FA38562BD123D8005F28E4 /* variables.swift */; };
+		27FA79942C1AC51300304C64 /* enumerations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FA79932C1AC51300304C64 /* enumerations.swift */; };
 		27FFD3402C10728000988832 /* assertions-and-preconditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FFD33F2C10728000988832 /* assertions-and-preconditions.swift */; };
 /* End PBXBuildFile section */
 
@@ -54,6 +55,7 @@
 		27E6C78B2BCAB46D006B81F6 /* print.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = print.swift; sourceTree = "<group>"; };
 		27EDC81F2C0ECF6E00C05682 /* exceptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = exceptions.swift; sourceTree = "<group>"; };
 		27FA38562BD123D8005F28E4 /* variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = variables.swift; sourceTree = "<group>"; };
+		27FA79932C1AC51300304C64 /* enumerations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = enumerations.swift; sourceTree = "<group>"; };
 		27FFD33F2C10728000988832 /* assertions-and-preconditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "assertions-and-preconditions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -103,6 +105,7 @@
 				27FFD33F2C10728000988832 /* assertions-and-preconditions.swift */,
 				278ECDD82C12C074005D5469 /* operators.swift */,
 				278ECDDC2C17CD31005D5469 /* functions.swift */,
+				27FA79932C1AC51300304C64 /* enumerations.swift */,
 			);
 			path = basics;
 			sourceTree = "<group>";
@@ -181,6 +184,7 @@
 				277C9AB82BD6AD1E00CB6452 /* typealiases.swift in Sources */,
 				27FA38572BD123D8005F28E4 /* variables.swift in Sources */,
 				27E6C78C2BCAB46D006B81F6 /* print.swift in Sources */,
+				27FA79942C1AC51300304C64 /* enumerations.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

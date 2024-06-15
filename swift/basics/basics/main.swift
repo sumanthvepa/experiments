@@ -140,3 +140,6 @@ exploreControlFlow()
 
 // Note 15: Explore functions
 exploreFunctions()
+
+// Note 16: Explore enumerations
+exploreEnumerations()
