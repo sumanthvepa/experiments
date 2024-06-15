@@ -202,3 +202,7 @@ exploreFunctions();
 import { exploreObjects, exploreClasses } from './17-objects-and-classes.mjs';
 exploreObjects();
 exploreClasses();
+
+// Note 18: Explore enumerations
+import { exploreEnumerations } from "./18-enumerations.mjs";
+exploreEnumerations();
