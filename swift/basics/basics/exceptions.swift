@@ -24,6 +24,7 @@
 
 /**
   Explore exceptions
+  - return: Void
 */
 func exploreExceptions() {
   // Exceptions are any type that implements the Error protocol
@@ -284,7 +285,9 @@ func exploreExceptions() {
   }
 
   /**
-          
+    This function throws an exception depending on
+    what page it is asked to load.
+
   */
   func load2(page: String) throws -> String {
     if page == "index.html" {

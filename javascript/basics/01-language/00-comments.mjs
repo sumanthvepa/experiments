@@ -95,7 +95,7 @@ export function exploreComments() {
 
 // JSDoc is a whole topic in itself. I will cover it in much more
 // detail below, but I'll have to do it in increments, because it is
-// a very large topic. For now I'll just dump a bunch of links
+// a very large topic. For now, I'll just dump a bunch of links
 // I find useful here:
 // This is the canonical documentation for JSDoc: https://jsdoc.app/
 // This is the JSDoc cheatsheet: https://devhints.io/jsdoc

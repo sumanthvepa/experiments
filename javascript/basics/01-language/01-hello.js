@@ -6,8 +6,9 @@
  *
  * Note that is a .js file. This means that it is a Javascript file;
  * not a module. This has been done to make it possible to run the
- * file as a standalone program. The main driver can import the script.
- * and it will run within the context of the main driver.
+ * file as a standalone program. The main driver, language.mjs, can
+ * also import the script, and it will run within the context of the
+ * main driver.
  */
 /* -------------------------------------------------------------------
  * 01-hello.js: A program that prints  "Hello, World!".
