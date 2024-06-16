@@ -39,6 +39,7 @@ import sequences
 import operators
 import control_flow
 import functions
+import enumerations
 
 
 print('Exploring Python')
@@ -312,8 +313,7 @@ functions.explore_functions()
 class_basics.explore_class_basics()
 
 # Note 13: Explore enums
-# enumerations.explore_enumerations()
-
+enumerations.explore_enumerations()
 
 # Future explorations
 # Note: Explore dataclasses
