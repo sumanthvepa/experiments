@@ -143,3 +143,6 @@ exploreFunctions()
 
 // Note 16: Explore enumerations
 exploreEnumerations()
+
+// Note 17: Explore classes and structures
+exploreClassesAndStructures()

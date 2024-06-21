@@ -268,5 +268,70 @@ func exploreEnumerations() {
 
   print(evaluate(expression: sum)) // Prints 9
   print(evaluate(expression: product)) // Prints 18
+
+  // Enumerations are value types. This means that when you
+  // assign an enumeration to a variable or pass it to a function,
+  // a copy of the enumeration is made.
+  // E.g.
+  enum LightSwitch {
+    case On
+    case Off
+  }
+  let lightSwitch = LightSwitch.On
+  var newLightSwitch = lightSwitch
+  newLightSwitch = .Off
+  print("Light switch is \(lightSwitch)") // Prints On
+  print("New light switch is \(newLightSwitch)") // Prints Off
+
+
+  // As with structs, the enums themselves are immutable from
+  // within the enum methods. To modify the enum, you have to
+  // mark the method as mutating.
+  enum CompassPoint {
+    case North
+    case South
+    case East
+    case West
+
+    // No need to mark this mutating. It does not change
+    // the properties of the enum.
+    var degrees: Int {
+      get {
+        switch self {
+        case .North:
+          return 0
+        case .South:
+          return 180
+        case .East:
+          return 90
+        case .West:
+          return 270
+        }
+      }
+    }
+
+    // Neets to be marked mutating because it needs
+    // to modify properties of the enum. Self in this
+    // case. Note that in this case a method on the 
+    // enum is changing the very object it is working on.
+    // This is somewhat unusual. But it is possible.
+    mutating func turnRight() {
+      switch self {
+      case .North:
+        self = .East
+      case .East:
+        self = .South
+      case .South:
+        self = .West
+      case .West:
+        self = .North
+      }
+    }
+  }
+
+  var direction = CompassPoint.North
+  print("Direction is \(direction)") // Prints North
+  direction.turnRight()
+  print("Direction is \(direction)") // Prints East
 }
 
