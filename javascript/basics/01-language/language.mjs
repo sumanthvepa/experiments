@@ -199,10 +199,20 @@ import { exploreFunctions } from './16-functions.mjs';
 exploreFunctions();
 
 // Note 17: Explore objects and classes
-import { exploreObjects, exploreClasses } from './17-objects-and-classes.mjs';
+import {
+  exploreObjects,
+  exploreClasses,
+  exploreObjectInheritance,
+  exploreConstructorFunctionBasedClasses,
+  exploreClassInheritance
+} from './17-objects-and-classes.mjs';
 exploreObjects();
+exploreObjectInheritance();
+exploreConstructorFunctionBasedClasses();
 exploreClasses();
+exploreClassInheritance();
+
 
 // Note 18: Explore enumerations
-import { exploreEnumerations } from "./18-enumerations.mjs";
-exploreEnumerations();
+// import { exploreEnumerations } from "./18-enumerations.mjs";
+// exploreEnumerations();
