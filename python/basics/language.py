@@ -40,7 +40,11 @@ import operators
 import control_flow
 import functions
 import enumerations
-
+import dynamic_typing
+import metaclasses
+import abstract_base_classes
+import data_classes
+import advanced_class_concepts
 
 print('Exploring Python')
 
@@ -311,16 +315,36 @@ functions.explore_functions()
 
 # Note 12: Explore class basics
 class_basics.explore_class_basics()
+class_basics.explore_inheritance()
 
 # Note 13: Explore enums
 enumerations.explore_enumerations()
 
+# Note 14: Explore dynamic typing
+dynamic_typing.explore_dynamic_type_creation()
+
+# Note 15: Explore metaclasses
+metaclasses.explore_metaclasses()
+
+# Note 16: Explore abstract base classes
+abstract_base_classes.explore_abstract_base_classes()
+
+# Note 17: Explore Dataclasses
+data_classes.explore_dataclasses()
+
+# Note 18: Explore advanced class concepts
+advanced_class_concepts.explore_slots()
+
 # Future explorations
-# Note: Explore dataclasses
-# Note: Explore Abstract Base Classes
-# Note: Explore Meta Classes
-# Note: Explore Named Tuples
-# Note: Explore slots
-# Note: Explore Enums
-# Note: Explore yield an coroutines
-# Note: Explore async and await
+# Note: Explore tuples
+# Note: Explore named tuples
+# Note: Explore lists
+# Note: Explore arrays
+# Note: Explore sets
+# Note: Explore decorators
+# Note: Explore context managers
+# Note: Explore descriptors
+# Note: Explore generators, yield, coroutines, and async/await
+# Note: Explore __getattr_,  __setattr__ and __delattr__ and the attrs module
+# Note: Explore functools module
+# Note: Explore weak references
