@@ -1,0 +1,4 @@
+These are a collection of problematic constructs that
+I've come across in Swift. They cause the current version
+of the compiler to crash. So they should be avoided.
+
