@@ -336,6 +336,7 @@ data_classes.explore_dataclasses()
 advanced_class_concepts.explore_slots()
 
 # Future explorations
+# Note: Explore MRO and multiple inheritance
 # Note: Explore tuples
 # Note: Explore named tuples
 # Note: Explore lists
