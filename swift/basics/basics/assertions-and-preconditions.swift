@@ -70,17 +70,17 @@ func exploreAssertionsAndPreConditions() {
   // preconditionFailure("Things are real bad man!")
   
   // Note that both assert and precondition are optimized out
-  // in some situations.
-  // Details of when preconditions and asserts will fail are well
-  // described by https://blog.krzyzanowskim.com/2015/03/09/swift-asserts-the-missing-manual/
+  // in some situations. Details of when preconditions and asserts
+  // will fail are well described by
+  // https://blog.krzyzanowskim.com/2015/03/09/swift-asserts-the-missing-manual/
   
-  // The behavior of these functions under variuous build conditions is given below, and is taken
-  // from the blog post above.
+  // The behavior of these functions under variuous build conditions
+  // is given below, and is taken from the blog post above.
   
-  //  assert   DEBUG mode (will terminat)  RELEASE mode (will not terminate)   RELEASE -Ounchecked (will not terminate)
-  //  assertFailure DEBUG mode (will terminat)  RELEASE mode (will not terminate)   RELEASE -Ounchecked (will not terminate)
-  //  precondition DEBUG mode (will terminat)  RELEASE mode (will  terminate)   RELEASE -Ounchecked (will not terminate)
-  //  preconditionFailure DEBUG mode (will terminat)  RELEASE mode (will terminate)   RELEASE -Ounchecked (will terminate)
+  //  assert   DEBUG mode (will terminate)  RELEASE mode (will not terminate)   RELEASE -Ounchecked (will not terminate)
+  //  assertFailure DEBUG mode (will terminate)  RELEASE mode (will not terminate)   RELEASE -Ounchecked (will not terminate)
+  //  precondition DEBUG mode (will terminate)  RELEASE mode (will  terminate)   RELEASE -Ounchecked (will not terminate)
+  //  preconditionFailure DEBUG mode (will terminate)  RELEASE mode (will terminate)   RELEASE -Ounchecked (will terminate)
   
   // If you want to ensure that a program terminates no matter what conditions it is built under
   // then use fatalError

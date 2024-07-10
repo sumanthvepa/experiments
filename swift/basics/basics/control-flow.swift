@@ -41,6 +41,9 @@ func exploreControlFlow() {
   saySomethingAboutTheTemperature(temperature: temperature)
   
   // Switch statements
+  // Unlike C, C++, and Java, Swift does not require a break
+  // after each case. Cases do not fall through. The default
+  // case is required if you don't cover all possible cases.
   let day = "Monday"
   switch day {
   case "Monday":
@@ -187,7 +190,7 @@ func exploreControlFlow() {
   }
   unwrapInteger()
   
-  // Note: These are constructs the GitHub Copilor recommended
+  // Note: These are constructs the GitHub Copilot recommended
   // as part of the section on control flow. I'll explore them
   // in more detail later. For now I've kept them as a reminder
   // to me that I should explore them further.

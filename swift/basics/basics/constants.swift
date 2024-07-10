@@ -44,7 +44,7 @@ func exploreConstants() {
   let constant = 10
   print("constant = ", constant)
 
-  // The in the initialization above, the type of the constant
+  // In the initialization above, the type of the constant
   // was inferred from the type of the literal assigned to it.
   // in this case Int. (Note that IDEs like VSCode will show the
   // type of the inferred constant inline in gray. This type 

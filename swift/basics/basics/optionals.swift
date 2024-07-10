@@ -27,6 +27,8 @@
  */
 func exploreOptionals() {
   // An Optional is a type that can hold either a value or nil
+  // It is defined by appending a question mark to the type
+  // of the value it holds.
   var optionalInt: Int? = 10 // Optional Int with value 10
   
   // The type of optionalInt is Int? or as printed Optional<Int>
@@ -43,20 +45,21 @@ func exploreOptionals() {
   // using the String(describing: ) constructor.
   print("optionalInt = \(String(describing: optionalInt))")
   
-  // You can assign nill to an optional to indicate that it has no value
-  // Note that you can only use nil with optional values.
+  // You can assign nil to an optional to indicate that it has no
+  // value. Note that you can only use nil with optional values.
   optionalInt = nil
   
   // If an optional is not initialized with a value, it is given a value
   // of nil.
   var surveyAnswer: String?
   print("surveyAnswer = \(String(describing: surveyAnswer))")
-  surveyAnswer = "Some random ansewer";
+  surveyAnswer = "Some random answer";
   print("surveyAnswer = \(String(describing: surveyAnswer))")
   
   // Parsing strings into Ints or Floats will result in an
   // optional being created. The type is inferred in this
-  // context.
+  // context. (Note VSCode shows inferred type as grayed out text.
+  // That is not part of the file itself.)
   let possibleInt = Int("123")
   print("type(of: possibleInt) = \(type(of: possibleInt))") // Optional<Int>
   
@@ -91,11 +94,18 @@ func exploreOptionals() {
     print("type(of: unwrappedValue) = \(type(of: unwrappedValue))") // type(of: unwrappedValue) = Int
     print("unwrappedValue = \(unwrappedValue)") // unwrappedValue = 123
   }
+
+  // You can specify the type of the unwrapped value explicitly
+  // in the if let construct. Although, this is usually not necessary,
+  // since the type is easily inferred.
+  if let unwrappedValue: Int = possibleInt {
+    print("type(of: unwrappedValue) = \(type(of: unwrappedValue))") // type(of: unwrappedValue) = Int
+    print("unwrappedValue = \(unwrappedValue)")
+  }
   
   // A shorthand for the if let conditional is now available
   if let possibleInt {
-    // This code is also onlly executed if possibleInt
-    // is not nil.
+    // This code is also only executed if possibleInt is not nil.
     // Here however, there is no need for a unwrappedValue variable.
     // A variable with the same name as the optional
     // but of type Int is created which shadows the
@@ -105,7 +115,8 @@ func exploreOptionals() {
     print("possibleInt = \(possibleInt)") // possibleInt = 123
   }
   
-  // If an optional value is nil then the else conditional  (if it exists) is executed.
+  // If an optional value is nil then the else conditional (if it
+  // exists) is executed.
   if let optionalInt {
     print("This code is never executed. optionalInt = \(optionalInt)")
   } else {
@@ -137,9 +148,11 @@ func exploreOptionals() {
   optionalFloat = 23.45
   print("optionalFloat = \(String(describing: optionalFloat))")
   
-  // Sometimes you simply want to check if the value is nil and if so create a non-optional
-  // variable with a default. This can be done in using the nil coalescing operator.
-  // This is similar in function to the null coalescing operator in Javascript.
+  // Sometimes you simply want to check if the value is nil and if
+  // so create a non-optional variable with a default. This can be
+  // done in using the nil coalescing operator.
+  // This is similar in function to the null coalescing operator in
+  // Javascript.
   let textBoxValue: String? = nil
   // Here username is assigned textBoxValue if it is not nil. Otherwise username
   // is assigned anonymous if textBoxValue is nil. Since textBoxValue is indeed nil
@@ -159,15 +172,17 @@ func exploreOptionals() {
   }
   print("username2 = \(username2)")
   
-  // An implicitly unwrapped optional is declared with an exclamation mark after
-  // the type. For this type of optional, the language assumes that it has a valid
-  // value of the underlying type and will allow it to be used in most contexts where
-  // the underlying type is permitted. A fatal runtime error will occur if the value
-  // is actually nil.
-  // Use implicitly unwrapped optionals, when you are absolutely sure that the
-  // optional will have a non-null value. Like the situation below. (Or more realistically,
-  // a value returned by a function that returns an optional, but is guaranteed not to
-  // return nil in the given context.)
+  // An implicitly unwrapped optional is declared with an exclamation
+  // mark after the type. For this type of optional, the language
+  // assumes that it has a valid value of the underlying type and will
+  // allow it to be used in most contexts where the underlying type is
+  // permitted. A fatal runtime error will occur if the value is
+  // actually nil.
+  // Use implicitly unwrapped optionals, when you are absolutely sure
+  // that the optional will have a non-null value. Like the situation
+  // below. (Or more realistically, a value returned by a function
+  // that returns an optional, but is guaranteed not to return nil in
+  // the given context.)
   let implicitlyUnwrappedString: String! = "an actual string"
   // The type of implicitlyUnwrappedString is still Optional<String>
   print("type(of: isString) = \(type(of: implicitlyUnwrappedString))")
@@ -187,8 +202,8 @@ func exploreOptionals() {
   // let trueString2 = implicitlyUnwrappedString2
   // print("trueString = \(trueString)")
   
-  // Optional Chaining us used to access the properties of an instance of an optional
-  // over an underlying class or struct.
+  // Optional Chaining is used to access the properties of an instance
+  // of an optional over an underlying class or struct.
   // Consider the following struct User
   struct User {
     var username: String

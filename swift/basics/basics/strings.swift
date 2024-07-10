@@ -23,7 +23,7 @@
  *-----------------------------------------------------------------*/
 
 /**
-   This function explore strings.
+   Explore strings.
  */
 func exploreStrings() {
   // Strings in Swift are Unicode compliant and enclosed within double
@@ -41,7 +41,7 @@ func exploreStrings() {
   print(str2)
   print(type(of: str2))
 
-  // Strings literal can be multiline. These are enclosed within triple
+  // String literals can be multiline. These are enclosed within triple
   // double quotes. (See note about VSCode above)
   let str3 = """
   This is a multiline string.
@@ -191,6 +191,4 @@ func exploreStrings() {
   // in problem domain (for example names, addresses etc.), but use == when comparing
   // strings that are artifacts of
   // computer systems (example GUIDs function names etc.)
-  
-  
 }

@@ -287,7 +287,6 @@ func exploreExceptions() {
   /**
     This function throws an exception depending on
     what page it is asked to load.
-
   */
   func load2(page: String) throws -> String {
     if page == "index.html" {
@@ -313,7 +312,7 @@ func exploreExceptions() {
     // This means you cannot access the error enum instance's
     // code and status properties.
     // In situations where the enum does not have any computed
-    // properties or method that you want to access than this
+    // properties or method that you want to access, then this
     // method works fine.
     print("\(filename) not found.")
   } catch let error as HttpErrorExtended {
@@ -340,7 +339,7 @@ func exploreExceptions() {
   }
   
   
-  // The obkeve do catch clause is somewhat cumbersome to
+  // The above do catch clause is somewhat cumbersome to
   // read for this particular use case, because, the handling
   // of the enums cases is done inconsistently. FileNotFound
   // is handled directly at catch clause level, while the other

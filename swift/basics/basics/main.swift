@@ -44,6 +44,14 @@ main.swift: Explore the Swift Programming Language.
   9. typealiases.swift: Using typealiases in Swift
   10. optionals.swift: Using optionals in Swift
   11. tuples.swift: Using tuples in Swift
+  12. exceptions.swift: Using xceptions
+  13. assertions-and-preconditions.swift: Using assertions and preconditions
+  14. operators.swift: Using operators in Swift
+  15. control-flow.swift: Control flow structures in Swift
+  16. functions.swift: Using functions in Swift
+  17. enumerations.swift: Using enumerations in Swift
+  18. classes-and-structures.swift: Explore classes and structures
+
 
  For more information on the Swift Programming language, see the
  following references:
@@ -98,51 +106,75 @@ main.swift: Explore the Swift Programming Language.
 documentedWithDocComment()
 documentedWithTripleSlashComment()
 
-// Note 2: print.swift: Basic printing to console in Swift.
+// Note2: shebang.swift: Using Swift as a scripting language.
+// This file is a separate project outside of this Xcode project.
+// It explores the use of Swift as a scripting language.
+
+// Note 3: print.swift: Basic printing to console in Swift.
 printSomething()
 
-// Note 3: contants.swift: Explore Constants
+// Note 4: constants.swift: Explore Constants
 exploreConstants()
 
-// Note 4: variables.swift: Explore Variables.
+// Note 5: variables.swift: Explore Variables.
 exploreVariables()
 
-// Note 5: numbers.swift: Explore numbers
+// Note 6: numbers.swift: Explore numbers
 exploreIntegers()
 exploreFloatingPointNumbers()
 
-// Note 6: strings.swift: Explore strings
+// Note 7: strings.swift: Explore strings
 exploreStrings()
 
-// Note 7: booleans.swift: Explore booleans
+// Note 8: booleans.swift: Explore booleans
 exploreBooleans()
 
-// Note 8: typealiases.swift: Explore typealiases
+// Note 9: typealiases.swift: Explore typealiases
 exploreTypeAliases()
 
-// Note 9: optionals.swift: Explore optionals
+// Note 10: optionals.swift: Explore optionals
 exploreOptionals()
 
-// Note 10: tuples.swift: Explore tuples
+// Note 11: tuples.swift: Explore tuples
 exploreTuples()
 
-// Note 11: Explore exceptions
+// Note 12: exceptions.swift: Explore exceptions
 exploreExceptions()
 
-// Note 12: Explore assertions and preconditions
+// Note 13: assertions-and-preconditions.swift: Explore assertions
+// and preconditions
 exploreAssertionsAndPreConditions()
 
-// Note 13: Explore operators in Swift
+// Note 14: operators.swift: Explore operators in Swift
 exploreOperators()
 
-// Note 14: Explore control flow in Swift
+// Note 15: control-flow.swift: Explore control flow in Swift
 exploreControlFlow()
 
-// Note 15: Explore functions
+// Note 16: fnctions.swift: Explore functions
 exploreFunctions()
 
-// Note 16: Explore enumerations
+// Note 17: enumerations.swift: Explore enumerations
 exploreEnumerations()
 
-// Note 17: Explore classes and structures
+// Note 18: classes-and-structures.swift: Explore classes and structures
 exploreClassesAndStructures()
+exploreInheritance()
+exploreAdvancedClassConcepts()
+exploreExtensions()
+
+// Note 19: protocols.swift: Explore protocols
+exploreProtocols()
+exploreConditionalProtocolConformance()
+exploreAssociatedTypes()
+exploreOpaqueTypes()
+exploreBoxedTypes()
+
+// Note 20: opaque-collections.swift:
+// Explore the complex interactions involved in returning opaque collections
+exploreOpaqueCollectionsWorkaround1()
+
+// Note 21: Explore Generics
+exploreGenerics()
+
+// TODO: Explore arrays
