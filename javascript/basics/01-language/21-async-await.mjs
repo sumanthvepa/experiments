@@ -98,6 +98,27 @@ export async function exploreAsyncAwait() {
   // You can also of course use the .catch() method on the promise returned by
   // the async function to catch the error.
   fakeFailure().catch((error) => console.error(error));
+
+  // You can also use the 'finally' block to execute code after the promise
+  // is settled.
+  try {
+    await fakeFailure();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    console.log('Finally block executed');
+  }
+
+  // You can run multiple async functions concurrently using Promise.all()
+  // This is useful when you have multiple independent async functions
+  // that you want to run concurrently.
+  let [message1, message2] = await Promise.all([
+    delayedMessage('Hello', 1000),
+    delayedMessage('World', 2000)
+  ]);
+  console.log(message1, message2);
+
+  // You can make similar use of the other Promise methods.
 }
 
 // You cannot use the await keyword outside an async function except
