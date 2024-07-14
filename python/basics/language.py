@@ -45,6 +45,7 @@ import metaclasses
 import abstract_base_classes
 import data_classes
 import advanced_class_concepts
+import async_await
 
 print('Exploring Python')
 
@@ -334,6 +335,9 @@ data_classes.explore_dataclasses()
 
 # Note 18: Explore advanced class concepts
 advanced_class_concepts.explore_slots()
+
+# Note 19: Explore async/await and asyncio
+async_await.explore_async_await()
 
 # Future explorations
 # Note: Explore MRO and multiple inheritance
