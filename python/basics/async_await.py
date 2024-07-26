@@ -77,7 +77,7 @@ def explore_async_await() -> None:
 
   # From within a non-async function, you can execute the coroutine
   # using the asyncio.run function. This function runs the coroutine
-  # in the asyncio event loop.
+  # in the asyncio event loop. 
   print('Starting sequential execution of coroutines')
   print(datetime.now(tz=timezone.utc))
   asyncio.run(coroutine)
@@ -137,6 +137,10 @@ def explore_async_await() -> None:
   # Notice that the total time taken to run both coroutines is
   # now ~5 seconds. This is because the coroutines are running
   # concurrently.
+
+  # Also notice that the code above will wait for task1 to finish
+  # before checking on the completion of task2. So if task2
+  # finishes early then we won't know about it until task1 finishes.
 
   # This is another way to run multiple coroutines concurrently.
   # You can use the asyncio.gather function. This function takes a
@@ -532,3 +536,7 @@ def explore_async_await() -> None:
   asyncio.run(cancel_delayed_message())
   print('Finished task cancellation')
   print(datetime.now(tz=timezone.utc))
+
+  # TODO: Explore async for loops
+  # Refer to this video from mCoding for guidance:
+  # https://www.youtube.com/watch?v=dEZKySL3M9c
