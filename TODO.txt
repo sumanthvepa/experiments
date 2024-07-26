@@ -1,3 +1,5 @@
+[DONE][issue060] swift-twosum: 
+  Explore creating packages and unit testing in swift 
 [DONE][issue059] swift-asyncs:
   Explore asynchronous programming in Swift
 [DONE][issue058] javascript-basics-11-browser-interactions:
