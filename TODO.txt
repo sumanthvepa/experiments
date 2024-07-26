@@ -1,3 +1,6 @@
+[DONE][issue061] leetcode-twosum:
+  The leetcode twosum problem solved in a variety of programming
+  languages
 [DONE][issue060] swift-twosum: 
   Explore creating packages and unit testing in swift 
 [DONE][issue059] swift-asyncs:
