@@ -87,6 +87,18 @@ func exploreControlFlow() {
     print(i)
   }
 
+  // You can also iterate over a range in reverse.
+  for i in (1...5).reversed() {
+    print(i)
+  }
+
+  // When you want the index and the value, you can use the
+  // enumerated() method.
+  let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+  for (index, day) in days.enumerated() {
+    print("Day \(index + 1): \(day)")
+  }
+
   // While loops
   var i = 1
   while i <= 5 {

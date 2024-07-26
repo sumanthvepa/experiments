@@ -177,4 +177,18 @@ exploreOpaqueCollectionsWorkaround1()
 // Note 21: Explore Generics
 exploreGenerics()
 
+// Note 22: Explore Concurrency
+// Please note that this exploration of concurrency in this project
+// is necessarily limited. This is because, in Swift, the entire
+// project must be asynchronous to use concurrency. But the basics
+// project is not asynchronous.
+// A complete exploration of concurrency can be found in the
+// asyncs project.
+// To learn about concurrency in Swift, start here, and then
+// move on to the asyncs project.
+exploreEventLoops()
+exploreConcurrency()
+callingAsyncCodeFromSyncCodeHack1()
+callingAsyncCodeFromSyncCodeHack2()
+
 // TODO: Explore arrays

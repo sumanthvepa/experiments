@@ -452,4 +452,18 @@ func exploreExceptions() {
   } catch {
     print("savePage failed")
   }
+
+  // You can convert an exception into a return value that contains either
+  // the result of the function or the error that was thrown.
+  // This is done using the Result type. The Result type is
+  // an enum that has two cases: success and failure. The
+  // success case contains the result of the function and the
+  // failure case contains the error that was thrown.
+  let result: Result<String, Error> = Result { try load(page: "index.html") }
+  switch result {
+  case .success(let content):
+    print("Result: \(content)")
+  case .failure(let error):
+    print("Error: \(error)")
+  }
 }
