@@ -44,8 +44,10 @@ func exploreVariables() {
   
   // If you choose not to initialize the variable, you need to
   // specify its type.
-  var mass: Double = 84
-  print("mass = ", mass)
+  var mass: Double
+  // You cannot access a variable that has not been initialized.
+  // print("mass = ", mass) // Error variable 'mass' used before
+                            // being initialized
   print("type(of: mass) = ", type(of: mass))
   
   mass = 60

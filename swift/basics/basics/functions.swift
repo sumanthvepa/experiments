@@ -64,7 +64,8 @@ func exploreFunctions() {
   print("The sum of 3, 5, and 7 is \(sumOfThree)")
 
 
-  // Functions have both an argument label and a parameter name.
+  // Functions have both an argument label and a parameter name. 
+  // The argument label is specified before the parameter name.
   // The argument label is used when calling the function, and the
   // parameter name is used within the function.
   // If only one name is specified, it is used as both the argument
@@ -109,7 +110,7 @@ func exploreFunctions() {
   swapTwoInts(a: &x, b: &y)
 
   // Functions can take a variable number of arguments,
-  // also called variadic parameter using the ... syntax.
+  // also called variadic parameters using the ... syntax.
   // Note that in the function below all arguments must
   // be of int Int type.
   func sumOf(numbers: Int...) -> Int {
@@ -156,11 +157,10 @@ func exploreFunctions() {
   print("callFunction(function: add, a: 3, b: 5) = \(callFunction(function: add, a: 3, b: 5))")
   
   // Functions can return other functions:
-  // Notice that the returned function carries the
-  // context under which it was invoked. In this
-  // case it is the value of a that was passed to
-  // makeAdder at the point at wich the particular
-  // instnace of the adder function was created.
+  // Notice that the returned function carries the context under which
+  // it was invoked. In this case it is the value of a that was passed
+  // to makeAdder at the point at wich the particular instnace of the
+  // adder function was created.
   func makeAdder(a: Int) -> (Int) -> Int {
     func adder(b: Int) -> Int {
       return a + b
@@ -231,7 +231,7 @@ func exploreFunctions() {
   names.sort { $0 < $1 }
   
   // You can also use trailing closures with functions that take
-  // multiple arguments. In this case the closure is the last
+  // multiple arguments. In this case the closure must be the last
   // argument to the function.
   let numbers = [1, 2, 3, 4, 5]
   let sumOfNumbers1 = numbers.reduce(0) { $0 + $1 }
@@ -283,5 +283,5 @@ func exploreFunctions() {
   }
 
   // TODO: Explore capture lists in more detail later.
-  // TODO: Explore 
+  // https://www.hackingwithswift.com/articles/179/capture-lists-in-swift-whats-the-difference-between-weak-strong-and-unowned-references
 }

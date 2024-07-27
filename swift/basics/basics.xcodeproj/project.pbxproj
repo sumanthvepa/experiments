@@ -9,7 +9,11 @@
 /* Begin PBXBuildFile section */
 		27364E202BC81C12008168B9 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27364E1F2BC81C12008168B9 /* main.swift */; };
 		27364E272BC81CE0008168B9 /* comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27364E262BC81CDF008168B9 /* comments.swift */; };
+		273E58CD2C3A24C6001F7582 /* protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 273E58CC2C3A24C6001F7582 /* protocols.swift */; };
+		273E58CF2C3B8300001F7582 /* generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 273E58CE2C3B8300001F7582 /* generics.swift */; };
+		2753A96F2C46073F007E3FCD /* concurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2753A96E2C46073F007E3FCD /* concurrency.swift */; };
 		2769B62A2C0C0B6F0076A60A /* tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2769B6292C0C0B6F0076A60A /* tuples.swift */; };
+		277594302C3E2AF2002B91B5 /* opaque-collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2775942F2C3E2AF2002B91B5 /* opaque-collections.swift */; };
 		277C9AB82BD6AD1E00CB6452 /* typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277C9AB72BD6AD1E00CB6452 /* typealiases.swift */; };
 		277C9ABA2BD6AE6800CB6452 /* booleans.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277C9AB92BD6AE6800CB6452 /* booleans.swift */; };
 		278CA2F32BFDBD5100F52573 /* optionals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 278CA2F22BFDBD5100F52573 /* optionals.swift */; };
@@ -43,7 +47,11 @@
 		27364E1C2BC81C12008168B9 /* basics */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = basics; sourceTree = BUILT_PRODUCTS_DIR; };
 		27364E1F2BC81C12008168B9 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		27364E262BC81CDF008168B9 /* comments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = comments.swift; sourceTree = "<group>"; };
+		273E58CC2C3A24C6001F7582 /* protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = protocols.swift; sourceTree = "<group>"; };
+		273E58CE2C3B8300001F7582 /* generics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = generics.swift; sourceTree = "<group>"; };
+		2753A96E2C46073F007E3FCD /* concurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = concurrency.swift; sourceTree = "<group>"; };
 		2769B6292C0C0B6F0076A60A /* tuples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tuples.swift; sourceTree = "<group>"; };
+		2775942F2C3E2AF2002B91B5 /* opaque-collections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "opaque-collections.swift"; sourceTree = "<group>"; };
 		277C9AB72BD6AD1E00CB6452 /* typealiases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = typealiases.swift; sourceTree = "<group>"; };
 		277C9AB92BD6AE6800CB6452 /* booleans.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = booleans.swift; sourceTree = "<group>"; };
 		278CA2F22BFDBD5100F52573 /* optionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = optionals.swift; sourceTree = "<group>"; };
@@ -109,6 +117,10 @@
 				278ECDDC2C17CD31005D5469 /* functions.swift */,
 				27FA79932C1AC51300304C64 /* enumerations.swift */,
 				27D572BD2C1E73940072AD74 /* classes-and-structures.swift */,
+				273E58CC2C3A24C6001F7582 /* protocols.swift */,
+				273E58CE2C3B8300001F7582 /* generics.swift */,
+				2775942F2C3E2AF2002B91B5 /* opaque-collections.swift */,
+				2753A96E2C46073F007E3FCD /* concurrency.swift */,
 			);
 			path = basics;
 			sourceTree = "<group>";
@@ -172,12 +184,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				27B61F2C2BD33BCE00081C3E /* numbers.swift in Sources */,
+				277594302C3E2AF2002B91B5 /* opaque-collections.swift in Sources */,
 				278ECDD92C12C074005D5469 /* operators.swift in Sources */,
 				27FFD3402C10728000988832 /* assertions-and-preconditions.swift in Sources */,
 				278ECDDD2C17CD31005D5469 /* functions.swift in Sources */,
 				27364E202BC81C12008168B9 /* main.swift in Sources */,
 				27364E272BC81CE0008168B9 /* comments.swift in Sources */,
 				278CA2F32BFDBD5100F52573 /* optionals.swift in Sources */,
+				273E58CD2C3A24C6001F7582 /* protocols.swift in Sources */,
+				2753A96F2C46073F007E3FCD /* concurrency.swift in Sources */,
 				27E6C78A2BCA05D6006B81F6 /* constants.swift in Sources */,
 				27EDC8202C0ECF6E00C05682 /* exceptions.swift in Sources */,
 				2769B62A2C0C0B6F0076A60A /* tuples.swift in Sources */,
@@ -187,6 +202,7 @@
 				279926C12BDDD6DA006869D4 /* strings.swift in Sources */,
 				277C9AB82BD6AD1E00CB6452 /* typealiases.swift in Sources */,
 				27FA38572BD123D8005F28E4 /* variables.swift in Sources */,
+				273E58CF2C3B8300001F7582 /* generics.swift in Sources */,
 				27E6C78C2BCAB46D006B81F6 /* print.swift in Sources */,
 				27FA79942C1AC51300304C64 /* enumerations.swift in Sources */,
 			);

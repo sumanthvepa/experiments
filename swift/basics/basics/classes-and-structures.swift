@@ -69,15 +69,69 @@ func exploreClassesAndStructures() {
   // You can use the class or structure by creating an instance of it
   // using the initializer syntax. You can access the properties and
   // methods of the class or structure using the dot syntax.
+  // Note in particular tha you can change the properties of a
+  // let constant class instance. This is because the reference
+  // is treated as a constant, not the instance itself.
   let person = Person()
   person.name = "Sanjay"
   person.age = 60
   print(person.description())
 
+  // For struct though you cannot do that. It's a value type
+  // and its values are immutable.
+  // This won't work:
+  /*
+  let rectangle0 = Rectangle()
+  rectangle0.width = 10
+  rectangle0.height = 20
+  */
+
+  // Declaring the rectangle as a variable will work.
   var rectangle = Rectangle()
   rectangle.width = 10
   rectangle.height = 20
   print(rectangle.area())
+
+  // If you want make the value of a property immutable in a class
+  // you need to declare it as a constant (let).
+  class Part {
+    let id: Int
+    var name: String
+
+    // We'll discuss initializers later. But for now, this
+    // initializes the properties of the class.
+    init (id: Int, name: String) {
+      self.id = id
+      self.name = name
+    }
+  }
+
+  // Now id is a constant and cannot be changed, regardless of
+  // whether the Part instance is a constant or a variable.
+  let part1 = Part(id: 1, name: "Engine")
+  // This will not work
+  // part1.id = 2
+  // You can change the name property because it is a variable.
+  part1.name = "Motor"
+  print("Part 1: \(part1.id), \(part1.name)")
+
+  // Even if the part instance is a variable, the id property
+  // cannot be changed.
+  var part2 = Part(id: 2, name: "Wheel")
+  // This will not work
+  // part2.id = 3
+  // But the name can be changed as it is a variable.
+  part2.name = "Tire"
+  print("Part 2: \(part2.id), \(part2.name)")
+  // Because part2 is a variable, it can be made to reference
+  // a completely different instance
+  let part3 = Part(id: 3, name: "Transmission")
+  part2 = part3 // Now part2 and 3 reference the same instance
+
+  // Changing part2 will change part3 as well.
+  part2.name = "Continuous Variable Transmission"
+  // Prints Part 3: 3, Continuous Variable Transmission
+  print("Part 3: \(part3.id), \(part3.name)")
 
   // If you want to initialize the properties of a class or structure
   // at the point of creation, you can define an initializer.
@@ -107,8 +161,8 @@ func exploreClassesAndStructures() {
 
   // Works the same way for a struct. But structs don't need
   // initializers just to initialize their properties (unless some
-  // complex computation). This is because they have a default
-  // memberwise initializer.
+  // complex computation is needed). This is because they have a
+  // default memberwise initializer.
   struct Rectangle2 {
     var width: Int
     var height: Int
@@ -141,6 +195,18 @@ func exploreClassesAndStructures() {
       return "Name: \(name), Age: \(age)"
     }
   }
+  let person3a = Person3(name: "Alex", age: 20)
+  // You can modify the age because both person3a and age are variables
+  person3a.age = 30
+  print(person3a.description())
+
+  // Error: Cannot assign to name: 'name' is a 'let' constant
+  // person3a.name = "Sam"
+
+  let person3b = Person3(name: "Bob", age: 30)
+  // Error: Cannot assign to property: 'person3b' is a 'let' constant
+  person3b.age = 40
+  print(person3b.description())
 
   // You can also define a default value for the property.
   // instead of doing it in the initializer.
@@ -163,6 +229,12 @@ func exploreClassesAndStructures() {
     
     // Needs to be marked mutating because it needs
     // to modify properties of the struct.
+    // This won't work:
+    // func moveBy(deltaX: Int, deltaY: Int) {
+    //   x += deltaX
+    //   y += deltaY
+    // }
+    // But this will: (Note the mutating keyword)
     mutating func moveBy(deltaX: Int, deltaY: Int) {
       x += deltaX
       y += deltaY
@@ -345,8 +417,9 @@ func exploreClassesAndStructures() {
   // Properties can have observers that observe and respond to
   // changes in the property's value. You can add property observers
   // to stored properties and computed properties that have been
-  // inherited. You can't add property observers to lazy stored
-  // properties because they are initialized only once.
+  // inherited. You can't add property observers to computed properties
+  // defined in the same class (you don't need an observer) or lazy
+  // stored properties because they are initialized only once.
   // The example below adds property observers to the radius
   // property of the Circle2 class.
   class Circle2 {
@@ -362,12 +435,12 @@ func exploreClassesAndStructures() {
       // The didSet observer is called just after the value
       // of the property is set. It is passed the old value
       // as a parameter.
-      //didSet(oldRadius) {
-      //  print("Just changed \(oldRadius) radius to \(radius)")
-      //}
+      didSet(oldRadius) {
+        print("Just changed \(oldRadius) radius to \(radius)")
+      }
     }
 
-    // You cannot have a willSet observer on a computed property
+    // You cannot have a willSet/didSet observer on a computed property
     // unless it is inherited from a base class.
     var diameter: Double {
       get {
@@ -658,4 +731,673 @@ func exploreClassesAndStructures() {
   for i in 1...8 {
     print(Planets[i])
   }
+
+  // Classes can also have deinitializers. A deinitializer is called
+  // immediately before a class instance is deallocated. You define
+  // a deinitializer using the deinit keyword:
+  class CustomFile {
+    var filename: String
+
+    init(filename: String) {
+      // Simulate opening a file
+      self.filename = filename
+      print("Opening file \(filename)")
+    }
+
+    deinit {
+      // Simulate closing a file
+      print("Closing file \(filename)")
+    }
+  }
+
+  // The deinitializer is called when the instance of the class is
+  // deallocated. This happens when the instance goes out of scope
+  // or when the reference to the instance is set to nil.
+  var file: CustomFile? = CustomFile(filename: "data.txt")
+  print("file?.filename = \(String(describing: file?.filename))")
+  file = nil // Prints Closing file data.txt
+
+  // It also works in situations where an exception is thrown
+  class CustomError: Error {
+    var message: String
+
+    init(message: String) {
+      self.message = message
+    }
+  }
+
+  func funcThatThrows() throws {
+    let file = CustomFile(filename: "file-in-func-that-throws.txt")
+    if file.filename == "file-in-func-that-throws.txt" {
+      throw CustomError(message: "An error occurred")
+    }
+    // The deinitializer is called on file when the exception is
+    // thrown
+  }
+
+  do {
+    try funcThatThrows()
+  } catch {
+    print("Caught error")
+  }
+}
+
+func exploreInheritance() {
+  // Inheritance is a way to define a new class based on an existing
+  // class. The new class inherits the properties and methods of the
+  // existing class. The existing class is called the superclass and
+  // the new class is called the subclass.
+  // E.g.:
+  class Person {
+    let name: String
+    let age: Int
+
+    // This is a normal initializer. It is refered to as a designated
+    // initializer.
+    init(name: String, age: Int) {
+      self.name = name
+      self.age = age
+    }
+
+    // You can have more than one initializer for a class
+    // for example. This initializer will always create
+    // a person named John Doe aged 28. These initializers
+    // are called convenience initializers and are marked
+    // with the keyword convenience. Convenience initializers
+    // can call designated initializer or other convenience
+    // initializers in the same class, but not initializers
+    // in the superclass.
+    convenience init() {
+      self.init(name: "John Doe", age: 28)
+    }
+
+    func greet() -> String {
+      return "Hi! I am \(name). I am \(age) years old"
+    }
+  }
+
+  let bob = Person(name: "Bob", age: 45)
+  print(bob.greet())
+
+  // We can inherit from Person:
+  class Employee: Person {
+    let job: String
+
+    // The initializer of this class does NOT need an override
+    // modifier because it is actually a different fuction. The
+    // signature is different; there is an additional job parameter.
+    // It needs to delegate the initialization of the name and age to
+    // the superclass's initializer. It cannot initialize superclass
+    // properties directly.
+    init(name: String, age: Int, job: String) {
+      // self.name = name // Error. Cannot directly initialize a
+                          // superlcass property.
+      // self.age = age   // Error. Cannot directly initialize a
+                          // superlcass property.
+
+      // You cannot call super init, without initializing this class's
+      // properties first.
+      // super.init(name: name, age: age) // This will not work.
+      self.job = job
+
+      // Ok. And required. You must call the initializer here.
+      // Unless a suitable empty designated initializer is available
+      // in the superclass. Then it is called by default.
+      super.init(name: name, age: age)
+    }
+
+    // You can also have a convenience initializer for
+    // Employee. But a convenience initializer cannot
+    // call a superclass initializer. These rules for initializers
+    // ensure that it is not possible to use a property that has not
+    // been initialized.
+    convenience init() {
+      // self.job = "Janitor"  // This is pointless, you need to
+                               // delegate to the designated
+                               // initializer anyway.
+      // super.init()  // Error. Cannot delegate to superclass
+                       // initializer
+      // super.init(name: "John Doe", age: 28)  // Error. No joy.
+                                                // Cannot delegate to 
+                                                // a superlcass
+                                                // initializer
+
+      // Ok. And required. Delegating to a designated initializer
+      // in the same class.
+      self.init(name: "John Doe", age: 28, job: "Programmer")
+    }
+
+    // You can override methods with the override keyword.
+    override func greet() -> String {
+      // You can call the superclass's method using the super keyword.
+      let prefix = super.greet()
+      return prefix + " I'm a \(job)"
+    }
+  }
+
+  let alice = Employee(name: "Alice", age: 25, job: "Programmer")
+  print(alice.greet())
+
+  // You cannot inherit from a struct.
+  struct NotSubclassableShape {
+    var name: String
+
+    init(name: String) {
+      self.name = name
+    }
+
+    func description() -> String {
+      return "A \(name)"
+    }
+  }
+
+  // Error: Inheritance from non-protocol, non-class type 'Shape
+  /*
+  struct Polygon: NotSubClassableShape {
+
+  }
+  */
+
+  // A struct cannot inherit from a class either.
+  // Stucts cannot particiapte in inheritance at all.
+  class Shape {
+    var name: String
+
+    init(name: String) {
+      self.name = name
+    }
+
+    func description() -> String {
+      return "A \(name)"
+    }
+  }
+
+  // Error: Inheritance from non-protocol, non-class type 'Shape2'
+  /*
+  struct Polygon: Shape2 {
+  }
+  */
+
+  // You can override properties of a superclass. But the property must not
+  // be immutable. So name can be changed only during initialization as
+  // shown below: the prefix 'Dr.' is added to the person's name.
+  class Doctor: Person {
+    var specialization: String
+
+    init(name: String, age: Int, specialization: String) {
+      self.specialization = specialization
+      super.init(name: "Dr. " + name, age: age)
+    }
+
+    override func greet() -> String {
+      return super.greet() + ". I am a \(specialization)."
+    }
+  }
+
+  // With this definition of a person, you can change
+  // the name of the person after initialization.
+  class Person2 {
+    var name: String
+    var age: Int
+
+    init(name: String, age: Int) {
+      self.name = name
+      self.age = age
+    }
+
+    func greet() -> String {
+      return "Hi! I am \(name). I am \(age) years old"
+    }
+  }
+
+  let person2 = Person2(name: "Alice", age: 25)
+  print(person2.greet())
+  person2.name = "Alice Smith"
+  print(person2.greet())
+
+  // When you derive a class from Person2, the name property
+  // can be overridden, because it is a variable.
+  class Doctor2: Person2 {
+    var specialization: String
+
+    init(name: String, age: Int, specialization: String) {
+      self.specialization = specialization
+      super.init(name: name, age: age)
+    }
+
+    // Here the name property is being overridden. The name
+    // is prefixed with 'Dr.'. When you override a property
+    // you must override both the getter and the setter.
+    override var name: String {
+      get {
+        return "Dr. " + super.name
+      }
+      set {
+        super.name = newValue
+      }
+    }
+
+    override func greet() -> String {
+      return super.greet() + ". I am a \(specialization)."
+    }
+  }
+
+  let drSmith = Doctor2(name: "Alice", age: 25, specialization: "Cardiologist")
+  print(drSmith.greet())
+
+  // You can use overrides to add property observers to properties
+  // of a superclass. The example below adds property observers to
+  // the specialization property of the Doctor2 class to keep track
+  // of the doctor's job history.
+
+  class DoctorWithJobHistory: Doctor2 {
+    var jobHistory: [String] = []
+
+    // Here the ovrride keyword is required, since the subclass
+    // needs to initialize the jobHistory property with the
+    // initial value of the specialization property.
+    override init (name: String, age: Int, specialization: String) {
+      super.init(name: name, age: age, specialization: specialization)
+      jobHistory.append(specialization)
+    }
+
+    // We override the specialization property to add the
+    // specialization to the jobHistory property when it is
+    // changed.
+    override var specialization: String {
+      didSet {
+        jobHistory.append(specialization)
+      }
+    }
+  }
+
+  let drJones = DoctorWithJobHistory(name: "Indiana Jones", age: 38, specialization: "Resident in Internal Medicine")
+  print(drJones.greet())
+  // Let's promote Dr. Jones
+  drJones.specialization = "Attending Physician in Internal Medicine"
+  // Prints ["Resident in Internal Medicine", "Attending Physician in Internal Medicine"]
+  print(drJones.jobHistory)
+
+  // You can use the final keyword to prevent a class from being
+  // subclassed.
+  final class FinalClass {
+    var name: String
+
+    init(name: String) {
+      self.name = name
+    }
+  }
+
+  // Error: Inheritance from a final class 'FinalClass'
+  /*
+  class SubClass: FinalClass {
+  }
+  */
+
+  // You can declare individual methods or properties as final
+  // to prevent them from being overridden in subclasses, rather
+  // than the entire class.
+  class BaseClass {
+    final func finalMethod() {
+      print("This method cannot be overridden")
+    }
+
+    func nonFinalMethod() {
+      print("This method can be overridden")
+    }
+  }
+
+  class SubClass: BaseClass {
+    // Error: Cannot override final method
+    /*
+    override func finalMethod() {
+      print("This method cannot be overridden")
+    }
+    */
+
+    // This is okay
+    override func nonFinalMethod() {
+      print("This method has been overridden")
+    }
+  }
+
+  let sub = SubClass()
+  sub.finalMethod() // Prints This method cannot be overridden
+  sub.nonFinalMethod() // Prints This method has been overridden
+
+  // Unlike languages such as Java, Swift does not have the concept
+  // of abstract classes. You cannot declare a class or a method as
+  // abstract.
+  // There are two ways to achieve the same effect in Swift. The first
+  // is to use a protocol. You can define a protocol with the required
+  // methods and properties and then have the classes that need to
+  // implement the methods and properties conform to the protocol.
+  // See protocols.swift for more information on protocols.
+  // E.g.
+  protocol Shape3 {
+    var area: Double { get }
+    var perimeter: Double { get }
+  }
+
+  class Circle: Shape3 {
+    var radius: Double
+
+    init(radius: Double) {
+      self.radius = radius
+    }
+
+    var area: Double {
+      return Double.pi * radius * radius
+    }
+
+    var perimeter: Double {
+      return 2 * Double.pi * radius
+    }
+  }
+
+  let circle = Circle(radius: 5)
+  print("Area: \(circle.area), Perimeter: \(circle.perimeter)")
+
+  // The second way to achieve the same effect is to use a class
+  // with a method that throws an error. The method can be marked
+  // as abstract by throwing an error. The subclass must override
+  // the method and provide an implementation.
+  // E.g.
+
+  // This is just the error that is thrown when the abstract
+  // method is called.
+  class AbstractMethodError: Error {
+    var message: String
+
+    init(message: String) {
+      self.message = message
+    }
+  }
+
+  class AbstractClass {
+    func aMethod() throws {
+      throw AbstractMethodError(message: "This method is abstract")
+    }
+  }
+
+  class ConcreteClass: AbstractClass {
+    override func aMethod() {
+      print("This is the concrete implementation")
+    }
+  }
+
+  let concrete = ConcreteClass()
+  concrete.aMethod() // Prints This is the concrete implementation
+
+  // In general, it is better to use protocols to define abstract
+  // classes in Swift.
+
+  // A class can force a subclass to implement an initializer by
+  // using the required keyword. The subclass must implement the
+  // required initializer.
+  class BaseClass2 {
+    required init() {
+      print("BaseClass2 initializer")
+    }
+  }
+
+  class SubClass2: BaseClass2 {
+    let member = 10
+    // This won't work, because, even though it matches the signature
+    // of the required initializer, it is not marked as required.
+    /*
+    init() {
+      print("SubClass2 initializer")
+    }
+    */
+
+    // This is fine. It is marked as required.
+    required init() {
+      print("SubClass2 initializer")
+    }
+  }
+
+  // Now you can create an instance of the subclass.
+  let sub2 = SubClass2()
+  print(sub2.member)
+
+  // You *have* to define the exact signatue of the required
+  // initializer. Otherwise you get a compile time error.
+  class SubClass3: BaseClass2 {
+    let member: String
+
+    // This is not the required initializer init()
+    // This can be present but is not sufficient.
+    init(member: String) {
+      self.member = member
+      print("SubClass3 initializer")
+      super.init() // You can call this explicity if you wish.
+    }
+
+    // You must have this required initializer as well.
+    required init() {
+      member = "Default"
+      print("SubClass3 initializer")
+      // super.init() is called implicity.
+    }
+  }
+
+  // Now you can create an instance of the subclass.
+  let sub3 = SubClass3()
+  print(sub3.member)
+
+  // A class can have a failible initializer as well. This is
+  // useful in situations where the initialization can fail.
+  // E.g.:
+  // For the class below, the initializer will fail if the filename
+  // is empty.
+  class Database {
+    init?(filename: String) {
+      if filename.isEmpty {
+        return nil
+      }
+      print("Opening database \(filename)")
+    }
+
+    func store(data: String) {
+      print("Storing \(data)")
+    }
+  }
+  // In this situation, constructing a new Database will result
+  // in an optional Database instance.
+  let database:Database? = Database(filename: "data.db") // Prints Opening database data.db
+  print("Type of database: \(type(of: database))") // Prints Type of database: Optional<Database>
+  if let database: Database = database {
+    print("Database opened successfully")
+    database.store(data: "some stuff")
+  } else {
+    print("Failed to open database")
+  }
+
+  // You can also create failible initializer which returns an
+  // implicitly unwrapped optional. This is useful when you are
+  // sure that the initialization will not fail.
+  // E.g.:
+  class Database2 {
+    init!(filename: String) {
+      if filename.isEmpty {
+        return nil
+      }
+      print("Opening database \(filename)")
+    }
+
+    func store(data: String) {
+      print("Storing data: \(data)")
+    }
+  }
+
+  // In this situation, constructing a new Database2 will result
+  // in an implicitly unwrapped optional Database2 instance.
+  // Prints Opening database data.db
+  let database2:Database2! = Database2(filename: "data.db")
+  // Prints Type of database2: Optional<Database2>
+  print("Type of database2: \(type(of: database2))")
+  // You can however directly use the instance without unwrapping it.
+  database2.store(data: "Some data") // Note that you can call the
+                                     // method directly without
+                                     // unwrapping.
+
+  // In general, it is better to use a failible initializer that
+  // returns an optional rather than an implicitly unwrapped optional.
+}
+
+func exploreAdvancedClassConcepts() {
+  // A class, struct or enum can be nested within another class, struct
+  // or enum. This is useful when the nested type is only used by the
+  // enclosing type. The nested type can access the properties and
+  // methods of the enclosing type.
+  // E.g.:
+  class Car {
+   // The Engine class is nested within the Car class. It is only
+    // used by the Car class.
+    class Engine {
+      var horsepower: Int
+      var displacement: Double
+
+      init(horsepower: Int, displacement: Double) {
+        self.horsepower = horsepower
+        self.displacement = displacement
+      }
+
+      func description() -> String {
+        return "\(horsepower) hp, \(displacement) L"
+      }
+    }
+
+    let make: String
+    let model: String
+    let year: Int
+    let engine: Engine
+
+
+    init(make: String, model: String, year: Int, horsepower: Int, displacement: Double) {
+      self.make = make
+      self.model = model
+      self.year = year
+      self.engine = Engine(horsepower: horsepower, displacement: displacement)
+    }
+
+ 
+
+    func description() -> String {
+      return "A \(year) \(make) \(model)"
+    }
+  }
+
+  let car = Car(make: "Toyota", model: "Corolla", year: 2020, horsepower: 140, displacement: 1.8)
+  print(car.description())
+  print(car.engine.description())
+
+  // You can reference the nested type using the dot syntax.
+  let engine = Car.Engine(horsepower: 140, displacement: 1.8)
+  print(engine.description())
+}
+
+
+// Extensions are a way to add new functionality to an existing class,
+// struct, enum, or protocol. You don't have to have access to the
+// source code of the class. You can add new properties, methods,
+// subscripts, and initializers to an existing type using extensions.
+// However, extensions must be declared at file scope. They cannot be
+// used to extend a type within a function or method. Hence, this
+// example is shown at file scope.
+class FileScopePerson {
+  var name: String
+  var age: Int
+
+  init(name: String, age: Int) {
+    self.name = name
+    self.age = age
+  }
+
+  func greet() -> String {
+    return "Hi! I am \(name). I am \(age) years old"
+  }
+}
+
+// This extension adds a new method to the FileScopePerson class.
+// It also modifies the greet method.
+extension FileScopePerson {
+  func shout() -> String {
+    return "I'm \(name) damn it!. I'm bloody \(age) years old! Ain't I?"
+  }
+
+  // As the name extension implies. You can add new functionality.
+  // but you cannot modify existing methods or override them.
+  // For that use inheritance.
+  // Won't work with or without the override keyword.
+  /*
+  override func greet() -> String {
+    return "Grumble. I'm not feeling talkitive today"
+  }
+  */
+
+  // Extensions can add new properties to a class. But they cannot
+  // add stored properties to a class. They can only add computed
+  // properties. Below is an example of a computed property.
+  // Note that it is short-hand way to define just a getter.
+  var description: String {
+    return "Name: \(name), Age: \(age)"
+  }
+
+  // You can also add new initializers to a class using an extension.
+  // This initializer is a convenience initializer. It initializes
+  // the name and age properties to default values.
+  convenience init() {
+    self.init(name: "John Doe", age: 28)
+  }
+
+  // You can also add mutating methods to a class using an extension.
+  // This method changes the name of the person to uppercase.
+  // If extending a struct or enum use the mutating keyword to allow the
+  // method to change the properties of the struct.
+  func shoutName() {
+    name = name.uppercased()
+  }
+
+  // You can also define subscripts in an extension.
+  // This subscript returns the name of the person if the index is 0
+  // and the age of the person if the index is 1.
+  subscript(index: Int) -> String {
+    if index == 0 {
+      return name
+    }
+    if index == 1 {
+      return String(age)
+    }
+    return ""
+  }
+
+  // Extensions can add pretty much anything to a class, except
+  // for stored properties. You can add nested types, type properties,
+  // type methods, type subscripts, static methods, and
+  // static properties.
+}
+
+func exploreExtensions() {
+  // Now we can use the shout method on the FileScopePerson class.
+  let angryPerson = FileScopePerson(name: "Alice", age: 25)
+  print (angryPerson.shout())
+  print(angryPerson.shout())
+  // And the computed description property.
+  print(angryPerson.description)
+
+  // And mutating method.
+  angryPerson.shoutName()
+  print(angryPerson.shout())
+
+  // And the convenience initializer.
+  let defaultPerson = FileScopePerson()
+  print(defaultPerson.greet())
+  print(defaultPerson.description)
+  print(defaultPerson.shout())
+
+  // And the subscript
+  print(defaultPerson[0]) // Prints John Doe
+  print(defaultPerson[1]) // Prints 28
 }

@@ -51,9 +51,16 @@ func exploreEnumerations() {
   }
 
   // Call the function with different HttpError cases
+  // You don't need to specify the enum type when calling
+  // the function. The compiler can infer the type from the
+  // function signature. So the following will work:
   handleHttpError(error: .NotFound)
   handleHttpError(error: .BadRequest)
   handleHttpError(error: .InternalServerError)
+
+  // Although you could if you wish specify the full type
+  // as shown below:
+  handleHttpError(error: HttpError.NotFound)
 
   // You can get the total number of enum cases if
   // you implement the CaseIterable protocol
@@ -113,7 +120,10 @@ func exploreEnumerations() {
   print("Area of triangle: \(triangleArea)")
 
   // Enumerations can have values associated with each
-  // case, not just an instance of a case. This is more
+  // case, not just an instance of a case. See the explanation
+  // that follows the example below.
+
+  // This is more
   // in line with how enums work in languages like Java.
   // This technique is discussed in exceptions.swift.
   // It is reproduced here for completeness.
@@ -164,6 +174,29 @@ func exploreEnumerations() {
         }
       }
     }
+  }
+
+  // To explain the difference between a case and an instance of a
+  // case, consider the example above. In the example above, you can
+  // create an instance of the case HttpErrorExtended.FileNotFound
+  // with a filename associated with it as follows:
+  let fileNotFound = HttpErrorExtended.FileNotFound(filename: "index.html")
+  let anotherFileNotFound = HttpErrorExtended.FileNotFound(filename: "about.html")
+
+  // Prints 404 because the code property is 404 for the FileNotFound case.
+  // You cannot change the code property of the case on a per instance basis.
+  print("Code for FileNotFound is \(fileNotFound.code)")
+  print("Code for AnotherFileNotFound is \(anotherFileNotFound.code)")
+
+  // However, you can have different associated values for each instance
+  // of the case. For the example above, the filename can be accessed
+  // using an if case let statement as shown below.
+  if case let HttpErrorExtended.FileNotFound(filename) = fileNotFound {
+    print("File not found: \(filename)")
+  }
+
+  if case let HttpErrorExtended.FileNotFound(filename) = anotherFileNotFound {
+    print("Another file not found: \(filename)")
   }
 
   // Enumerations can have raw values. Raw values are

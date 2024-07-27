@@ -52,7 +52,10 @@ export function exploreEnumerations() {
     return HttpErrors.NotFound;
   }
 
-  // You can 
+  const error = returnAnError();
+  console.log(`The error is: ${error}`);
+
+  // You can iterate over the keys of the HttpErrors object
   for (let httpError in HttpErrors) {
     console.log(`${httpError}`);
   }

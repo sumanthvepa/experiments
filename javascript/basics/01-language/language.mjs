@@ -199,10 +199,36 @@ import { exploreFunctions } from './16-functions.mjs';
 exploreFunctions();
 
 // Note 17: Explore objects and classes
-import { exploreObjects, exploreClasses } from './17-objects-and-classes.mjs';
+import {
+  exploreObjects,
+  exploreClasses,
+  exploreObjectInheritance,
+  exploreConstructorFunctionBasedClasses,
+  exploreClassInheritance
+} from './17-objects-and-classes.mjs';
 exploreObjects();
+exploreObjectInheritance();
+exploreConstructorFunctionBasedClasses();
 exploreClasses();
+exploreClassInheritance();
 
 // Note 18: Explore enumerations
 import { exploreEnumerations } from "./18-enumerations.mjs";
 exploreEnumerations();
+
+// Note 19: Explore callbacks
+import { exploreCallbacks } from "./19-callbacks.mjs";
+exploreCallbacks();
+
+// Note 20: Explore promises
+import { explorePromises } from "./20-promises.mjs";
+explorePromises();
+
+import {
+  exploreAsyncAwait,
+  exploreCallingAsyncFunctionsFromWithinNonAsyncFunctions } from "./21-async-await.mjs";
+await exploreAsyncAwait();
+// Call a non-async function that calls an async function
+exploreCallingAsyncFunctionsFromWithinNonAsyncFunctions();
+
+// TODO: Explore exceptions

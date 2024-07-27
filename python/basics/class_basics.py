@@ -329,6 +329,8 @@ def explore_class_basics() -> None:  # pylint: disable=too-many-locals, too-many
         decorator indicates that this is a static method. Static methods
         do not take self or cls as the first argument. They are used
         when you want to define a method that is logically associated
+        with a class but does not need access to the class or any of
+        its instances.
 
         This code uses the import from __future__ import annotations
         to get around the limitation of forward references. The type
@@ -371,6 +373,61 @@ def explore_class_basics() -> None:  # pylint: disable=too-many-locals, too-many
   e5 = E.make_e(5)
   print(f'e5.value = {e5.value}')  # Displays 5
 
+  # Private name mangling
+  # Python does not have private variables in the same sense as
+  # other languages like Java or C++. However, Python does have
+  # a mechanism called name mangling that allows you to create
+  # variables that are not easily accessible from outside the class.
+  # Name mangling is done by prefixing the variable name with two
+  # underscores. This causes the variable name to be mangled by
+  # adding the class name to the variable name. This makes it
+  # difficult to access the variable from outside the class.
+  # Here is an example:
+  class G:  # pylint: disable=too-few-public-methods
+    """
+      This is a class with a private variable.
+    """
+    def __init__(self) -> None:
+      """
+        Constructor of class G.
+        :return: None
+      """
+      # This is a private variable. It is not accessible from outside
+      # the class.
+      self.__private_value: str = 'private value'
+
+    def get_private_value(self) -> str:
+      """
+        Return the value of the private variable.
+        :return: The value of the private variable.
+      """
+      return self.__private_value
+
+    def set_private_value(self, value: str) -> None:
+      """
+        Set the value of the private variable.
+        :return: None
+      """
+      self.__private_value = value
+
+  g = G()
+  # This will raise an AttributeError because the private variable
+  # cannot be accessed from outside the class.
+  try:
+    # noinspection PyUnresolvedReferences
+    print(g.__private_value)  # pylint: disable=protected-access
+  except AttributeError as e:
+    print(f'AttributeError: {e}')
+
+  # Assigning to the private variable will not raise an error.
+  # But will create a new instance variable that shadows the private
+  # variable. This can be very confusing. DO NOT assign to private
+  # variables from outside the class.
+  g.__private_value = 'new value'  # pylint: disable=protected-access
+  print(g.get_private_value())  # Displays private value
+  # noinspection PyUnresolvedReferences
+  print(g.__private_value)  # Displays new value # pylint: disable=protected-access
+
   # All the classes defined above are defined at function scope. This
   # means that they are only available within the explore_class_basics
   # function. If you try to access any of these classes outside the
@@ -384,5 +441,81 @@ def explore_class_basics() -> None:  # pylint: disable=too-many-locals, too-many
   print(f.value)  # Displays d
 
 
+def explore_inheritance() -> None:
+  """
+    Explore inheritance in Python
+    :return: None
+  """
+  # Inheritance is a mechanism by which a class can inherit
+  # attributes and methods from another class. The class that
+  # is inherited from is called the base class or superclass.
+  # The class that inherits from the base class is called the
+  # derived class or subclass. Inheritance is defined using
+  # the following syntax:
+  class Person:  # pylint: disable=too-few-public-methods
+    """
+      A representation of a person.
+    """
+    def __init__(self, first_name, last_name, age, email) -> None:
+      """
+        Constructor of the base class.
+        :param str first_name: First name of the person.
+        :param str last_name: Last name of the person.
+        :param int age: Age of the person.
+        :param str email: Email of the person.
+        :return: None
+      """
+      self.first_name = first_name
+      self.last_name = last_name
+      self.age = age
+      self.email = email
+
+    def full_name(self) -> str:
+      """
+        Return the full name of the person.
+        :return: The full name of the person.
+      """
+      return self.first_name + ' ' + self.last_name
+
+    def greet(self) -> str:
+      """
+        Return a greeting.
+        :return: A greeting.
+      """
+      return f'Hello, my name is {self.full_name()}. ' \
+          + f'I am {self.age} years old. You can contact me at {self.email}.'
+
+  class Employee(Person):  # pylint: disable=too-few-public-methods
+    """
+      A representation of an employee.
+    """
+    def __init__(  # pylint: disable=too-many-arguments
+      self,
+      first_name: str,
+      last_name: str,
+      age: int,
+      email: str,
+      job: str) -> None:
+      """
+        Constructor of the derived class.
+        :return: None
+      """
+      # Call the constructor of the base class.
+      super().__init__(first_name, last_name, age, email)
+      self.job = job
+
+    def greet(self) -> str:
+      """
+        Method of the derived class.
+        :return: The value attribute of the object.
+      """
+      return super().greet() + f' I work as a {self.job}.'
+
+  # Create an instance of the Employee class
+  employee1 = Employee('Alice', 'Smith', 30, 'alice@example.com', 'Software Engineer')
+  print(employee1.greet())
+
+
 if __name__ == '__main__':
   explore_class_basics()
+  explore_inheritance()

@@ -30,9 +30,9 @@ import Foundation
   Formats any signed integer type with comma separators
  
   This is a generic method that handles Int, Int8, Int16, Int32 and Int64.
-  This use Swifts new way of formatting numbers: ``IntegerFormatStyle``
+  This use Swift's new way of formatting numbers: ``IntegerFormatStyle``
   Which is a generic class for formatting integers. In this implementation, it
-  takes a Int parameter.
+  takes an Int parameter.
  
   See [Apple's Developer Documentation](https://developer.apple.com/documentation/foundation/integerformatstyle)
   for how to use this.
@@ -164,7 +164,7 @@ func exploreIntegers() {
   // The range of Int can be obtained as follows (withCommas is a utility function defined above)
   print("range of Int = [\(withCommas(number: Int.min)), \(withCommas(number: Int.max))]")
   
-  // You can also print the range using the old style NSNumber.
+  // You can also print the range using the old style NSNumber.
   // Its a little more verbose, and does not work when passed UInt.max
   // (bug in the Foundation library maybe?) oldStyleWithCommas is a
   // utility function defined above.
@@ -255,7 +255,9 @@ func exploreFloatingPointNumbers() {
   print("Word size of Double is: \(MemoryLayout.size(ofValue: doubleNumber)*8) bits")
   
   // If the type of a floating point number is not specified, then it defaults
-  // to double precision.
+  // to double precision. Note that some editors like VSCode will show the type
+  // of the inferred constant inline in gray. This type information is not
+  // actually part of the text file itself.
   let doubleNumber2 = 42.42
   print(doubleNumber2)
   print("Word size of doubleNumber2 is: \(MemoryLayout.size(ofValue: doubleNumber2)*8) bits")

@@ -41,6 +41,9 @@ func exploreControlFlow() {
   saySomethingAboutTheTemperature(temperature: temperature)
   
   // Switch statements
+  // Unlike C, C++, and Java, Swift does not require a break
+  // after each case. Cases do not fall through. The default
+  // case is required if you don't cover all possible cases.
   let day = "Monday"
   switch day {
   case "Monday":
@@ -82,6 +85,18 @@ func exploreControlFlow() {
   // annotation. The type is inferred from context.
   for i in 1...5 {
     print(i)
+  }
+
+  // You can also iterate over a range in reverse.
+  for i in (1...5).reversed() {
+    print(i)
+  }
+
+  // When you want the index and the value, you can use the
+  // enumerated() method.
+  let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+  for (index, day) in days.enumerated() {
+    print("Day \(index + 1): \(day)")
   }
 
   // While loops
@@ -187,7 +202,7 @@ func exploreControlFlow() {
   }
   unwrapInteger()
   
-  // Note: These are constructs the GitHub Copilor recommended
+  // Note: These are constructs the GitHub Copilot recommended
   // as part of the section on control flow. I'll explore them
   // in more detail later. For now I've kept them as a reminder
   // to me that I should explore them further.

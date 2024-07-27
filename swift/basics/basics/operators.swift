@@ -1,9 +1,9 @@
 //-*- coding: utf-8 -*-
 /**
-  operators.swift: Explore operators in swift
+  operators.swift: Explore operators
 */
 /* -------------------------------------------------------------------
- * commonts.swift: Explore comments in Swift
+ * operators.swift: Explore operators
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
