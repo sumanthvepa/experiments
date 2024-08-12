@@ -1,0 +1,10 @@
+/* Style the root element */
+:root {
+  /*
+    Make the root element and all its descendents conform to the 
+    users preference for a light or dark theme.
+    See https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme
+    for details on how the color-scheme elemnt works.
+  */
+  color-scheme: light dark;
+}
