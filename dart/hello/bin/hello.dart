@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
 /// [hello.dart] The canonical 'Hello, World!' program.
 /* -------------------------------------------------------------------
- * greeting.dart: The canonical 'Hello, World!' program.
+ * hello.dart: The canonical 'Hello, World!' program.
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
