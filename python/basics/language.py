@@ -45,6 +45,7 @@ import metaclasses
 import abstract_base_classes
 import data_classes
 import advanced_class_concepts
+import exceptions_and_context_managers
 import async_await
 
 print('Exploring Python')
@@ -142,214 +143,235 @@ print('Exploring Python')
 # Comments can be on their own line or at the end of a line of code.
 # Blank lines, or lines with only comments, are ignored by the interpreter.
 
+
 # Python famously uses indentation to define blocks of code.
-if __name__ == '__main__':
+
+# It is a modern convention to define a main function.
+# Python itself does not require it.
+def main():
+
+  # It is a modern convention to define a main function.
+  # Python itself does not require it.
+  """
+    This is the main function for the exploration of Python.
+    :return: None
+  """
   print('This is a block of code')
   print('This is also part of the block')
   print('This is the last line of the block')
 
-# A Note on PyLint and MyPy:
-# PyLint is a static code analysis tool for Python that checks for
-# errors in Python code. It checks for errors such as syntax errors,
-# unused variables, and other common programming errors. PyLint is
-# useful for catching errors early in the development process.
+  # A Note on PyLint and MyPy:
+  # PyLint is a static code analysis tool for Python that checks for
+  # errors in Python code. It checks for errors such as syntax errors,
+  # unused variables, and other common programming errors. PyLint is
+  # useful for catching errors early in the development process.
 
-# I use PyLint in the following way:
-# I install the pylint package within the virtual environment by using
-# pip.
-# $ python -m pip install pylint
+  # I use PyLint in the following way:
+  # I install the pylint package within the virtual environment by using
+  # pip.
+  # $ python -m pip install pylint
 
-# I use a standard configuration file for PyLint. This file called
-# pylintrc is placed in the root directory of the project (The root
-# as it appears to IntelliJ IDEA.)
-# There are two differences in the pylintrc file from the default
-# one:
-#
-# The first is that I set the indentation level to 2 spaces.
-#
-# The second is that it modifies sys.path of the pylint process
-# to include the root directory of the project. This is necessary
-# because PyLint when run via a plugin in IntelliJ IDEA does not
-# include the root directory in sys.path. This causes PyLint to
-# report import errors for modules in the project.
+  # I use a standard configuration file for PyLint. This file called
+  # pylintrc is placed in the root directory of the project (The root
+  # as it appears to IntelliJ IDEA.)
+  # There are two differences in the pylintrc file from the default
+  # one:
+  #
+  # The first is that I set the indentation level to 2 spaces.
+  #
+  # The second is that it modifies sys.path of the pylint process
+  # to include the root directory of the project. This is necessary
+  # because PyLint when run via a plugin in IntelliJ IDEA does not
+  # include the root directory in sys.path. This causes PyLint to
+  # report import errors for modules in the project.
 
-# I run PyLint from the command line using the following command:
-# pylint filename.py
-# This will run PyLint on the specified file and output any errors.
+  # I run PyLint from the command line using the following command:
+  # pylint filename.py
+  # This will run PyLint on the specified file and output any errors.
 
-# However,the most common way I use PyLint is through the IntelliJ IDEA
-# plugin. The plugin will automatically run PyLint on the file when
-# you save it. The plugin will highlight any errors in the code and
-# provide suggestions for how to fix them.
+  # However,the most common way I use PyLint is through the IntelliJ IDEA
+  # plugin. The plugin will automatically run PyLint on the file when
+  # you save it. The plugin will highlight any errors in the code and
+  # provide suggestions for how to fix them.
 
-# To use the plugin, you need to install it from the IntelliJ IDEA
-# plugin repository. Make sure you've modified the pylintrc file as
-# described above.
+  # To use the plugin, you need to install it from the IntelliJ IDEA
+  # plugin repository. Make sure you've modified the pylintrc file as
+  # described above.
 
-# To supress pylint warnings. You can use the following directives:
-# \p\y\l\i\n\t: disable=<pylint-short-error-name>
-# This comment should be placed on the line that generates the error.
-# The escape characters are to prevent pylint from treating this
-# instruction itself as a directive. The short error name will be
-# displayed in the pylint output. For example, to suppress the
-# 'invalid-name' error, you would use the following directive:
-# \p\y\l\i\n\t: disable=invalid-name
+  # To supress pylint warnings. You can use the following directives:
+  # \p\y\l\i\n\t: disable=<pylint-short-error-name>
+  # This comment should be placed on the line that generates the error.
+  # The escape characters are to prevent pylint from treating this
+  # instruction itself as a directive. The short error name will be
+  # displayed in the pylint output. For example, to suppress the
+  # 'invalid-name' error, you would use the following directive:
+  # \p\y\l\i\n\t: disable=invalid-name
 
-# A Note on Type Annotations and MyPy:
-# I also use MyPy, a static type checker for Python. MyPy is useful
-# for improving type safety in Python code. You can use MyPy by
-# adding type annotations to your code, and then running MyPy to
-# check for type errors. MyPy can catch type errors at compile time,
-# See the greeting function below with type annotations for both the
-# input parameters and the return type.
-# For details see MyPy documentation. https://mypy.readthedocs.io/en/stable/
-# and the Python typing specification: https://typing.readthedocs.io/en/latest/spec/
+  # A Note on Type Annotations and MyPy:
+  # I also use MyPy, a static type checker for Python. MyPy is useful
+  # for improving type safety in Python code. You can use MyPy by
+  # adding type annotations to your code, and then running MyPy to
+  # check for type errors. MyPy can catch type errors at compile time,
+  # See the greeting function below with type annotations for both the
+  # input parameters and the return type.
+  # For details see MyPy documentation. https://mypy.readthedocs.io/en/stable/
+  # and the Python typing specification: https://typing.readthedocs.io/en/latest/spec/
 
-# Note that MyPy will only check code that has type annotations. In
-# particular, if a function has no type annotations, MyPy will not
-# check anything inside the function. This is why I have added type
-# annotations to all the function signatures in the code.
+  # Note that MyPy will only check code that has type annotations. In
+  # particular, if a function has no type annotations, MyPy will not
+  # check anything inside the function. This is why I have added type
+  # annotations to all the function signatures in the code.
 
-# To supress mypy warnings. You can use the following directives:
-# # \t\y\p\e: ignore[error-name]
-# This comment should be placed on the line that generates the error.
-# The escape characters are to prevent mypy from treating this
-# instruction itself as a directive. The error name will be displayed
-# in the mypy output. For example, to suppress the 'assignment' error,
-# you would use the following directive:
-# # \t\y\p\e: ignore[assignment]
+  # To supress mypy warnings. You can use the following directives:
+  # # \t\y\p\e: ignore[error-name]
+  # This comment should be placed on the line that generates the error.
+  # The escape characters are to prevent mypy from treating this
+  # instruction itself as a directive. The error name will be displayed
+  # in the mypy output. For example, to suppress the 'assignment' error,
+  # you would use the following directive:
+  # # \t\y\p\e: ignore[assignment]
 
-# IntelliJ IDEA runs mypy with default settings. To get more extensive
-# checking, you can run mypy from the command line with additional
-# options. I use the following command:
-# $ mypy --extra-checks --strict filename.py
+  # IntelliJ IDEA runs mypy with default settings. To get more extensive
+  # checking, you can run mypy from the command line with additional
+  # options. I use the following command:
+  # $ mypy --extra-checks --strict filename.py
 
-# A Note on Python Coding Style:
-# I follow PEP 8, the official Python coding style guide, with
-# one exception. I use two spaces for indentation instead of four.
-# Pylint checks for PEP8 compliance. I also generally confirm to
-# Google's Python Style Guide:
-# https://google.github.io/styleguide/pyguide.html
+  # A Note on Python Coding Style:
+  # I follow PEP 8, the official Python coding style guide, with
+  # one exception. I use two spaces for indentation instead of four.
+  # Pylint checks for PEP8 compliance. I also generally confirm to
+  # Google's Python Style Guide:
+  # https://google.github.io/styleguide/pyguide.html
+
+  def greeting(name: str) -> str:
+    """
+      Return a greeting for the given name.
+    :param name: The name you wish to greet.
+    :return: A string that says hello to the given name.
+    """
+    return 'Hello ' + name
+
+  greeting('Sumanth')
+  print(sys.path)
+
+  # Note 0: Explore Comments
+  # Note that the comments module is imported at the top of this file.
+  comments.exploring_comments()
+
+  # Note 1: Explore Printing to console
+  # Note that the printing module is imported at the top of this file.
+  printing.explore_printing()
+
+  # Note 2: Explore constants
+  # Note that the constants module is imported at the top of this file.
+  # Importing a module allows the importing code to access all constants
+  # defined in the module.
+  print(constants.PI)
+
+  # The only exception are constants that start with a single underscore.
+  # By convention these are considered private to the module.
+  # Python itself will execute the code below without complaint, but
+  # pylint will warn about access to a protected member of a module.
+  # For this demonstration, I have disabled the pylint warning as well
+  # as the IntelliJ IDEA warning.
+  # pylint: disable=protected-access
+  # noinspection PyProtectedMember
+  print(constants._PRIVATE_CONSTANT)
+
+  # Note 3: Explore variables
+  # Note that the variables module is imported at the top of this file.
+  # Variables are accessed the same way as constants. Note that the
+  # name of the module has to be prepended if you don't explicitly
+  # import the variable using a from x import y statement.
+  print(variables.global_variable_a)
+  variables.print_global_variable_a()  # prints 'This is a global variable'
+
+  # Of course change an imported variable
+  variables.global_variable_a = 'This is a new value for the global variable'
+  variables.print_global_variable_a()  # prints 'This is a new value for the global variable'
+
+  # Explore changing variables in functions
+  variables.explore_variables()
+
+  # Note 4: Explore numbers
+  number_literals.explore_integer_literals()
+  number_literals.explore_floating_point_literals()
+  number_literals.explore_complex_literals()
+
+  # Note 5: Explore strings
+  strings_and_bytes.explore_string_literals()
+  strings_and_bytes.explore_formatted_string_literals()
+  strings_and_bytes.explore_raw_string_literals()
+  strings_and_bytes.explore_byte_string_literals()
+  strings_and_bytes.explore_string_comparisons()
+
+  # Note 6: Explore boolean literals
+  booleans.explore_boolean_literals()
+
+  # Note 7: Explore None and NotImplemented
+  none_not_implemented.explore_none()
+  none_not_implemented.explore_not_implemented()
+
+  # Note 8: Explore sequences
+  sequences.explore_sequences()
+
+  # Note 9: Explore operators
+  operators.explore_operators()
+
+  # Note 10: Explore control flow
+  control_flow.explore_control_flow()
+
+  # Note 11: Explore functions
+  functions.explore_functions()
+
+  # Note 12: Explore class basics
+  class_basics.explore_class_basics()
+  class_basics.explore_inheritance()
+
+  # Note 13: Explore enums
+  enumerations.explore_enumerations()
+
+  # Note 14: Explore dynamic typing
+  dynamic_typing.explore_dynamic_type_creation()
+
+  # Note 15: Explore metaclasses
+  metaclasses.explore_metaclasses()
+
+  # Note 16: Explore abstract base classes
+  abstract_base_classes.explore_abstract_base_classes()
+
+  # Note 17: Explore Dataclasses
+  data_classes.explore_dataclasses()
+
+  # Note 18: Explore advanced class concepts
+  advanced_class_concepts.explore_slots()
+
+  # Note 19: Explore exceptions
+  exceptions_and_context_managers.explore_exceptions()
+  exceptions_and_context_managers.explore_context_managers()
+
+  # Note 19: Explore async/await and asyncio
+  async_await.explore_async_await()
+
+  # Future explorations
+  # Note: Explore MRO and multiple inheritance
+  # Note: Explore tuples
+  # Note: Explore named tuples
+  # Note: Explore lists
+  # Note: Explore arrays
+  # Note: Explore sets
+  # Note: Explore decorators
+  # Note: Explore context managers
+  # Note: Explore descriptors
+  # Note: Explore generators, yield, coroutines, and async/await
+  # Note: Explore __getattr_,  __setattr__ and __delattr__ and the attrs module
+  # Note: Explore functools module
+  # Note: Explore weak references
 
 
-def greeting(name: str) -> str:
-  """
-  Return a greeting for the given name.
-  :param name: The name you wish to greet.
-  :return: A string that says hello to the given name.
-  """
-  return 'Hello ' + name
-
-
-greeting('Sumanth')
-print(sys.path)
-
-# Note 0: Explore Comments
-# Note that the comments module is imported at the top of this file.
-comments.exploring_comments()
-
-# Note 1: Explore Printing to console
-# Note that the printing module is imported at the top of this file.
-printing.explore_printing()
-
-# Note 2: Explore constants
-# Note that the constants module is imported at the top of this file.
-# Importing a module allows the importing code to access all constants
-# defined in the module.
-print(constants.PI)
-
-# The only exception are constants that start with a single underscore.
-# By convention these are considered private to the module.
-# Python itself will execute the code below without complaint, but
-# pylint will warn about access to a protected member of a module.
-# For this demonstration, I have disabled the pylint warning as well
-# as the IntelliJ IDEA warning.
-# pylint: disable=protected-access
-# noinspection PyProtectedMember
-print(constants._PRIVATE_CONSTANT)
-
-# Note 3: Explore variables
-# Note that the variables module is imported at the top of this file.
-# Variables are accessed the same way as constants. Note that the
-# name of the module has to be prepended if you don't explicitly
-# import the variable using a from x import y statement.
-print(variables.global_variable_a)
-variables.print_global_variable_a()  # prints 'This is a global variable'
-
-# Of course change an imported variable
-variables.global_variable_a = 'This is a new value for the global variable'
-variables.print_global_variable_a()  # prints 'This is a new value for the global variable'
-
-# Explore changing variables in functions
-variables.explore_variables()
-
-# Note 4: Explore numbers
-number_literals.explore_integer_literals()
-number_literals.explore_floating_point_literals()
-number_literals.explore_complex_literals()
-
-# Note 5: Explore strings
-strings_and_bytes.explore_string_literals()
-strings_and_bytes.explore_formatted_string_literals()
-strings_and_bytes.explore_raw_string_literals()
-strings_and_bytes.explore_byte_string_literals()
-strings_and_bytes.explore_string_comparisons()
-
-# Note 6: Explore boolean literals
-booleans.explore_boolean_literals()
-
-# Note 7: Explore None and NotImplemented
-none_not_implemented.explore_none()
-none_not_implemented.explore_not_implemented()
-
-# Note 8: Explore sequences
-sequences.explore_sequences()
-
-# Note 9: Explore operators
-operators.explore_operators()
-
-# Note 10: Explore control flow
-control_flow.explore_control_flow()
-
-# Note 11: Explore functions
-functions.explore_functions()
-
-# Note 12: Explore class basics
-class_basics.explore_class_basics()
-class_basics.explore_inheritance()
-
-# Note 13: Explore enums
-enumerations.explore_enumerations()
-
-# Note 14: Explore dynamic typing
-dynamic_typing.explore_dynamic_type_creation()
-
-# Note 15: Explore metaclasses
-metaclasses.explore_metaclasses()
-
-# Note 16: Explore abstract base classes
-abstract_base_classes.explore_abstract_base_classes()
-
-# Note 17: Explore Dataclasses
-data_classes.explore_dataclasses()
-
-# Note 18: Explore advanced class concepts
-advanced_class_concepts.explore_slots()
-
-# Note 19: Explore async/await and asyncio
-async_await.explore_async_await()
-
-# Future explorations
-# Note: Explore MRO and multiple inheritance
-# Note: Explore tuples
-# Note: Explore named tuples
-# Note: Explore lists
-# Note: Explore arrays
-# Note: Explore sets
-# Note: Explore decorators
-# Note: Explore context managers
-# Note: Explore descriptors
-# Note: Explore generators, yield, coroutines, and async/await
-# Note: Explore __getattr_,  __setattr__ and __delattr__ and the attrs module
-# Note: Explore functools module
-# Note: Explore weak references
+# The following line is a common idiom in Python. It tells the interpreter
+# to run the main function if this file is executed as the main program.
+# This allows the file to be imported as a module without running the main
+# function.
+if __name__ == '__main__':
+  main()
