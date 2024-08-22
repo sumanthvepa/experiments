@@ -1,3 +1,5 @@
+[issue067] vercel-basics: A very simple vercel deployment
+[DONE][issue066] update-readme: Clarify purpose of this repository
 [DONE][issue065] python-text-file-io: Explore text file I/O on Python
 [DONE][issue064] vscode-settings-2: Update VSCode settings
 [issue063] docker-deployable-webserver:
