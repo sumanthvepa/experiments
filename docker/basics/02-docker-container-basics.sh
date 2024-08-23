@@ -1,7 +1,8 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 02-basic-docker-commands.sh: Explore basic docker commands
+# 02-docker-container-commands-basics.sh: Explore basic docker
+# container commands.
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -20,7 +21,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo "02-basic-docker-commands"
+echo '02-docker-container-commands-basic'
 
 # To run a container image specify the name of the image. For example
 # you can run the docker hello world container image as follows:
@@ -123,11 +124,20 @@ docker container rm  'hello-world-instance'
 # mount at what location in the container. The format is
 # --volume host_location:container_location
 
-# But before the container is run I need to open port 9000 on
-# the host (darkness2) to let a browser on crystall access the
+# The --publish command on container run maps a port on the host 
+# to a port on the container. The format is
+# --publish host_port:container_port This results in traffic
+# arriving at the host port being forwarded to the container
 # port.
 
+# The --detach option detaches the container from the terminal
+# allowing the terminal to be used for other commands, while
+# the container continues to run in the background.
 
+# But before the container is run I need to open port 9000 on
+# the host (darkness2) to let a browser on crystall access the
+# port. On almalinux I use the firewall-cmd command to open
+# the port.  (In this script, I close the port again after use)
 firewall-cmd --zone=public --add-port=9000/tcp
 
 docker container run \
@@ -136,7 +146,6 @@ docker container run \
   --publish 9000:80 \
   --detach \
   nginx
-
 
 # Now running container ps will show the container as running
 docker container ps
@@ -317,14 +326,16 @@ echo '...done.'
 
 # Docker build creates custom image. We will explore
 # docker build and custom images in much more detail
-# in 0N-docker-build.sh
+# in 09-docker-build.sh
 docker build --tag docker-basics-ping -<<EOF
 FROM almalinux:9-minimal
 RUN microdnf -y install iputils
 EOF
 
-# Now an container imag named docker-basics-ping will
+# Now a container image named docker-basics-ping will
 # be available. You can see this with the docker image ls command
+# Docker image ls will be explored in more detail in
+# 03-docker-images.sh
 docker image ls
 
 # You can now instantiate a version of this container and
@@ -340,6 +351,9 @@ docker container run \
 # command. Note that no interactive or tty flag was required. Although,
 # having them would do no harm in this instance.
 
+# We will explore passing parameters to containers in more detail
+# in 09-docker-build.sh
+
 # Also note that once the container has finished running and the
 # ping program exits the container is stopped. You can run the
 # ping program again by restarting the container. However,
@@ -354,28 +368,33 @@ docker container start --attach 'docker-basics-ping'
 # would have finished running by the time you attach
 # the containers output.
 
-# Anyway, clean up the container by
-# stopping and removing it. First ensure
-# that it is stopped.
+# Anyway, clean up the container by stopping and removing it. First
+# ensure that it is stopped.
 docker container stop 'docker-basics-ping' 
-# Then remove it.
+
+
+# You can send a specific signal with the -s option to stop.
+# To see this let's restart the container
+docker container start --attach 'docker-basics-ping'
+
+# Now lets send a specific signal to docker
+docker container stop --signal=SIGTERM 'docker-basics-ping'
+
+# This will stop the container by sending the specified signal
+# to the process within it. In this case, specifying
+# the signal is unnecessary, since SIGTERM is the default
+# signal that the docker container stop command sends.
+# But you could send other signals, for example SIGQUIT.
+# See 04-docker-kill-top-stats.sh for the related
+# command to send a signal to a running container without
+# necessarily stopping it.
+
+
+# Then remove the container
 docker container rm 'docker-basics-ping'
 
-# Docker container run downloads the container image
-# specifed before running it. If the image has already
-# been downloaded, then it simply creates an instance
-# of that image.
-# To see the list of images that have been dowloaded
-# use docker image ls
-docker image ls
-
-# Notice that the container image that we created 'docker-basics-ping'
-# is present in the list of images.
-
-# Since this is just a test image, we will remove it so that
-# if this exploration script is run again it can be recreated.
-# Note the sleep 5. This is a hack to wait for the container
-# attached to earlier in the script to exit. Sometimes it
-# takes some time, and this results in a race condition.
-
+# As part of the clean up we will also remove the
+# image that we built earlier, so that this exploration
+# script can run multiple times. We will explore docker
+# image rm in more detail in 03-docker-images.sh
 docker image rm 'docker-basics-ping'
