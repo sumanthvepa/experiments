@@ -128,17 +128,29 @@ docker container rm  'hello-world-instance'
 # to a port on the container. The format is
 # --publish host_port:container_port This results in traffic
 # arriving at the host port being forwarded to the container
-# port.
+# port. IMPORTANT SECURITY NOTE: Docker manages iptables directly
+# to make the  port mapping work. This means that the port on the
+# host is open to the network on which the host is connected. And
+# it will NOT SHOW UP in the output of the firewall-cmd command.
 
 # The --detach option detaches the container from the terminal
 # allowing the terminal to be used for other commands, while
 # the container continues to run in the background.
 
-# But before the container is run I need to open port 9000 on
-# the host (darkness2) to let a browser on crystall access the
-# port. On almalinux I use the firewall-cmd command to open
-# the port.  (In this script, I close the port again after use)
-firewall-cmd --zone=public --add-port=9000/tcp
+# To make it easier to remmber that the container is running on an
+# external port, we will explictly add the port to the firewall. This
+# is not necessary, since docker manages iptables directly, but it is
+# a good practice to do so. Close the port after the container is
+# stopped. Also if the port is already registered as open in firewalld
+# then don't close it . The PORT_IS_ALREADY_ACCESSIBLE variable is
+# used to keep track of this.
+
+# See 09-docker-networking for how to run a container that is only
+# accessible from the host.
+PORT_IS_ALREADY_ACCESSIBLE=$(firewall-cmd --zone=public --query-port=9000/tcp)
+if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+  firewall-cmd --zone=public --add-port=9000/tcp
+fi
 
 docker container run \
   --name 'docker-basics-nginx'  \
@@ -164,8 +176,10 @@ docker container stop 'docker-basics-nginx'
 # And remove it completely
 docker container rm 'docker-basics-nginx'
 
-# Remember to close the port after you run this demo script
-firewall-cmd --zone=public --remove-port=9000/tcp
+# Remember to close the port after you're done
+if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+  firewall-cmd --zone=public --remove-port=9000/tcp
+fi
 
 echo '... cleanup completed.'
 

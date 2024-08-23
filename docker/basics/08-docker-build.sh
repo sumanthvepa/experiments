@@ -42,8 +42,56 @@ docker build --tag nginx-test ./nginx-test
 # You can look at https://github.com/nginxinc/docker-nginx
 # for a examples of production quality Dockerfiles.
 
+# Make a note with firewall-cmd that the port is open. This 
+# is actually done by the docker --publish option, this command just
+# record the fact with firewalld.
+# Also if port was already open in firewalld, we don't want to
+# close it after the script is done. The PORT_IS_ALREADY_ACCESSIBLE
+# variable is used to keep track of this.
+
+# See 09-docker-networking for how to run a container that is only
+# accessible from the host.
+
+PORT_IS_ALREADY_ACCESSIBLE=$(firewall-cmd --zone=public --query-port=9000/tcp)
+if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+  firewall-cmd --zone=public --add-port=9000/tcp
+fi
 
 # You can start the custom container with run:
 docker container run --name='nginx-test' --publish 9000:80 --detach nginx-test
 
 echo 'The container is running at http://darkness2.milestone42.com:9000/'
+echo 'Notice that it is the almalinux version of the nginx web server'
+echo 'The script will sleep for 30 seconds before stopping and removing the container'
+sleep 30
+# You can stop the container with stop:
+docker container stop nginx-test
+# and then remove it
+docker container rm nginx-test
+
+echo "Running a container with the custom nginx image and a bind mount"
+# You can bind mount a directory with different html content. This is
+# useful for development.
+docker container run \
+  --name='nginx-test' \
+  --publish 9000:80 \
+  --volume ./hello-world-nginx:/usr/share/nginx/html \
+  --detach \
+  nginx-test
+
+echo 'The container is running at http://darkness2.milestone42.com:9000/'
+echo 'The script will sleep for 30 seconds before stopping and removing the container'
+sleep 30
+# Stop and remove the container
+docker container stop nginx-test
+docker container rm nginx-test
+
+# Close the port 9000 on the firewall of the host
+# only if it was not accessible before the script
+# was run.
+if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+  firewall-cmd --zone=public --remove-port=9000/tcp
+fi
+
+# Remove the custom image
+docker image rm nginx-test
