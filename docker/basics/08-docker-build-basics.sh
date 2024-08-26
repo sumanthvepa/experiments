@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 08-docker-build.sh: Explore building Docker images
+# 08-docker-build-basics.sh: Explore building Docker images
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '08-docker-build'
+echo '08-docker-build-basics'
 
 # To build a custom Docker image, you can use the docker build command
 # The build command expects two things: a Dockerfile and a build context
