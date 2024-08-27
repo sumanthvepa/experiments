@@ -15,6 +15,20 @@
 # However, for testing and adhoc containers, doing this is okay.
 FROM almalinux:9-minimal
 
+# The MAINTAINER command is deprecated. It sets the author of
+# field in image metadata. Instead use LABEL command to set
+# metadata. The LABEL command is more flexible and can be used
+# to set other metadata as well.
+# MAINTAINER Sumanth Vepa <svepa@milestone42.com>
+
+# The LABEL command is used to add metadata to the image.
+# This metadata can be used to search for images in a registry.
+# See 10-docker-inspect.sh for how view and use this metadata.
+LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
+LABEL org.opencontainers.image.description="This a demo image to show how to setup an nginx server on almalinux:9-minimal"
+LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:nginx-test"
+LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/nginx-test"
+
 # The RUN command runs specific command in the image.
 # Each RUN command will result in a new layer in the
 # union filesystem that comprises the image.

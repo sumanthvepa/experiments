@@ -1,6 +1,11 @@
 # This Dockerfile creates a dig command and executes it with ENTRYPOINT
 FROM almalinux:9-minimal
 
+LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
+LABEL org.opencontainers.image.description="This is a demo image that runs dig using the ENTRYPOINT directive"
+LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:dig-entrypoint"
+LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/dig-entrypoint"
+
 # The RUN command runs specific command in the image. Each RUN command
 # will result in a new layer in the union filesystem that comprises
 # the image.
