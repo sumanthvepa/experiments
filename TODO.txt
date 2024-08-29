@@ -1,3 +1,5 @@
+[DONE][issue070] python-gcd-update:
+  Upgrade to using python 3.12 and the latest packages
 [DONE][issue069] cppproject-requirements: Add requirements.txt
   Add a requirements.txt file for the project
 [DONE][issue068] python-args-update: Update to python 3.12
