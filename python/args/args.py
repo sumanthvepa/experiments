@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.12
 """
   args.py: This script prints out all the arguments passed to it.
 """

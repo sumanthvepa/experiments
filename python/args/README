@@ -4,9 +4,21 @@ properly run this code.
 To create the virtual environment, activate the it and install the
 requirements, you need to run:
 
-python3 -m venv venv
+python3.12 -m venv venv
 source venv/bin/activate
-python3 -m pip install -r requirements.txt
+
+python3.12 -m pip install -r requirements.txt
+
+# Dependencies
+This project depends on the following packages that have been
+installed into the virtual env as follows
+python3.12 -m pip install --upgrade pip
+python3.12 -m pip install pylint
+python3.12 -m pip install mypy
+
+Note that the requirements.txt file was created with the following
+commands:
+python3.12 -m pip freeze >requirements.txt
 
 
 Finally execute hashof as shown below.  To group multiple word into
