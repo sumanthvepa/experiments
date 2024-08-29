@@ -1,4 +1,6 @@
-[issue068] python-args-update: Update to python 3.12
+[DONE][issue069] cppproject-requirements: Add requirements.txt
+  Add a requirements.txt file for the project
+[DONE][issue068] python-args-update: Update to python 3.12
 [issue067] vercel-basics: A very simple vercel deployment
 [DONE][issue066] update-readme: Clarify purpose of this repository
 [DONE][issue065] python-text-file-io: Explore text file I/O on Python
