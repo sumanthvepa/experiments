@@ -13,6 +13,7 @@ public class NullReferences {
   public static void explore() {
     // See Baeldung's beautiful explanation of null references
     // in Java: https://www.baeldung.com/java-null
+
     // Null is a type in Java that has only one value: null.
     // Null is a reference type. It has exactly one instance
     // that isn't an instance of any class.
@@ -53,6 +54,7 @@ public class NullReferences {
       /**
        * This method prints its parameter if it is not null and
        * the message "parameter = null" if the parameter is null.
+       *
        * @param parameter the parameter to the method. Can be null.
        */
       void method(String parameter) {
@@ -72,16 +74,17 @@ public class NullReferences {
         System.out.println("Inner.canFail() parameter length is: " + parameter.length());
       }
 
-      // The compile time annotation @NotNull @Nullable can be used to indicate
-      // to the compiler and IDE and other static analysis tools, and of course
-      // the human programmer, whether it is safe to pass a null reference to a method
-      // or not.
+      // The compile time annotation @NotNull and @Nullable can be used to
+      // indicate to the compiler and IDE and other static analysis
+      // tools, and of course the human programmer, whether it is safe
+      // to pass a null reference to a method or not.
 
-      // @Nullable is a compile time annotation that indicates that a parameter
-      // can be null. This is a hint to the programmer that the method can handle
-      // a null reference. It is also a hint to the compiler and IDE that the
-      // parameter can be null and that it should not issue a warning if a null
-      // reference is passed to the method.
+      // @Nullable is a compile time annotation that indicates that a
+      // parameter can be null. This is a hint to the programmer that
+      // the method can handle a null reference. It is also a hint to
+      // the compiler and IDE that the parameter can be null and that
+      // it should not issue a warning if a null reference is passed
+      // to the method.
       // @Nullable is imported from the javax.annotation package.
       /**
        * This method prints its parameter if it is not null and the message
@@ -90,60 +93,83 @@ public class NullReferences {
        */
       void methodWithNullableAnnotation(@Nullable String parameter) {
         if (parameter != null)
-          System.out.println("Inner.methodWithNullableAnnotation(parameter = " + parameter + ")");
+          System.out.println(
+            "Inner.methodWithNullableAnnotation(parameter = "
+            + parameter + ")");
         else
-          System.out.println("Inner.methodWithNullableAnnotation(parameter = null)");
+          System.out.println(
+            "Inner.methodWithNullableAnnotation(parameter = null)");
       }
 
-      // @NotNull is a compile time annotation that indicates that a parameter
-      // cannot be null. This is a hint to the programmer that the method cannot
-      // handle a null reference. It is also a hint to the compiler and IDE that
-      // the parameter cannot be null and that it should issue a warning if a null
-      // reference is passed to the method.
-      // @NotNull is imported from the org.jetbrains.annotations package.
-      // Note that this is a third-party library and not part of the Java standard
-      // library. It should be added as a dependency to the project's build.gradle.kts
-      // file.
+      // @NotNull is a compile time annotation that indicates that a
+      // parameter cannot be null. This is a hint to the programmer
+      // that the method cannot handle a null reference. It is also
+      // a hint to the compiler and IDE that the parameter cannot be
+      // null and that it should issue a warning if a null reference
+      // is passed to the method.
+      // @NotNull is imported from the org.jetbrains.annotations
+      // package. Note that this is a third-party library and not
+      // part of the Java standard library. It should be added as a
+      // dependency to the project's build.gradle.kts file.
       // add the line:
       // implementation("org.jetbrains:annotations:24.1.0")
       // Use the latest version of the library.
-      // Note the IDE warning in JetBrains IDEs that the parameter should not
-      // receive a null argument. Which it does later in the code to demonstrate
-      // the violation of the @NotNull precondition annotation.
+      // Note the IDE warning in JetBrains IDEs that the parameter
+      // should not receive a null argument. Which it does later in
+      // the code to demonstrate the violation of the @NotNull precondition annotation.
       void methodWithNotNullAnnotation(@NotNull String parameter) {
-        System.out.println("Inner.methodWithNotNullAnnotation(parameter = " + parameter.length() + ")");
+        System.out.println(
+          "Inner.methodWithNotNullAnnotation(parameter = "
+          + parameter.length() + ")");
       }
     }
     var inner = new Inner();
-    inner.method(null); // Prints Inner.method(parameter = null)
-    inner.method("Hello, World!"); // Prints Inner.method(parameter = Hello, World!)
+    // Prints Inner.method(parameter = null)
+    inner.method(null);
+     // Prints Inner.method(parameter = Hello, World!)
+    inner.method("Hello, World!");
 
-    // Attempting to deference a null reference will throw a NullPointerException.
+    // Attempting to deference a null reference will throw
+    // a NullPointerException.
     try {
-      // Note the warning from the IDE that the parameter should not be null.
-      // This occurs because the method is not annotated with @Nullable.
+      // Note the warning from the IDE that the parameter should not
+      // be null. This occurs because the method is not annotated with
+      // @Nullable.
       inner.canFail(null); // This will throw a NullPointerException
     } catch (NullPointerException e) {
-      System.out.println("Caught a NullPointerException from inner.canFail()");
+      System.out.println(
+        "Caught a NullPointerException from inner.canFail()");
     }
     // But passing a proper reference will not throw an exception.
     inner.canFail("Hello, World!"); // Prints Hello, World!
 
-    // The compile time annotation @NotNull @Nullable can be used to indicate
-    // to the compiler whether it is safe to pass a null reference to a method
-    // or not.
-    inner.methodWithNullableAnnotation("Hello, World!"); // Ok. Prints Inner.methodWithNullableAnnotation(parameter = Hello, World!)
-    inner.methodWithNullableAnnotation(null); // Ok. Prints Inner.methodWithNullableAnnotation(parameter = null)
-    inner.methodWithNotNullAnnotation("Hello, World!"); // Ok. Prints Inner.methodWithNotNullAnnotation(parameter = 13)
+    // The compile time annotations @NotNull and @Nullable can be used
+    // to indicate to the compiler whether it is safe to pass a null
+    // reference to a method  or not.
+
+    // Ok. Prints Inner.methodWithNullableAnnotation(parameter = Hello, World!)
+    inner.methodWithNullableAnnotation("Hello, World!");
+
+    // Ok. Prints Inner.methodWithNullableAnnotation(parameter = null)
+    inner.methodWithNullableAnnotation(null);
+
+    // Ok. Prints Inner.methodWithNotNullAnnotation(parameter = 13)
+    inner.methodWithNotNullAnnotation("Hello, World!");
 
     try {
-      // Calling a method with a @NotNull annotation with a null reference will
-      // result in a warning, and running the code will result in a NullPointerException.
-      // Note the IDE warning (in JetBrains IDEs) that the parameter should not be null.
-      inner.methodWithNotNullAnnotation(null); // Warning The compiler will issue a warning.
-                                                         // Will throw a NullPointerException
+      // Calling a method with a @NotNull annotation with a null
+      // reference will result in a warning, and running the code will
+      // result in a NullPointerException.
+      // Note the IDE warning (in JetBrains IDEs) that the parameter
+      // should not be null.
+
+      // Warning The compiler will issue a warning. Will throw a
+      //  NullPointerException
+      inner.methodWithNotNullAnnotation(null);
     } catch(NullPointerException e) {
-      System.out.println("Caught a NullPointerException from inner.methodWithNotNullAnnotation()");
+      System.out.println(
+        "Caught a NullPointerException from "
+        + "inner.methodWithNotNullAnnotation()");
     }
   }
 }
