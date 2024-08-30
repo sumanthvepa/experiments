@@ -1,3 +1,4 @@
+[DONE][issue074] cppproject-update: Upgrade to python 3.12
 [DONE][issue073] python-text-file-io-update:
   Upgrade to using python 3.12, the latest packages, add copyleft
 [DONE][issue072] python-parseargs-update:
