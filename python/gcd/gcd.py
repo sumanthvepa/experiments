@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.12
 """
   gcd.py : Compute the greatest common divisor of two numbers.
 """

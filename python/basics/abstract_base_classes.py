@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.12
 # -*- coding: utf-8 -*-
 """
   abstract_base_classes.py: Exploring abstract base classes in Python

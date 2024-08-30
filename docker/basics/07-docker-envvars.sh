@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 05-docker-envvars.sh: Explore passing environment variables to
+# 07-docker-envvars.sh: Explore passing environment variables to
 # Docker containers
 #
 # Copyright (C) 2024 Sumanth Vepa.
@@ -20,6 +20,8 @@
 # along with this program.  If not, see
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
+
+echo '07-docker-envvars'
 
 # To demonstrate the use of environment variables in Docker containers
 # we are going to use a custom image that runs the curl command with

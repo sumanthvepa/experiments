@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 04-docker-bind-mounts.sh: Explore docker volume mounts
+# 06-docker-bind-mounts.sh: Explore docker volume mounts
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo "04-docker-bind-mounts"
+echo "06-docker-bind-mounts"
 
 # -----------
 # Bind Mounts

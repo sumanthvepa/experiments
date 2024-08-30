@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.12
 """
   cppproject.py: Create cross-platform C++ project given the Visual
   Studio, Xcode, and Makefile project directories.

@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 03-docker-volume-mounts.sh: Explore docker volume mounts
+# 05-docker-volume-mounts.sh: Explore docker volume mounts
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo "03-docker-volume-mounts"
+echo "05-docker-volume-mounts"
 
 # -------------
 # Volume Mounts
