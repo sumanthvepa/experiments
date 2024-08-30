@@ -1,3 +1,5 @@
+[DONE][issue071] python-hashof:
+  Upgrade to using python 3.12 and the latest packages
 [DONE][issue070] python-gcd-update:
   Upgrade to using python 3.12 and the latest packages
 [DONE][issue069] cppproject-requirements: Add requirements.txt
