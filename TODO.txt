@@ -3,7 +3,7 @@
   Upgrade to using python 3.12, the latest packages, add copyleft
 [DONE][issue072] python-parseargs-update:
   Upgrade to using python 3.12, the latest packages, add copyleft
-[DONE][issue071] python-hashof:
+[DONE][issue071] python-hashof-update:
   Upgrade to using python 3.12 and the latest packages
 [DONE][issue070] python-gcd-update:
   Upgrade to using python 3.12 and the latest packages

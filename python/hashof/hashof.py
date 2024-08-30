@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.12
 """
   hashof.py: This script takes a message as an argument and returns
   the MD5 hash of the message.
