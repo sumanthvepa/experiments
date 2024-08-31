@@ -69,7 +69,7 @@
 [DONE][issue035] cplusplus-lexical-cast:
   Create IDEA project and add strict warning checks
 [DONE][issue034] cplusplus-gcd: Fix typos in README
-[issue033] cplusplus-basics-language: Explore the C++ programming
+[issue033] cplusplus-basics: Explore the C++ programming
   language.
 [DONE][issue032] javascript-basics-10-template-server:
   A dynamic website site generated using the Nunjucks template engine
@@ -82,7 +82,7 @@
   structure of the Java Language basics explorations
 [DONE][issue028] dart-hello:
   The canonical 'Hello World' program for Dart
-[DONE][issue027] cplusplus-basics-language:
+[DONE][issue027] cplusplus-basics-setup:
   Setup the C++ basics project to explore the C++
   programming language.
 [DONE][issue026] javascript-basics-00a-setup:
