@@ -23,12 +23,15 @@ build/language: \
   basics/strings.cc \
   basics/strings.hh \
   basics/null_pointers.cc \
-  basics/null_pointers.hh
+  basics/null_pointers.hh \
+  basics/for_loops.cc \
+  basics/for_loops.hh
 	mkdir -p build
 	g++ $(CXX_FLAGS) -o build/language \
 		basics/language.cc \
 		basics/strings.cc \
-		basics/null_pointers.cc
+		basics/null_pointers.cc \
+		basics/for_loops.cc
 
 clean:
 	rm -fr build

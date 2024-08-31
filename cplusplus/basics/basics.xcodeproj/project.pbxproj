@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		274573A82BDCEEBE008C82C1 /* language.cc in Sources */ = {isa = PBXBuildFile; fileRef = 274573A72BDCEEBE008C82C1 /* language.cc */; };
 		279926C42BDFE4FF006869D4 /* strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 279926C32BDFE4FF006869D4 /* strings.cc */; };
+		279EF7502C81DE08005D9EAF /* for_loops.cc in Sources */ = {isa = PBXBuildFile; fileRef = 279EF74F2C81DE08005D9EAF /* for_loops.cc */; };
 		27F2667D2C0437B700FCE90E /* null_pointers.cc in Sources */ = {isa = PBXBuildFile; fileRef = 27F2667C2C0437B700FCE90E /* null_pointers.cc */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,8 @@
 		274573A72BDCEEBE008C82C1 /* language.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language.cc; sourceTree = "<group>"; };
 		279926C22BDFE4F6006869D4 /* strings.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = strings.hh; sourceTree = "<group>"; };
 		279926C32BDFE4FF006869D4 /* strings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = strings.cc; sourceTree = "<group>"; };
+		279EF74E2C81DE08005D9EAF /* for_loops.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = for_loops.hh; sourceTree = "<group>"; };
+		279EF74F2C81DE08005D9EAF /* for_loops.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = for_loops.cc; sourceTree = "<group>"; };
 		27F2667B2C0433B100FCE90E /* null_pointers.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = null_pointers.hh; sourceTree = "<group>"; };
 		27F2667C2C0437B700FCE90E /* null_pointers.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = null_pointers.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -63,6 +66,8 @@
 		2745739F2BDCEDE6008C82C1 /* basics */ = {
 			isa = PBXGroup;
 			children = (
+				279EF74F2C81DE08005D9EAF /* for_loops.cc */,
+				279EF74E2C81DE08005D9EAF /* for_loops.hh */,
 				274573A72BDCEEBE008C82C1 /* language.cc */,
 				279926C22BDFE4F6006869D4 /* strings.hh */,
 				279926C32BDFE4FF006869D4 /* strings.cc */,
@@ -132,6 +137,7 @@
 				279926C42BDFE4FF006869D4 /* strings.cc in Sources */,
 				274573A82BDCEEBE008C82C1 /* language.cc in Sources */,
 				27F2667D2C0437B700FCE90E /* null_pointers.cc in Sources */,
+				279EF7502C81DE08005D9EAF /* for_loops.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -81,6 +81,7 @@
 // Project specific includes
 #include <basics/strings.hh> // provides explore_strings()
 #include <basics/null_pointers.hh> // provides explore_null_pointers()
+#include <basics/for_loops.hh> // provides explore_range_based_for_loops()
 
 // System includes
 #include <iostream>
@@ -106,6 +107,9 @@ int main() {
 
   // Note 2: Explore strings in C++
   sv::basics::explore_strings();
+
+  // Note 3: Explore range-based for loops in C++
+  sv::basics::explore_range_based_for_loops();
 
   // The return value in a C++ program is optional.
   // If there is no return statement, the compiler will insert a return 0; statement.

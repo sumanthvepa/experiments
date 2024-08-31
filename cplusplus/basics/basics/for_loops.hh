@@ -1,9 +1,9 @@
 /* -*- coding: utf-8 -*- */
 /**
- * strings.hh: Header file strings.cc. Explore strings in C++
+ * for_loops.hh: Header file for for_loops.cc. Explore for loops in C++
  */
 /* -------------------------------------------------------------------
- * strings.hh: Header file strings.cc. Explore strings in C++
+ * for_loops.hh: Header file for for_loops.cc. Explore for loops in C++
  * This is part of the basics program that explores C++ concepts.
  *
  * Copyright (C) 2024 Sumanth Vepa.
@@ -22,13 +22,12 @@
  * along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
-
-#ifndef sv_basics_strings_hh
-#define sv_basics_strings_hh
+#ifndef sv_basics_for_loops_hh
+#define sv_basics_for_loops_hh
 #pragma once
 
 namespace sv::basics {
-  void explore_strings();
+  void explore_range_based_for_loops();
 }
 
-#endif // sv_basics_strings_hh
+#endif // sv_basics_for_loops_hh

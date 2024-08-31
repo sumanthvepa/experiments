@@ -14,15 +14,17 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d7d9bbfb-482d-445e-a7fe-2681b5879c3d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/basics/null_pointers.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/basics/null_pointers.hh" afterDir="false" />
+    <list default="true" id="72bfec2f-a1f7-4f2b-ac7c-4417e855c0ff" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/palindrome/cplusplus/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/palindrome/cplusplus/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/palindrome/cplusplus/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/basics/for_loops.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/basics/for_loops.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/basics.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/basics.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basics.xcodeproj/xcshareddata/xcschemes/basics.xcscheme" beforeDir="false" afterPath="$PROJECT_DIR$/basics.xcodeproj/xcshareddata/xcschemes/basics.xcscheme" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/basics/language.cc" beforeDir="false" afterPath="$PROJECT_DIR$/basics/language.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basics/strings.cc" beforeDir="false" afterPath="$PROJECT_DIR$/basics/strings.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/basics/strings.hh" beforeDir="false" afterPath="$PROJECT_DIR$/basics/strings.hh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,10 +44,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
   <component name="MacroExpansionManager">
-    <option name="directoryName" value="ncjxme9t" />
-  </component>
-  <component name="Make.Settings">
-    <option name="path" value="/opt/local/bin/gmake" />
+    <option name="directoryName" value="69ejip4k" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="availableProjects">
@@ -74,27 +73,23 @@
       </map>
     </option>
   </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
-  </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
     <option name="majorVersion" value="2024" />
     <option name="minorVersion" value="1.1" />
     <option name="productBranch" value="Classic" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 2
-}</component>
-  <component name="ProjectId" id="2flqPnUuQMG8FMutm1nStKetiZe" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="2lNHGK0dpU6aFSnIw85GrrTbnOC" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Makefile Target.clean.executor": "Run",
-    "Native Application.all.executor": "Run",
+    "Native Application.language.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
@@ -109,19 +104,18 @@
     "nodejs_package_manager_path": "npm",
     "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
     "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "build.tools",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Native Application.all">
-    <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="basics" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="$PROJECT_DIR$/build/language">
+  <component name="RunManager" selected="Native Application.language">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="language" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="basics" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="$PROJECT_DIR$/build/language">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="clean" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
@@ -132,27 +126,22 @@
     </configuration>
     <list>
       <item itemvalue="Makefile Target.clean" />
-      <item itemvalue="Native Application.all" />
+      <item itemvalue="Native Application.language" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="d7d9bbfb-482d-445e-a7fe-2681b5879c3d" name="Changes" comment="" />
-      <created>1714385990537</created>
+      <changelist id="72bfec2f-a1f7-4f2b-ac7c-4417e855c0ff" name="Changes" comment="" />
+      <created>1725013516891</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1714385990537</updated>
-      <workItem from="1714385991569" duration="6982000" />
-      <workItem from="1716807366107" duration="9535000" />
+      <updated>1725013516891</updated>
+      <workItem from="1725013518031" duration="1121000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
   </component>
 </project>
