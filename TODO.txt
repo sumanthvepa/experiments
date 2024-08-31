@@ -1,3 +1,5 @@
+[issue076] palindrome-cpp:
+  C++ solution to the palindrome leetcode problem
 [DONE][issue075] cplusplus-lexical-cast-update:
   Add CLion project support
   Update lexical_cast to use boost 1.86.0
