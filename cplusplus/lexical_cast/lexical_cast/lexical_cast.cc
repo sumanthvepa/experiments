@@ -30,8 +30,15 @@
 #pragma clang diagnostic pop
 
 #include <iostream>
-#include <exception>
 
+// Ignore warnings about using unsafe buffer usage of argv_
+// This is suppressed because the warning is triggered for any use of argv_, which is
+// used in the main function. According to the StackOverflow discussion below, this warning
+// cannot be avoided. This is a false positive, so if is safe to suppress this warning.
+// See: https://stackoverflow.com/questions/77017567/how-to-fix-code-to-avoid-warning-wunsafe-buffer-usage
+// for mode details.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunsafe-buffer-usage"
 /**
  *  \brief Parse command line arguments into integers using
  *  boost::lexical_cast. 
@@ -48,11 +55,12 @@ int main(int argc_, const char *argv_[]) {
     try {
       int n = boost::lexical_cast<int>(argv_[i]);
       std::cout << n << " ";
-    } catch (const std::exception& ex_) {
-      std::cerr << ex_.what();
+    } catch (const boost::bad_lexical_cast& ex_) {
+      std::cerr << argv_[i] << ": Could not convert to integer. " << ex_.what() << "\n";
       ++errors;
     }
     std::cout << std::endl;
   }
   return errors;
 }
+#pragma clang diagnostic pop

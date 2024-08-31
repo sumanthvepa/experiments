@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1520"
+   LastUpgradeVersion = "1540"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "1 23 45 -56 0"
+            argument = "1 23 NaN 45 56.74 -56 0 garbage"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -89,7 +89,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					275CC0E62B791DB80026FB2D = {
 						CreatedOnToolsVersion = 15.2;
@@ -160,6 +160,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -183,7 +184,16 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-pedantic",
+					"-Weverything",
+					"-Wno-poison-system-directories",
+				);
 				SDKROOT = macosx;
+				WARNING_CFLAGS = "";
+				"WARNING_CFLAGS[arch=*]" = "";
 			};
 			name = Debug;
 		};
@@ -221,6 +231,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -237,6 +248,13 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-pedantic",
+					"-Weverything",
+					"-Wno-poison-system-directories",
+				);
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -245,11 +263,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
-				HEADER_SEARCH_PATHS = /opt/boost/1_84_0/include;
-				LIBRARY_SEARCH_PATHS = /opt/boost/1_84_0/lib;
+				HEADER_SEARCH_PATHS = /opt/boost/1_86_0/include;
+				LIBRARY_SEARCH_PATHS = /opt/boost/1_86_0/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"WARNING_CFLAGS[arch=*]" = "";
 			};
 			name = Debug;
 		};
@@ -257,10 +277,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
-				HEADER_SEARCH_PATHS = /opt/boost/1_84_0/include;
-				LIBRARY_SEARCH_PATHS = /opt/boost/1_84_0/lib;
+				HEADER_SEARCH_PATHS = /opt/boost/1_86_0/include;
+				LIBRARY_SEARCH_PATHS = /opt/boost/1_86_0/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

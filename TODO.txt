@@ -1,3 +1,7 @@
+[DONE][issue075] cplusplus-lexical-cast-update:
+  Add CLion project support
+  Update lexical_cast to use boost 1.86.0
+  Make minor code improvements
 [DONE][issue074] cppproject-update: Upgrade to python 3.12
 [DONE][issue073] python-text-file-io-update:
   Upgrade to using python 3.12, the latest packages, add copyleft
