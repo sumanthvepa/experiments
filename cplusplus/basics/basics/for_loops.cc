@@ -61,5 +61,25 @@ void sv::basics::explore_range_based_for_loops() {
     std::cout << i << " ";
   }
   std::cout << "\n";
+
+  // You can iterate over an array of strings
+  const char *str_array[] = {"first", "second", "third"};
+  for (auto str: str_array) {
+    std::cout << str << "\n";
+  }
+  std::cout << "\n";
+
+  // However, you cannot iterate over a C string using the range-based
+  // for loop, since the size of a C sting is not known when the
+  // iteration strarts. So the following will not compile:
+  // const char *str = "This is a string";
+  // for(auto arg: str) {
+  //   std::cout << arg << "\n";
+  // }
+  std::cout << "\n";
+
+  // For the same reason you cannot iterate over the argv
+  // array of main, since the length is known.
+
   std::cout << "...finished exploring range-based for loops\n";
 }
