@@ -13,6 +13,8 @@ CXX_FLAGS= \
   --std=c++20 \
   -Wall -Wextra -pedantic -Weverything \
   -Wno-poison-system-directories \
+  -Wno-c++98-compat \
+  -Wno-c++98-compat-pedantic \
   -I/opt/boost/1_86_0/include \
   -g3
 

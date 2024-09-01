@@ -247,12 +247,16 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = /opt/boost/1_86_0/include;
+				LIBRARY_SEARCH_PATHS = /opt/boost/1_86_0/lib;
 				OTHER_CFLAGS = (
 					"-Wall",
 					"-Wextra",
 					"-pedantic",
 					"-Weverything",
 					"-Wno-poison-system-directories",
+					"-Wno-c++98-compat",
+					"-Wno-c++98-compat-pedantic",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -264,12 +268,16 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = /opt/boost/1_86_0/include;
+				LIBRARY_SEARCH_PATHS = /opt/boost/1_86_0/lib;
 				OTHER_CFLAGS = (
 					"-Wall",
 					"-Wextra",
 					"-pedantic",
 					"-Weverything",
 					"-Wno-poison-system-directories",
+					"-Wno-c++98-compat",
+					"-Wno-c++98-compat-pedantic",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

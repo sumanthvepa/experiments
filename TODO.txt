@@ -1,4 +1,4 @@
-[issue076] palindrome-cpp:
+[DONE][issue076] palindrome-cpp:
   C++ solution to the palindrome leetcode problem
 [DONE][issue075] cplusplus-lexical-cast-update:
   Add CLion project support
