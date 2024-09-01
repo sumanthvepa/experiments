@@ -75,8 +75,7 @@
 [DONE][issue035] cplusplus-lexical-cast:
   Create IDEA project and add strict warning checks
 [DONE][issue034] cplusplus-gcd: Fix typos in README
-[issue033] cplusplus-basics: Explore the C++ programming
-  language.
+[issue033] cplusplus-basics: Explore the C++ programming language.
 [DONE][issue032] javascript-basics-10-template-server:
   A dynamic website site generated using the Nunjucks template engine
 [issue031] javascript-basics-language: Explore the basics
