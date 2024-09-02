@@ -1,3 +1,5 @@
+[DONE][issue078] cplusplus-gcd-warnings-style:
+  Enable all warnings and use trailing return style
 [DONE][issue077] cplusplus-explore-printf-update:
   Update Makefile and function declaration style in the code
 [DONE][issue076] palindrome-cpp:
