@@ -129,4 +129,4 @@ flags:
 	gcc -Wall -Wextra -Wpedantic -Q --help=warning
 
 clean:
-	rm -f explore_printf
+	rm -fr explore_printf explore_printf.dSYM
