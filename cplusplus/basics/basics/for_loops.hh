@@ -27,7 +27,7 @@
 #pragma once
 
 namespace sv::basics {
-  void explore_range_based_for_loops();
+  auto explore_range_based_for_loops() -> void;
 }
 
 #endif // sv_basics_for_loops_hh

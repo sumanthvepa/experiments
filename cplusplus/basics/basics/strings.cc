@@ -29,7 +29,7 @@
 /**
  * Explore strings
  */
-void sv::basics::explore_strings() {
+auto sv::basics::explore_strings() -> void {
   std::cout << "Exploring strings...\n";
   std::cout << "...finished exploring strings\n";
 }

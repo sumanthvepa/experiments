@@ -28,7 +28,7 @@
 #pragma once
 
 namespace sv::basics {
-  void explore_strings();
+  auto explore_strings() -> void;
 }
 
 #endif // sv_basics_strings_hh

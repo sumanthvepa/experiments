@@ -82,14 +82,21 @@
 #include <basics/strings.hh> // provides explore_strings()
 #include <basics/null_pointers.hh> // provides explore_null_pointers()
 #include <basics/for_loops.hh> // provides explore_range_based_for_loops()
-
+#include <basics/functions.hh> // provides explore_functions()
+			       
 // System includes
 #include <iostream>
 
 // In C++ main must be defined in one of two ways:
-// int main { body }
+//   int main() { body }
+// using the trailing return syntax:
+//   auto main -> int { body }
+//
 // or
-// int main(int argc, char *argv[])
+//
+//   int main(int argc, char *argv[])
+// using the trailing return syntax:
+//   auto main(int argc, const char *argv[]) -> int { body }
 /*!
  Entry point into the basics program.
  This function a driver that calls all the other explore functions.
@@ -99,7 +106,7 @@
  \returns Program exit status. If the program is working correctly,
  the return value is always zero.
  */
-int main() {
+auto main() -> int {
   std::cout << "C++ basics" << std::endl;
 
   // Note 1: Explore null pointers in C++
@@ -110,6 +117,9 @@ int main() {
 
   // Note 3: Explore range-based for loops in C++
   sv::basics::explore_range_based_for_loops();
+
+  // Note 4: Explore functions
+  sv::basics::explore_functions();
 
   // The return value in a C++ program is optional.
   // If there is no return statement, the compiler will insert a return 0; statement.

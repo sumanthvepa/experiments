@@ -30,7 +30,7 @@
 /**
  * Explore range-based for loops
  */
-void sv::basics::explore_range_based_for_loops() {
+auto sv::basics::explore_range_based_for_loops() -> void {
   std::cout << "Exploring range-based for loops...\n";
   // A range-based for loop is a convenient way to iterate over elements in a
   // container. The syntax is:
@@ -71,7 +71,7 @@ void sv::basics::explore_range_based_for_loops() {
 
   // However, you cannot iterate over a C string using the range-based
   // for loop, since the size of a C sting is not known when the
-  // iteration strarts. So the following will not compile:
+  // iteration starts. So the following will not compile:
   // const char *str = "This is a string";
   // for(auto arg: str) {
   //   std::cout << arg << "\n";
