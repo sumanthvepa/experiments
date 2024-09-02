@@ -89,7 +89,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					27B2B1572B84988B003C6993 = {
 						CreatedOnToolsVersion = 15.2;
@@ -160,6 +160,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -221,6 +222,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -245,9 +247,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
-				HEADER_SEARCH_PATHS = /opt/boost/1_84_0/include;
+				HEADER_SEARCH_PATHS = /opt/boost/1_86_0/include;
+				LIBRARY_SEARCH_PATHS = /opt/boost/1_86_0/lib;
+				OTHER_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Weffc++",
+					"-pedantic",
+					"-Weverything",
+					"-Wno-poison-system-directories",
+					"-Wno-c++98-compat-pedantic",
+					"-Wno-unknown-pragmas",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -256,9 +270,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
-				HEADER_SEARCH_PATHS = /opt/boost/1_84_0/include;
+				HEADER_SEARCH_PATHS = /opt/boost/1_86_0/include;
+				LIBRARY_SEARCH_PATHS = /opt/boost/1_86_0/lib;
+				OTHER_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Weffc++",
+					"-pedantic",
+					"-Weverything",
+					"-Wno-poison-system-directories",
+					"-Wno-c++98-compat-pedantic",
+					"-Wno-unknown-pragmas",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
