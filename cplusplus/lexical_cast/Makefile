@@ -40,7 +40,8 @@ ifeq ($(CXX), clang++)
     --std=c++20 \
     $(COMMON_WARNINGS) -pedantic -Weverything \
     -Wno-poison-system-directories \
-    -Wno-unknown-pragmas
+    -Wno-c++98-compat \
+    -Wno-unknown-pragmas \
     -g3 -O0 \
     $(COMMON_INCLUDES)
 else
