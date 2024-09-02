@@ -25,6 +25,8 @@ endif
 # -Weffc++: Enable warnings for Effective C++
 COMMON_WARNINGS = -Wall -Wextra -Weffc++
 
+COMMON_INCLUDES = -I/opt/boost/1_86_0/include -I.
+
 # The explanation of some common flags is as follows:
 # -Wno-poison-system-directories: This is only relevant for cross-compiling,
 # where the build system's system directories are not the same as the target's
@@ -42,7 +44,8 @@ ifeq ($(CXX), clang++)
     -Wno-poison-system-directories \
     -Wno-c++98-compat-pedantic \
     -Wno-unknown-pragmas \
-    -g3 -O0 -I.
+    -g3 -O0 \
+    $(COMMON_INCLUDES)
 else
   # Linux
   # Sadly, gcc does not have an equivalent to clang's -Weverything flag.
@@ -116,7 +119,7 @@ else
     -Wwrite-strings \
     -Wno-unknown-pragmas \
     -g3 -O0 \
-    -I/opt/boost/1_86_0/include -I.
+    $(COMMON_INCLUDES)
 endif
 
 all: build/gcd

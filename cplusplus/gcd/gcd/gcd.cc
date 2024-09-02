@@ -18,12 +18,17 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdouble-promotion"
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#pragma clang diagnostic ignored "-Wweak-vtables"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
 #pragma GCC diagnostic ignored "-Waggregate-return"
 #include <boost/lexical_cast.hpp>
 #pragma GCC diagnostic pop
+#pragma clang diagnostic pop
 
 #include <iostream>
 #include <tuple>
@@ -108,7 +113,7 @@ static auto process_command_line(int argc_, const char *argv_[])
     auto dividend = boost::lexical_cast<unsigned int>(argv_[1]);
     auto divisor = boost::lexical_cast<unsigned int>(argv_[2]);
     return {dividend, divisor};
-  } catch (const boost::bad_lexical_cast& ex) {
+  } catch (const boost::bad_lexical_cast&) {
     throw std::invalid_argument("Both dividend and divisor must be positive integers");
   }
 }
