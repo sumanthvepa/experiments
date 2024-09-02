@@ -1,3 +1,5 @@
+[issue080] palindrome-java:
+  Java solution to the palindrom leetcode problem 
 [DONE][issue079] cplusplus-number-commas-update:
   Enable all warnings with GCC on Linux
   Switch to trailing-return style for functions
