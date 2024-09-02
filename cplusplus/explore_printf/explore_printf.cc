@@ -1,6 +1,5 @@
 #include <cstdio>
 
-int main()
-{
+auto main() -> int {
   printf("%.2d\n", 2); 
 }
