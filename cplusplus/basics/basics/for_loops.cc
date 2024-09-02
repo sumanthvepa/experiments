@@ -56,11 +56,14 @@ auto sv::basics::explore_range_based_for_loops() -> void {
   std::cout << "\n";
 
   // You can also iterate over a std::vector:
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Waggregate-return"
   std::vector<int> vec = {1, 2, 3, 4, 5};
   for (auto i: vec) {
     std::cout << i << " ";
   }
   std::cout << "\n";
+  #pragma GCC diagnostic pop
 
   // You can iterate over an array of strings
   const char *str_array[] = {"first", "second", "third"};
