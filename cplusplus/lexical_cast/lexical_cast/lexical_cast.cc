@@ -26,7 +26,12 @@
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
 #pragma clang diagnostic ignored "-Wweak-vtables"
 #pragma clang diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wunused-const-variable"
+#pragma GCC diagnostic ignored "-Waggregate-return"
 #include <boost/lexical_cast.hpp>
+#pragma GCC diagnostic pop
 #pragma clang diagnostic pop
 
 #include <iostream>
@@ -49,7 +54,7 @@
  * 
  * @return Number of errors encountered during parsing
  */
-int main(int argc_, const char *argv_[]) {
+auto main(int argc_, const char *argv_[]) -> int {
   int errors = 0;
   for (int i = 1; i < argc_; ++i) {
     try {
