@@ -17,7 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdouble-promotion"
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#pragma clang diagnostic ignored "-Wweak-vtables"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wunused-const-variable"
+#pragma GCC diagnostic ignored "-Waggregate-return"
 #include <boost/lexical_cast.hpp>
+#pragma GCC diagnostic pop
+#pragma clang diagnostic pop
+
 #include <iostream>
 #include <tuple>
 #include <string>
@@ -34,11 +46,15 @@
  * @param argv_ The command line arguments
  * @return The name of the program
  */
-std::string_view program_name(int argc_, const char *argv_[]) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waggregate-return"
+static auto program_name(int argc_, const char *argv_[]) -> std::string_view {
   static constexpr auto default_parameter_name = "gcd";
   return (argv_ != nullptr && argc_ > 0 && argv_[0] != nullptr)?
     argv_[0] : default_parameter_name;
 }
+#pragma GCC diagnostic pop
+
 /**
  * \brief: Generate a help message for the user for the case when too
  * few arguments are supplied.
@@ -46,11 +62,14 @@ std::string_view program_name(int argc_, const char *argv_[]) {
  * @param program_name_ The name of the program. @see program_name
  * @return A help message string.
  */
-std::string help(const std::string_view& program_name_) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waggregate-return"
+static auto help(const std::string_view& program_name_) -> std::string {
   return
     std::string("Too few arguments. Invoke the program as follows:\n") +
     std::string(program_name_) + std::string(" <dividend> <divisor>");
 }
+#pragma GCC diagnostic pop
 
 /**
  * \brief: Generate a warning message for the user for the case when
@@ -59,12 +78,15 @@ std::string help(const std::string_view& program_name_) {
  * @param program_name_ The name of the program. @see program_name
  * @return A warning message string.
  */
-std::string warn(const std::string_view& program_name_) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waggregate-return"
+static auto warn(const std::string_view& program_name_) -> std::string {
   return
     std::string("Too many arguments. Only the first two will be used\n.") +
     std::string("Invoke the program as follows:\n") +
     std::string(program_name_) + std::string(" <dividend> <divisor>");
 }
+#pragma GCC diagnostic pop
 
 /**
  * \brief: Process the command line arguments and return the dividend
@@ -80,8 +102,10 @@ std::string warn(const std::string_view& program_name_) {
  * @param argv_ The command line arguments
  * @return A tuple containing the dividend and divisor
  */
-std::tuple<unsigned int, unsigned int> process_command_line(
-    int argc_, const char *argv_[]) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waggregate-return"
+static auto process_command_line(int argc_, const char *argv_[])
+    -> std::tuple<unsigned int, unsigned int> {
   auto name = program_name(argc_, argv_);
   if (argc_ < 3) throw std::invalid_argument(help(name));
   if (argc_ > 3) std::cerr << warn(name) << std::endl;
@@ -89,10 +113,12 @@ std::tuple<unsigned int, unsigned int> process_command_line(
     auto dividend = boost::lexical_cast<unsigned int>(argv_[1]);
     auto divisor = boost::lexical_cast<unsigned int>(argv_[2]);
     return {dividend, divisor};
-  } catch (const boost::bad_lexical_cast& ex) {
+  } catch (const boost::bad_lexical_cast&) {
     throw std::invalid_argument("Both dividend and divisor must be positive integers");
   }
 }
+#pragma GCC diagnostic pop
+
 
 /**
  * \brief: Compute the greatest common divisor of two positive
@@ -105,7 +131,8 @@ std::tuple<unsigned int, unsigned int> process_command_line(
  * @param n_ The second positive integer
  * @return The greatest common divisor of m_ and n_
  */
-constexpr unsigned int gcd(unsigned int m_, unsigned int n_) {
+static constexpr auto gcd(unsigned int m_, unsigned int n_)
+    -> unsigned int {
   while (n_ != 0) {
     auto t = n_;
     n_ = m_ % n_;
@@ -133,7 +160,9 @@ constexpr unsigned int gcd(unsigned int m_, unsigned int n_) {
  * @param argv_ The command line arguments
  * @return 0 if the program runs successfully, 1 otherwise
  */
-int main(int argc_, const char *argv_[]) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waggregate-return"
+auto main(int argc_, const char *argv_[]) -> int {
   try {
     auto params = process_command_line(argc_, argv_);
     auto dividend = std::get<0>(params);
@@ -145,3 +174,4 @@ int main(int argc_, const char *argv_[]) {
     return 1;
   }
 }
+#pragma GCC diagnostic pop

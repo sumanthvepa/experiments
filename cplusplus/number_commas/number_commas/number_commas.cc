@@ -27,7 +27,9 @@
  *  @param number_ The number to be formatted.
  *  @return A formatting string with commas or space separated groups
  *          of digits appropriate for the locale.
- */	    
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waggregate-return"
 template <class T>
 std::string with_commas(T number_) {
   std::stringstream ss;
@@ -36,6 +38,7 @@ std::string with_commas(T number_) {
   ss << std::fixed << number_;
   return ss.str();
 }
+#pragma GCC diagnostic pop
 
 
 /**
@@ -44,7 +47,9 @@ std::string with_commas(T number_) {
  *
  * @return 0
  */
-int main() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waggregate-return"
+auto main() -> int {
   int return_value = 0;
   try {
     int number1 = 1234567;
@@ -57,3 +62,4 @@ int main() {
   }
   return return_value;
 }
+#pragma GCC diagnostic pop

@@ -1,3 +1,16 @@
+[DONE][issue079] cplusplus-number-commas-update:
+  Enable all warnings with GCC on Linux
+  Switch to trailing-return style for functions
+[DONE][issue078] cplusplus-gcd-warnings-style:
+  Enable all warnings and use trailing return style
+[DONE][issue077] cplusplus-explore-printf-update:
+  Update Makefile and function declaration style in the code
+[DONE][issue076] palindrome-cpp:
+  C++ solution to the palindrome leetcode problem
+[DONE][issue075] cplusplus-lexical-cast-update:
+  Add CLion project support
+  Update lexical_cast to use boost 1.86.0
+  Make minor code improvements
 [DONE][issue074] cppproject-update: Upgrade to python 3.12
 [DONE][issue073] python-text-file-io-update:
   Upgrade to using python 3.12, the latest packages, add copyleft
@@ -69,8 +82,7 @@
 [DONE][issue035] cplusplus-lexical-cast:
   Create IDEA project and add strict warning checks
 [DONE][issue034] cplusplus-gcd: Fix typos in README
-[issue033] cplusplus-basics-language: Explore the C++ programming
-  language.
+[issue033] cplusplus-basics: Explore the C++ programming language.
 [DONE][issue032] javascript-basics-10-template-server:
   A dynamic website site generated using the Nunjucks template engine
 [issue031] javascript-basics-language: Explore the basics
@@ -82,7 +94,7 @@
   structure of the Java Language basics explorations
 [DONE][issue028] dart-hello:
   The canonical 'Hello World' program for Dart
-[DONE][issue027] cplusplus-basics-language:
+[DONE][issue027] cplusplus-basics-setup:
   Setup the C++ basics project to explore the C++
   programming language.
 [DONE][issue026] javascript-basics-00a-setup:

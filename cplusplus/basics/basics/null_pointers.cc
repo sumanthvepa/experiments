@@ -148,6 +148,8 @@ void sv::basics::explore_null_pointers() {
   // in the code.
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wnull-conversion"
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wconversion-null"
   int r = NULL; // r = 0. Which may or may not be surprising
   std::cout << "r = " << r << "\n"; // No issue using r
                                     // as it is not a pointer.
@@ -157,6 +159,7 @@ void sv::basics::explore_null_pointers() {
   // we can do the following:
   if (!c) std::cout << "c is 0\n";
   else std::cout << "c is not 0\n";
+  #pragma GCC diagnostic pop
   #pragma clang diagnostic pop
   
   // The above ways of using null pointers has the problem that
