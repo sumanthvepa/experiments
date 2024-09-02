@@ -5,18 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1cbbf378-b652-4d95-802b-97e4ef8a87b8" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/sv/experiments/palindrome/App.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/test/java/sv/experiments/palindrome/AppTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/sv/experiments/palindrome/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/sv/experiments/palindrome/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/sv/experiments/palindrome/AppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/sv/experiments/palindrome/AppTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../../java/basics/app/src/main/java/sv/basics/Language.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../java/basics/app/src/main/java/sv/basics/Language.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,9 +34,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../../.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="2lX2mQb8lK5YHZjqLGAB5gEqjzR" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -52,6 +44,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Gradle.palindrome [run --args = '1 989989 NaN garbage -21 35 535 121'].executor": "Run",
+    "Gradle.palindrome [run --args=\"121 NaN -121 23\"].executor": "Run",
+    "Gradle.palindrome [run --args=\"121 NaN\"].executor": "Run",
+    "Gradle.palindrome [run --args=\"121\"].executor": "Run",
     "Gradle.palindrome [run].executor": "Run",
     "Gradle.palindrome [test].executor": "Run",
     "Gradle.palindrome.executor": "Run",
@@ -60,13 +56,17 @@
     "git-widget-placeholder": "develop",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/svepa/Documents/Projects/experiments/algorithms/leetcode/palindrome/java/palindrome/settings.gradle.kts",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "show.migrate.to.gradle.popup": "false",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Gradle.palindrome [test]">
-    <configuration name="palindrome [run]" type="GradleRunConfiguration" factoryName="Gradle" nameIsGenerated="true">
+  <component name="RunManager" selected="Gradle.palindrome [run --args=&quot;121 NaN -121 23&quot;]">
+    <configuration name="palindrome [run --args=&quot;121 NaN -121 23&quot;]" type="GradleRunConfiguration" factoryName="Gradle" nameIsGenerated="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -78,6 +78,7 @@
         <option name="taskNames">
           <list>
             <option value="run" />
+            <option value="--args=&quot;121 NaN -121 23&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -111,7 +112,7 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Gradle.palindrome [run]" />
+      <item itemvalue="Gradle.palindrome [run --args=&quot;121 NaN -121 23&quot;]" />
       <item itemvalue="Gradle.palindrome [test]" />
     </list>
   </component>
@@ -132,6 +133,7 @@
       <option name="presentableId" value="Default" />
       <updated>1725312259164</updated>
       <workItem from="1725312260212" duration="173000" />
+      <workItem from="1725313390376" duration="2327000" />
     </task>
     <servers />
   </component>
