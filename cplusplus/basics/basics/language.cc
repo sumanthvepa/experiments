@@ -121,6 +121,28 @@ auto main() -> int {
   // Note 4: Explore functions
   sv::basics::explore_functions();
 
+  // TODO: Explore the following
+  // Note N: Explore rvalue references and move semantics
+  // See this note on the subject:
+  // https://learn.microsoft.com/en-us/cpp/cpp/rvalue-reference-declarator-amp-amp?
+  // sv::basics::explore_rvalue_declarator()
+  // sv::basics::explore_move_semantics()
+
+
+  // Note N+1: Explore std::vector::emplace_back
+  // Use this video to explore this
+  // https://www.youtube.com/watch?v=uwv1uvi1OTU
+
+  // Note N+2: Explore std::transform
+  // Use these notes to inform your explorations:
+  // https://stackoverflow.com/questions/3580457/stl-name-for-the-map-functional-programming-function
+  // https://en.cppreference.com/w/cpp/algorithm/transform
+  
+  // Note N+3: Explore decltype
+  // In file decltypes.cc
+
+  // Note N+4: Explore std::declval
+  
   // The return value in a C++ program is optional.
   // If there is no return statement, the compiler will insert a return 0; statement.
   // Main should return zero upon successful completion, and non-zero upon failure.
