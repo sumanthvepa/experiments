@@ -1,3 +1,6 @@
+[DONE][issue079] cplusplus-number-commas-update:
+  Enable all warnings with GCC on Linux
+  Switch to trailing-return style for functions
 [DONE][issue078] cplusplus-gcd-warnings-style:
   Enable all warnings and use trailing return style
 [DONE][issue077] cplusplus-explore-printf-update:
