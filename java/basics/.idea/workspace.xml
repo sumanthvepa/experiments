@@ -5,22 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8b7d97b7-bd4a-4a00-9d08-bbf33fd08601" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../algorithms/leetcode/palindrome/cplusplus/palindrome/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../algorithms/leetcode/palindrome/cplusplus/palindrome/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.gitattributes" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/app/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/app/src/main/java/sv/experiments/twosum/App.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/app/src/test/java/sv/experiments/twosum/AppTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/gradle/libs.versions.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/gradlew" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/gradlew.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../algorithms/leetcode/twosum/java/twosum/settings.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/COPYING" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/sv/basics/LanguageTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/sv/basics/LanguageTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,9 +40,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2lYM2pfXeHuta0L7o0YxeouS1XA" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -52,6 +57,10 @@
     "git-widget-placeholder": "develop",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/svepa/Documents/Projects/experiments/java/basics/settings.gradle.kts",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "show.migrate.to.gradle.popup": "false",
     "vue.rearranger.settings.migration": "true"
@@ -124,6 +133,7 @@
       <option name="presentableId" value="Default" />
       <updated>1725352352225</updated>
       <workItem from="1725352353333" duration="161000" />
+      <workItem from="1725371857111" duration="621000" />
     </task>
     <servers />
   </component>
