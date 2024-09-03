@@ -15,14 +15,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7b541685-2ad7-4f4e-ac91-6ded2405f5ea" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/palindrome.xcodeproj/xcshareddata/xcschemes/palindrome.xcscheme" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../../TODO.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../TODO.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/palindrome.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/palindrome.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/palindrome/palindrome.cc" beforeDir="false" afterPath="$PROJECT_DIR$/palindrome/palindrome.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../../cplusplus/basics/basics/for_loops.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../cplusplus/basics/basics/for_loops.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../java/basics/app/src/main/java/sv/basics/Language.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../java/basics/app/src/main/java/sv/basics/Language.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,6 +114,7 @@
       <workItem from="1725206884379" duration="4487000" />
       <workItem from="1725216884686" duration="969000" />
       <workItem from="1725219300694" duration="116000" />
+      <workItem from="1725313407671" duration="1232000" />
     </task>
     <servers />
   </component>
