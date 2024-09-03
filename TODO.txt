@@ -1,3 +1,5 @@
+[DONE][issue081] algorithms-dir-structure:
+  Setup the directory structure of the algorithms folder
 [DONE][issue080] palindrome-java:
   Java solution to the palindrom leetcode problem 
 [DONE][issue079] cplusplus-number-commas-update:
