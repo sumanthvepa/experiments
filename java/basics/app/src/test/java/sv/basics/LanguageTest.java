@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class LanguageTest {
   @Test void topicsAreNotNull() {
     assertNotNull(
-        Language.getTopics(),
-        "getTopics should return a non-null list of topics");
+      Language.getTopics(),
+      "getTopics should return a non-null list of topics");
   }
 }
