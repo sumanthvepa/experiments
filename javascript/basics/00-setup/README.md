@@ -30,6 +30,30 @@ For example:
 ```
   sudo port install npm10
 ```
+
+### AlmaLinux setup instructions
+Check to see if nodejs 20 is available
+```
+  dnf -y module list nodejs
+```
+Make sure other version of nodejs are disabled
+```
+  dnf -y module reset nodejs
+  dnf -y module enable nodejs:20
+```
+
+Install nodejs:20
+```
+  dnf -y module install nodejs:20/common
+```
+
+### Altertnative instructions for containers
+
+You can install node from nodesource RPMs
+or 
+NodeJS Binaries. See docker/basics/10-docker-build-node.sh
+and 11-docker-build-node-optimized for instructions
+
 ## First Time Setup
 The following instructions are for first time setup. i.e. when
 you are creating the project. If you've checked out an existing

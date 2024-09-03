@@ -85,6 +85,74 @@ public class Language {
     // Note 0: Overview of Java Platform
 
     // Note 1: Creating Java Projects with Gradle
+    // INSTALLING JAVA AND GRADLE
+    // You first need to install Java and Gradle.
+    // Instructions for installing Java on AlmaLinux are as follows:
+    // sudo dnf install java-21-openjdk-devel
+    // alternatives --set 'java' java-21-openjdk.aarch64 // For ARM 64-bit Linux
+    // alternatives --set 'java' java-21-openjdk.x86_64 // For x86 64-bit Linux
+    // Set JAVA_HOME to the Java installation directory in your .bash_profile
+    // export JAVA_HOME=/usr/lib/jvm/java
+
+    // Instructions for installing Java on macOS are as follows:
+    // sudo port install openjdk21
+    // Set JAVA_HOME to the Java installation directory in your .zprofile
+    // export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21-macports.jdk/Contents/Home
+
+    // Instructions for installing Gradle on AlmaLinux are as follows:
+    // Download the latest gradle installation from https://gradle.org/
+    // Extract the downloaded file to /opt/gradle/N.N.N (where
+    // N.N.N is the version number.)
+    // Create a symbolic link to the extracted directory as follows:
+    // ln -s /opt/gradle/N.N.N /opt/gradle/latest
+    // Finally, add the Gradle bin directory to the PATH environment
+    // variable as follows:
+    // export GRADLE_HOME=/opt/gradle/latest
+    // export PATH=$PATH:/opt/gradle/latest/bin
+
+    // Instructions for installing Gradle on macOS are as follows:
+    // sudo port install gradle
+    // Add GRADLE_HOME to your .zprofile
+    // export GRADLE_HOME=/opt/local/share/java/gradle
+
+    // The recommended way to create Java projects is with Gradle.
+    // In particular, my preferred way of using Gradle is to use the
+    // Kotlin DSL. It seems like the Gradle project is moving towards
+    // the Kotlin DSL as the default way of creating projects.
+
+
+    // SETTING UP A NEW JAVA PROJECT WITH GRADLE
+    // Create the directory in which the project will be created.
+    // E.g. mkdir -p ~/projects/myproject
+    // Change to the project directory.
+    // E.g. cd ~/projects/myproject
+    // Run the gradle init command.
+    // E.g. gradle init
+    // Select the application type: Java application
+    // Select application structure: Single application project
+    // Select the build script DSL: Kotlin
+    // Select the test framework: JUnit Jupiter
+
+    // You may have to rename the package name in the build.gradle.kts
+    // and change the directory structure and package directive in the
+    // java file to match the package name.
+
+    // Finally build and run the project:
+    // gradle build
+    // gradle run
+
+    // IMPORT THE PROJECT INTO INTELLIJ IDEA
+    // Open IntelliJ IDEA and select File -> New -> Project from Existing Sources
+    // Select the build.gradle.kts file in the project directory
+
+    // PASSING COMMAND-LINE ARGUMENTS when using Gradle
+    // To pass command-line arguments to the main method when using Gradle,
+    // you can use the --args option as follows:
+    // gradle run --args="arg1 arg2 arg3"
+    //
+    // From within IntelliJ IDEA, Edit Configurations,
+    // append --args="arg1 arg2 arg3" to the run task.
+
 
     // Note 2: Program entry point main. Discuss the new 'classless'
     // main feature.
