@@ -1,3 +1,5 @@
+[DONE][issue081] twosum-java:
+  Java solution to the leetcode twosum problem
 [DONE][issue081] algorithms-dir-structure:
   Setup the directory structure of the algorithms folder
 [DONE][issue080] palindrome-java:
@@ -35,7 +37,7 @@
   Create a web-server that is deployable via docker
 [issue062] docker-basics:
   Explore the basics of docker
-[DONE][issue061] leetcode-twosum:
+[DONE][issue061] twosum-cpp:
   The leetcode twosum problem solved in a variety of programming
   languages
 [DONE][issue060] swift-twosum: 
