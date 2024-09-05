@@ -1,3 +1,5 @@
+[DONE][issue083] sorting-insertion-cpp:
+  C++ implementation of insertion sort
 [issue082] sorting-insertion-java:
   Java implementation of insertion sort
 [DONE][issue081] twosum-java:
