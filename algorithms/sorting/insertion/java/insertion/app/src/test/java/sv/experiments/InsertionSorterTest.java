@@ -31,7 +31,8 @@ public class InsertionSorterTest {
   @Test void sortNumbers() {
     var sorter = new InsertionSorter();
     var a = new Integer[] {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
+    var expected = new Integer[] {1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9};
     sorter.sort(a, 0, a.length, Integer::compareTo);
-    assertArrayEquals(new Integer[] {1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9}, a);
+    assertArrayEquals(expected, a);
   }
 }
