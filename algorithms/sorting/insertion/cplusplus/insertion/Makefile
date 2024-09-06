@@ -115,6 +115,7 @@ else
     -Wvirtual-move-assign \
     -Wvolatile \
     -Wwrite-strings \
+    -Wno-aggregate-return \
     -Wno-unknown-pragmas \
     -g3 -O0 \
     $(COMMON_INCLUDES)
