@@ -1,3 +1,5 @@
+[issue083] cplusplus-stdlibraries:
+  Explore the C++ standard library
 [DONE][issue083] sorting-insertion-cpp:
   C++ implementation of insertion sort
 [DONE][issue082] sorting-insertion-java:
