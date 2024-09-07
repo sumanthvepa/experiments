@@ -1,3 +1,5 @@
+[issue084] java-textio:
+  Explore techniques for text I/O in Java
 [issue083] cplusplus-stdlibraries:
   Explore the C++ standard library
 [DONE][issue083] sorting-insertion-cpp:
