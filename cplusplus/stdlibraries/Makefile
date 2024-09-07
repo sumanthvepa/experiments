@@ -1,3 +1,22 @@
+# -------------------------------------------------------------------
+# Makefile for the stdlibraries project
+#
+# Copyright (C) 2024 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+#  <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
 .PHONY: all flags clean
 
 # Get the name of the operating system
@@ -25,7 +44,8 @@ endif
 # -Weffc++: Enable warnings for Effective C++
 COMMON_WARNINGS = -Wall -Wextra -Weffc++
 
-COMMON_INCLUDES = -I/opt/boost/1_86_0/include
+#COMMON_INCLUDES = -I/opt/boost/1_86_0/include
+COMMON_INCLUDES = -I.
 
 # The explanation of some common flags is as follows:
 # -Wno-poison-system-directories: This is only relevant for cross-compiling,
@@ -115,17 +135,28 @@ else
     -Wvirtual-move-assign \
     -Wvolatile \
     -Wwrite-strings \
-    -Wno-aggregate-return \
     -Wno-unknown-pragmas \
     -g3 -O0 \
     $(COMMON_INCLUDES)
 endif
 
-all: build/insertion
+all: build/stdlibraries
 
-build/insertion: insertion/insertion.cc
+build/stdlibraries: \
+	stdlibraries/stdlibraries.cc \
+	stdlibraries/streams.cc \
+	stdlibraries/streams.hh \
+	stdlibraries/vectors.cc \
+	stdlibraries/vectors.hh \
+	stdlibraries/iterators.cc \
+	stdlibraries/iterators.hh
 	mkdir -p build
-	$(CXX) $(CXX_FLAGS) -o build/insertion insertion/insertion.cc
+	$(CXX) $(CXX_FLAGS) \
+		-o build/stdlibraries \
+		stdlibraries/stdlibraries.cc \
+		stdlibraries/streams.cc \
+		stdlibraries/vectors.cc \
+		stdlibraries/iterators.cc 
 
 # This is a convenience target that prints out the compiler warning flags
 # that are supported by this version of GCC.
