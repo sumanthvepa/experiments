@@ -83,6 +83,9 @@
 #include <basics/null_pointers.hh> // provides explore_null_pointers()
 #include <basics/for_loops.hh> // provides explore_range_based_for_loops()
 #include <basics/functions.hh> // provides explore_functions()
+#include <basics/pure_virtual_functions.hh> // provides explore_pure_virtual_functions()
+#include <basics/deleted_functions.hh> // provides explore_deleted_functions()
+#include <basics/defaulted_functions.hh> // provides explore_defaulted_functions()
 			       
 // System includes
 #include <iostream>
@@ -120,6 +123,15 @@ auto main() -> int {
 
   // Note 4: Explore functions
   sv::basics::explore_functions();
+
+  // Note 5: Explore pure virtual functions
+  sv::basics::explore_pure_virtual_functions();
+
+  // Note 6: Explore deleted_functions
+  sv::basics::explore_deleted_functions();
+
+  // Note 7: Explore defaulted_functions
+  sv::basics::explore_defaulted_functions();
 
   // TODO: Explore the following
   // Note N: Explore rvalue references and move semantics
