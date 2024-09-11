@@ -1,3 +1,4 @@
+[issue086] bash-basics: Explore bash basics
 [issue085] selinux-basics: Explore SELinux
 [issue084] java-textio:
   Explore techniques for text I/O in Java
