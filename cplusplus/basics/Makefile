@@ -18,7 +18,7 @@ endif
 # compiler when building the project. The flags are different depending on the
 # compiler/operator system being used
 
-# The following are common warning flagsthat are used for both clang and gcc:
+# The following are common warning flags that are used for both clang and gcc:
 # -Wall: Enable most warnings
 # -Wextra: Enable extra warnings
 # --pedantic: Enable pedantic warnings
@@ -128,15 +128,25 @@ build/language: \
   basics/null_pointers.hh \
   basics/for_loops.cc \
   basics/for_loops.hh \
+  basics/functions.cc \
   basics/functions.hh \
-  basics/functions.cc
+  basics/pure_virtual_functions.cc \
+  basics/pure_virtual_functions.hh \
+  basics/deleted_functions.cc \
+  basics/deleted_functions.hh \
+  basics/defaulted_functions.cc \
+  basics/defaulted_functions.hh 
 	mkdir -p build
 	$(CXX) $(CXX_FLAGS) -o build/language \
 		basics/language.cc \
 		basics/strings.cc \
 		basics/null_pointers.cc \
 		basics/for_loops.cc \
-		basics/functions.cc
+		basics/functions.cc \
+		basics/pure_virtual_functions.cc \
+		basics/deleted_functions.cc \
+		basics/defaulted_functions.cc 
+
 
 # This is ac convenience target that prints out the compiler warning flags
 # that are supported by this version of GCC.

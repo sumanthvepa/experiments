@@ -11,6 +11,9 @@
 		277434E22C85041300036708 /* functions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 277434E02C85041300036708 /* functions.cc */; };
 		279926C42BDFE4FF006869D4 /* strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 279926C32BDFE4FF006869D4 /* strings.cc */; };
 		279EF7502C81DE08005D9EAF /* for_loops.cc in Sources */ = {isa = PBXBuildFile; fileRef = 279EF74F2C81DE08005D9EAF /* for_loops.cc */; };
+		27A96B742C8D497400B1F1E3 /* pure_virtual_functions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 27A96B732C8D497400B1F1E3 /* pure_virtual_functions.cc */; };
+		27A96B772C8D498A00B1F1E3 /* deleted_functions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 27A96B752C8D498A00B1F1E3 /* deleted_functions.cc */; };
+		27A96B7A2C8D499B00B1F1E3 /* defaulted_functions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 27A96B782C8D499B00B1F1E3 /* defaulted_functions.cc */; };
 		27F2667D2C0437B700FCE90E /* null_pointers.cc in Sources */ = {isa = PBXBuildFile; fileRef = 27F2667C2C0437B700FCE90E /* null_pointers.cc */; };
 /* End PBXBuildFile section */
 
@@ -35,6 +38,12 @@
 		279926C32BDFE4FF006869D4 /* strings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = strings.cc; sourceTree = "<group>"; };
 		279EF74E2C81DE08005D9EAF /* for_loops.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = for_loops.hh; sourceTree = "<group>"; };
 		279EF74F2C81DE08005D9EAF /* for_loops.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = for_loops.cc; sourceTree = "<group>"; };
+		27A96B722C8D497400B1F1E3 /* pure_virtual_functions.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = pure_virtual_functions.hh; sourceTree = "<group>"; };
+		27A96B732C8D497400B1F1E3 /* pure_virtual_functions.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pure_virtual_functions.cc; sourceTree = "<group>"; };
+		27A96B752C8D498A00B1F1E3 /* deleted_functions.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = deleted_functions.cc; sourceTree = "<group>"; };
+		27A96B762C8D498A00B1F1E3 /* deleted_functions.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = deleted_functions.hh; sourceTree = "<group>"; };
+		27A96B782C8D499B00B1F1E3 /* defaulted_functions.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = defaulted_functions.cc; sourceTree = "<group>"; };
+		27A96B792C8D499B00B1F1E3 /* defaulted_functions.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = defaulted_functions.hh; sourceTree = "<group>"; };
 		27F2667B2C0433B100FCE90E /* null_pointers.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = null_pointers.hh; sourceTree = "<group>"; };
 		27F2667C2C0437B700FCE90E /* null_pointers.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = null_pointers.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -69,6 +78,12 @@
 		2745739F2BDCEDE6008C82C1 /* basics */ = {
 			isa = PBXGroup;
 			children = (
+				27A96B782C8D499B00B1F1E3 /* defaulted_functions.cc */,
+				27A96B792C8D499B00B1F1E3 /* defaulted_functions.hh */,
+				27A96B752C8D498A00B1F1E3 /* deleted_functions.cc */,
+				27A96B762C8D498A00B1F1E3 /* deleted_functions.hh */,
+				27A96B732C8D497400B1F1E3 /* pure_virtual_functions.cc */,
+				27A96B722C8D497400B1F1E3 /* pure_virtual_functions.hh */,
 				277434E02C85041300036708 /* functions.cc */,
 				277434E12C85041300036708 /* functions.hh */,
 				279EF74F2C81DE08005D9EAF /* for_loops.cc */,
@@ -139,11 +154,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27A96B7A2C8D499B00B1F1E3 /* defaulted_functions.cc in Sources */,
 				277434E22C85041300036708 /* functions.cc in Sources */,
 				279926C42BDFE4FF006869D4 /* strings.cc in Sources */,
 				274573A82BDCEEBE008C82C1 /* language.cc in Sources */,
 				27F2667D2C0437B700FCE90E /* null_pointers.cc in Sources */,
+				27A96B772C8D498A00B1F1E3 /* deleted_functions.cc in Sources */,
 				279EF7502C81DE08005D9EAF /* for_loops.cc in Sources */,
+				27A96B742C8D497400B1F1E3 /* pure_virtual_functions.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
