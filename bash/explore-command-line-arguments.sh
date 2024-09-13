@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo "TODO: explore command line arguments."
+echo 'TODO: explore command line arguments.'
 
 # In particular explore $@ "$@" and $* and "$*"
 # Also explore $0 $1 etc.
@@ -34,7 +34,7 @@ function print_arguments() {
   done
 }
 
-print_arguments 3 4 "c"
+print_arguments 3 4 'c'
 
 # If you want to the function to have access to the
 # command line arguments you have pass them to it
@@ -49,3 +49,17 @@ print_arguments "$@"
 # and each space separated word will be treated
 # as an argument.
 print_arguments $@
+
+# set -- will change the command line arguments to the
+# specified values. For example the code below will
+# discard the current command line arguments and
+# replace them with "overide" "command" "line"
+set -- 'override' 'command' 'line'
+echo $@ # prints overide command line
+
+# You can modify the command line by appending or
+# prepending arguments as follows
+set -- 'postgres' "$@"
+
+# The word 'postgres' has been appended to 
+echo $@
