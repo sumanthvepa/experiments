@@ -20,12 +20,32 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo "TODO: explore functions in bash"
+echo "TODO: explore command line arguments."
 
-# in particular explore how to use functions from within if statments.
-# And how to use return etc. See explore-funcname and ChatGPT logs for
-# issues # that I should explore.
+# In particular explore $@ "$@" and $* and "$*"
+# Also explore $0 $1 etc.
 
-# Explore variadic functions with $@, "$@" See
-# explore-command-line-arguments.sh for an example. Elaborate on that
-# example.
+# Within a function $@ represents the arguments passed
+# to the function. So you cannot access command line
+# arguments from with a function using $@
+function print_arguments() {
+  for param in "$@"; do
+    echo $param
+  done
+}
+
+print_arguments 3 4 "c"
+
+# If you want to the function to have access to the
+# command line arguments you have pass them to it
+# explcitly
+
+# This will print its command line arguments, using
+# quotes preserves space in the arguments
+print_arguments "$@"
+
+# This will also print the command line arguments
+# but spaces within arguments will be ignored
+# and each space separated word will be treated
+# as an argument.
+print_arguments $@
