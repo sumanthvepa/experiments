@@ -38,3 +38,28 @@ ARRAY=(0 2 4 6 8 10)
 for i in ${ARRAY[@]}; do
   echo "i=$i"
 done
+
+# if you omit the in clause, the for loop will operate
+# on the parameter list $@. Depending on whether the
+# for loop is inside a function or at the top-level,
+# $@ either represents the function parameters or
+# the script parameters.
+
+# In the code below the for loop is iterating
+# over function parameters.
+function foo() {
+  local arg
+  for arg; do
+    echo "parameter: $arg"
+  done
+}
+
+foo first second "the third one" 4
+
+# At the top level omitting the in clause will cause
+# for loop to iterate over the command line arguments
+# starting with $1.
+
+for arg; do
+  echo "command line parameter: $arg"
+done
