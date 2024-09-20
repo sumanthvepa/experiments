@@ -1,3 +1,5 @@
+[DONE][issue088] linux-selinux-basics:
+  Move selinux exploration into the linux folder
 [DONE][issue087] linux-explore-nss-wrapper:
   Explore cwrap's nss_wrapper feature
 [issue086] bash-basics: Explore bash basics
