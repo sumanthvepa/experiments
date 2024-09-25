@@ -1,4 +1,4 @@
-[issue089] python-flask-00-hellows:
+[DONE][issue089] python-flask-00-hellows:
   A simple hello web service that returns the string hello
 [DONE][issue088] linux-selinux-basics:
   Move selinux exploration into the linux folder
