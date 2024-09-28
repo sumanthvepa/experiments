@@ -1,3 +1,5 @@
+[issue091] bash-explore-user-whoami:
+  Explore getting the name of the current user in bash
 [DONE][issue090] python-flask-01-hellows:
   A flask app that respond with JSON {"greeting": "hello"}
 [DONE][issue089] python-flask-00-hellows:
