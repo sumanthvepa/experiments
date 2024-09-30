@@ -1,3 +1,4 @@
+[DONE][issue092] python-basics-notest: Improve notes
 [issue091] bash-explore-user-whoami:
   Explore getting the name of the current user in bash
 [DONE][issue090] python-flask-01-hellows:
