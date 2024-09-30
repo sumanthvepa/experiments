@@ -5,7 +5,7 @@
   This is an exploration of Swift comments This is note 1 in the series exploring swift basics
 */
 /* -------------------------------------------------------------------
- * commonts.swift: Explore comments in Swift
+ * comments.swift: Explore comments in Swift
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
@@ -35,7 +35,7 @@
 /*
   Unlike comments in C, 
 
-  /* Swift multiline comments in Swift can be nested.*/
+  /* Multiline comments in Swift can be nested.*/
 
   // You can also nest single line comments
 

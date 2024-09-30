@@ -1,3 +1,5 @@
+[DONE][issue093] swift-basics-notes-version:
+  Fix typos, set swift version to 6.0
 [DONE][issue092] python-basics-notest: Improve notes
 [issue091] bash-explore-user-whoami:
   Explore getting the name of the current user in bash
