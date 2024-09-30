@@ -1,3 +1,5 @@
+[DONE][issue095] sorting-insertion-swift:
+  Swift implementation of insertion sort
 [DONE][issue094] swift-stdlibraries-array-sort:
   Explore sorting on Arrays
 [DONE][issue093] swift-basics-notes-version:
