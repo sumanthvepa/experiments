@@ -87,8 +87,8 @@ print('Exploring Python')
 # Encoding Declaration
 # The second line is the encoding declaration. This tells the python
 # interpreter that the source code is encoded in utf-8. This is
-# important because python 3 uses unicode strings by default. The
-# encoding declaration allows you to use unicode characters in your
+# important because python 3 uses Unicode strings by default. The
+# encoding declaration allows you to use Unicode characters in your
 # source code.
 # The encoding declaration is optional, if no encoding is specified,
 # Python assumes UTF-8. Some UTF-8 files may start with a UTF-8 byte

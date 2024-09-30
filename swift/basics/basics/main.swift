@@ -26,7 +26,7 @@ main.swift: Explore the Swift Programming Language.
  notes and tutorials on the Swift programming language. 
  
  These notes are written as a series of heavily commented Swift files,
- that are referenced from man.swift either as comments or through
+ that are referenced from main.swift either as comments or through
  actual function/method calls. This effectively specifes the order in
  which various files in this project should be read. The order of the
  files is as follows:

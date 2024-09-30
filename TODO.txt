@@ -1,3 +1,16 @@
+[DONE][issue095] sorting-insertion-swift:
+  Swift implementation of insertion sort
+[DONE][issue094] swift-stdlibraries-array-sort:
+  Explore sorting on Arrays
+[DONE][issue093] swift-basics-notes-version:
+  Fix typos, set swift version to 6.0
+[DONE][issue092] python-basics-notest: Improve notes
+[issue091] bash-explore-user-whoami:
+  Explore getting the name of the current user in bash
+[DONE][issue090] python-flask-01-hellows:
+  A flask app that respond with JSON {"greeting": "hello"}
+[DONE][issue089] python-flask-00-hellows:
+  A simple hello web service that returns the string hello
 [DONE][issue088] linux-selinux-basics:
   Move selinux exploration into the linux folder
 [DONE][issue087] linux-explore-nss-wrapper:
