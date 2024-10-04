@@ -8,7 +8,7 @@
 [DONE][issue093] swift-basics-notes-version:
   Fix typos, set swift version to 6.0
 [DONE][issue092] python-basics-notest: Improve notes
-[issue091] bash-explore-user-whoami:
+[DONE][issue091] bash-explore-user-whoami:
   Explore getting the name of the current user in bash
 [DONE][issue090] python-flask-01-hellows:
   A flask app that respond with JSON {"greeting": "hello"}

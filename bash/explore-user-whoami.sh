@@ -33,20 +33,5 @@ echo "The user name is: $(id -un)"
 # The fourth way is to use the logname command
 echo "The user name is: $(logname)"
 
-export LD_PRELOAD=/usr/lib64/libnss_wrapper.so
-export NSS_WRAPPER_PASSWD=passwd
-export NSS_WRAPPER_GROUP=group
-# $USER is the most common way to get the user name in bash.
-# But it is either not always set, can be changed by the user
-# and is not static.
-# When this script is run as root, $USER will be root.
-echo $USER  # prints the user name of the logged in user
-gosu postgres echo $USER  # prints root instead of postgres
-
 # The whoami command is a better way to get the user name.
 # It prints the user name of the user who is running the script.
-# When this script is run as root, whoam will print root when
-# echo is called directly, but postgres when gosu is used.
-# This assumes that the user postgres exists on the system.
-whoami # prints the user name of the user running the script
-gosu postgres whoami  # prints postgres
