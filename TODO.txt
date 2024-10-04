@@ -1,3 +1,5 @@
+[DONE][issue097] linux-explore-nss-wrapper-unset-env:
+  Unset the environment variables when the script is complete
 [DONE][issue096] swift-basics-notes-2: Improve notes
 [DONE][issue095] sorting-insertion-swift:
   Swift implementation of insertion sort
