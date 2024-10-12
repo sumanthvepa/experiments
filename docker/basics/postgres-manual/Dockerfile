@@ -33,6 +33,9 @@
 # Use the almalinux:9-minimal image as the base image
 FROM almalinux:9-minimal
 
+# Install basic editing tools to help with debugging
+RUN microdnf -y install vim
+
 # Disable the version of postgres that comes bundled with the OS
 RUN microdnf -y module disable postgresql
 
