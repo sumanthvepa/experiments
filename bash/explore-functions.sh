@@ -115,6 +115,16 @@ function foo4() {
 OUTPUT=$(foo4)
 echo $OUTPUT
 
+# Functions can have local variables. Local variables
+# are only available within the function.
+function foo5() {
+  local local_var="This is a local variable"
+  echo $local_var
+}
+
+foo5
+echo $local_var # This will not work
+
 # Using exit within a function will exit the script,
 # expected, not just the function.
 function terminate_script() {
@@ -126,3 +136,4 @@ terminate_script
 # No code below this line will be executed, because foo3
 # has exited the script.
 echo "Exit status of foo3: $?"
+
