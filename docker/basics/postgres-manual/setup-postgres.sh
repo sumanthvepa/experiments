@@ -212,12 +212,20 @@ function initialize_database() {
   echo "[15] Found gosu at $GOSU_BINARY"
 
   echo "[15] Initializing the database..."
-  $GOSU_BINARY $POSTGRES_USER initialize-postgres.sh
-  if [[ $? -ne 0 ]]; then
-    SECONDARY_EXIT_CODE=$?
-    RETURN_CODE="${EXIT_CODE_ERROR_COULD_NOT_INITIALIZE_DATABASE}${SECONDARY_EXIT_CODE}"
-    echo "[15] ERROR($RETURN_CODE): Could not initialize the database"
-    return $RETURN_CODE
+
+  POSTGRES_USER=$POSTGRES_USER \
+  POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+  POSTGRES_DB=$POSTGRES_DB \
+  POSTGRES_INITDB_ARGS=$POSTGRES_INITDB_ARGS \
+  POSTGRES_INITDB_WALDIR=$POSTGRES_INITDB_WALDIR \
+  POSTGRES_HOST_AUTH_METHOD=$POSTGRES_HOST_AUTH_METHOD \
+  PGDATA=$PGDATA \
+       $GOSU_BINARY $POSTGRES_USER initialize-postgres.sh
+  local secondary_exit_code=$?
+  if [[ $secondary_exit_code -ne 0 ]]; then
+    local return_code="${EXIT_CODE_ERROR_COULD_NOT_INITIALIZE_DATABASE}${secondary_exit_code}"
+    echo "[15] ERROR($return_code): Could not initialize the database"
+    return $return_code
   fi
   echo "[5] ...done."
   return $EXIT_CODE_SUCCESS
@@ -257,13 +265,13 @@ function run_postgres() {
   # so that the script can examine the the exit code of the
   # postgres server.
   # gosu $POSTGRES_USER postgres -D $PGDATA
-  echo "[2] gosu $POSTGRES_USER postgres -D $PGDATA"
+  echo "[2] postgres command: gosu $POSTGRES_USER postgres -D $PGDATA"
   # gosu $POSTGRES_USER postgres -D $PGDATA
-  if [[ $? -ne 0 ]]; then
-    POSTGRES_SERVER_ERROR=$?
-    RETURN_CODE="${EXIT_CODE_ERROR_POSTGRES_SERVER_ERROR}$POSTGRES_SERVER_ERROR"
-    echo "[2] ERROR($RETURN_CODE): Postgres server exited with a non-zero exit code. $POSTGRES_SERVER_ERROR"
-    return $RETURN_CODE
+  local postgres_server_error=$?
+  if [[ $postgres_server_error -ne 0 ]]; then
+    local return_code="${EXIT_CODE_ERROR_POSTGRES_SERVER_ERROR}$postgres_server_error"
+    echo "[2] ERROR($return_code): Postgres server exited with a non-zero exit code. $postgres_server_error"
+    return $return_code
   fi
   echo "[2] ...Postgres exited normally."
   return $EXIT_CODE_SUCCESS
