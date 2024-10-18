@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# explore-subshell.sh: Explore subshells in bash
+# explore-subshells.sh: Explore subshells in bash
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
