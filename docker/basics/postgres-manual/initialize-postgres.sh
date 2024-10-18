@@ -31,18 +31,20 @@ POSTGRES_DIST_DIR="/usr/pgsql-16"
 # Exit codes
 EXIT_CODE_SUCCESS=0
 EXIT_CODE_ERROR_INITDB_COMMAND_FAILED=1
-EXIT_CODE_ERROR_POSTGRES_USER_EMPTY=2
-EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY=3
-EXIT_CODE_ERROR_POSTGRES_DB_EMPTY=4
-EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY=5
-EXIT_CODE_ERROR_PGDATA_EMPTY=6
-EXIT_CODE_ERROR_NOT_POSTGRES_USER=7
-EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY=8
-EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET=9
-EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET=10
-EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND=11
-EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF=12
-EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF=13
+EXIT_CODE_ERROR_PG_CTL_START_COMMAND_FAILED=2
+EXIT_CODE_ERROR_PG_CTL_STOP_COMMAND_FAILED=3
+EXIT_CODE_ERROR_POSTGRES_USER_EMPTY=4
+EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY=5
+EXIT_CODE_ERROR_POSTGRES_DB_EMPTY=6
+EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY=7
+EXIT_CODE_ERROR_PGDATA_EMPTY=8
+EXIT_CODE_ERROR_NOT_POSTGRES_USER=9
+EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY=10
+EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET=11
+EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET=12
+EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND=13
+EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF=14
+EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF=15
 
 # Check if the required variables are set
 # 
@@ -182,7 +184,7 @@ function run_initdb_command() {
   # to be expanded to --pwfile=<(printf "%s\n" "postgres") in the
   # first expansion and then in the second expansion, the redirection
   # from standard out is done.
-  #eval "$initdb_command"
+  eval "$initdb_command"
   local initdb_error_code=$?
   if [[ $initdb_error_code -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_INITDB_COMMAND_FAILED}$initdb_error_code"
@@ -238,11 +240,25 @@ function configure_host_based_authentication() {
 function start_temporary_server() {
   echo "[1561] Starting a temporary server..."
   # Start the temporary server
-  #pg_ctl -D $PGDATA -l $PGDATA/logfile start
-  #if [[ $? -ne 0 ]]; then
-  #  echo "[154] ERROR: Failed to start the temporary server"
-  #  return $?
-  #fi
+  # Specify the data directory
+  local pg_ctl_parameters="-D $PGDATA"
+  # Do not listen on any IP addresses, only on the local socket
+  pg_ctl_parameters="$pg_ctl_parameters --options \"-c listen_addresses='' -p 5432\""
+  # Write the activity to the log file
+  pg_ctl_parameters="$pg_ctl_parameters --log \"${PGDATA}logfile\""
+  # Wait for the server to start before returning control to the shell
+  pg_ctl_parameters="$pg_ctl_parameters --wait"
+  local pg_ctl_binary="$POSTGRES_DIST_DIR/bin/pg_ctl"
+  local pg_ctl_command="PGUSER=\"$POSTGRES_USER\" $pg_ctl_binary $pg_ctl_parameters start"
+  echo "[1561] Running pg_ctl command..."
+  echo "[1561] command: $pg_ctl_command"
+  eval $pg_ctl_command
+  local pg_ctl_error_code=$?
+  if [[ $pg_ctl_error_code -ne 0 ]]; then
+    local return_code="${EXIT_CODE_ERROR_PG_CTL_START_COMMAND_FAILED}$pg_ctl_error_code"
+    echo "[1561] ERROR($return_code): Failed to start the temporary server"
+    return $return_code
+  fi
   echo "[1561] ...done."
   return $EXIT_CODE_SUCCESS
 }
@@ -291,12 +307,21 @@ function run_initial_sql_scripts() {
 #   TBD: if the temporary server fails to stop
 function stop_temporary_server() {
   echo "[1564] Stopping the temporary server..."
-  # Stop the temporary server
-  #pg_ctl -D $PGDATA stop
-  #if [[ $? -ne 0 ]]; then
-  #  echo "[154] ERROR: Failed to stop the temporary server"
-  #  return $?
-  #fi
+  # Specify the data directory, the shutdown mode (fast is the default,
+  # but we specify it anyway), and wait for the server to stop before
+  # returning control to the shell
+  local pg_ctl_parameters="-D "$PGDATA" -m fast --wait"
+  local pg_ctl_binary="$POSTGRES_DIST_DIR/bin/pg_ctl"
+  local pg_ctl_command="PGUSER=\"$POSTGRES_USER\" $pg_ctl_binary $pg_ctl_parameters stop"
+  echo "[1564] Running pg_ctl command..."
+  echo "[1565] command: $pg_ctl_command"
+  eval $pg_ctl_command
+  local pg_ctl_error_code=$?
+  if [[ $pg_ctl_error_code -ne 0 ]]; then
+    local return_code="${EXIT_CODE_ERROR_PG_CTL_STOP_COMMAND_FAILED}$pg_ctl_error_code"
+    echo "[1564] ERROR($return_code): Failed to stop the temporary server"
+    return $return_code
+  fi
   echo "[1564] ...done."
   return $EXIT_CODE_SUCCESS
 }

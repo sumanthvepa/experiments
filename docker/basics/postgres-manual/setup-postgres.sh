@@ -227,7 +227,7 @@ function initialize_database() {
     echo "[15] ERROR($return_code): Could not initialize the database"
     return $return_code
   fi
-  echo "[5] ...done."
+  echo "[15] ...done."
   return $EXIT_CODE_SUCCESS
 }
 
