@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# explore-user-whoami.sh: Explore ways to get the user name in bash
+# explore-printf.sh: Explore the printf command in bash
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -20,18 +20,9 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# There are several ways to get the user name in bash.
-# The first way is to use $USER environment variable
-echo "The user name is: $USER"
-
-# The second way is to use the whoami command
-echo "The user name is: $(whoami)"
-
-# The third way is to use the id command
-echo "The user name is: $(id -un)"
-
-# The fourth way is to use the logname command
-echo "The user name is: $(logname)"
-
-# The whoami command is a better way to get the user name.
-# It prints the user name of the user who is running the script.
+# The %q format specifier in printf is used to print a string in a format
+# that can be reused as input to the shell. This is useful when you want
+# to print a string that contains special characters and you want to
+# reuse the string as input to the shell.
+# E.g.
+printf "%q\n" "Hello, World!" # prints Hello,\ World\!

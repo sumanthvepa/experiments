@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# explore-user-whoami.sh: Explore ways to get the user name in bash
+# explore-exit-vs-return.sh: Explore exit vs return in bash
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -20,18 +20,26 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# There are several ways to get the user name in bash.
-# The first way is to use $USER environment variable
-echo "The user name is: $USER"
+# Exit vs Return
+# The exit command is used to exit the shell script with a status code.
+# The return command is used to return from a function with a status code.
 
-# The second way is to use the whoami command
-echo "The user name is: $(whoami)"
+function foo {
+  echo "This is function foo"
+  return 1
+}
 
-# The third way is to use the id command
-echo "The user name is: $(id -un)"
+foo
+echo $? # prints 1
 
-# The fourth way is to use the logname command
-echo "The user name is: $(logname)"
+# This function will cause the script to exit with status code 2
+function bar {
+    echo "This is function bar"
+    exit 2
+}
 
-# The whoami command is a better way to get the user name.
-# It prints the user name of the user who is running the script.
+# Note that return value of the function will become the exit value of
+# the script if the function call is the last command in the script.
+foo
+
+# This script will exit with code 1

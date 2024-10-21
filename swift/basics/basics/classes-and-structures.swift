@@ -1306,6 +1306,8 @@ func exploreAdvancedClassConcepts() {
 // However, extensions must be declared at file scope. They cannot be
 // used to extend a type within a function or method. Hence, this
 // example is shown at file scope.
+// Extensions are described in the Swift Programming Language documentation at:
+// https://docs.swift.org/swift-book/documentation/the-swift-programming-language/extensions
 class FileScopePerson {
   var name: String
   var age: Int

@@ -72,3 +72,7 @@ getent passwd bob
 make all
 ./build/explore-nss-wrapper
 
+# Unset the environment variables to return to normal
+unset LD_PRELOAD
+unset NSS_WRAPPER_PASSWD
+unset NSS_WRAPPER_GROUP

@@ -93,6 +93,27 @@ main.swift: Explore the Swift Programming Language.
 // For a Swift Xcode project, this means that only,
 // the main.swift file can have the #! line.
 
+// Note on Xcode's Swift Language Version Build setting
+// By default this setting in Project Settings > Build Setings >
+// [Search for Swift Language Version] is set to unspecified. It is
+// recommended that when building the project the language version be
+// chaged to the latest version of Swift. This will flag any
+// incompatibilities in code. For exsisting project, one should bump
+// up the language version when building with a newer verison of
+// Swift. Any problems identified should be fixed.
+// See: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/compatibility/
+// and: https://forums.developer.apple.com/forums/thread/128965
+// and:
+// https://stackoverflow.com/questions/52867411/xcode-swift-language-version-different-between-unspecified-and-version
+// and: https://stackoverflow.com/questions/30790188/how-do-i-see-which-version-of-swift-im-using
+
+
+
+// The current version Swift is 6.0
+// See this link for notes on what is new in 6.0
+// https://www.hackingwithswift.com/articles/269/whats-new-in-swift-6
+
+
 // Note on statements in Swift.
 // Statements in swift are terminated with a newline token
 // A semicolon can also be used, but is not necessary.

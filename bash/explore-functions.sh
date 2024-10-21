@@ -88,3 +88,52 @@ function bat2() {
 
 bat2 'first' 'the second one' 'third' 'fourth'
 
+# Functions in bash behave like commands. They have an exit
+# status. You can use the return statement to set the exit
+# status of a function. If not explicitly set the exit
+# status of a function is the exit status of the last command
+# executed in the function.
+
+function foo2() {
+  echo "This is function foo2"
+  return 1
+}
+
+# You can get the return value of a function the same way
+# you would get the return value of a command, using $?
+foo2
+echo "Exit status of foo2: $?"
+
+
+# Functions can only return integers. If you want to
+# return a string you can use echo to print the string
+# and then capture the output of the function using
+# command substitution.
+function foo4() {
+  echo "This is function foo4"
+}
+OUTPUT=$(foo4)
+echo $OUTPUT
+
+# Functions can have local variables. Local variables
+# are only available within the function.
+function foo5() {
+  local local_var="This is a local variable"
+  echo $local_var
+}
+
+foo5
+echo $local_var # This will not work
+
+# Using exit within a function will exit the script,
+# expected, not just the function.
+function terminate_script() {
+  echo "This is function terminate_script"
+  exit 1
+}
+
+terminate_script
+# No code below this line will be executed, because foo3
+# has exited the script.
+echo "Exit status of foo3: $?"
+

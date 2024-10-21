@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# explore-user-whoami.sh: Explore ways to get the user name in bash
+# explore-exec.sh: Explore exec command in bash
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -20,18 +20,22 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# There are several ways to get the user name in bash.
-# The first way is to use $USER environment variable
-echo "The user name is: $USER"
+# The exec command in bash is used to replace the current shell process
+# with a new process. This is useful when you want to run a command and
+# replace the current shell process with the command process.
 
-# The second way is to use the whoami command
-echo "The user name is: $(whoami)"
+# Note once the exec command is executed, the current shell process is
+# replaced and the shell script does not continue executing.
 
-# The third way is to use the id command
-echo "The user name is: $(id -un)"
+# The syntax of the exec command is:
+# exec command [arguments]
+# e.g.
+exec ls -l
 
-# The fourth way is to use the logname command
-echo "The user name is: $(logname)"
-
-# The whoami command is a better way to get the user name.
-# It prints the user name of the user who is running the script.
+# In the above example, the exec command is used to replace the current
+# shell process with the ls -l command. The ls -l command is executed
+# and the output is displayed. Once the ls -l command is completed, the
+# shell process is terminated.
+# Control does not return to the shell script.
+# So the following will not execute
+echo "This will not be printed"

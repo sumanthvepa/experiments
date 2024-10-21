@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# explore-user-whoami.sh: Explore ways to get the user name in bash
+# explore-subshell.sh: Explore subshells in bash
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -20,18 +20,4 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# There are several ways to get the user name in bash.
-# The first way is to use $USER environment variable
-echo "The user name is: $USER"
-
-# The second way is to use the whoami command
-echo "The user name is: $(whoami)"
-
-# The third way is to use the id command
-echo "The user name is: $(id -un)"
-
-# The fourth way is to use the logname command
-echo "The user name is: $(logname)"
-
-# The whoami command is a better way to get the user name.
-# It prints the user name of the user who is running the script.
+echo $VARIABLE_DEFINED_IN_PARENT
