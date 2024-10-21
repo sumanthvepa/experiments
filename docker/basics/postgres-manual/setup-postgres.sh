@@ -22,9 +22,21 @@
 # -------------------------------------------------------------------
 
 # Initialization and startup script for Postgres within a container.
-# This script is intended to be run within the container running
-# the postgres-manual image.
-# It needs to be run manually by a user logging into the container.
+# This script is intended to be run within the container running the
+# postgres-manual image. It needs to be run manually by a user logging
+# into the container.
+
+# This script replicates most of the capabilities of the official
+# postgres docker image. It is intended to be an intermediate
+# experimental container to help me learn how to create a proper
+# docker entrypoint file for an functional postgres container.
+
+# Some things that are functionally different from the official
+# postgres docker image:
+#  - This script does not support _FILE environment variables for
+#    setting the password and other environment variables. That
+#    feature is not implemented here.
+#  - Command line arguments to the postgres server are not supported.
 
 # Exit codes
 EXIT_CODE_SUCCESS=0
@@ -92,6 +104,8 @@ function initialize_optional_variables() {
   echo "[12] Initializing optional variables..."
   # Set the variables needed for the script to default values
   # if they are not already set.
+  POSTGRES_DIST_DIR=${POSTGRES_DIST_DIR:="/usr/pgsql-16"}
+  echo "[12] POSTGRES_DIST_DIR is set to $POSTGRES_DIST_DIR"
   POSTGRES_USER=${POSTGRES_USER:=postgres}
   echo "[12] POSTGRES_USER is set to $POSTGRES_USER"
   POSTGRES_DB=${POSTGRES_DB:=$POSTGRES_USER}
@@ -213,6 +227,7 @@ function initialize_database() {
 
   echo "[15] Initializing the database..."
 
+  POSTGRES_DIST_DIR=$POSTGRES_DIST_DIR \
   POSTGRES_USER=$POSTGRES_USER \
   POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
   POSTGRES_DB=$POSTGRES_DB \
@@ -264,9 +279,9 @@ function run_postgres() {
   # Start the postgres server. We do not use exec here,
   # so that the script can examine the the exit code of the
   # postgres server.
-  # gosu $POSTGRES_USER postgres -D $PGDATA
-  echo "[2] postgres command: gosu $POSTGRES_USER postgres -D $PGDATA"
-  # gosu $POSTGRES_USER postgres -D $PGDATA
+  local postgres_binary=$POSTGRES_DIST_DIR/bin/postgres
+  echo "[2] postgres command: gosu $POSTGRES_USER $postgres_binary -D $PGDATA"
+  gosu $POSTGRES_USER $postgres_binary -D $PGDATA
   local postgres_server_error=$?
   if [[ $postgres_server_error -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_POSTGRES_SERVER_ERROR}$postgres_server_error"

@@ -34,7 +34,7 @@
 FROM almalinux:9-minimal
 
 # Install basic editing tools to help with debugging
-RUN microdnf -y install vim
+RUN microdnf -y install vim zstd procps-ng iproute
 
 # Disable the version of postgres that comes bundled with the OS
 RUN microdnf -y module disable postgresql
@@ -57,6 +57,8 @@ RUN microdnf -y install postgresql16-server
 # for the postgres database server to the /usr/local/bin directory
 COPY setup-postgres.sh /usr/local/bin/setup-postgres.sh
 COPY initialize-postgres.sh /usr/local/bin/initialize-postgres.sh
+
+STOPSIGNAL SIGINT
 
 # Set the default command to launch a bash shell
 CMD ["/bin/bash"]

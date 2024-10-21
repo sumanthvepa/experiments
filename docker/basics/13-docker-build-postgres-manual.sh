@@ -63,5 +63,8 @@ if [ ! -f $GOSU_BINARY ]; then
   curl -fsSL $GOSU_SIGNATURE_URL -o $GOSU_SIGNATURE
 fi
 
+# Remove any previous image
+docker image rm postgres-manual
+
 # Now we can build the Postgres Docker image
 docker build --tag postgres-manual ./postgres-manual
