@@ -30,24 +30,36 @@ EXIT_CODE_SUCCESS=0
 EXIT_CODE_ERROR_INITDB_COMMAND_FAILED=1
 EXIT_CODE_ERROR_PG_CTL_START_COMMAND_FAILED=2
 EXIT_CODE_ERROR_PG_CTL_STOP_COMMAND_FAILED=3
-EXIT_CODE_ERROR_POSTGRES_DIST_DIR_EMPTY=4
-EXIT_CODE_ERROR_POSTGRES_USER_EMPTY=5
-EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY=6
-EXIT_CODE_ERROR_POSTGRES_DB_EMPTY=7
-EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY=8
-EXIT_CODE_ERROR_PGDATA_EMPTY=9
-EXIT_CODE_ERROR_NOT_POSTGRES_USER=10
-EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY=11
-EXIT_CODE_ERROR_POSTGRES_CONF_NOT_FOUND=12
-EXIT_CODE_ERROR_COULD_NOT_UPDATE_POSTGRES_CONF=13
-EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET=14
-EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET=15
-EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND=16
-EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF=17
-EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF=18
-EXIT_CODE_ERROR_DATABASE_ALREADY_EXISTS=19
-EXIT_CODE_ERROR_COULD_NOT_CREATE_DATABASE=20
-EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED=21
+EXIT_CODE_ERROR_DOCKER_POSTGRES_DEBUG_EMPTY=4
+EXIT_CODE_ERROR_POSTGRES_DIST_DIR_EMPTY=5
+EXIT_CODE_ERROR_POSTGRES_USER_EMPTY=6
+EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY=7
+EXIT_CODE_ERROR_POSTGRES_DB_EMPTY=8
+EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY=9
+EXIT_CODE_ERROR_PGDATA_EMPTY=10
+EXIT_CODE_ERROR_NOT_POSTGRES_USER=11
+EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY=12
+EXIT_CODE_ERROR_POSTGRES_CONF_NOT_FOUND=13
+EXIT_CODE_ERROR_COULD_NOT_UPDATE_POSTGRES_CONF=14
+EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET=15
+EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET=16
+EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND=17
+EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF=18
+EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF=19
+EXIT_CODE_ERROR_DATABASE_ALREADY_EXISTS=20
+EXIT_CODE_ERROR_COULD_NOT_CREATE_DATABASE=21
+EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED=22
+
+# Prints a message to the console if the DOCKER_POSTGRES_DEBUG environment
+# variable is set to 1.
+#
+# Arguments: $@ The message to print to the console
+# Returns: None
+function debug_echo() {
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    echo "$@"
+  fi
+}
 
 # Check if the required variables are set
 # 
@@ -78,60 +90,64 @@ EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED=21
 #   EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET if POSTGRES_INITDB_ARGS is not set
 #   EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET if POSTGRES_INITDB_WALDIR is not set
 function check_required_variables() {
-  echo "[151] Checking required variables..."
+  debug_echo "[151] Checking required variables..."
+  if [[ -z "DOCKER_POSTGRES_DEBUG" ]]; then
+    debug_echo "[151] ERROR($EXIT_CODE_ERROR_DOCKER_POSTGRES_DEBUG_EMPTY): The DOCKER_POSTGRES_DEBUG environment variable is must be set to a non-empty value"
+    return $EXIT_CODE_ERROR_DOCKER_POSTGRES_DEBUG_EMPTY
+  fi
   if [[ -z "POSTGRES_DIST_DIR" ]]; then
-    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_DIST_DIR_EMPTY): The POSTGRES_DIST_DIR environment variable is must be set to a non-empty value"
+    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_DIST_DIR_EMPTY): The POSTGRES_DIST_DIR environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_POSTGRES_DIST_DIR_EMPTY
   fi
   if [[ -z "$POSTGRES_USER" ]]; then
-    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_USER_EMPTY): The POSTGRES_USER environment variable is must be set to a non-empty user"
+    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_USER_EMPTY): The POSTGRES_USER environment variable is must be set to a non-empty user"
     return $EXIT_CODE_ERROR_POSTGRES_USER_NOT_SET
   fi
-  echo "[151] POSTGRES_USER=$POSTGRES_USER"
+  debug_echo "[151] POSTGRES_USER=$POSTGRES_USER"
 
   if [[ -z "$POSTGRES_PASSWORD" ]]; then
-    echo "[1511] ERROR($EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY): The POSTGRES_PASSWORD environment variable is must be set to a non-empty value"
+    debug_echo "[1511] ERROR($EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY): The POSTGRES_PASSWORD environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY
   fi
   # TODO: Do not print the password
-  echo "[151] POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
+  debug_echo "[151] POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
 
   if [[ -z "$POSTGRES_DB" ]]; then
-    echo "[1] ERROR($EXIT_CODE_ERROR_POSTGRES_DB_EMPTY): The POSTGRES_DB environment variable is must be set to a non-empty value"
+    debug_echo "[1] ERROR($EXIT_CODE_ERROR_POSTGRES_DB_EMPTY): The POSTGRES_DB environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_POSTGRES_DB_EMPTY
   fi
-  echo "[151] POSTGRES_DB=$POSTGRES_DB"
+  debug_echo "[151] POSTGRES_DB=$POSTGRES_DB"
 
   if [[ -z "$POSTGRES_HOST_AUTH_METHOD" ]]; then
-    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY): The POSTGRES_HOST_AUTH_METHOD environment variable is must be set to a non-empty value"
+    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY): The POSTGRES_HOST_AUTH_METHOD environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY
   fi
-  echo "[151] POSTGRES_HOST_AUTH_METHOD=$POSTGRES_HOST_AUTH_METHOD"
+  debug_echo "[151] POSTGRES_HOST_AUTH_METHOD=$POSTGRES_HOST_AUTH_METHOD"
 
   if [[ -z "$PGDATA" ]]; then
-    echo "[151] ERROR($EXIT_CODE_ERROR_PGDATA_EMPTY): The PGDATA environment variable is must be set to a non-empty value"
+    debug_echo "[151] ERROR($EXIT_CODE_ERROR_PGDATA_EMPTY): The PGDATA environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_PGDATA_EMPTY
   fi
 
   if [[ ! -d "$PGDATA" ]]; then
-    echo "[151] ERROR($EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY): The PGDATA environment variable is must be set to an existing directory"
+    debug_echo "[151] ERROR($EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY): The PGDATA environment variable is must be set to an existing directory"
     return $EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY
   fi
-  echo "[151] PGDATA=$PGDATA"
+  debug_echo "[151] PGDATA=$PGDATA"
 
   if [[ ! -v POSTGRES_INITDB_ARGS ]]; then
-    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET): The POSTGRES_INITDB_ARGS environment variable, if set, must set"
+    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET): The POSTGRES_INITDB_ARGS environment variable, if set, must set"
     return $EXIT_CODE_ERROR_POSTGRES_INITDB_ARS_NOT_SET
   fi
-  echo "[151] POSTGRES_INITDB_ARGS=$POSTGRES_INITDB_ARGS"
+  debug_echo "[151] POSTGRES_INITDB_ARGS=$POSTGRES_INITDB_ARGS"
 
   if [[ ! -v POSTGRES_INITDB_WALDIR ]]; then
-    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET): The POSTGRES_INITDB_WALDIR environment variable is must be set"
+    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET): The POSTGRES_INITDB_WALDIR environment variable is must be set"
     return $EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET
   fi
-  echo "[151] POSTGRES_INITDB_WALDIR=$POSTGRES_INITDB_WALDIR"
+  debug_echo "[151] POSTGRES_INITDB_WALDIR=$POSTGRES_INITDB_WALDIR"
 
-  echo "[151] ...done."
+  debug_echo "[151] ...done."
   return $EXIT_CODE_SUCCESS
 }
 
@@ -144,10 +160,10 @@ function check_required_variables() {
 function verify_postgres_user() {
   # Check that the script is being run as the postgres user
   if [[ "$(whoami)" != "$POSTGRES_USER" ]]; then
-    echo "[152] ERROR($EXIT_CODE_ERROR_NOT_POSTGRES_USER): This script must be run as user $POSTGRES_USER"
+    debug_echo "[152] ERROR($EXIT_CODE_ERROR_NOT_POSTGRES_USER): This script must be run as user $POSTGRES_USER"
     return $EXIT_CODE_ERROR_NOT_POSTGRES_USER
   fi
-  echo "[152] Okay. Running as user $POSTGRES_USER"
+  debug_echo "[152] Okay. Running as user $POSTGRES_USER"
 }
 
 # Generate the initdb command to initialize the database
@@ -188,8 +204,8 @@ function generate_initdb_command() {
 #   return code will be 11.
 function run_initdb_command() {
   local initdb_command=$1
-  echo "[154] Running initdb command... "
-  echo "[154] command: $initdb_command"
+  debug_echo "[154] Running initdb command... "
+  debug_echo "[154] command: $initdb_command"
   # The use of eval is necessary to expand the command string twice
   # to get the correct command. This first expansion is done by the
   # this shell script, and the second expansion is done by eval.
@@ -197,14 +213,28 @@ function run_initdb_command() {
   # to be expanded to --pwfile=<(printf "%s\n" "postgres") in the
   # first expansion and then in the second expansion, the redirection
   # from standard out is done.
-  eval "$initdb_command"
-  local initdb_error_code=$?
+
+  # Redirect the output of the initdb command to /dev/null if the
+  # debug flag is not set. This is to prevent the output from being
+  # displayed on the console under normal circumstances. (Normally
+  # only the output of the final run of postgres server is displayed)
+  # This allows the docker container to behave exactly as if it were
+  # a postgres commmand issued from the command line of the host.
+
+  local initdb_error_code=0
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    eval "$initdb_command"
+    initdb_error_code=$?
+  else
+    eval "$initdb_command" > /dev/null
+    initdb_error_code=$?
+  fi
   if [[ $initdb_error_code -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_INITDB_COMMAND_FAILED}$initdb_error_code"
-    echo "[154] ERROR($return_code): Initdb command failed: $initdb_error_code"
+    debug_echo "[154] ERROR($return_code): Initdb command failed: $initdb_error_code"
     return $return_code
   fi
-  echo "[154] ...done."
+  debug_echo "[154] ...done."
 }
 
 # Configure listen addresses in the postgres configuration file
@@ -219,9 +249,9 @@ function run_initdb_command() {
 function configure_listen_addresses() {
   local postgres_conf_file="${PGDATA}postgresql.conf"
   local postgres_conf_file_backup="${PGDATA}postgresql.conf.bak"
-  echo "[155] Configuring listen addresses..."
+  debug_echo "[155] Configuring listen addresses..."
   if [[ ! -f "$postgres_conf_file" ]]; then
-    echo "[155] ERROR($EXIT_CODE_ERROR_POSTGRES_CONF_NOT_FOUND): Postgres configuration file $postgres_conf_file does not exist or is not a file"
+    debug_echo "[155] ERROR($EXIT_CODE_ERROR_POSTGRES_CONF_NOT_FOUND): Postgres configuration file $postgres_conf_file does not exist or is not a file"
     return $EXIT_CODE_ERROR_POSTGRES_CONF_NOT_FOUND
   fi
 
@@ -230,10 +260,10 @@ function configure_listen_addresses() {
   # listen_addresses = '*'. We use sed for this.
   sed --in-place=".bak" "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" "$postgres_conf_file"
   if [[ $? -ne 0 ]]; then
-    echo "[155] ERROR($EXIT_CODE_ERROR_COULD_NOT_UPDATE_POSTGRES_CONF): Could not update the postgres configuration file $postgres_conf_file"
+    debug_echo "[155] ERROR($EXIT_CODE_ERROR_COULD_NOT_UPDATE_POSTGRES_CONF): Could not update the postgres configuration file $postgres_conf_file"
     return $EXIT_CODE_ERROR_COULD_NOT_UPDATE_POSTGRES_CONF
   fi
-  echo "[155] ...done."
+  debug_echo "[155] ...done."
 }
 
 # Configure host-based authentication
@@ -251,15 +281,15 @@ function configure_listen_addresses() {
 function configure_host_based_authentication() {
   local hba_file="${PGDATA}pg_hba.conf"
   local hba_file_backup="$PGDATA/pg_hba.conf.bak"
-  echo "[156] Configuring host-based authentication..."
+  debug_echo "[156] Configuring host-based authentication..."
   if [[ ! -f "$hba_file" ]]; then
-    echo "[156] ERROR($EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND): Host-based authentication file $hba_file does not exist or is not a file"
+    debug_echo "[156] ERROR($EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND): Host-based authentication file $hba_file does not exist or is not a file"
     return $EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND
   fi
   # Make a backup of the host-based authentication file
   cp "$hba_file" "$hba_file_backup"
   if [[ $? -ne 0 ]]; then
-    echo "[156] ERROR($EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF): Could not backup the host-based authentication file $hba_file"
+    debug_echo "[156] ERROR($EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF): Could not backup the host-based authentication file $hba_file"
     return $EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF
   fi
 
@@ -267,10 +297,10 @@ function configure_host_based_authentication() {
   # host all all all $POSTGRES_HOST_AUTH_METHOD
   echo "host all all all $POSTGRES_HOST_AUTH_METHOD" >> "$hba_file"
   if [[ $? -ne 0 ]]; then
-    echo "[156] ERROR($EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF): Could not update the host-based authentication file $hba_file"
+    debug_echo "[156] ERROR($EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF): Could not update the host-based authentication file $hba_file"
     return $EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF
   fi
-  echo "[156] ...done."
+  debug_echo "[156] ...done."
 }
 
 # Start a temporary server
@@ -280,28 +310,45 @@ function configure_host_based_authentication() {
 #   EXIT_CODE_SUCCESS(0) if the temporary server is started successfully
 #   TBD: if the temporary server fails to start
 function start_temporary_server() {
-  echo "[1571] Starting a temporary server..."
+  debug_echo "[1571] Starting a temporary server..."
+  local postgres_flags="$@"
   # Start the temporary server
   # Specify the data directory
   local pg_ctl_parameters="-D $PGDATA"
   # Do not listen on any IP addresses, only on the local socket
   pg_ctl_parameters="$pg_ctl_parameters --options \"-c listen_addresses='' -p 5432\""
+  # Append user specified postgres flags to the pg_ctl command if any
+  if [[ ! -z "$postgres_flags" ]]; then
+    pg_ctl_parameters="$pg_ctl_parameters --options \"$postgres_flags\""
+  fi
   # Write the activity to the log file
   pg_ctl_parameters="$pg_ctl_parameters --log \"${PGDATA}logfile\""
   # Wait for the server to start before returning control to the shell
   pg_ctl_parameters="$pg_ctl_parameters --wait"
   local pg_ctl_binary="$POSTGRES_DIST_DIR/bin/pg_ctl"
   local pg_ctl_command="PGUSER=\"$POSTGRES_USER\" $pg_ctl_binary $pg_ctl_parameters start"
-  echo "[1571] Running pg_ctl command..."
-  echo "[1571] command: $pg_ctl_command"
-  eval $pg_ctl_command
-  local pg_ctl_error_code=$?
+  debug_echo "[1571] Running pg_ctl command..."
+  debug_echo "[1571] command: $pg_ctl_command"
+  local pg_ctl_error_code=0
+  # Redirect the output of the pg_ctl command to /dev/null if the
+  # debug flag is not set. This is to prevent the output from being
+  # displayed on the console under normal circumstances. (Normally
+  # only the output of the final run of postgres server is displayed)
+  # This allows the docker container to behave exactly as if it were
+  # a postgres commmand issued from the command line of the host.
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    eval $pg_ctl_command
+    pg_ctl_error_code=$?
+  else
+    eval $pg_ctl_command > /dev/null
+    pg_ctl_error_code=$?
+  fi
   if [[ $pg_ctl_error_code -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_PG_CTL_START_COMMAND_FAILED}$pg_ctl_error_code"
-    echo "[1571] ERROR($return_code): Failed to start the temporary server"
+    debug_echo "[1571] ERROR($return_code): Failed to start the temporary server"
     return $return_code
   fi
-  echo "[1571] ...done."
+  debug_echo "[1571] ...done."
   return $EXIT_CODE_SUCCESS
 }
 
@@ -324,7 +371,7 @@ function database_exists() {
   local psql_parameters="-v ON_ERROR_STOP=1 --no-psqlrc --username $POSTGRES_USER --dbname postgres --tuples-only"
   local sql="SELECT 1 FROM pg_database WHERE datname='$dbname'"
   local psql_command="PGUSER=\"$POSTGRES_USER\" PGPASSWORD=\"$POSTGRES_PASSWORD\" $psql_binary $psql_parameters --command \"$sql\""
-  echo "psql_command: $psql_command"
+  debug_echo "psql_command: $psql_command"
   local dbexists=$(eval $psql_command)
   if [[ $dbexists -eq 1 ]]; then
     return $EXIT_CODE_ERROR_DATABASE_ALREADY_EXISTS
@@ -347,8 +394,12 @@ function create_database() {
   local psql_parameters="-v ON_ERROR_STOP=1 --no-psqlrc --username $POSTGRES_USER --dbname postgres --tuples-only"
   local sql="CREATE DATABASE $dbname;"
   local psql_command="PGUSER=\"$POSTGRES_USER\" PGPASSWORD=\"$POSTGRES_PASSWORD\" $psql_binary $psql_parameters --command \"$sql\""
-  echo "psql_command: $psql_command"
-  eval $psql_command
+  debug_echo "psql_command: $psql_command"
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    eval $psql_command
+  else
+    eval $psql_command > /dev/null
+  fi
   return $?
 }
 
@@ -359,113 +410,129 @@ function create_database() {
 #  EXIT_CODE_SUCCESS(0) if the initial database is created successfully
 #  TBD: if the initial database creation fails
 function create_initial_database() {
-  echo "[1572] Creating the initial database $POSTGRES_DB..."
+  debug_echo "[1572] Creating the initial database $POSTGRES_DB..."
   # Create the initial database
   # Check if the database already exists
-  echo "[15721] Checking if the database $POSTGRES_DB already exists..."
+  debug_echo "[15721] Checking if the database $POSTGRES_DB already exists..."
   database_exists $POSTGRES_DB
   if [[ $? -eq $EXIT_CODE_ERROR_DATABASE_ALREADY_EXISTS ]]; then
-    echo "[15721] The database $POSTGRES_DB already exists"
+    debug_echo "[15721] The database $POSTGRES_DB already exists"
     return $EXIT_CODE_SUCCESS
   fi
-  echo "[15721] The database $POSTGRES_DB does not exist"
-  echo "[15722] Creating the database $POSTGRES_DB..."
+  debug_echo "[15721] The database $POSTGRES_DB does not exist"
+  debug_echo "[15722] Creating the database $POSTGRES_DB..."
   create_database $POSTGRES_DB
   if [[ $? -ne 0 ]]; then
-    echo "[15722] ERROR($EXIT_CODE_ERROR_COULD_NOT_CREATE_DATABASE): Failed to create database $POSTGRES_DB"
+    debug_echo "[15722] ERROR($EXIT_CODE_ERROR_COULD_NOT_CREATE_DATABASE): Failed to create database $POSTGRES_DB"
     return $EXIT_CODE_ERROR_COULD_NOT_CREATE_DATABASE
   fi
-  echo "[15722] ...done."
-  echo "[1572] ...done."
+  debug_echo "[15722] ...done."
+  debug_echo "[1572] ...done."
   return $EXIT_CODE_SUCCESS
 }
 
 function execute_script() {
   local script=$1
-  echo "[15731] Executing script $script"
+  debug_echo "[15731] Executing script $script"
   "$script"
   local script_error_code=$?
   if [[ $script_error_code -ne 0 ]]; then
-    echo "[15731] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $script failed with error code $script_error_code"
+    debug_echo "[15731] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $script failed with error code $script_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
-  echo "[15731] ...done."
+  debug_echo "[15731] ...done."
 }
 
 function source_script() {
   local script=$1
-  echo "[15732] Sourcing script $script"
+  debug_echo "[15732] Sourcing script $script"
   source "$script"
   local script_error_code=$?
   if [[ $script_error_code -ne 0 ]]; then
-    echo "[15732] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $script failed with error code $script_error_code"
+    debug_echo "[15732] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $script failed with error code $script_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
-  echo "[15732] ...done."
+  debug_echo "[15732] ...done."
 }
 
 function execute_sql() {
   local sql_script=$1
-  echo "[15733] Executing SQL $sql_script"
+  debug_echo "[15733] Executing SQL $sql_script"
   local psql_binary="$POSTGRES_DIST_DIR/bin/psql"
   local psql_parameters="-v ON_ERROR_STOP=1 --no-psqlrc --username $POSTGRES_USER --dbname $POSTGRES_DB"
   local psql_command="PGUSER=\"$POSTGRES_USER\" PGPASSWORD=\"$POSTGRES_PASSWORD\" $psql_binary $psql_parameters --file $sql_script"
-  echo "psql_command: $psql_command"
-  eval $psql_command
+  debug_echo "psql_command: $psql_command"
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    eval $psql_command
+  else
+    eval $psql_command > /dev/null
+  fi
   local sql_error_code=$?
   if [[ $sql_error_code -ne 0 ]]; then
-    echo "[15733] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
+    debug_echo "[15733] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
-  echo "[15733] ...done."
+  debug_echo "[15733] ...done."
 }
 
 function execute_gzipped_sql() {
   local sql_script=$1
-  echo "[15734] Executing gzipped SQL $sql_script"
+  debug_echo "[15734] Executing gzipped SQL $sql_script"
   local psql_binary="$POSTGRES_DIST_DIR/bin/psql"
   local psql_parameters="-v ON_ERROR_STOP=1 --no-psqlrc --username $POSTGRES_USER --dbname $POSTGRES_DB"
   local psql_command="PGUSER=\"$POSTGRES_USER\" PGPASSWORD=\"$POSTGRES_PASSWORD\" $psql_binary $psql_parameters --file <(gunzip -c $sql_script)"
-  echo "psql_command: $psql_command"
-  eval $psql_command
+  debug_echo "psql_command: $psql_command"
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    eval $psql_command
+  else
+    eval $psql_command > /dev/null
+  fi
   local sql_error_code=$?
   if [[ $sql_error_code -ne 0 ]]; then
-    echo "[15734] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
+    debug_echo "[15734] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
-  echo "[15734] ...done."
+  debug_echo "[15734] ...done."
 }
 
 function execute_xzipped_sql() {
   local sql_script=$1
-  echo "[15735] Executing xzipped SQL $sql_script"
+  debug_echo "[15735] Executing xzipped SQL $sql_script"
   local psql_binary="$POSTGRES_DIST_DIR/bin/psql"
   local psql_parameters="-v ON_ERROR_STOP=1 --no-psqlrc --username $POSTGRES_USER --dbname $POSTGRES_DB"
   local psql_command="PGUSER=\"$POSTGRES_USER\" PGPASSWORD=\"$POSTGRES_PASSWORD\" $psql_binary $psql_parameters --file <(xzcat $sql_script)"
-  echo "psql_command: $psql_command"
-  eval $psql_command
+  debug_echo "psql_command: $psql_command"
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    eval $psql_command
+  else
+    eval $psql_command > /dev/null
+  fi
   local sql_error_code=$?
   if [[ $sql_error_code -ne 0 ]]; then
-    echo "[15735] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
+    debug_echo "[15735] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
-  echo "[15735] ...done."
+  debug_echo "[15735] ...done."
 }
 
 function execute_zstd_sql() {
   local sql_script=$1
-  echo "[15736] Executing zstd SQL $sql_script"
+  debug_echo "[15736] Executing zstd SQL $sql_script"
   local psql_binary="$POSTGRES_DIST_DIR/bin/psql"
   local psql_parameters="-v ON_ERROR_STOP=1 --no-psqlrc --username $POSTGRES_USER --dbname $POSTGRES_DB"
   local psql_command="PGUSER=\"$POSTGRES_USER\" PGPASSWORD=\"$POSTGRES_PASSWORD\" $psql_binary $psql_parameters --file <(zstd --decompress --compress $sql_script)"
-  echo "psql_command: $psql_command"
-  eval $psql_command
+  debug_echo "psql_command: $psql_command"
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    eval $psql_command
+  else
+    eval $psql_command > /dev/null
+  fi
   local sql_error_code=$?
   if [[ $sql_error_code -ne 0 ]]; then
-    echo "[15736] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
+    debug_echo "[15736] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
-  echo "[15736] ...done."
+  debug_echo "[15736] ...done."
 }
 
 # Run the initial SQL scripts
@@ -475,7 +542,7 @@ function execute_zstd_sql() {
 #   EXIT_CODE_SUCCESS(0) if the initial SQL scripts are run successfully
 #   TBD: if the initial SQL scripts fail to run
 function run_initial_sql_scripts() {
-  echo "[1573] Running initial SQL scripts..."
+  debug_echo "[1573] Running initial SQL scripts..."
   for filename; do
     case $filename in
       *.sh)
@@ -498,11 +565,11 @@ function run_initial_sql_scripts() {
         execute_zstd_sql $filename || return $?
         ;;
       *)
-        echo "[1573] Ignoring $filename"
+        debug_echo "[1573] Ignoring $filename"
         ;;
     esac
   done
-  echo "[1573] ...done."
+  debug_echo "[1573] ...done."
   return $EXIT_CODE_SUCCESS
 }
 
@@ -513,49 +580,67 @@ function run_initial_sql_scripts() {
 #   EXIT_CODE_SUCCESS(0) if the temporary server is stopped successfully
 #   TBD: if the temporary server fails to stop
 function stop_temporary_server() {
-  echo "[1574] Stopping the temporary server..."
+  debug_echo "[1574] Stopping the temporary server..."
   # Specify the data directory, the shutdown mode (fast is the default,
   # but we specify it anyway), and wait for the server to stop before
   # returning control to the shell
   local pg_ctl_parameters="-D "$PGDATA" -m fast --wait"
   local pg_ctl_binary="$POSTGRES_DIST_DIR/bin/pg_ctl"
   local pg_ctl_command="PGUSER=\"$POSTGRES_USER\" $pg_ctl_binary $pg_ctl_parameters stop"
-  echo "[1574] Running pg_ctl command..."
-  echo "[1575] command: $pg_ctl_command"
-  eval $pg_ctl_command
+  debug_echo "[1574] Running pg_ctl command..."
+  debug_echo "[1575] command: $pg_ctl_command"
+
+  # Redirect the output of the pg_ctl command to /dev/null if the
+  # debug flag is not set. This is to prevent the output from being
+  # displayed on the console under normal circumstances. (Normally
+  # only the output of the final run of postgres server is displayed)
+  # This allows the docker container to behave exactly as if it were
+  # a postgres commmand issued from the command line of the host.
+  if [[ $DOCKER_POSTGRES_DEBUG -eq 1 ]]; then
+    eval $pg_ctl_command
+  else
+    eval $pg_ctl_command > /dev/null
+  fi
   local pg_ctl_error_code=$?
   if [[ $pg_ctl_error_code -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_PG_CTL_STOP_COMMAND_FAILED}$pg_ctl_error_code"
-    echo "[1574] ERROR($return_code): Failed to stop the temporary server"
+    debug_echo "[1574] ERROR($return_code): Failed to stop the temporary server"
     return $return_code
   fi
-  echo "[1574] ...done."
+  debug_echo "[1574] ...done."
   return $EXIT_CODE_SUCCESS
 }
 
 function configure_database() {
-  echo "[157] Configuring the database..."
-  start_temporary_server || return $? # Exit if error starting temporary server
+  debug_echo "[157] Configuring the database..."
+  local postgres_flags="$@"
+  start_temporary_server $postgres_flags || return $? # Exit if error starting temporary server
   create_initial_database || return $? # Exit if error creating initial database
   run_initial_sql_scripts || return $? # Exit if error running initial SQL scripts
   stop_temporary_server || return $? # Exit if error stopping temporary server
-  echo "[157] ...done."
+  debug_echo "[157] ...done."
   return $EXIT_CODE_SUCCESS
 }
 
 function initialize_database() {
+  local postgres_flags="$@"
   check_required_variables || return $? # Exit if required variables are not set
   verify_postgres_user || return $? # Exit if not postgres user
+  debug_echo -n "[153] Generating initdb command..."
   local initdb_command=$(generate_initdb_command)
+  debug_echo "...done."
   run_initdb_command "$initdb_command" || return $? # Exit if error running initdb command  
   configure_listen_addresses || return $? # Exit if error configuring listen addresses
   configure_host_based_authentication || return $? # Exit if error configuring host-based authentication
-  configure_database || return $? # Exit if error configuring database
+  configure_database $postgres_flags || return $? # Exit if error configuring database
 }
 
 function main() {
-  initialize_database || return $? # Exit if error initializing database
+  local postgres_flags="$@"
+  debug_echo "[150] initialize-postgres.sh: main()"
+  initialize_database $postgres_flags || return $? # Exit if error initializing database
+  debug_echo "[150] ...done."
   return $EXIT_CODE_SUCCESS
 }
 
-main
+main "$@"
