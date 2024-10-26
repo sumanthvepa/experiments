@@ -1,8 +1,8 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# setup-postgres.sh: Initialization and startup script for Postgres
-# within a container.
+# docker-entrypoint.sh: Entry point for the postgres-test container
+# that runs a postgres server.
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -21,15 +21,24 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# This entrypoint script is intended to be run within the container
+# running the postgres-test image. It checks to see if postgres needs
+# to be initialized, initializes it if necessary, and then starts the
+# postgres server.
+
+# Some initialization need to be done as user postgres. We use gosu
+# to run these initialization steps as the postgres user. Gosu is
+# used to invoke initialize-postgres.sh as the postgres user. This
+# script does all initializations that require postgres user.
+
+# Finally, the postgres server is started as the postgres user.
+
 # Initialization and startup script for Postgres within a container.
 # This script is intended to be run within the container running the
-# postgres-manual image. It needs to be run manually by a user logging
-# into the container.
+# postgres-test image.
 
 # This script replicates most of the capabilities of the official
-# postgres docker image. It is intended to be an intermediate
-# experimental container to help me learn how to create a proper
-# docker entrypoint file for an functional postgres container.
+# postgres docker image.
 
 # Some things that are functionally different from the official
 # postgres docker image:
@@ -327,7 +336,7 @@ function setup_postgres() {
   # Initialize required and optional variables
   check_required_variables || return $?
   initialize_optional_variables || return $?
-  
+
   # Only do setup if the user is not asking for the version,
   # otherwise, just return. No setup is needed.
   is_asking_for_version $postgres_flags
@@ -368,7 +377,7 @@ function setup_postgres() {
 #          occurs, the function returns EXIT_CODE_ERROR_BASH_ERROR
 function run_bash() {
   debug_echo "[2] Running bash..."
-  /bin/bash
+  exec /bin/bash
   if [[ $? -ne 0 ]]; then
     debug_echo "[2] ERROR($EXIT_CODE_ERROR_BASH_ERROR): Could not run bash"
     return $EXIT_CODE_ERROR_BASH_ERROR
@@ -406,7 +415,7 @@ function run_postgres() {
   # postgres server.  
   local postgres_command="gosu $POSTGRES_USER $postgres_binary $postgres_parameters"
   debug_echo "[2] postgres command: $postgres_command"
-  eval $postgres_command
+  exec $postgres_command
   local postgres_server_error=$?
   if [[ $postgres_server_error -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_POSTGRES_SERVER_ERROR}$postgres_server_error"
@@ -418,7 +427,7 @@ function run_postgres() {
 }
 
 function print_usage() {
-  echo "Usage: setup-postgres.sh [OPTIONS] [bash| postgres]"
+  echo "Usage: docker-entrypoint.sh [OPTIONS] [bash| postgres]"
   echo "Options:"
   echo "  -h, --help: Print this help message"
   echo "bash: Initialize postgres, but do not start the server. Instead, run bash"
@@ -426,7 +435,8 @@ function print_usage() {
 }
 
 function main() {
-  debug_echo [0] "Starting the setup-postgres script..."
+  debug_echo [0] "Starting the setup-postgres script..."  
+  debug_echo "[0] DEBUG: arguments: $@"
   # If the user is asking for help, print the usage message and exit
   is_asking_for_help $@
   if [[ $? -eq 1 ]]; then
