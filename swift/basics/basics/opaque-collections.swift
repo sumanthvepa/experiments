@@ -23,7 +23,7 @@
  *-----------------------------------------------------------------*/
 
 
-// The code below shows how one coult use opaque types to
+// The code below shows how one could use opaque types to
 // return concrete type of a generic protocol. But as of
 // Swift 5.10, the compiler actually crashes on this code.
 // So don't do it. Instead either don't implement a generic

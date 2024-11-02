@@ -380,6 +380,12 @@ func exploreClassesAndStructures() {
     var area: Double {
       return Double.pi * radius * radius
     }
+
+    // This is a read-only computed property. Note that
+    // the get as well as the return statement are implicit.
+    var sphereVolue: Double {
+      4/3 * Double.pi * radius * radius * radius
+    }
   }
 
   // A lazy stored property is a property whose initial value
