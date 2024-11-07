@@ -29,4 +29,8 @@
 
 import Foundation
 
+// Explore how SwiftUI might have implemented the App protocol
 toySwiftUIAppImplementation()
+
+// Explore how SwiftUI might have implemented views.
+renderMyHelloWorldView()
