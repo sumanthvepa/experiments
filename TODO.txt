@@ -1,3 +1,5 @@
+[DONE][issue099] ios-hello-world:
+  The canonical Hello World program with explanations
 [issue098] swiftui-concepts: Explore SwiftUI design concepts
 [DONE][issue097] linux-explore-nss-wrapper-unset-env:
   Unset the environment variables when the script is complete
