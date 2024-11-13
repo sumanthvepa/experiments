@@ -1,3 +1,5 @@
+[DONE][issue100] swift-org:
+  A swift progam that prints a sample org chart
 [DONE][issue099] ios-hello-world:
   The canonical Hello World program with explanations
 [issue098] swiftui-concepts: Explore SwiftUI design concepts
