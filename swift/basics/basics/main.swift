@@ -212,4 +212,7 @@ exploreConcurrency()
 callingAsyncCodeFromSyncCodeHack1()
 callingAsyncCodeFromSyncCodeHack2()
 
+// Note 23: Explore Attributes
+exploreAttributes()
+
 // TODO: Explore arrays

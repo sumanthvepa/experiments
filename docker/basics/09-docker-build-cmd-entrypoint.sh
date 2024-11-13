@@ -23,6 +23,9 @@
 
 echo '09-docker-build-cmd-entrypoint'
 
+# The following video explains the difference between CMD and ENTRYPOINT
+# very nicely: https://www.youtube.com/watch?v=U1P7bqVM7xM
+
 # The CMD and ENTRYPOINT instructions in a Dockerfile are used to
 # specify the command that will be run when the container is started.
 
