@@ -1,3 +1,5 @@
+[issue102] aoc-2024-day1-historian-hysteria-cpp:
+  Solution to the aoc 2024 day1 problem
 [DONE][issue101] swfit-org-result-builder:
   Create org charts using result builders
 [DONE][issue100] swift-org:
