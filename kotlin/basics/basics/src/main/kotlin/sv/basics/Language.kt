@@ -108,7 +108,7 @@ package sv.basics
  *
  * See this
  * [stack overflow post](https://stackoverflow.com/questions/59365267/intellij-idea-how-to-specify-main-class-in-kotlin)
- * for more information:
+ * for more information.
  */
 fun main() {
     exploreComments()
