@@ -1,3 +1,11 @@
+[DONE][issue104] google-charts:
+  Explore google charts with a very simple example
+[DONE][issue103] swift-chatgptorg:
+  ChatGPT's (incorrect) implementation of the org program.
+[issue102] aoc-2024-day1-historian-hysteria-cpp:
+  Solution to the aoc 2024 day1 problem
+[DONE][issue101] swfit-org-result-builder:
+  Create org charts using result builders
 [DONE][issue100] swift-org:
   A swift progam that prints a sample org chart
 [issue099] ios-hello-world:

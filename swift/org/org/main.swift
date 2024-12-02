@@ -47,5 +47,31 @@ func sampleOrganization() -> Manager {
   return joko
 }
 
+func sampleOrganization2() -> Manager {
+  return Manager(name: "Joko Jokic", subordinates: makeOrg {
+    IndividualContributor(name: "Faisal Fabiani")
+    Manager(name: "Girish Gadjinsky", subordinates: makeOrg {
+      IndividualContributor(name: "Arjun Acemoglu")
+      Manager(name: "Betty Bian", subordinates: makeOrg {
+        IndividualContributor(name:"Konrad Kraikupt")
+        Manager(name: "Lars Littlebear", subordinates: makeOrg {
+          IndividualContributor(name: "Mandy Maalouf")
+        })
+      })
+      Manager(name: "Niara Naber", subordinates: makeOrg {
+        IndividualContributor(name: "Olga Omarosa")
+        IndividualContributor(name: "Petter Palanisamy")
+        IndividualContributor(name: "Qian Quasimodo")
+      })
+    })
+    Manager(name: "Harald Heß", subordinates: makeOrg {
+      IndividualContributor(name: "Ciara Chukwu")
+      IndividualContributor(name: "Dian Dagar")
+      IndividualContributor(name: "Emmet Ergasi")
+    })
+  })
+}
+
 print(sampleOrganization().display())
+print(sampleOrganization2().display())
 

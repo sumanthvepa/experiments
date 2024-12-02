@@ -216,3 +216,5 @@ callingAsyncCodeFromSyncCodeHack2()
 exploreAttributes()
 
 // TODO: Explore arrays
+
+exploreResultBuildersStub()
