@@ -56,10 +56,9 @@ else
   # https://stackoverflow.com/questions/11714827/how-can-i-turn-on-literally-all-of-gccs-warnings
   #
   # We do not turn on -Waggregate-return as it is an anachronism for modern
-  # code. The waring is tells the programmer, that a function is returning
+  # code. The warning tells the programmer, that a function is returning
   # a structure, class or union. This used to be a problem for some C/C++
   # compilers a very long time ago. This is no longer the case.
-  # See this Stack Overflow post on the subject
 
   CXX_FLAGS = \
     --std=c++20 \

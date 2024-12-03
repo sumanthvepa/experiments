@@ -248,6 +248,16 @@
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Weffc++",
+					"-pedantic",
+					"-Weverything",
+					"-Wno-poison-system-directories",
+					"-Wno-c++98-compat-pedantic",
+					"-Wno-unknown-pragmas",
+				);
 			};
 			name = Debug;
 		};
@@ -258,6 +268,16 @@
 				DEVELOPMENT_TEAM = S3RW48U55C;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Weffc++",
+					"-pedantic",
+					"-Weverything",
+					"-Wno-poison-system-directories",
+					"-Wno-c++98-compat-pedantic",
+					"-Wno-unknown-pragmas",
+				);
 			};
 			name = Release;
 		};
