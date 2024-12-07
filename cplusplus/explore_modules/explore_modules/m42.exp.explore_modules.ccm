@@ -1,0 +1,100 @@
+/* -*- coding: utf-8 -*- */
+/**
+ * m42.exp.explore_modules.ccm: A C++ module that exports a function.
+ * 
+ * This progam explores the use and creation of C++-20 modules.
+ */
+/* -------------------------------------------------------------------
+ * m42.exp.explore_modules.ccm: A C++ module that exports a function.
+ * 
+ * Copyright (C) 2024 Sumanth Vepa.
+ *
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ -------------------------------------------------------------------*/
+
+// File Name Conventions
+// The first thing to address is file suffix.
+// There is no explicit rule for suffix of a file that contains
+// a module. 
+// As a style convention I use .ccm for module files and .cci for
+// interface files. This is not a requirement, but it is the style I have
+// adopted.
+// I generally prefer not to create a separate interface file for a
+// module. I prefer to keep the interface and the implementation
+// together. This is not a requirement, but it is the style I have
+// adopted.
+
+// The name of the file is the name of the module. Once again this is
+// a convention. The name is the fully qualified name of the module.
+// The name of this module is m42.exp.explore_modules. Hence the name
+// of the file is m42.exp.explore_modules.ccm.
+
+// Module Name conventions
+// By convention I use m42 as the top-level module name. I indicate
+// submodules by using a dot. This is just a convention. C++ itself
+// does not have any rules about how to name modules.
+// exp is the name of the submodule that contains all c++ experiments.
+// explore_modules is the name of the submodule within exp that
+// is defined in this project.
+
+// Notice that I use module; without any arguments. This declares
+// the global module fragment. For compatibility with include headers,
+// all includes must be placed within this module fragment. The
+// declarations here are visible to all translation units that import
+// this module.
+
+module;
+
+// For now, use includes to pull in the standard library headers.
+// Provides std::sting
+#include <string>
+
+
+// Module Definition
+// The named module starts here
+export module m42.exp.explore_modules;
+
+// GCC specific pragma to ignore warnings
+// Ignore -Wmissing-declaration warnings. Exported
+// identifers inside C++ modules do not need a separate declaration
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-declarations"
+
+// By convention, I keep the namespace naming convention the same as
+// the module naming convention. This is not a requirement, but it is
+// the style I have adopted.
+namespace m42::exp::explore_modules {
+
+  // This is an exported function. It is visible to all translation
+  // units that import this module.
+  export auto greeting() -> std::string {
+    return "explore_modules";
+  }
+
+  // This is NOT an exported function. It is not visible to translation
+  // units that import this module.
+  auto greeting_prefix() -> std::string {
+    return "Hello, ";
+  }
+
+  // This is an exported function. It is visible to all translation
+  // units that import this module. It can call non-exported functions
+  // in the same module because they are in the same translation unit.
+  export auto verbose_greeting() -> std::string {
+    return greeting_prefix() + "explore_modules";
+  }
+}
+
+#pragma diagnostic pop

@@ -1,3 +1,5 @@
+[issue107] cplusplus-explore-modules:
+  Explore C++ modules
 [DONE][issue106] cplusplus-cwd:
   Get the current working directory in C++
 [DONE][issue105] cplusplus-read-text-file:
