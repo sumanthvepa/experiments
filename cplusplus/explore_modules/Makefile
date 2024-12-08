@@ -21,22 +21,45 @@
 
 .PHONEY: all ccm flags clean
 
+# This is where all compiled binarys and intermediate artifacts will
+# be placed
+BUILD_ROOT = build
+
 # Get the name of the operating system
+# We need this because the build process is different on different OSes.
+# For now this Makefile supports compilation on Linux and macOS.
+
 # The $(shell <command>) syntax is used to execute a command in the shell and
 # return the output of the command. In this case, the command is `uname -s`
 OS_NAME := $(shell uname -s)
 
 ifeq ($(OS_NAME), Darwin)
   # macOS, set compiler to clang++
-  CXX = clang++
+  # We define two variables CXX_TYPE and CXX.
+  # CXX_TYPE refers to the family the compiler belongs to.
+  # On macOS the compiler family is usally clang++.
+  # The CXX flag is the name of the actual C++ compiler binary.
+  # Usually this is also clang++ -- the default C++ compiler
+  # provided by Xcode. But on occassion, in might be necessary
+  # to use a different compiler toolchain. Such as in this instnace.
+  # Here we are using the clang version 19 provided by macports.
+  # This is done becuase the default clang++ that comes with Apple
+  # does not support C++modules (as of Xcode 16)
+  # In general, the CXX variable can refer to any compiler toolchain
+  # in the same family. A different version of clang for example.
+  CXX_TYPE = clang++
+  CXX = clang++-mp-19
 else
   # Linux, set compiler to g++
+  # We go with the default g++ installation. On the Linux versions
+  # that I use, the default g++ supports C++ modules.
+  CXX_TYPE = g++
   CXX = g++
 endif
 
 # The CXX_FLAGS variable contains the compiler flags that are passed to the
 # compiler when building the project. The flags are different depending on the
-# compiler/operator system being used
+# compiler family and operating system being used.
 
 # The following are common warning flags that are used for both clang and gcc:
 # -Wall: Enable most warnings
@@ -45,7 +68,7 @@ endif
 # -Weffc++: Enable warnings for Effective C++
 COMMON_WARNINGS = -Wall -Wextra -Weffc++
 
-# Uncomment this if you want boos add any other include directories
+# Uncomment this if you want boost. Add any other include directories
 # you want here.
 # COMMON_INCLUDES = -I/opt/boost/1_86_0/include
 
@@ -59,7 +82,7 @@ COMMON_WARNINGS = -Wall -Wextra -Weffc++
 # and is not useful for this project as it will cause the compiler to complain
 # about the #pragma ide pragmas used by CLion.
 
-ifeq ($(CXX), clang++)
+ifeq ($(CXX_TYPE), clang++)
   CXX_FLAGS = \
     --std=c++23 \
     $(COMMON_WARNINGS) -pedantic -Weverything \
@@ -67,6 +90,7 @@ ifeq ($(CXX), clang++)
     -Wno-c++98-compat-pedantic \
     -Wno-unknown-pragmas \
     -g3 -O0 \
+    -fprebuilt-module-path=$(BUILD_ROOT) \
     -I. $(COMMON_INCLUDES)
 else
   # Linux
@@ -123,6 +147,13 @@ else
   # is discussed in the following two StackOverflow posts:
   # https://stackoverflow.com/questions/69549286/how-to-modify-gcm-cache-path-when-using-gcc-11-to-build-c20-modules
   # https://stackoverflow.com/questions/68451442/how-to-specify-gcm-cache-location-using-g-cmake
+  # The module mapper is documented at:
+  # https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Module-Mapper.html
+  # The design and rationale for module mapper is described by
+  # Nathan Sidwell at:
+  # https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1184r2.pdf
+  # It appears that the module mapper is based on libcody:
+  # https://github.com/urnathan/libcody
 
   CXX_FLAGS = \
     --std=c++23 \
@@ -188,21 +219,81 @@ else
     -g3 -O0 -I.
 endif
 
+# The build commands for each compiler family are different, and
+# the intermediate outputs have different names. We construct
+# build commands and suffixes based on which compiler family
+# is being used. Doing this allows the make rules themselves to
+# be compiler family agnostic. i.e. the same build rule will
+# work with both clang++ and g++.
+ifeq ($(CXX_TYPE), clang++)
+  # We need to create build root directory if it does not exist
+  CREATE_BUILD_ROOT_CMD = mkdir -p $(BUILD_ROOT)
+
+  # In addition to all the normal C++ flags, the module build
+  # command also requires that --precompile be specified.
+  # -x c++-module tells the compiler to treat the source file
+  # as a C++ module. Usually, clang++ family compilers will
+  # use the suffix to determine if the file is a module. And
+  # .ccm is recoginzed as a C++ module file suffix
+  # But we prefer not to depend on such things, and explicity
+  # specify that the input source will be a C++ module.
+  MODULE_BUILD_CMD = $(CXX) $(CXX_FLAGS)  -x c++-module --precompile
+
+  # There are no clang++ specific flags to generate executable
+  EXECUTABLE_BUILD_CMD = $(CXX) $(CXX_FLAGS) 
+
+  # The suffix that clang expects for compiled modules is
+  # .pcm
+  COMPILED_MODULE_SUFFIX = .pcm
+else
+  # In addition to creating the build root directory, g++
+  # requires that the module cache directory also be created
+  # We combine both operations into a single one by placing
+  # gcm.cache within the build root and using mkdir -p.
+  CREATE_BUILD_ROOT_CMD = mkdir -p $(BUILD_ROOT)/gcm.cache
+
+  # g++, does not need to be told that a file is a C++ module
+  # but it won't recognize .ccm files as being C++ files.
+  # We need to explicitly tell the compiler to treat .ccm
+  # files as C++ source code. Hence the -x c++.
+  # The -c flag is the standard flag to compile object
+  # files. It works for modules as well.
+  MODULE_BUILD_CMD = $(CXX) $(CXX_FLAGS) -x c++ -c 
+
+  # Strictly speaking since I a .cc suffix non-module C++
+  # source, and g++ recognizes, .cc files as C++ source
+  # code, there is no need to explicitly specify the
+  # source as being C++. However, as a matter of policy
+  # we want to be explicit about the type code being
+  # processed, hence the -x c++ flag.
+  EXECUTABLE_BUILD_CMD = $(CXX) $(CXX_FLAGS) -x c++
+
+  # G++ makes no distinction between compiled modules
+  # and object files. Both use the same suffix
+  COMPILED_MODULE_SUFFIX = .o
+endif
+
+# Build Rules
+# Note that, for now, dependencies are explicitly managed in the 
+# Makefile. This probably won't work for a large project with many
+# hundreds of dependencies.
 all: build/explore_modules
+ccm: $(BUILD_ROOT)/m42.exp.explore_modules$(COMPILED_MODULE_SUFFIX)
 
-ccm: build/m42.exp.explore_modules.o
+$(BUILD_ROOT)/explore_modules: \
+  explore_modules/explore_modules.cc \
+  $(BUILD_ROOT)/m42.exp.explore_modules$(COMPILED_MODULE_SUFFIX)
+	$(CREATE_BUILD_ROOT_CMD)
+	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/explore_modules explore_modules/explore_modules.cc $(BUILD_ROOT)/m42.exp.explore_modules$(COMPILED_MODULE_SUFFIX)
 
-build/explore_modules: explore_modules/explore_modules.cc build/m42.exp.explore_modules.o
-	mkdir -p build
-	mkdir -p build/gcm.cache
-	$(CXX) $(CXX_FLAGS) -o build/explore_modules explore_modules/explore_modules.cc build/m42.exp.explore_modules.o
+$(BUILD_ROOT)/m42.exp.explore_modules.pcm: \
+  explore_modules/m42.exp.explore_modules.ccm
+	$(CREATE_BUILD_ROOT_CMD)
+	$(MODULE_BUILD_CMD) -o $(BUILD_ROOT)/m42.exp.explore_modules$(COMPILED_MODULE_SUFFIX) explore_modules/m42.exp.explore_modules.ccm
 
-build/m42.exp.explore_modules.o: explore_modules/m42.exp.explore_modules.ccm
-	mkdir -p build
-	mkdir -p build/gcm.cache
-	$(CXX) $(CXX_FLAGS) -x c++ -c -o build/m42.exp.explore_modules.o explore_modules/m42.exp.explore_modules.ccm
 
-ifeq ($(CXX), g++)
+
+ifeq ($(CXX_TYPE), g++)
 flags:
 	$(CXX) $(CXX_FLAGS) -Q --help=warning
 endif

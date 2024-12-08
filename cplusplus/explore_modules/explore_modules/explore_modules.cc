@@ -45,6 +45,21 @@
 // I strongly recommend using GCC 11 or later for C++-20 modules.
 // Ideally use GCC 14 or later.
 
+// MSVC
+// This is a good introduction to Modules from Microsoft
+// https://learn.microsoft.com/en-us/cpp/cpp/modules-cpp?view=msvc-170
+
+
+// IDEs
+// JetBrains CLion
+// Documentation on CLion's support for C++ modules is described here:
+// https://www.jetbrains.com/help/clion/support-for-c-20-modules.html
+
+// Xcode
+// As of XCode 16, neither Apple Clang nor Xcode itself support
+// C++ modules
+
+
 // Using C++ standard library headers.
 // For now it seems like it make more sense to use the older include
 // syntax for the standard library headers. This is because importing

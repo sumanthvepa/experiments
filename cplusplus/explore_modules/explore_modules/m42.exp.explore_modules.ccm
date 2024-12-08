@@ -66,35 +66,39 @@ module;
 // The named module starts here
 export module m42.exp.explore_modules;
 
-// GCC specific pragma to ignore warnings
-// Ignore -Wmissing-declaration warnings. Exported
-// identifers inside C++ modules do not need a separate declaration
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-declarations"
-
 // By convention, I keep the namespace naming convention the same as
 // the module naming convention. This is not a requirement, but it is
 // the style I have adopted.
 namespace m42::exp::explore_modules {
+  // Declaration Section
+  // The export declarations are all placed here
+  // This makes it convenient to find all the exports in one place
+  // It also prevents compiler warnings about missing prototypes
+  // or declarations. (clang: -Wmissing-prototypes,
+  // g++: -Wmissing-declarations.) Also avoids order of definition
+  // problems.
+  export auto greeting() -> std::string;
+  export auto verbose_greeting() -> std::string;
 
-  // This is an exported function. It is visible to all translation
-  // units that import this module.
-  export auto greeting() -> std::string {
+
+  // Implementation Section
+  // Forward declarations of non-exported functions
+  // Like above it prevents compiler warnings about missing
+  // prototypes and declarations and avoid order of definition
+  // problems
+  auto greeting_prefix() -> std::string;
+
+
+  auto greeting() -> std::string {
     return "explore_modules";
   }
 
-  // This is NOT an exported function. It is not visible to translation
-  // units that import this module.
+  auto verbose_greeting() -> std::string {
+    return greeting_prefix() + "explore_modules";
+  }
+
   auto greeting_prefix() -> std::string {
     return "Hello, ";
   }
-
-  // This is an exported function. It is visible to all translation
-  // units that import this module. It can call non-exported functions
-  // in the same module because they are in the same translation unit.
-  export auto verbose_greeting() -> std::string {
-    return greeting_prefix() + "explore_modules";
-  }
 }
 
-#pragma diagnostic pop
