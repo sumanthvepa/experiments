@@ -265,8 +265,12 @@ else
   # code, there is no need to explicitly specify the
   # source as being C++. However, as a matter of policy
   # we want to be explicit about the type code being
-  # processed, hence the -x c++ flag.
-  EXECUTABLE_BUILD_CMD = $(CXX) $(CXX_FLAGS) -x c++
+  # processed, so we would want to ad -x c++ here as well.
+  # But it seems to cause g++ to crash. So I'm just
+  # commenting out this command line below and using
+  # one without the -x c++
+  #EXECUTABLE_BUILD_CMD = $(CXX) $(CXX_FLAGS) -x c++
+  EXECUTABLE_BUILD_CMD = $(CXX) $(CXX_FLAGS)
 
   # G++ makes no distinction between compiled modules
   # and object files. Both use the same suffix
@@ -286,7 +290,7 @@ $(BUILD_ROOT)/explore_modules: \
 	$(CREATE_BUILD_ROOT_CMD)
 	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/explore_modules explore_modules/explore_modules.cc $(BUILD_ROOT)/m42.exp.explore_modules$(COMPILED_MODULE_SUFFIX)
 
-$(BUILD_ROOT)/m42.exp.explore_modules.pcm: \
+$(BUILD_ROOT)/m42.exp.explore_modules$(COMPILED_MODULE_SUFFIX): \
   explore_modules/m42.exp.explore_modules.ccm
 	$(CREATE_BUILD_ROOT_CMD)
 	$(MODULE_BUILD_CMD) -o $(BUILD_ROOT)/m42.exp.explore_modules$(COMPILED_MODULE_SUFFIX) explore_modules/m42.exp.explore_modules.ccm
