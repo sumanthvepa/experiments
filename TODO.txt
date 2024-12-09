@@ -1,3 +1,9 @@
+[issue107] cplusplus-explore-modules:
+  Explore C++ modules
+[DONE][issue106] cplusplus-cwd:
+  Get the current working directory in C++
+[DONE][issue105] cplusplus-read-text-file:
+  Explore slurping text files
 [DONE][issue104] google-charts:
   Explore google charts with a very simple example
 [DONE][issue103] swift-chatgptorg:
