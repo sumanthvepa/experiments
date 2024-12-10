@@ -1,3 +1,5 @@
+[DONE][issue108] ides-vscode-remote-ssh:
+  Notes on how to open a remote SSH connection in VSCode
 [issue107] cplusplus-explore-modules:
   Explore C++ modules
 [DONE][issue106] cplusplus-cwd:
