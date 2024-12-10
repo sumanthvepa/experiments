@@ -1,3 +1,5 @@
+[DONE][issue109] linux-ubuntu-apt-phased-updates:
+  Notes on apt phased updates in Ubuntu
 [DONE][issue108] ides-vscode-remote-ssh:
   Notes on how to open a remote SSH connection in VSCode
 [issue107] cplusplus-explore-modules:
