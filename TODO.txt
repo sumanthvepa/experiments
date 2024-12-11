@@ -1,3 +1,5 @@
+[issue110] linux-kvm-ubuntu-setup: 
+  Explore setup of KVM on Ubuntu
 [DONE][issue109] linux-ubuntu-apt-phased-updates:
   Notes on apt phased updates in Ubuntu
 [DONE][issue108] ides-vscode-remote-ssh:
