@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Some resources on setting up KVM:
+# YouTube:
+# Short but Ubuntu Specific: https://www.youtube.com/watch?v=qCUmf5gyOYY
+# More comprehensive, but focuses on Fedora. But does not use netplan
+# to configure bridging.
+# https://www.youtube.com/watch?v=LHJhFW7_8EI
+# Instructions from Server World (similar to the first Ubuntu
+# specific instructions)
+# https://www.server-world.info/en/note?os=Ubuntu_24.04&p=kvm
+
+
+
 # First verify that your system supports virtualization
 # You may have to turn it on in the BIOS if virtualization
 # is not enabled.
@@ -142,3 +154,131 @@ apt-get -y install \
   virt-viewer \
   libvirt-clients \
   tuned
+
+# Enable and start the libvirtd
+# Libvirtd is a daemon that handles management tasks for virtual machines.
+# This deaemon handles tasks such as starting and stoppiing virtual machines
+# migrating guests across hosts, configuring and manipulating networking
+# and managing storage for guests.
+# TODO: Figure out how libvirtd commiunicates with tools like virt-install
+# to do its work.
+# Note that for now we will be installing the monolithic libvirtdaemon
+# This monolithic daemon is being phased out for a collection of modular
+# daemon
+systemctl enable --now libvirtd
+systemctl start libvirtd
+
+# VirtIOWin is an ISO that contains windows drivers
+# for a windows guest running on KVM. They need to be
+# installed within the guest windows OS. The iso
+# needs to be mounted as a CD in the guest and the
+# drivers can be installed.
+
+# Add users that you want to the groups kvm and libvirt
+# This allows you to run virtual machines as normal user
+groups svepa | grep kvm
+if [[ $? -ne 0 ]]; then
+  echo "Adding user svepa to group kvm"
+  usermod -aG kvm svepa
+else
+  echo "User svepa is already a member of group kvm"
+fi
+
+groups svepa | grep libvirt
+if [[ $? -ne 0 ]]; then
+  echo "Adding user svepa to group libvirt"
+  usermod -aG libvirt svepa
+else
+  echo "User svepa is already a member of group libvirt"
+fi
+
+
+# Check that your virtualization is properly installed
+virt-host-validate qemu
+
+# All entries should say 'PASS' except for possibly an
+# entry on Intel machines for checking for secure guest
+# support (that is an AMD only feature)
+
+
+# For now don't install tuned. It seems to cause
+# problems with networking
+
+# The next step is to enable and start tuned
+# tuned dynamically optimizes a computer's performance
+# for a given profile.
+# systemctl enable --now tuned
+# systemctl start tuned
+# Set the profile to the virtual-host which is a profile
+# that is optimal for running VMs.
+# You can see the current profile using tuned-adm
+# note that tuned must be running for tuned-adm to work
+# tuned-adm active
+# You can get a list of available profiles with
+# tuned-adm
+
+
+# The next important thing to setup on the physical host is
+# networking.
+
+# Ubuntu encourages the use of netplan to setup networking.
+# Netplan is a configuration tool that runs at boot time,
+# to generate configuration files for either networkd or
+# NetworkManager, which then manage the actual networking.
+# Netplan comes pre-installed with the default install of
+# Ubuntu. So there is no necessity to install it.
+
+# The primary drawback is that Fedora, AlmaLinux and RHEL
+# based systems don't use netplan. You need a different
+# way to configure bridging on those systems.
+
+# See 60-netplan.yaml for details on how to configure
+# netplan
+cp 60-network.yaml /etc/netplan
+chown root:root /etc/netplan/60-network.yaml
+chmod go-rwx /etc/netplan/60-network.yaml
+netplan apply
+
+# It's probably a good idea to reboot the machine
+# at this point
+# TODO: Implement a continue after reboot system
+
+# Next add the bridge as a named network for VMs
+# connect to. This isn't strictly speaking
+# required, but makes life easy.
+
+# First list the networks that libvirtd is aware of, and that are active
+virsh net-list
+
+# using the --all option also show networks that libvirtd is aware of
+# but are not active
+virsh net-list --all
+
+# If you want more information about a specific network
+# use:
+# virsh net-info <networkname>
+# E.g. to get info about the default network:
+# virsh net-info default
+
+
+# Now define a bridge network that uses the bridge interface br0
+virsh net-define ./kvm-bridge-network.xml
+
+# The bridge is not active yet. If you do virsh net-list it won't
+# show up. But if you do virsh net-list --all it will show up
+# as inactive.
+
+# Start the bridge
+virsh net-start bridge0  # The name 'bridge0' is taken from the name tag
+                         # in the  XML file
+
+# To ensure that the bridge0 network is always available across reboots
+# it needs to be auto started
+# Set the bridge0 network to auto start
+virsh  net-autostart bridge0
+
+
+# On Ubuntu even user created VMs belong to the system domain.
+# But just check. the URI printed by the command below must be
+# qemu:///system  and NOT quemu:///session.  Note the 3 slashes.
+virsh uri  # should print 'qemu:///system'
