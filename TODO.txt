@@ -1,3 +1,5 @@
+[DONE][issue111] boost-upgrade-1-87-0:
+  Upgrade to boost 1.87.0
 [issue110] linux-kvm-ubuntu-setup: 
   Explore setup of KVM on Ubuntu
 [DONE][issue109] linux-ubuntu-apt-phased-updates:
