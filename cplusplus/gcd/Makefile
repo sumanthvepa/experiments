@@ -44,6 +44,7 @@ ifeq ($(CXX), clang++)
     -Wno-poison-system-directories \
     -Wno-c++98-compat-pedantic \
     -Wno-unknown-pragmas \
+    -Wno-unknown-warning-option \
     -g3 -O0 \
     $(COMMON_INCLUDES)
 else
