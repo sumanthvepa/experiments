@@ -1,3 +1,5 @@
+[DONE][issue113] cplusplus-build-all-makefile:
+  Makefile to build all projects in the cplusplus folder
 [DONE][issue112] userand-standardize-folder-structure:
   Standardize the folder structure for the userand project
 [DONE][issue111] boost-upgrade-1-87-0:
