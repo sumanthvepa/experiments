@@ -26,7 +26,12 @@
 #include <example/greet.hh>
 #include <string>
 
+auto m42::exp::example::greet() -> std::string {
+  return greet("");
+}
 auto m42::exp::example::greet(const std::string& name_) -> std::string {
-  return "Hello, " + name_ + "!";
+  constexpr std::string greeting = "Hello";
+  if (name_.empty()) return greeting + "!";
+  return greeting + ", " + name_ + "!";
 }
 

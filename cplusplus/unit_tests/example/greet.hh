@@ -29,6 +29,7 @@
 #include <string>
 
 namespace m42::exp::example {
+  auto greet() -> std::string;
   auto greet(const std::string& name_) -> std::string;
 }
 

@@ -19,7 +19,7 @@
  # <https://www.gnu.org/licenses/>.
  #####################################################################
 
-.PHONEY: all flags clean
+.PHONEY: all test flags clean
 
 # This is a list of targets that do not need the inclusion
 # of dependency files to work. The code further down checks
@@ -77,8 +77,17 @@ endif
 COMMON_WARNINGS = -Wall -Wextra -Weffc++
 
 # Uncomment this if you want boost. Add any other include directories
-# you want here.
+# you want here for all compilers for main executable programs
 COMMON_INCLUDES = -I/opt/boost/1_87_0/include
+COMMON_LIBRARIES = 
+
+# Define these if you want to include any specific libraries for the
+# test executable. We use boost unit test framework as a shared
+# library. So the flags for this are defined here.
+# If you need any other libraries only for the test executable
+# define the include paths and search paths here.
+COMMON_TEST_INCLUDES = 
+COMMON_TEST_LIBRARIES = -L/opt/boost/1_87_0/lib -rpath /opt/boost/1_87_0/lib -lboost_unit_test_framework
 
 # The explanation of some common flags is as follows:
 # -Wno-poison-system-directories: This is only relevant for cross-compiling,
@@ -326,12 +335,18 @@ endif
 # Note that, for now, dependencies are explicitly managed in the 
 # Makefile. This probably won't work for a large project with many
 # hundreds of dependencies.
-all: $(BUILD_ROOT)/example
+all: $(BUILD_ROOT)/example $(BUILD_ROOT)/test_example
+
+test: $(BUILD_ROOT)/test_example
 
 # Build the final executable
 $(BUILD_ROOT)/example: $(BUILD_ROOT)/example.o $(BUILD_ROOT)/greet.o
 	$(CREATE_BUILD_ROOT_CMD)
-	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/example $(BUILD_ROOT)/example.o $(BUILD_ROOT)/greet.o
+	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/example $(BUILD_ROOT)/example.o $(BUILD_ROOT)/greet.o $(COMMON_LIBRARIES)
+
+$(BUILD_ROOT)/test_example: $(BUILD_ROOT)/test_greet.o $(BUILD_ROOT)/greet.o
+	$(CREATE_BUILD_ROOT_CMD)
+	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/test_example $(BUILD_ROOT)/greet.o $(BUILD_ROOT)/test_greet.o $(COMMON_LIBRARIES) $(COMMON_TEST_LIBRARIES)
 
 
 # Build Object Files
@@ -344,6 +359,10 @@ $(BUILD_ROOT)/example.o: example/example.cc $(BUILD_ROOT)/example.d
 $(BUILD_ROOT)/greet.o: example/greet.cc $(BUILD_ROOT)/greet.d
 	$(CREATE_BUILD_ROOT_CMD)
 	$(OBJECT_BUILD_CMD) -o $(BUILD_ROOT)/greet.o example/greet.cc
+
+$(BUILD_ROOT)/test_greet.o: example/test/test_greet.cc $(BUILD_ROOT)/test_greet.d
+	$(CREATE_BUILD_ROOT_CMD)
+	$(OBJECT_BUILD_CMD) -o $(BUILD_ROOT)/test_greet.o example/test/test_greet.cc
 
 # Generate dependencies
 # We use the compiler itself to determine which which header files
@@ -378,6 +397,10 @@ $(BUILD_ROOT)/example.d: example/example.cc
 $(BUILD_ROOT)/greet.d: example/greet.cc
 	$(CREATE_BUILD_ROOT_CMD)
 	$(DEPENDENCY_BUILD_CMD) -o $(BUILD_ROOT)/greet.d example/greet.cc
+
+$(BUILD_ROOT)/test_greet.d: example/test/test_greet.cc
+	$(CREATE_BUILD_ROOT_CMD)
+	$(DEPENDENCY_BUILD_CMD) -o $(BUILD_ROOT)/greet.d example/test/test_greet.cc
 
 ifeq ($(CXX_TYPE), g++)
 flags:
