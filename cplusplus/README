@@ -1,0 +1,16 @@
+Invoking make in this directory will cause all projects
+in this directory to be built.
+
+Makefile.latest is a link to the latest evolution of the
+project makefile. For any new project in this directory,
+copy this file into your project and edit it as needed.
+
+If you improve the Makefile, then change the symbolic
+link Makefile.latest to point to the Makefile in your
+project.
+
+Note that the Makefile in this directory is a
+meta-Makefile, that invokes all the project specific
+Makefiles. It is not directly related to Makefile.latest
+DO NOT copy Makefile.latest to be the Makefile for this
+cplusplus directory.
