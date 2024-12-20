@@ -372,9 +372,11 @@ ifeq (0, $(words $(findstring $(MAKECMDGOALS), $(TARGETS_NOT_NEEDING_DEPENDENCIE
 endif
 
 $(BUILD_ROOT)/example.d: example/example.cc
-	$(DEPENDENCY_BUILD_CMD) -o $(BUILD_ROOT)/greet.d example/greet.cc
+	$(CREATE_BUILD_ROOT_CMD)
+	$(DEPENDENCY_BUILD_CMD) -o $(BUILD_ROOT)/example.d example/example.cc
 
 $(BUILD_ROOT)/greet.d: example/greet.cc
+	$(CREATE_BUILD_ROOT_CMD)
 	$(DEPENDENCY_BUILD_CMD) -o $(BUILD_ROOT)/greet.d example/greet.cc
 
 ifeq ($(CXX_TYPE), g++)
