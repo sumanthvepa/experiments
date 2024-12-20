@@ -30,7 +30,17 @@ auto m42::exp::example::greet() -> std::string {
   return greet("");
 }
 auto m42::exp::example::greet(const std::string& name_) -> std::string {
-  constexpr std::string greeting = "Hello";
+  // g++ (as of version 14.2.1) does not understand constexpr
+  // std::strings. So do not use constexpr when compiling under
+  // g++
+  // Note compiler detection macros are described in this 
+  // stack overflow post:
+  // https://stackoverflow.com/questions/28166565/detect-gcc-as-opposed-to-msvc-clang-with-macro
+  #if defined(__GNUG__)
+  static std::string greeting = "Hello";
+  #else
+  static constexpr std::string greeting = "Hello";
+  #endif
   if (name_.empty()) return greeting + "!";
   return greeting + ", " + name_ + "!";
 }

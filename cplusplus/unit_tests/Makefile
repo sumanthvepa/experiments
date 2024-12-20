@@ -87,7 +87,7 @@ COMMON_LIBRARIES =
 # If you need any other libraries only for the test executable
 # define the include paths and search paths here.
 COMMON_TEST_INCLUDES = 
-COMMON_TEST_LIBRARIES = -L/opt/boost/1_87_0/lib -rpath /opt/boost/1_87_0/lib -lboost_unit_test_framework
+COMMON_TEST_LIBRARIES = 
 
 # The explanation of some common flags is as follows:
 # -Wno-poison-system-directories: This is only relevant for cross-compiling,
@@ -110,6 +110,9 @@ ifeq ($(CXX_TYPE), clang++)
     -g3 -O0 \
     -fprebuilt-module-path=$(BUILD_ROOT) \
     $(COMMON_INCLUDES) -I.
+
+  LD_FLAGS = $(COMMON_LIBRARIES)
+  LD_TEST_FLAGS = $(COMMON_TEST_LIBRARIES) -L/opt/boost/1_87_0/lib -rpath /opt/boost/1_87_0/lib -lboost_unit_test_framework
 else
   # Linux
   # Sadly, gcc does not have an equivalent to clang's -Weverything flag.
@@ -236,6 +239,9 @@ else
     -Wno-unknown-pragmas \
     -g3 -O0 \
     $(COMMON_INCLUDES) -I.
+
+  LD_FLAGS = $(COMMON_LIBRARIES)
+  LD_TEST_FLAGS = $(COMMON_TEST_LIBRARIES) -L/opt/boost/1_87_0/lib -Wl,-rpath,/opt/boost/1_87_0/lib -lboost_unit_test_framework
 endif
 
 # The build commands for each compiler family are different, and
@@ -342,11 +348,11 @@ test: $(BUILD_ROOT)/test_example
 # Build the final executable
 $(BUILD_ROOT)/example: $(BUILD_ROOT)/example.o $(BUILD_ROOT)/greet.o
 	$(CREATE_BUILD_ROOT_CMD)
-	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/example $(BUILD_ROOT)/example.o $(BUILD_ROOT)/greet.o $(COMMON_LIBRARIES)
+	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/example $(BUILD_ROOT)/example.o $(BUILD_ROOT)/greet.o $(LD_FLAGS)
 
 $(BUILD_ROOT)/test_example: $(BUILD_ROOT)/test_greet.o $(BUILD_ROOT)/greet.o
 	$(CREATE_BUILD_ROOT_CMD)
-	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/test_example $(BUILD_ROOT)/greet.o $(BUILD_ROOT)/test_greet.o $(COMMON_LIBRARIES) $(COMMON_TEST_LIBRARIES)
+	$(EXECUTABLE_BUILD_CMD) -o $(BUILD_ROOT)/test_example $(BUILD_ROOT)/greet.o $(BUILD_ROOT)/test_greet.o $(LD_FLAGS) $(LD_TEST_FLAGS)
 
 
 # Build Object Files
