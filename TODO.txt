@@ -1,7 +1,7 @@
 [DONE][issue115] cplusplus-project-initial-makefile-template:
   An intial makefile template based on the latest iteration of a
   project makefile.
-[issue114] cpluplus-unit-tests: Explore Boost Unit tests
+[DONE][issue114] cpluplus-unit-tests: Explore Boost Unit tests
 [DONE][issue113] cplusplus-build-all-makefile:
   Makefile to build all projects in the cplusplus folder
 [DONE][issue112] userand-standardize-folder-structure:

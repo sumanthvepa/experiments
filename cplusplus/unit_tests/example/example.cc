@@ -25,6 +25,9 @@
 #include <example/greet.hh>
 #include <iostream>
 
+// This program illustrates how to use the greet function from
+// client code. The unit tests for the greet function are in the test
+// directory.
 auto main() -> int {
   std::cout << m42::exp::example::greet("Sumanth") << std::endl;
   return 0;

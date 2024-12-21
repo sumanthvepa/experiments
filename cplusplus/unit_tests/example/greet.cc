@@ -26,6 +26,10 @@
 #include <example/greet.hh>
 #include <string>
 
+// These are functions that are ment to be used by client code.
+// You can find unit tests for these functions in the test directory
+// in the file test_greet.cc.
+
 auto m42::exp::example::greet() -> std::string {
   return greet("");
 }
