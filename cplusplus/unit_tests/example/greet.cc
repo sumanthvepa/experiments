@@ -40,9 +40,11 @@ auto m42::exp::example::greet(const std::string& name_) -> std::string {
   // Note compiler detection macros are described in this 
   // stack overflow post:
   // https://stackoverflow.com/questions/28166565/detect-gcc-as-opposed-to-msvc-clang-with-macro
-  #if defined(__GNUG__)
+  #if defined(__GNUG__) && ! defined(__clang__)
+  // Do not use constexpr with g++
   static std::string greeting = "Hello";
   #else
+  // Use constexper to declare a compile time constant
   static constexpr std::string greeting = "Hello";
   #endif
   if (name_.empty()) return greeting + "!";

@@ -406,7 +406,7 @@ $(BUILD_ROOT)/greet.d: example/greet.cc
 
 $(BUILD_ROOT)/test_greet.d: example/test/test_greet.cc
 	$(CREATE_BUILD_ROOT_CMD)
-	$(DEPENDENCY_BUILD_CMD) -o $(BUILD_ROOT)/greet.d example/test/test_greet.cc
+	$(DEPENDENCY_BUILD_CMD) -o $(BUILD_ROOT)/test_greet.d example/test/test_greet.cc
 
 ifeq ($(CXX_TYPE), g++)
 flags:
