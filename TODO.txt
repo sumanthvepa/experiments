@@ -1,3 +1,5 @@
+[DONE][issue117] cplusplus-makefile-template-update:
+  Update the Makefile template 
 [DONE][issue116] cplusplus-compiler-macros:
   Print pre-defined macros for compiler checks within C++ code
 [DONE][issue115] cplusplus-project-initial-makefile-template:
