@@ -1,3 +1,5 @@
+[issue116] cplusplus-compiler-macros:
+  Print pre-defined macros for compiler checks within C++ code
 [DONE][issue115] cplusplus-project-initial-makefile-template:
   An intial makefile template based on the latest iteration of a
   project makefile.
