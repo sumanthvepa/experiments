@@ -1,7 +1,8 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 02-basic-docker-commands.sh: Explore basic docker commands
+# 04-docker-kill-top-stats.sh: Explore docker container kill, top and
+# stats commands
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #

@@ -48,6 +48,8 @@ echo "Now write some test data to the mounted volume"
 echo "cd /test/"
 echo "echo 'Test data' > ./test.txt"
 echo "exit "
+
+# The --rm flag will remove the container when you exit
 docker container run \
   --mount 'type=volume,src=docker-basics-test-volume,dst=/test' \
   --interactive \

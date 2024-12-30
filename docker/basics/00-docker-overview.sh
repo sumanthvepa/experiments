@@ -26,11 +26,9 @@ echo "A container is an isolated process run on a host operating"
 echo "system (which itself may be running on either a physical host"
 echo "or a virtual machine)"
 echo
-echo "A container is generated from a container image The"
+echo "A container is generated from a container image. The"
 echo "relationship between a container and its image is analogous"
-echo "to the relationship between a container and its image is"
-echo "analogous to the relationship between a process and its"
-echo "executable file"
+echo "to the relationship between a process and its executable file"
 echo
 echo "Hence a docker container image is a lightweight, standalone"
 echo "executable package (not an executable in-and-of-itself) that"

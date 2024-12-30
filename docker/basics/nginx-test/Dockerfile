@@ -67,11 +67,10 @@ RUN microdnf -y install nginx
 STOPSIGNAL SIGQUIT
 
 # This is essentially a form of documentation for the reader of the
-# Dockerfile telling them that
-# the process in the container will listen on 
-# the given port, in this case port 80.
-# You can be more general simply saying 80
-# instead of 80/tcp
+# Dockerfile telling them that the process in the container will
+# listen on the given port, in this case port 80. You can be more
+# general simply saying 80 instead of 80/tcp. Doing so will open the
+# port for both TCP and UDP traffic.
 EXPOSE 80/tcp
 
 # The CMD command specifes what command to run when the image is

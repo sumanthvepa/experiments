@@ -30,6 +30,19 @@
 
 FROM almalinux:9-minimal
 
+# The ARG command a build-time variable that is used to pass
+# variables from the docker build command to the Dockerfile.
+# The = 20 specifes that the default value of NODEJS_MAJOR_VERSION
+# is 20. This value can be overridden by passing the value
+# to the docker build command. (In fact, it is overriddent in
+# this case in 10-docker-build-node.sh)
+# Detailed documentation on ARG can be found at
+# https://docs.docker.com/reference/dockerfile/#arg
+ARG NODEJS_VERSION='22.11.0'
+ARG ARCH_SUFFIX='arm64'
+
+# ENV PATH=$PATH:/opt/node/${NODEJS_VERSION}/bin
+
 # Combine multiple RUN commands into one to reduce the number of layers
 # created by the image. This will reduce the size of the image.
 
@@ -43,17 +56,17 @@ FROM almalinux:9-minimal
 # symlink creation. The symlinks will function once the binaries
 # are copied to the image.
 RUN mkdir -p /opt/node \
-  && ln -s '/opt/node/20.17.0/bin/node' '/usr/local/bin/node' \
-  && ln -s '/opt/node/20.17.0/bin/npm' '/usr/local/bin/npm' \
-  && ln -s '/opt/node/20.17.0/bin/npx' '/usr/local/bin/npx' \
-  && ln -s '/opt/node/20.17.0/bin/corepack' '/usr/local/bin/corepack' 
+  && ln -s /opt/node/${NODEJS_VERSION}/bin/node /usr/local/bin/node \
+  && ln -s /opt/node/${NODEJS_VERSION}/bin/npm /usr/local/bin/npm \
+  && ln -s /opt/node/${NODEJS_VERSION}/bin/npx /usr/local/bin/npx \
+  && ln -s /opt/node/${NODEJS_VERSION}/bin/corepack /usr/local/bin/corepack
 
 # We copy only the bin and lib directories the nodejs binary
 # distribution. This is accomplished by deleting all the other
 # files. See 09-docker-build-optimzing1.sh for details on
 # how this is done.
 # This will reduce the size of the image.
-COPY node-v20.17.0-linux-arm64 /opt/node/20.17.0
+COPY node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX} /opt/node/${NODEJS_VERSION}
 
 # Finally run the node interpreter
 CMD ["/usr/local/bin/node"]

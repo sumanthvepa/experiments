@@ -34,13 +34,23 @@
 # This is the first stage.
 FROM almalinux:9-minimal AS unoptimized
 
-# Copy the script that installs nodejs
-COPY nodesource_setup_20.sh .
+# The ARG command a build-time variable that is used to pass
+# variables from the docker build command to the Dockerfile.
+# The = 20 specifes that the default value of NODEJS_MAJOR_VERSION
+# is 20. This value can be overridden by passing the value
+# to the docker build command. (In fact, it is overriddent in
+# this case in 10-docker-build-node.sh)
+# Detailed documentation on ARG can be found at
+# https://docs.docker.com/reference/dockerfile/#arg
+ARG NODEJS_MAJOR_VERSION=22
+
+# Copy the script that installs the appropriate version of nodejs
+COPY nodesource_setup_${NODEJS_MAJOR_VERSION}.sh .
 
 # Install the nodejs repository and remove the setup file
 # Once the setup is done, the setup file is not required
-RUN ./nodesource_setup_20.sh \
-    && rm nodesource_setup_20.sh
+RUN ./nodesource_setup_${NODEJS_MAJOR_VERSION}.sh \
+    && rm nodesource_setup_${NODEJS_MAJOR_VERSION}.sh
 
 # Install nodejs and then clean all dnf cached data
 # as it is not required in the final image

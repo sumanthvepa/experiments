@@ -1,8 +1,8 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 02-docker-container-commands-basics.sh: Explore basic docker
-# container commands.
+# 02-docker-container-basics.sh: Explore basic docker container
+# commands.
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -21,7 +21,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '02-docker-container-commands-basic'
+echo '02-docker-container-basics'
 
 # To run a container image specify the name of the image. For example
 # you can run the docker hello world container image as follows:
@@ -44,7 +44,6 @@ docker container ps -a
 # If you only want to see running containers don't use
 # the -a option
 docker container ps
-
 
 # To operate on an already created container you either need its
 # name or its id. Since we did not specify the name or id, we
@@ -86,7 +85,7 @@ rm -f './hello-world.cid'  # Remove the output of any previous runs
 docker container run --cidfile './hello-world.cid' hello-world
 
 # We can now use the cidfile to operate on the container
-HELLO_WORLD_CONTAINER_ID=`cat ./hello-world.cid`
+HELLO_WORLD_CONTAINER_ID=$(cat ./hello-world.cid)
 
 # Now we can remove the container using docker rm
 docker container rm $HELLO_WORLD_CONTAINER_ID
@@ -111,12 +110,12 @@ docker container rm  'hello-world-instance'
 # Hello World is a short lived container. The program it runs exits
 # quickly. But some containers might contain programs that run for
 # a long time or even for ever. One such example would be a container
-# running a webserver.
+# running a web server.
 
 # The following command runs an nginx webserver on port 9000 and mounts
 # the directory hello-world-docker located in the current directory
-# from the host (darkness) to the standard location for HTML files for
-# nginx in the container. It also maps port 9000 on darkness to port
+# from the host to the standard location for HTML files for
+# nginx in the container. It also maps port 9000 on the host to port
 # 80 in the container. The program is detached from the the terminal
 # after it is started.
 
@@ -147,13 +146,28 @@ docker container rm  'hello-world-instance'
 
 # See 09-docker-networking for how to run a container that is only
 # accessible from the host.
-PORT_IS_ALREADY_ACCESSIBLE=$(firewall-cmd --zone=public --query-port=9000/tcp)
-if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-  firewall-cmd --zone=public --add-port=9000/tcp
+# The following commands to query and manipulate the firewall require
+# root privileges. We first need to check that we are running as root
+# and if so, then we can run the commands.
+# $EUID is the effective user id of the user running the script.
+if [[ $EUID -eq 0 ]]; then
+  PORT_IS_ALREADY_ACCESSIBLE=$(firewall-cmd --zone=public --query-port=9000/tcp)
+  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+    firewall-cmd --zone=public --add-port=9000/tcp
+  fi
+else
+  echo "Querying the firewall and adding ports requires root privileges"
+  echo "The following commands will be invoked with sudo"
+  echo "firewall-cmd --zone=public --query-port=9000/tcp"
+  PORT_IS_ALREADY_ACCESSIBLE=$(sudo firewall-cmd --zone=public --query-port=9000/tcp)
+    if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+      echo "firewall-cmd --zone=public --add-port=9000/tcp"
+      sudo firewall-cmd --zone=public --add-port=9000/tcp
+  fi
 fi
 
 docker container run \
-  --name 'docker-basics-nginx'  \
+  --name 'nginx-test'  \
   --volume ./hello-world-nginx:/usr/share/nginx/html:ro \
   --publish 9000:80 \
   --detach \
@@ -164,21 +178,29 @@ docker container ps
 
 # Wait for 2 mins to allow for a browser to test the container
 echo 'Test that the contaner is working as expected by'
-echo 'visiting http://darkness2.milestone42.com:9000/.'
+echo "visiting http://$(hostname -f):9000/."
 echo 'Will wait for 30 seconds before proceeding'
 sleep 30
 
 echo 'Okay. Cleaning up. Will stop the running nginix container and remove it...' 
 
 # Now stop the running container
-docker container stop 'docker-basics-nginx'
+docker container stop 'nginx-test'
 
 # And remove it completely
-docker container rm 'docker-basics-nginx'
+docker container rm 'nginx-test'
 
 # Remember to close the port after you're done
-if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-  firewall-cmd --zone=public --remove-port=9000/tcp
+if [[ $EUID -eq 0 ]]; then
+  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+    firewall-cmd --zone=public --remove-port=9000/tcp
+  fi
+else
+  # use sudo if not running as root
+  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+    echo "firewall-cmd --zone=public --remove-port=9000/tcp"
+    sudo firewall-cmd --zone=public --remove-port=9000/tcp
+  fi
 fi
 
 echo '... cleanup completed.'
@@ -412,3 +434,30 @@ docker container rm 'docker-basics-ping'
 # script can run multiple times. We will explore docker
 # image rm in more detail in 03-docker-images.sh
 docker image rm 'docker-basics-ping'
+
+echo
+echo "Finally, it is sometimes desirable to run a command on an already"
+echo "running container. For example if you have a container running nginx"
+echo "and you want to examine the configuration file, you can run a shell"
+echo "in the container and examine the file. Any command present in the"
+echo "container can be run in this way."
+echo "The way to do this is to use the exec command"
+
+echo "Let's start an nginx container again"
+docker container run \
+  --name 'nginx-test'  \
+  --volume ./hello-world-nginx:/usr/share/nginx/html:ro \
+  --publish 9000:80 \
+  --detach \
+  nginx
+
+echo "Now we can run a shell in the container to examine the"
+echo "configuration file. The command below will run the bash"
+echo "shell in the container."
+echo
+echo "When you are done exploring the container exit the shell"
+docker container exec --interactive --tty 'nginx-test' /bin/bash
+
+# Clean up, by stopping and removing the container
+docker container stop 'nginx-test'
+docker container rm 'nginx-test'

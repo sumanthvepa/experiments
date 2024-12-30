@@ -33,6 +33,8 @@
 # Use the almalinux:9-minimal image as the base image
 FROM almalinux:9-minimal
 
+ARG ARCH_SUFFIX='amd64'
+
 # Install basic editing tools to help with debugging
 RUN microdnf -y install vim zstd procps-ng iproute
 
@@ -40,11 +42,11 @@ RUN microdnf -y install vim zstd procps-ng iproute
 RUN microdnf -y module disable postgresql
 
 # Copy the latest postgres repository rpm to the root directory
-COPY  pgdg-redhat-repo-latest.noarch.rpm /
+COPY  ${ARCH_SUFFIX}/pgdg-redhat-repo-latest.noarch.rpm /
 
 # Copy gosu to /usr/local/bin.
 # This will be needed by the setup-postgres.sh script
-COPY  gosu /usr/local/bin/gosu
+COPY  ${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX} /usr/local/bin/gosu
 RUN chmod +x /usr/local/bin/gosu
 
 # Install the postgres repository
@@ -59,6 +61,7 @@ COPY setup-postgres.sh /usr/local/bin/setup-postgres.sh
 COPY initialize-postgres.sh /usr/local/bin/initialize-postgres.sh
 
 STOPSIGNAL SIGINT
+EXPOSE 5432
 
 # Set the default command to launch a bash shell
 CMD ["/bin/bash"]
