@@ -83,16 +83,16 @@ if [[ ! -f $POSTGRES_REPO_RPM ]]; then
 fi
 
 # Download gosu for the given architecture if it is not present in the
-# postgres-manual directory.
-GOSU_BINARY="./postgres-manual/${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX}"
+# postgres-test directory.
+GOSU_BINARY="./postgres-test/${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX}"
 GOSU_BINARY_URL="https://github.com/tianon/gosu/releases/download/1.17/gosu-${ARCH_SUFFIX}"
-GOSU_SIGNATURE="./postgres-manual/${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX}.asc"
+GOSU_SIGNATURE="./postgres-test/${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX}.asc"
 GOSU_SIGNATURE_URL="https://github.com/tianon/gosu/releases/download/1.17/gosu-${ARCH_SUFFIX}.asc"
 
 if [[ ! -f $GOSU_BINARY ]]; then
   echo "${GOSU_BINARY} not found"
   # Create architecture-specific download directory
-  mkdir -p ./postgres-manual/${ARCH_SUFFIX}
+  mkdir -p ./postgres-test/${ARCH_SUFFIX}
   echo "Downloading gosu from the official repository"
   echo "URL: $GOSU_BINARY_URL"
   curl -fsSL $GOSU_BINARY_URL -o $GOSU_BINARY
@@ -123,7 +123,7 @@ echo "in order for the postgres service to start wihin the container"
 echo "This an be done by passing the environment variable to the"
 echo "docker container run command as shown below:"
 echo
-echo "docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' postgres-manual"
+echo "docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' postgres-test"
 echo
 echo "You can also set it within the container after you've been "
 echo "dropped into the shell."
@@ -136,7 +136,7 @@ echo "If you are trying to troubleshoot the container, you an run it"
 echo "with the DOCKER_POSTGRES_DEBUG environment variable set to"
 echo "1 as follows:"
 echo
-echo "docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' --env DOCKER_POSTGRES_DEBUG=1 postgres-manual"
+echo "docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' --env DOCKER_POSTGRES_DEBUG=1 postgres-test"
 echo
 echo "Note, that to connect to the database, you will have to connect"
 echo "to the container on port 5432. Since we're publishing the port"
