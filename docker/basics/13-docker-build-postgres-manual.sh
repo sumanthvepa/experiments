@@ -104,6 +104,10 @@ fi
 
 # Now we can build the Postgres Docker image
 docker build --tag postgres-manual --build-arg ARCH_SUFFIX=${ARCH_SUFFIX} ./postgres-manual
+if [[ $? -ne 0 ]]; then
+  echo "Failed to build the Postgres Docker image"
+  exit 1
+fi
 
 # Give the user instructions on how to use this postgres docker image
 echo "Postgres Docker image built successfully"
