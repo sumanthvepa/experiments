@@ -50,36 +50,42 @@ elif [[ "$CPU_ARCHITECTURE" == "aarch64" ]]; then
 fi
 
 
+# Clean up any previously running container with the given name
 function clean_up_existing_container() {
-  # First clean up any previously running postgres-test-test container
-  # and the container image postgres-test itself.
-  # Check if a container named postgres-test-test is already running
-  # If it is, stop it.
-  local container_exists=$(docker container ps --quiet --all --filter name=postgres-test-test)
+  # Get the name of the container from the first argument to the function
+  # or use 'postgres-test-test' as the default container name.
+  local container_name=${1:-'postgres-test-test'}
+
+  # Check if the container exists before doing anythig
+  local container_exists=$(docker container ps --quiet --all --filter name=$container_name)
   if [[ ! -z $container_exists ]]; then
-    echo "Stopping existing postgres-test-test container"
-    docker container stop postgres-test-test
+    echo "Stopping existing container: $container_name"
+    # Stop the container first before removing it.
+    docker container stop $container_name
     # Wait for the container to stop. It takes some time for the container
     # shutdown gracefully and be removed. Just keep checking if the container
     # is still running every 10 seconds. The loop exits when the container
     # is no longer running.
     while [[ ! -z  $container_exists ]]; do
       sleep 10
-      container_exists=$(docker container ps --quiet --all --filter name=postgres-test-test)
+      container_exists=$(docker container ps --quiet --all --filter name=$container_name)
     done
     # Remove the container
-    echo "Removing existing postgres-test-test container"
-    docker container rm postgres-test-test
+    echo "Removing existing container: $container_name"
+    docker container rm $container_name
   fi
   return 0
 }
 
 function clean_up_existing_image() {
+  # Get the name of the image from the first argument to the function
+  # or use 'postgres-test' as the default image name.
+  local image_name=${1:-'postgres-test'}
   # Check if the postgres-test image exists and remove it if it does.
-  local image_exists=$(docker image ls --quiet postgres-test)
+  local image_exists=$(docker image ls --quiet $image_name)
   if [[ ! -z $image_exists ]]; then
-    echo "Removing existing postgres-test image"
-    docker image rm postgres-test
+    echo "Removing existing image: $image_name"
+    docker image rm $image_name
   fi
   return 0
 }
@@ -135,7 +141,11 @@ function download_gosu_binary() {
 
 function build_postgres_test_image() {
   # Now we can build the Postgres Docker image
-  docker build --tag postgres-test --build-arg ARCH_SUFFIX=${ARCH_SUFFIX} ./postgres-test
+  # Set the tagname for the image to 'postgres-test' by default
+  # unless it is provided as an argument to the function (the first
+  # argument.)
+  local tag=${1:-'postgres-test'}
+  docker build --tag $tag --build-arg ARCH_SUFFIX=${ARCH_SUFFIX} ./postgres-test
   if [[ $? -ne 0 ]]; then
     echo "Failed to build the Postgres Docker image"
     return 1
@@ -145,8 +155,17 @@ function build_postgres_test_image() {
 }
 
 function download_and_build_postgres_test_image() {
-  clean_up_existing_container
-  clean_up_existing_image
+  # Get the name of the image from the first argument to the function
+  # or use 'postgres-test' as the default image name.
+  local image_name=${1:-'postgres-test'}
+
+  # Get the name of the container from the second argument to the function
+  # or use 'postgres-test-test' as the default container name.
+  # TODO: What really needs to happen here is that we need to stop
+  # and remove all containers that are based on the image $image_name
+  local container_name=${2:-'postgres-test-test'}
+  clean_up_existing_container $container_name
+  clean_up_existing_image $image_name
   download_postgres_repo_rpm
   if [[ $? -ne 0 ]]; then
     return 1
@@ -155,7 +174,7 @@ function download_and_build_postgres_test_image() {
   if [[ $? -ne 0 ]]; then
     return 1
   fi
-  build_postgres_test_image
+  build_postgres_test_image $image_name
   if [[ $? -ne 0 ]]; then
     return 1
   fi
