@@ -68,6 +68,18 @@ docker container stop $HELLO_WORLD_CONTAINER_ID
 # Notice that the command prints the id of the container that it just
 # stopped.
 
+# It is sometimes the case that the container will take some time to
+# stop. Attempting to remove a container that is still stopping will
+# result in an error. You can check if the container is still running
+# as follows. The code below will keep checking if the container is
+# still running, using container ps, every 10 seconds. The loop exits
+# when the container is no longer running.
+CONTAINER_EXISTS=$(docker container ps --quiet --all --filter name=$HELLO_WORLD_CONTAINER_ID)
+while [[ ! -z  $CONTAINER_EXISTS ]]; do
+  sleep 10
+  CONTAINER_EXISTS=$(docker container ps --quiet --all --filter name=$HELLO_WORLD_CONTAINER_ID)
+done
+
 # Finally you can remove a container with the rm command
 docker container rm $HELLO_WORLD_CONTAINER_ID
 
