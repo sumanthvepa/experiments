@@ -29,6 +29,24 @@ echo '08-docker-build-basics'
 # The build context contains the files that are needed to build the
 # image.
 
+# Let's start with a very basic example. We will create custom image
+# based on almalinux:9-minimal, that contains the ping command.
+# The Dockerfile is in the ping-test directory. Technically, the
+# buid context is the directory that contains the Dockerfile. Because
+# this is such a simple example, the build context directory only
+# contains the Dockerfile.
+# We will tag the image as ping-test.
+docker build --tag ping-test ./ping-test
+
+# To use the custom image, you can run a container with the image
+# using the docker container run command. and pass it the same
+docker container run --name='ping-test' ping-test -c 3 www.google.com
+
+# Stop the container and remove it and remove the custom image
+docker container stop ping-test
+docker container rm ping-test
+docker image rm ping-test
+
 # In the following example, we will build a custom image that runs an
 # an instance of the nginx web server on an AlmaLinux base image.
 # The image will be tagged as nginx-test.
