@@ -30,7 +30,7 @@ echo "06-docker-bind-mounts"
 # useful to mount things like source code or dev directories
 # into a container used for development.
 
-# For a bind mount you do not need to create volume.
+# For a bind mount you do not need to create a volume.
 # Simply specify the mount src and the type as bind
 # as shwon below:
 echo "In a bind mount, user specifed directory is mounted "
@@ -39,7 +39,7 @@ echo "To test this cd to the /mnt directory and issue the following:"
 echo "    cat created-on-host.txt"
 echo "This should print 'created on host'"
 echo "Next create file in the bound directory as follows:"
-echo "    echo 'create in the container' > /mnt/created-in-container.txt"
+echo "    echo 'created in the container' > /mnt/created-in-container.txt"
 echo "Now change the ownership of the file to the id of the user who"
 echo "owns the directory on on the host. Otherwise, you will not"
 echo "be able to modify the file from the host."
@@ -80,6 +80,7 @@ cat ./bind-test/created-in-container.txt
 # Notice that the mount point is created automatically in the
 # container when using the -v option.
 echo "Creating a new container using the -v option"
+echo "The contents of bind-test on the host are bound to /test in the container"
 echo "Also show automatic creation of the mount point in the container"
 echo "Exit this container when you are done"
 docker run \
@@ -109,7 +110,7 @@ docker run \
 # Bind mounts work great for readonly mounts, like development
 # code files.
 echo "Starting a container mounting hello-world-nginx as readonly"
-echo "You can cat the files /mnt but you cannot create any files"
+echo "You can cat the files in /test but you cannot create any files"
 echo "in the /mnt directory"
 echo "Exit the container after you are done"
 docker run \
@@ -126,3 +127,6 @@ docker run \
 
 echo "Clean up the created files"
 rm -f ./bind-test/created-in-container.txt
+
+# Restore the original contents of created-on-host.txt
+echo "created on the host" > ./bind-test/created-on-host.txt

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# postgres-manual/Dockerfile: Exploratory Dockerfile to explore
-# creation of a postgres container. This one requires manual
-# invocation of a setup script inside the container.
+# postgres-test/Dockerfile: Creates an unoptimized Docker image
+# that runs a postgres database server.
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -33,6 +32,8 @@
 # Use the almalinux:9-minimal image as the base image
 FROM almalinux:9-minimal
 
+ARG ARCH_SUFFIX='amd64'
+
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
 LABEL org.opencontainers.image.description="This a demo image to show how to setup a postgres server on almalinux:9-minimal"
 LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:postgres-test"
@@ -46,11 +47,11 @@ RUN microdnf -y install vim zstd procps-ng iproute
 RUN microdnf -y module disable postgresql
 
 # Copy the latest postgres repository rpm to the root directory
-COPY  pgdg-redhat-repo-latest.noarch.rpm /
+COPY  ${ARCH_SUFFIX}/pgdg-redhat-repo-latest.noarch.rpm /
 
 # Copy gosu to /usr/local/bin.
 # This will be needed by the setup-postgres.sh script
-COPY  gosu /usr/local/bin/gosu
+COPY  ${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX} /usr/local/bin/gosu
 RUN chmod +x /usr/local/bin/gosu
 
 # Install the postgres repository
@@ -69,5 +70,5 @@ EXPOSE 5432
 
 ENTRYPOINT [ "docker-entrypoint.sh" ]
 
-# Set the default command to launch a bash shell
+# Set the default command to start postgres
 CMD ["postgres"]

@@ -1,3 +1,23 @@
+[DONE][issue117] cplusplus-makefile-template-update:
+  Update the Makefile template 
+[DONE][issue116] cplusplus-compiler-macros:
+  Print pre-defined macros for compiler checks within C++ code
+[DONE][issue115] cplusplus-project-initial-makefile-template:
+  An intial makefile template based on the latest iteration of a
+  project makefile.
+[DONE][issue114] cpluplus-unit-tests: Explore Boost Unit tests
+[DONE][issue113] cplusplus-build-all-makefile:
+  Makefile to build all projects in the cplusplus folder
+[DONE][issue112] userand-standardize-folder-structure:
+  Standardize the folder structure for the userand project
+[DONE][issue111] boost-upgrade-1-87-0:
+  Upgrade to boost 1.87.0
+[issue110] linux-kvm-ubuntu-setup: 
+  Explore setup of KVM on Ubuntu
+[DONE][issue109] linux-ubuntu-apt-phased-updates:
+  Notes on apt phased updates in Ubuntu
+[DONE][issue108] ides-vscode-remote-ssh:
+  Notes on how to open a remote SSH connection in VSCode
 [issue107] cplusplus-explore-modules:
   Explore C++ modules
 [DONE][issue106] cplusplus-cwd:

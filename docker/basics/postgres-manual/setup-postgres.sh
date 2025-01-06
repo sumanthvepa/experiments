@@ -126,11 +126,11 @@ function is_asking_for_config() {
 function check_required_variables() {
   debug_echo "[11] Checking required variables..."
   if [[ ! -v POSTGRES_PASSWORD ]]; then
-    debug_echo "[11] ERROR($EXIT_CODE_ERROR_POSTGRES_PASSWORD_NOT_SET): The POSTGRES_PASSWORD environment variable is must be set"
+    echo "[11] ERROR($EXIT_CODE_ERROR_POSTGRES_PASSWORD_NOT_SET): The POSTGRES_PASSWORD environment variable is must be set"
     return $EXIT_CODE_ERROR_POSTGRES_PASSWORD_NOT_SET
   else
     if [[ -z "${POSTGRES_PASSWORD}" ]]; then
-      debug_echo "[11] ERROR($EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY): The POSTGRES_PASSWORD environment variable must not be empty"
+      echo "[11] ERROR($EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY): The POSTGRES_PASSWORD environment variable must not be empty"
       return $EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY
     fi
   fi
@@ -202,7 +202,7 @@ function create_data_directory() {
     debug_echo "[13] Creating the data directory $PGDATA"
     mkdir -p "$PGDATA"
     if [ $? -ne 0 ]; then
-      debug_echo "[13] ERROR($EXIT_CODE_ERROR_COULD_NOT_CREATE_PGDATA) Could not create the data directory $PGDATA"
+      echo "[13] ERROR($EXIT_CODE_ERROR_COULD_NOT_CREATE_PGDATA) Could not create the data directory $PGDATA"
       return $EXIT_CODE_ERROR_COULD_NOT_CREATE_PGDATA
     fi
     # Change the ownership and permissions of the data directory
@@ -211,12 +211,12 @@ function create_data_directory() {
     # writing, and executing.
     chown $POSTGRES_USER:$POSTGRES_USER "$PGDATA"
     if [[ $? -ne 0 ]]; then
-      debug_echo "[13] ERROR($EXIT_CODE_ERROR_COULD_NOT_CHANGE_PGDATA_OWNERSHIP): Could not change ownership of data directory $PGDATA to $POSTGRES_USER:$POSTGRES_USER"
+      echo "[13] ERROR($EXIT_CODE_ERROR_COULD_NOT_CHANGE_PGDATA_OWNERSHIP): Could not change ownership of data directory $PGDATA to $POSTGRES_USER:$POSTGRES_USER"
       return $EXIT_CODE_ERROR_COULD_NOT_CHANGE_PGDATA_OWNERSHIP
     fi
     chmod 00700 "$PGDATA"
     if [[ $? -ne 0 ]]; then
-      debug_echo "[13] ERROR($EXIT_CODE_ERROR_COULD_NOT_CHANGE_PGDATA_PERMISSIONS): Could not change permissions of data directory $PGDATA to 00700"
+      echo "[13] ERROR($EXIT_CODE_ERROR_COULD_NOT_CHANGE_PGDATA_PERMISSIONS): Could not change permissions of data directory $PGDATA to 00700"
       return $EXIT_CODE_ERROR_COULD_NOT_CHANGE_PGDATA_PERMISSIONS
     fi
   fi
@@ -249,18 +249,18 @@ function create_write_ahread_log_directory() {
   debug_echo "[14] Creating the write-ahead log directory..."
   mkdir -p "$POSTGRES_INITDB_WALDIR"
   if [[ $? -ne 0 ]]; then
-    debug_echo "[14] ERROR($EXIT_CODE_ERROR_COULD_NOT_CREATE_POSTGRES_INITDB_WALDIR): Could not create the write-ahead log directory $POSTGRES_INITDB_WALDIR"
+    echo "[14] ERROR($EXIT_CODE_ERROR_COULD_NOT_CREATE_POSTGRES_INITDB_WALDIR): Could not create the write-ahead log directory $POSTGRES_INITDB_WALDIR"
     return $EXIT_CODE_ERROR_COULD_NOT_CREATE_POSTGRES_INITDB_WALDIR
   fi
   chown -R $POSTGRES_USER:$POSTGRES_USER "$POSTGRES_INITDB_WALDIR"
   if [[ $? -ne 0 ]]; then
-    debug_echo "[14] ERROR($EXIT_CODE_ERROR_COULD_NOT_CHANGE_POSTGRES_INITDB_WALDIR_OWNERSHIP): Could not change ownership of the write-ahead log directory $POSTGRES_INITDB_WALDIR to $POSTGRES_USER:$POSTGRES_USER"
+    echo "[14] ERROR($EXIT_CODE_ERROR_COULD_NOT_CHANGE_POSTGRES_INITDB_WALDIR_OWNERSHIP): Could not change ownership of the write-ahead log directory $POSTGRES_INITDB_WALDIR to $POSTGRES_USER:$POSTGRES_USER"
     return $EXIT_CODE_ERROR_COULD_NOT_CHANGE_POSTGRES_INITDB_WALDIR_OWNERSHIP
   fi
 
   chmod 00700 "$POSTGRES_INITDB_WALDIR"
   if [[ $? -ne 0 ]]; then
-    debug_echo "[14] ERROR($EXIT_CODE_ERROR_COULD_NOT_CHANGE_POSTGRES_INITDB_WALDIR_PERMISSIONS): Could not change permissions of the write-ahead log directory $POSTGRES_INITDB_WALDIR to 00700"
+    echo "[14] ERROR($EXIT_CODE_ERROR_COULD_NOT_CHANGE_POSTGRES_INITDB_WALDIR_PERMISSIONS): Could not change permissions of the write-ahead log directory $POSTGRES_INITDB_WALDIR to 00700"
     return $EXIT_CODE_ERROR_COULD_NOT_CHANGE_POSTGRES_INITDB_WALDIR_PERMISSIONS
   fi
 
@@ -285,7 +285,7 @@ function initialize_database() {
 
   GOSU_BINARY=$(command -v gosu)
   if [[ $? -ne 0 ]]; then
-    debug_echo "[15] ERROR($EXIT_CODE_ERROR_GOSU_NOT_FOUND): Could not find the gosu command. Please install gosu."
+    echo "[15] ERROR($EXIT_CODE_ERROR_GOSU_NOT_FOUND): Could not find the gosu command. Please install gosu."
     return $EXIT_CODE_ERROR_GOSU_NOT_FOUND
   fi
   debug_echo "[15] Found gosu at $GOSU_BINARY"
@@ -305,7 +305,7 @@ function initialize_database() {
   local secondary_exit_code=$?
   if [[ $secondary_exit_code -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_COULD_NOT_INITIALIZE_DATABASE}${secondary_exit_code}"
-    debug_echo "[15] ERROR($return_code): Could not initialize the database"
+    echo "[15] ERROR($return_code): Could not initialize the database"
     return $return_code
   fi
   debug_echo "[15] ...done."
@@ -370,7 +370,7 @@ function run_bash() {
   debug_echo "[2] Running bash..."
   /bin/bash
   if [[ $? -ne 0 ]]; then
-    debug_echo "[2] ERROR($EXIT_CODE_ERROR_BASH_ERROR): Could not run bash"
+    echo "[2] ERROR($EXIT_CODE_ERROR_BASH_ERROR): Could not run bash"
     return $EXIT_CODE_ERROR_BASH_ERROR
   fi
 }
@@ -410,7 +410,7 @@ function run_postgres() {
   local postgres_server_error=$?
   if [[ $postgres_server_error -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_POSTGRES_SERVER_ERROR}$postgres_server_error"
-    debug_echo "[2] ERROR($return_code): Postgres server exited with a non-zero exit code. $postgres_server_error"
+    echo "[2] ERROR($return_code): Postgres server exited with a non-zero exit code. $postgres_server_error"
     return $return_code
   fi
   #echo "[2] ...Postgres exited normally."

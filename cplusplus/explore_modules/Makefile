@@ -70,7 +70,7 @@ COMMON_WARNINGS = -Wall -Wextra -Weffc++
 
 # Uncomment this if you want boost. Add any other include directories
 # you want here.
-# COMMON_INCLUDES = -I/opt/boost/1_86_0/include
+# COMMON_INCLUDES = -I/opt/boost/1_87_0/include
 
 # The explanation of some common flags is as follows:
 # -Wno-poison-system-directories: This is only relevant for cross-compiling,

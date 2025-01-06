@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# Exploratoery Dockerfile to create acurl installation running on
+# Exploratory Dockerfile to create a curl installation running on
 # almalinux:9-minimal
 FROM almalinux:9-minimal
 

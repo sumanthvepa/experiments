@@ -1,0 +1,10 @@
+Meta-Shift-P to open the command palette
+Search for Remote-SSH: Connect to Host...
+Select the host or add one...
+
+This should open a new window with a remote connection.
+
+For details see:
+https://code.visualstudio.com/docs/remote/ssh
+
+

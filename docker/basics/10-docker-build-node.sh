@@ -34,8 +34,8 @@ echo '10-docker-build-node.sh'
 # https://github.com/nodesource/distributions
 
 # Let's first set the version of Node.js that we want to use in the
-# Docker image. We will use version 20.17.0 for this example.
-NODEJS_MAJOR_VERSION='20'
+# Docker image. We will use version 22 for this example.
+NODEJS_MAJOR_VERSION='22'
 
 # Node dnf repository setup script needs to be downloaded from
 # nodesource. This script is used to add the nodesource dnf
@@ -94,8 +94,13 @@ fi
 
 # Now we can build the Docker image using the Dockerfile in the
 # Docker build context directory.
+# Notice that we are passing the NODEJS_MAJOR_VERSION as a build
+# argument to the Docker build command. This allows the Dockerfile
+# to use the build argument to install the correct version of Node.js
 echo "Building Docker image"
-docker build --tag node-test $DOCKER_BUILD_CONTEXT_DIR
+docker build --tag node-test \
+  --build-arg NODEJS_MAJOR_VERSION=$NODEJS_MAJOR_VERSION \
+  $DOCKER_BUILD_CONTEXT_DIR
 
 # Finally test that the Docker image works as expected by running it
 # and checking the version of Node.js that is installed in the image.

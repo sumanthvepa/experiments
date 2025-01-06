@@ -1,0 +1,31 @@
+Starting ubuntu 24.04, apt now shows that some packages are not updated
+because of 'phased updates'.
+
+Phased updates are a way for Ubuntu to roll out updates for a subset
+of users to see if the updates cause any problems before rolling
+them out to everyone.
+
+For systems where you want stability, it is good to have phased
+updates. 
+
+For systems where you need the latest packages as quickly as
+possible, and where system stability is not a concern,
+you can diable phased updates:
+
+Phased updates can be disabled as follows:
+Create file 02phased-updates in /etc/apt/apt.conf.d/
+The file should have the following contents:
+
+Update-Manager::Always-Include-Phased-Updates true;
+APT::Get::Always-Include-Phased-Updates true;
+
+You can also simply copy the file from this directory
+to /etc/apt/apt.conf.d/
+
+You can find more details on how phased updates in ubuntu work 
+in the following StackOverflow post:
+https://askubuntu.com/questions/1431940/what-are-phased-updates-and-why-does-ubuntu-use-them
+
+See the apt_preferences man page for formal documentation:
+https://manpages.debian.org/bullseye/apt/apt_preferences.5.en.html
+

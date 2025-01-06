@@ -44,7 +44,7 @@ endif
 # -Weffc++: Enable warnings for Effective C++
 COMMON_WARNINGS = -Wall -Wextra -Weffc++
 
-#COMMON_INCLUDES = -I/opt/boost/1_86_0/include
+#COMMON_INCLUDES = -I/opt/boost/1_87_0/include
 COMMON_INCLUDES = -I.
 
 # The explanation of some common flags is as follows:

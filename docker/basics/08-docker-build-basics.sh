@@ -29,6 +29,24 @@ echo '08-docker-build-basics'
 # The build context contains the files that are needed to build the
 # image.
 
+# Let's start with a very basic example. We will create custom image
+# based on almalinux:9-minimal, that contains the ping command.
+# The Dockerfile is in the ping-test directory. Technically, the
+# buid context is the directory that contains the Dockerfile. Because
+# this is such a simple example, the build context directory only
+# contains the Dockerfile.
+# We will tag the image as ping-test.
+docker build --tag ping-test ./ping-test
+
+# To use the custom image, you can run a container with the image
+# using the docker container run command. and pass it the same
+docker container run --name='ping-test' ping-test -c 3 www.google.com
+
+# Stop the container and remove it and remove the custom image
+docker container stop ping-test
+docker container rm ping-test
+docker image rm ping-test
+
 # In the following example, we will build a custom image that runs an
 # an instance of the nginx web server on an AlmaLinux base image.
 # The image will be tagged as nginx-test.
@@ -42,9 +60,10 @@ docker build --tag nginx-test ./nginx-test
 # You can look at https://github.com/nginxinc/docker-nginx
 # for a examples of production quality Dockerfiles.
 
-# Make a note with firewall-cmd that the port is open. This 
-# is actually done by the docker --publish option, this command just
-# record the fact with firewalld.
+# Make a note with firewall-cmd that the port is open. The port
+# is actually opened by the docker --publish option, the call
+# firewall-cmd command just records that fact and lets firewalld
+# know that the port is accessible.
 # Also if port was already open in firewalld, we don't want to
 # close it after the script is done. The PORT_IS_ALREADY_ACCESSIBLE
 # variable is used to keep track of this.
@@ -52,15 +71,30 @@ docker build --tag nginx-test ./nginx-test
 # See 09-docker-networking for how to run a container that is only
 # accessible from the host.
 
-PORT_IS_ALREADY_ACCESSIBLE=$(firewall-cmd --zone=public --query-port=9000/tcp)
-if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-  firewall-cmd --zone=public --add-port=9000/tcp
+# The following commands to query and manipulate the firewall require
+# root privileges. We first need to check that we are running as root
+# and if so, then we can run the commands.
+# $EUID is the effective user id of the user running the script.
+if [[ $EUID -eq 0 ]]; then
+  PORT_IS_ALREADY_ACCESSIBLE=$(firewall-cmd --zone=public --query-port=9000/tcp)
+  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+    firewall-cmd --zone=public --add-port=9000/tcp
+  fi
+else
+  echo "Querying the firewall and adding ports requires root privileges"
+  echo "The following commands will be invoked with sudo"
+  echo "firewall-cmd --zone=public --query-port=9000/tcp"
+  PORT_IS_ALREADY_ACCESSIBLE=$(sudo firewall-cmd --zone=public --query-port=9000/tcp)
+    if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+      echo "firewall-cmd --zone=public --add-port=9000/tcp"
+      sudo firewall-cmd --zone=public --add-port=9000/tcp
+  fi
 fi
 
 # You can start the custom container with run:
 docker container run --name='nginx-test' --publish 9000:80 --detach nginx-test
 
-echo 'The container is running at http://darkness2.milestone42.com:9000/'
+echo "The container is running at http://$(hostname -f):9000/"
 echo 'Notice that it is the almalinux version of the nginx web server'
 echo 'The script will sleep for 30 seconds before stopping and removing the container'
 sleep 30
@@ -79,7 +113,7 @@ docker container run \
   --detach \
   nginx-test
 
-echo 'The container is running at http://darkness2.milestone42.com:9000/'
+echo "The container is running at http://$(hostname -f):9000/"
 echo 'The script will sleep for 30 seconds before stopping and removing the container'
 sleep 30
 # Stop and remove the container
@@ -89,8 +123,16 @@ docker container rm nginx-test
 # Close the port 9000 on the firewall of the host
 # only if it was not accessible before the script
 # was run.
-if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-  firewall-cmd --zone=public --remove-port=9000/tcp
+if [[ $EUID -eq 0 ]]; then
+  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+    firewall-cmd --zone=public --remove-port=9000/tcp
+  fi
+else
+  # use sudo if not running as root
+  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+    echo "firewall-cmd --zone=public --remove-port=9000/tcp"
+    sudo firewall-cmd --zone=public --remove-port=9000/tcp
+  fi
 fi
 
 # Remove the custom image

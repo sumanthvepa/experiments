@@ -1,8 +1,8 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 14-docker-build-postgres-test.sh: An unoptimized docker container
-# that runs postgres and is built manually.
+# 14-docker-build-postgres-test.sh: Build an unoptimized container
+# image that runs postgres
 #
 # Copyright (C) 2024 Sumanth Vepa.
 #
@@ -21,54 +21,19 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# This script creates a Postgres Docker image that has postgres
+# installed. Unlike postgres-manual, this image is configured
+# to automatically start postgres unless it is told to start
+# shell mode or an option like --version is passed to it that
+# requires it not to start a postgres daemon.
 echo '14-docker-build-postgres-test.sh'
 
-# We need to know the architecture of the CPU that the script is
-# running on so that we can download the appropriate Postgres
-# RPM and gosu binary.
-CPU_ARCHITECTURE=$(uname -m)
+# The script relies on the variables and utility functions defined
+# in docker-build-postgres-test-utilities.sh. We source that
+# script to get access to those variables and functions.
+# Read the source of that script to learn how to build a postgres
+# docker image.
+source ./docker-build-postgres-test-utilities.sh
 
-echo "CPU architecture as reported by 'uname -m' is $CPU_ARCHITECTURE"
-
-# Determine the architecture suffix to be used to
-# get the appropriate Postgres RPM and gosu binary distribution
-if [[ "$CPU_ARCHITECTURE" == "x86_64" ]]; then
-  ARCH_SUFFIX='x64'
-elif [[ "$CPU_ARCHITECTURE" == "aarch64" ]]; then
-  ARCH_SUFFIX='arm64'
-fi
-
-# Download the postgres RPM from the postgres repository if it
-# not present in the postgres-test directory
-POSTGRES_REPO_RPM="./postgres-test/pgdg-redhat-repo-latest.noarch.rpm"
-#POSTGRES_REPO_RPM_URL="https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${CPU_ARCHITECTURE}/pgdg-redhat-repo-latest.noarch.rpm"
-POSTGRES_REPO_RPM_URL="https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-aarch64/pgdg-redhat-repo-latest.noarch.rpm"
-if [[ ! -f $POSTGRES_REPO_RPM ]]; then
-  echo "${POSTGRES_REPO_RPM}  not found"
-  echo "Downloading from postgres repository"
-  curl -fsSL $POSTGRES_REPO_RPM_URL -o $POSTGRES_REPO_RPM
-fi
-
-# Download gosu for the given architecture if it is not present in the
-# postgres-test directory.
-GOSU_BINARY="./postgres-test/gosu-${ARCH_SUFFIX}"
-GOSU_BINARY_URL="https://github.com/tianon/gosu/releases/download/1.17/gosu-${ARCH_SUFFIX}"
-GOSU_SIGNATURE="./postgres-test/gosu-${ARCH_SUFFIX}.asc"
-GOSU_SIGNATURE_URL="https://github.com/tianon/gosu/releases/download/1.17/gosu-${ARCH_SUFFIX}.asc"
-
-if [[ ! -f $GOSU_BINARY ]]; then
-  echo "${GOSU_BINARY} not found"
-  echo "Downloading gosu from the official repository"
-  curl -fsSL $GOSU_BINARY_URL -o $GOSU_BINARY
-  curl -fsSL $GOSU_SIGNATURE_URL -o $GOSU_SIGNATURE
-fi
-
-if [[ ! -f ./postgres-test/gosu ]]; then
-  ln -snf gosu-${ARCH_SUFFIX} ./postgres-test/gosu
-fi
-
-# Remove any previous image
-docker image rm postgres-test
-
-# Now we can build the Postgres Docker image
-docker build --tag postgres-test ./postgres-test
+download_and_build_postgres_test_image
+exit $?

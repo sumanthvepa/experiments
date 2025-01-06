@@ -31,7 +31,7 @@ echo '11-docker-build-node-optimized.sh'
 
 # Let's first set the version of Node.js that we want to use in the
 # Docker image. We will use version 20.17.0 for this example.
-NODEJS_VERSION='20.17.0'
+NODEJS_VERSION='22.11.0'
 
 # First we have to prepare an optimized context for use by the
 # Dockerfile. In this case our docker image is built for the
@@ -128,17 +128,28 @@ rm -r $DOCKER_BUILD_CONTEXT_DIR/node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX}/inc
 # Now we can build the Docker image using the optimized context
 # that we have prepared. See the docker file in node-test2 to see
 # how the optimized context is used in the Dockerfile.
+# We pass the build arguments NODEJS_VERSION and ARCH_SUFFIX to the
+# Dockerfile. This is used by the docker file copy the correct
+# Node.js distribution into the Docker image.
 echo "Building Docker image using optimized context"
-docker build -t node-test2 $DOCKER_BUILD_CONTEXT_DIR
+docker build -t node-test2 \
+  --build-arg NODEJS_VERSION=$NODEJS_VERSION \
+  --build-arg ARCH_SUFFIX=$ARCH_SUFFIX \
+  $DOCKER_BUILD_CONTEXT_DIR
 
 # Now we can run the Docker image to test that it works as expected.
 echo "Running Docker image node-test2"
 docker run --rm node-test2 node -v
 
-# Finally, we can clean up the Docker image
+# Clean up the Docker image
 echo "Cleaning up Docker image node-test2"
 docker image rm node-test2
 
+# Finally clean up the untarred Node.js distribution directory
+if [ -d "$DOCKER_BUILD_CONTEXT_DIR"/node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX} ]; then
+  echo "Removing existing Node.js distribution directory in $DOCKER_BUILD_CONTEXT_DIR"
+  rm -r $DOCKER_BUILD_CONTEXT_DIR/node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX}
+fi
 # TODO: Explore the possibility that a fully static binary can be
 # created for Node.js that could be fit into a scratch image.
 # See the link below for more information:

@@ -92,57 +92,57 @@ function debug_echo() {
 function check_required_variables() {
   debug_echo "[151] Checking required variables..."
   if [[ -z "DOCKER_POSTGRES_DEBUG" ]]; then
-    debug_echo "[151] ERROR($EXIT_CODE_ERROR_DOCKER_POSTGRES_DEBUG_EMPTY): The DOCKER_POSTGRES_DEBUG environment variable is must be set to a non-empty value"
+    echo "[151] ERROR($EXIT_CODE_ERROR_DOCKER_POSTGRES_DEBUG_EMPTY): The DOCKER_POSTGRES_DEBUG environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_DOCKER_POSTGRES_DEBUG_EMPTY
   fi
   if [[ -z "POSTGRES_DIST_DIR" ]]; then
-    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_DIST_DIR_EMPTY): The POSTGRES_DIST_DIR environment variable is must be set to a non-empty value"
+    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_DIST_DIR_EMPTY): The POSTGRES_DIST_DIR environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_POSTGRES_DIST_DIR_EMPTY
   fi
   if [[ -z "$POSTGRES_USER" ]]; then
-    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_USER_EMPTY): The POSTGRES_USER environment variable is must be set to a non-empty user"
+    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_USER_EMPTY): The POSTGRES_USER environment variable is must be set to a non-empty user"
     return $EXIT_CODE_ERROR_POSTGRES_USER_NOT_SET
   fi
   debug_echo "[151] POSTGRES_USER=$POSTGRES_USER"
 
   if [[ -z "$POSTGRES_PASSWORD" ]]; then
-    debug_echo "[1511] ERROR($EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY): The POSTGRES_PASSWORD environment variable is must be set to a non-empty value"
+    echo "[1511] ERROR($EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY): The POSTGRES_PASSWORD environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_POSTGRES_PASSWORD_EMPTY
   fi
   # TODO: Do not print the password
   debug_echo "[151] POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
 
   if [[ -z "$POSTGRES_DB" ]]; then
-    debug_echo "[1] ERROR($EXIT_CODE_ERROR_POSTGRES_DB_EMPTY): The POSTGRES_DB environment variable is must be set to a non-empty value"
+    echo "[1] ERROR($EXIT_CODE_ERROR_POSTGRES_DB_EMPTY): The POSTGRES_DB environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_POSTGRES_DB_EMPTY
   fi
   debug_echo "[151] POSTGRES_DB=$POSTGRES_DB"
 
   if [[ -z "$POSTGRES_HOST_AUTH_METHOD" ]]; then
-    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY): The POSTGRES_HOST_AUTH_METHOD environment variable is must be set to a non-empty value"
+    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY): The POSTGRES_HOST_AUTH_METHOD environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_POSTGRES_HOST_AUTH_METHOD_EMPTY
   fi
   debug_echo "[151] POSTGRES_HOST_AUTH_METHOD=$POSTGRES_HOST_AUTH_METHOD"
 
   if [[ -z "$PGDATA" ]]; then
-    debug_echo "[151] ERROR($EXIT_CODE_ERROR_PGDATA_EMPTY): The PGDATA environment variable is must be set to a non-empty value"
+    echo "[151] ERROR($EXIT_CODE_ERROR_PGDATA_EMPTY): The PGDATA environment variable is must be set to a non-empty value"
     return $EXIT_CODE_ERROR_PGDATA_EMPTY
   fi
 
   if [[ ! -d "$PGDATA" ]]; then
-    debug_echo "[151] ERROR($EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY): The PGDATA environment variable is must be set to an existing directory"
+    echo "[151] ERROR($EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY): The PGDATA environment variable is must be set to an existing directory"
     return $EXIT_CODE_ERROR_PGDATA_NOT_DIRECTORY
   fi
   debug_echo "[151] PGDATA=$PGDATA"
 
   if [[ ! -v POSTGRES_INITDB_ARGS ]]; then
-    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET): The POSTGRES_INITDB_ARGS environment variable, if set, must set"
+    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_INITDB_ARGS_NOT_SET): The POSTGRES_INITDB_ARGS environment variable, if set, must set"
     return $EXIT_CODE_ERROR_POSTGRES_INITDB_ARS_NOT_SET
   fi
   debug_echo "[151] POSTGRES_INITDB_ARGS=$POSTGRES_INITDB_ARGS"
 
   if [[ ! -v POSTGRES_INITDB_WALDIR ]]; then
-    debug_echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET): The POSTGRES_INITDB_WALDIR environment variable is must be set"
+    echo "[151] ERROR($EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET): The POSTGRES_INITDB_WALDIR environment variable is must be set"
     return $EXIT_CODE_ERROR_POSTGRES_INITDB_WALDIR_NOT_SET
   fi
   debug_echo "[151] POSTGRES_INITDB_WALDIR=$POSTGRES_INITDB_WALDIR"
@@ -160,7 +160,7 @@ function check_required_variables() {
 function verify_postgres_user() {
   # Check that the script is being run as the postgres user
   if [[ "$(whoami)" != "$POSTGRES_USER" ]]; then
-    debug_echo "[152] ERROR($EXIT_CODE_ERROR_NOT_POSTGRES_USER): This script must be run as user $POSTGRES_USER"
+    echo "[152] ERROR($EXIT_CODE_ERROR_NOT_POSTGRES_USER): This script must be run as user $POSTGRES_USER"
     return $EXIT_CODE_ERROR_NOT_POSTGRES_USER
   fi
   debug_echo "[152] Okay. Running as user $POSTGRES_USER"
@@ -231,7 +231,7 @@ function run_initdb_command() {
   fi
   if [[ $initdb_error_code -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_INITDB_COMMAND_FAILED}$initdb_error_code"
-    debug_echo "[154] ERROR($return_code): Initdb command failed: $initdb_error_code"
+    echo "[154] ERROR($return_code): Initdb command failed: $initdb_error_code"
     return $return_code
   fi
   debug_echo "[154] ...done."
@@ -251,7 +251,7 @@ function configure_listen_addresses() {
   local postgres_conf_file_backup="${PGDATA}postgresql.conf.bak"
   debug_echo "[155] Configuring listen addresses..."
   if [[ ! -f "$postgres_conf_file" ]]; then
-    debug_echo "[155] ERROR($EXIT_CODE_ERROR_POSTGRES_CONF_NOT_FOUND): Postgres configuration file $postgres_conf_file does not exist or is not a file"
+    echo "[155] ERROR($EXIT_CODE_ERROR_POSTGRES_CONF_NOT_FOUND): Postgres configuration file $postgres_conf_file does not exist or is not a file"
     return $EXIT_CODE_ERROR_POSTGRES_CONF_NOT_FOUND
   fi
 
@@ -260,7 +260,7 @@ function configure_listen_addresses() {
   # listen_addresses = '*'. We use sed for this.
   sed --in-place=".bak" "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" "$postgres_conf_file"
   if [[ $? -ne 0 ]]; then
-    debug_echo "[155] ERROR($EXIT_CODE_ERROR_COULD_NOT_UPDATE_POSTGRES_CONF): Could not update the postgres configuration file $postgres_conf_file"
+    echo "[155] ERROR($EXIT_CODE_ERROR_COULD_NOT_UPDATE_POSTGRES_CONF): Could not update the postgres configuration file $postgres_conf_file"
     return $EXIT_CODE_ERROR_COULD_NOT_UPDATE_POSTGRES_CONF
   fi
   debug_echo "[155] ...done."
@@ -283,13 +283,13 @@ function configure_host_based_authentication() {
   local hba_file_backup="$PGDATA/pg_hba.conf.bak"
   debug_echo "[156] Configuring host-based authentication..."
   if [[ ! -f "$hba_file" ]]; then
-    debug_echo "[156] ERROR($EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND): Host-based authentication file $hba_file does not exist or is not a file"
+    echo "[156] ERROR($EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND): Host-based authentication file $hba_file does not exist or is not a file"
     return $EXIT_CODE_ERROR_PG_HBA_CONF_NOT_FOUND
   fi
   # Make a backup of the host-based authentication file
   cp "$hba_file" "$hba_file_backup"
   if [[ $? -ne 0 ]]; then
-    debug_echo "[156] ERROR($EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF): Could not backup the host-based authentication file $hba_file"
+    echo "[156] ERROR($EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF): Could not backup the host-based authentication file $hba_file"
     return $EXIT_CODE_ERROR_COULD_NOT_BACKUP_PG_HBA_CONF
   fi
 
@@ -297,7 +297,7 @@ function configure_host_based_authentication() {
   # host all all all $POSTGRES_HOST_AUTH_METHOD
   echo "host all all all $POSTGRES_HOST_AUTH_METHOD" >> "$hba_file"
   if [[ $? -ne 0 ]]; then
-    debug_echo "[156] ERROR($EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF): Could not update the host-based authentication file $hba_file"
+    echo "[156] ERROR($EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF): Could not update the host-based authentication file $hba_file"
     return $EXIT_CODE_ERROR_COULD_NOT_UPDATE_PG_HBA_CONF
   fi
   debug_echo "[156] ...done."
@@ -345,7 +345,7 @@ function start_temporary_server() {
   fi
   if [[ $pg_ctl_error_code -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_PG_CTL_START_COMMAND_FAILED}$pg_ctl_error_code"
-    debug_echo "[1571] ERROR($return_code): Failed to start the temporary server"
+    echo "[1571] ERROR($return_code): Failed to start the temporary server"
     return $return_code
   fi
   debug_echo "[1571] ...done."
@@ -423,7 +423,7 @@ function create_initial_database() {
   debug_echo "[15722] Creating the database $POSTGRES_DB..."
   create_database $POSTGRES_DB
   if [[ $? -ne 0 ]]; then
-    debug_echo "[15722] ERROR($EXIT_CODE_ERROR_COULD_NOT_CREATE_DATABASE): Failed to create database $POSTGRES_DB"
+    echo "[15722] ERROR($EXIT_CODE_ERROR_COULD_NOT_CREATE_DATABASE): Failed to create database $POSTGRES_DB"
     return $EXIT_CODE_ERROR_COULD_NOT_CREATE_DATABASE
   fi
   debug_echo "[15722] ...done."
@@ -437,7 +437,7 @@ function execute_script() {
   "$script"
   local script_error_code=$?
   if [[ $script_error_code -ne 0 ]]; then
-    debug_echo "[15731] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $script failed with error code $script_error_code"
+    echo "[15731] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $script failed with error code $script_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
   debug_echo "[15731] ...done."
@@ -449,7 +449,7 @@ function source_script() {
   source "$script"
   local script_error_code=$?
   if [[ $script_error_code -ne 0 ]]; then
-    debug_echo "[15732] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $script failed with error code $script_error_code"
+    echo "[15732] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $script failed with error code $script_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
   debug_echo "[15732] ...done."
@@ -469,7 +469,7 @@ function execute_sql() {
   fi
   local sql_error_code=$?
   if [[ $sql_error_code -ne 0 ]]; then
-    debug_echo "[15733] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
+    echo "[15733] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
   debug_echo "[15733] ...done."
@@ -489,7 +489,7 @@ function execute_gzipped_sql() {
   fi
   local sql_error_code=$?
   if [[ $sql_error_code -ne 0 ]]; then
-    debug_echo "[15734] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
+    echo "[15734] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
   debug_echo "[15734] ...done."
@@ -509,7 +509,7 @@ function execute_xzipped_sql() {
   fi
   local sql_error_code=$?
   if [[ $sql_error_code -ne 0 ]]; then
-    debug_echo "[15735] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
+    echo "[15735] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
   debug_echo "[15735] ...done."
@@ -529,7 +529,7 @@ function execute_zstd_sql() {
   fi
   local sql_error_code=$?
   if [[ $sql_error_code -ne 0 ]]; then
-    debug_echo "[15736] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
+    echo "[15736] ERROR($EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED): $sql_script failed with error code $sql_error_code"
     return $EXIT_CODE_ERROR_CUSTOM_INITIALIZATION_SCRIPT_FAILED
   fi
   debug_echo "[15736] ...done."
@@ -604,7 +604,7 @@ function stop_temporary_server() {
   local pg_ctl_error_code=$?
   if [[ $pg_ctl_error_code -ne 0 ]]; then
     local return_code="${EXIT_CODE_ERROR_PG_CTL_STOP_COMMAND_FAILED}$pg_ctl_error_code"
-    debug_echo "[1574] ERROR($return_code): Failed to stop the temporary server"
+    echo "[1574] ERROR($return_code): Failed to stop the temporary server"
     return $return_code
   fi
   debug_echo "[1574] ...done."
