@@ -1,3 +1,6 @@
+[DONE][issue118] git-reset-hard-to-upstream-branch:
+  Explore the git command to reset a local branch to an upstream branch
+  dropping all commits on the local branch
 [DONE][issue117] cplusplus-makefile-template-update:
   Update the Makefile template 
 [DONE][issue116] cplusplus-compiler-macros:
