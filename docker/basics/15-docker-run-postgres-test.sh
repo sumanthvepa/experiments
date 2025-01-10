@@ -31,6 +31,7 @@ echo '15-docker-run-postgres-test.sh'
 # in docker-build-postgres-test-utilities.sh. We source that
 # script to get access to those variables and functions.
 source ./docker-build-postgres-test-utilities.sh
+source ./psql-utilities.sh
 
 # Call the function download_and_build_postgres_test_image to download
 # the necessary files and build the image. If the return value of this
@@ -148,9 +149,9 @@ echo "Postgres service has started successfully"
 
 # First check if the psql client is installed on the host machine
 echo "Checking if the psql client is installed on the host machine"
-PSQL_BINARY=${PSQL_BINARY:-'/usr/pgsql-16/bin/psql'}
-if [[ ! -x $PSQL_BINARY ]]; then
-  echo "Could not find the psql client binary $PSQL_BINARY on this system."
+PSQL_BINARY=$(psql_binary_path)
+if [[ $? -ne 0 ]]; then
+  echo "Could not find the psql client binary on this system."
   echo "Please install the psql client or set the environment variable"
   echo "PSQL_BINARY to the path of the psql client binary."
   exit 1
