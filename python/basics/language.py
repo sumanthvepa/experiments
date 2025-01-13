@@ -202,7 +202,7 @@ def main():
   # plugin repository. Make sure you've modified the pylintrc file as
   # described above.
 
-  # To supress pylint warnings. You can use the following directives:
+  # To suppress pylint warnings. You can use the following directives:
   # \p\y\l\i\n\t: disable=<pylint-short-error-name>
   # This comment should be placed on the line that generates the error.
   # The escape characters are to prevent pylint from treating this
