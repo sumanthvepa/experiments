@@ -40,3 +40,14 @@ def fibonacci(n: int) -> list[int]:  # pylint: disable=unused-argument
       result.append(result[index - 1] + result[index - 2])
     index += 1
   return result
+
+
+def square_root(n: float) -> float:
+  """
+  Calculate the square root of a number
+  :param n: The number to calculate the square root of
+  :return: The square root of the number
+  """
+  if n < 0:
+    raise ValueError('Cannot calculate the square root of a negative number')
+  return n ** 0.5
