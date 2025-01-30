@@ -1,9 +1,30 @@
+# -*- coding: utf-8 -*-
 """
-  test_sample.py: This module contains the unit tests for the
-  functions in sample.py
+  test_sample.py: Demonstrate how to write unit tests in python
 """
+# -------------------------------------------------------------------
+# tesT_sample.py: Demonstrate how to write unit tests in python
+#
+# Copyright (C) 2024-25 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License a
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
 import os
 import platform
+
 # Unittest is python's built-in testing framework
 # You can find a complete description of the unittest module
 # at https://docs.python.org/3/library/unittest.html
@@ -223,9 +244,9 @@ class TestParametric(unittest.TestCase):
     (-1, None, ValueError)
   ])
   def test_square_root(
-    self, n: int,
-    expected: float | None,
-    error: type[ValueError] | None) -> None:
+      self, n: int,
+      expected: float | None,
+      error: type[ValueError] | None) -> None:
     """ Test the square_root function with parameters """
     if error is not None:
       with self.assertRaises(error):
@@ -256,6 +277,7 @@ class TestParametric(unittest.TestCase):
     else:
       difference = abs(square_root(n) - expected)
       self.assertLess(difference, 0.0000001)
+
 
 # You need to define this if you want to run the tests by running
 # the script directly, as in:

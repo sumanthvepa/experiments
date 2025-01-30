@@ -1,6 +1,26 @@
+# -*- coding: utf-8 -*-
 """
   testing.py: An exploration of python unit tests
 """
+# -------------------------------------------------------------------
+# testing.py: An exploration of python unit tests
+#
+# Copyright (C) 2024-25 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License a
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
 
 # This project demonstrates how one can create a project with
 # unit tests in python. The project is structured as follows:
@@ -46,7 +66,6 @@ def main() -> None:
   print(sum_of(45, 67))
   print(broken_sum_of(45, 67))
   print(fibonacci(40))
-
 
 
 if __name__ == '__main__':

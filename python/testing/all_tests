@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+  all_tests: Run all tests in the test directory
+
+  This is a convenience script that runs all tests in the test directory.
+  It is intended to be used as a convenience script for developers
+  to allow them to run the entire suite from the command line easily.
+
+  The same can be accomplished by the following command:
+  python3 -m unittest discover -s test
+"""
+# -------------------------------------------------------------------
+# all_tests: Run all tests in the test directory
+#
+# Copyright (C) 2024-25 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License a
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+import unittest
+
+# Import all test classes
+from test.test_another import AnotherTest
+from test.test_sample import TestSample, TestParametric
+
+def all_tests() -> unittest.TestSuite:
+  """
+    Return a test suite
+
+    This function gathers all the tests in the test directory
+    and returns a test suite that can be run by the test runner.
+  """
+  suite = unittest.TestSuite()
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSample))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestParametric))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(AnotherTest))
+  return suite
+
+
+if __name__ == '__main__':
+  # To run a suite, we need a test runner.
+  runner = unittest.TextTestRunner()
+  # Pass the suite
+  runner.run(all_tests())
