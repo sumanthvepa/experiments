@@ -1,3 +1,5 @@
+[issue121] aiml-foundations-binary-classification: 
+  Explore using a single layer perceptron to do binary classification
 [DONE][issue120] ides-jetbrains-idea: Note on managing IDE update policy
 [issue119] python-testing: Explore unit testing in python
 [DONE][issue118] git-reset-hard-to-upstream-branch:
