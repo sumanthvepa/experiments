@@ -1,3 +1,11 @@
+[DONE][issue128] python-text-file-io-update2: Explore reading a file line by line
+[issue127] samplews: A simple key value service used as an a sample to explore
+app deployment
+[issue126] db-postgres-name-value-store: Explore using postgres as a name value store
+[issue125] web-hello-world-dockerized: Create a dockerized hello world app
+[issue124] web-hello-world: Explore implementing a hello world app
+[issue123] web-d3js-trees: Explore d3js to display trees
+[issue122] web-html5boilerpplate: Explore html5 boilerplate
 [issue121] aiml-foundations-binary-classification: 
   Explore using a single layer perceptron to do binary classification
 [DONE][issue120] ides-jetbrains-idea: Note on managing IDE update policy
