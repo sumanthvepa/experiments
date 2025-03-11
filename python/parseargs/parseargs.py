@@ -67,7 +67,7 @@ def main() -> None:
   # Use simulated command line arguments
   foo, project = process_command_line(['progname', '--foo=bar', 'project1'])
   print(args.foo)
-  print(args.project
+  print(args.project)
 
   # Process the actual command line
   foo, project = process_command_line_no_args()
