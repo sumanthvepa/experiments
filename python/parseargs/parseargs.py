@@ -22,7 +22,8 @@
 # -------------------------------------------------------------------
 import argparse
 
-def process_command_line(argv: list[str]) -> tuple[str, str]
+
+def process_command_line(argv: list[str]) -> tuple[str, str]:
   """
     Process the command line to get the value of the --foo
     option and the project argument.
@@ -60,6 +61,7 @@ def process_command_line_no_args() -> tuple[str, str]:
   parser.add_argument('--foo', dest='foo', required=True)
   args = parser.parse_args()
   return (args.foo, args.project)
+ 
 
 print(args.foo)
 print(args.project)
