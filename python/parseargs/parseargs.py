@@ -61,9 +61,20 @@ def process_command_line_no_args() -> tuple[str, str]:
   parser.add_argument('--foo', dest='foo', required=True)
   args = parser.parse_args()
   return (args.foo, args.project)
- 
 
-print(args.foo)
-print(args.project)
 
+def main() -> None:
+  # Use simulated command line arguments
+  foo, project = process_command_line(['progname', '--foo=bar', 'project1'])
+  print(args.foo)
+  print(args.project
+
+  # Process the actual command line
+  foo, project = process_command_line_no_args()
+  print(args.foo)
+  print(args.project)
+
+
+if __name__ == '__main__':
+  main()
 
