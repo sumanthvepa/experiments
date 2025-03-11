@@ -66,13 +66,13 @@ def process_command_line_no_args() -> tuple[str, str]:
 def main() -> None:
   # Use simulated command line arguments
   foo, project = process_command_line(['progname', '--foo=bar', 'project1'])
-  print(args.foo)
-  print(args.project)
+  print(foo)
+  print(project)
 
   # Process the actual command line
   foo, project = process_command_line_no_args()
-  print(args.foo)
-  print(args.project)
+  print(foo)
+  print(project)
 
 
 if __name__ == '__main__':
