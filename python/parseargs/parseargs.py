@@ -38,7 +38,7 @@ def process_command_line(argv: list[str]) -> tuple[str, str]:
     raise ValueError('argv must be non-empty list')
   parser = argparse.ArgumentParser(prog=argv[0])
   parser.add_argument('project')
-  parser.add_arugment('--foo', dest='foo', required=True)
+  parser.add_argument('--foo', dest='foo', required=True)
 
   # Note the [1:], this excludes argv[0] which is usally
   # the program name. That has been passed to the parser
