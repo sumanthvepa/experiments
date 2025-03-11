@@ -44,7 +44,7 @@ def process_command_line(argv: list[str]) -> tuple[str, str]:
   # the program name. That has been passed to the parser
   # object as part of the constructor's prog= argument
   args = parser.parse_args(argv[1:])
-  return (args.foo args.project)
+  return (args.foo, args.project)
 
 
 def process_command_line_no_args() -> tuple[str, str]:
