@@ -45,11 +45,21 @@ def process_command_line(argv: list[str]) -> tuple[str, str]
   args = parser.parse_args(argv[1:])
   return (args.foo args.project)
 
-parser = argparse.ArgumentParser()
-parser.add_argument('project')
-parser.add_argument('--foo', dest='foo', required=True)
 
-args = parser.parse_args()
+def process_command_line_no_args() -> tuple[str, str]:
+  """
+    Process the command line to get the value of the --foo
+    option and the project argument. Command line args are
+    taken from sys.argv
+
+    :return: tuple[str, str]: A tuple containing the value of the foo
+      option and the project argument
+  """
+  parser = argparse.ArgumentParser()
+  parser.add_argument('project')
+  parser.add_argument('--foo', dest='foo', required=True)
+  args = parser.parse_args()
+  return (args.foo, args.project)
 
 print(args.foo)
 print(args.project)
