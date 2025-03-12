@@ -249,11 +249,11 @@ class TodoList:
     """
     self.tasks = tasks
 
-  def save(self):
+  def save(self, filename: str):
     """
       Save the TODO list to a file
     """
-    with open(self.filename, 'w', encoding='UTF-8') as file:
+    with open(filename, 'w', encoding='UTF-8') as file:
       for task in self.tasks:
         file.write(f'{task}\n')
 
