@@ -286,3 +286,40 @@ class TodoList:
         tasks.append(line.strip())
     return cls(tasks)
 
+
+class Committer:
+  """
+    A class to add tasks to a TODO and log the commit to a file.
+
+    The key characteristic of this class is that either successfully
+    modifies both the TODO list and the commit log file, or does not
+    modify either.
+  """
+  def __init__(self, todo_filename: str, commit_filename: str) -> None:
+    """
+      Create a Committer instance
+      :param todo_filename: The name of the TODO file
+      :param commit_filename: The name of the commit log file
+    """
+    self.todo = TodoList.load(todo_filename)
+    self.commit_filename = commit_filename
+
+  def save_task(self, task: str, index: int) -> None:
+    """
+      Save a task to the TODO list and return the index of the task
+      :param task: The task to save
+      :param index: The index of the task in the TODO list
+      :return: The index of the task
+    """
+    with open(self.commit_filename, 'a', encoding='UTF-8') as file:
+      file.write(f'Added task {index}: {task}\n')
+
+  def commit(self, task: str) -> None:
+    """
+      Add a task to the TODO list and log the commit to a file
+      :param task: The task to add
+    """
+    task_index = self.todo.add(task)
+    with open(self.commit_filename, 'a', encoding='UTF-8') as file:
+      file.write(f'Added task {task_index}: {task}\n')
+    self.todo.save(self.commit_filename)
