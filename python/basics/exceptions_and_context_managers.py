@@ -257,6 +257,14 @@ class TodoList:
     self.tasks.append(task)
     return len(self.tasks) - 1
 
+  def remove(self, index: int):
+    """
+    Remove a task from the TODO list
+    :param index:
+    :return:
+    """
+    del self.tasks[index]
+
   def save(self, filename: str):
     """
       Save the TODO list to a file
