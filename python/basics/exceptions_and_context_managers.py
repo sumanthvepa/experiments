@@ -236,3 +236,36 @@ def explore_context_managers() -> None:
 
   with code_block('block3'):
     print('Inside block')
+
+
+class TodoList:
+  """
+    A simple class to manage a TODO list
+  """
+  def __init__(self, tasks: list[str]):
+    """
+      Initialize the TODO list
+      :param: tasks: The list of tasks
+    """
+    self.tasks = tasks
+
+  def save(self):
+    """
+      Save the TODO list to a file
+    """
+    with open(self.filename, 'w', encoding='UTF-8') as file:
+      for task in self.tasks:
+        file.write(f'{task}\n')
+
+  @classmethod
+  def load(cls, filename: str) -> 'TodoList':
+    """
+      Load the TODO list from a file
+      :param filename: The name of the file
+      :return: The TODO list
+    """
+    tasks = []
+    with open(filename, encoding='UTF-8') as file:
+      for line in file:
+        tasks.append(line.strip())
+    return cls(tasks)
