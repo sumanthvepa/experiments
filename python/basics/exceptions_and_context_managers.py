@@ -25,6 +25,8 @@
 import os
 
 from contextlib import contextmanager
+from typing import Any, Generator
+
 
 def explore_exceptions() -> None:
   """
@@ -208,31 +210,29 @@ def explore_context_managers() -> None:
   except ValueError as ex:
     print(f'Caught a ValueError: {ex}')
 
-
-# There is another way of defining a context manager using the
-# contextmanager decorator from the contextlib module. This is
-# a more concise way of defining a context manager.
-# The contextmanager decorator is a generator-based approach
-# to defining context managers. The generator yields the resource
-# that should be managed and is responsible for cleaning up the
-# resource when the block of code exits.
-# The contextmanager decorator is useful when you want to define
-# a context manager as a function rather than a class.
-# Here is an example of a context manager defined using the
-# contextmanager decorator.
-
-@contextmanager
-def code_block(name: str) -> None:
-  """
-    A simple context manager defined using the contextmanager decorator
-    :param name: The name of the code block
-    :return: None
-  """
-  print(f'Entering block {name}')
-  try:
-    yield
-  finally:
-    print(f'Exiting block {name}')
+  # There is another way of defining a context manager using the
+  # contextmanager decorator from the contextlib module. This is
+  # a more concise way of defining a context manager.
+  # The contextmanager decorator is a generator-based approach
+  # to defining context managers. The generator yields the resource
+  # that should be managed and is responsible for cleaning up the
+  # resource when the block of code exits.
+  # The contextmanager decorator is useful when you want to define
+  # a context manager as a function rather than a class.
+  # Here is an example of a context manager defined using the
+  # contextmanager decorator.
+  @contextmanager
+  def code_block(name: str) -> Generator[None, Any, None]:
+    """
+      A simple context manager defined using the contextmanager decorator
+      :param name: The name of the code block
+      :return: None
+    """
+    print(f'Entering block {name}')
+    try:
+      yield
+    finally:
+      print(f'Exiting block {name}')
 
   with code_block('block3'):
     print('Inside block')
