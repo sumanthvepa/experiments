@@ -249,6 +249,14 @@ class TodoList:
     """
     self.tasks = tasks
 
+  def add(self, task: str) -> int:
+    """
+      Add a task to the TODO list
+      :param task: The task to add
+    """
+    self.tasks.append(task)
+    return len(self.tasks) - 1
+
   def save(self, filename: str):
     """
       Save the TODO list to a file
@@ -269,3 +277,4 @@ class TodoList:
       for line in file:
         tasks.append(line.strip())
     return cls(tasks)
+
