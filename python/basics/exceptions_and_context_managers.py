@@ -3,7 +3,6 @@
 """
   exceptions_and_context_managers.py: Explore exceptions
 """
-import copy
 # -------------------------------------------------------------------
 # exceptions_and_context_managers.py: Explore exceptions
 #
@@ -23,6 +22,7 @@ import copy
 # along with this program.  If not, see
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
+import copy
 import os
 
 from contextlib import contextmanager
@@ -41,6 +41,7 @@ def explore_exceptions() -> None:
   # Strictly speaking you can raise a string as an exception,
   # as long as you don't catch a specific exception type.
   # So the following is valid, but not very useful or recommended:
+
   # noinspection PyBroadException
   try:
     # pylint: disable=raising-bad-type
@@ -92,6 +93,7 @@ def explore_exceptions() -> None:
     """
       Custom exception
     """
+
     def __init__(self, message: str) -> None:
       """
         Initialize the custom exception
@@ -170,6 +172,7 @@ def explore_context_managers() -> None:
     """
       A simple context manager
     """
+
     def __init__(self, name: str):
       """
         Initialize the code block context manager
@@ -212,7 +215,7 @@ def explore_context_managers() -> None:
     print(f'Caught a ValueError: {ex}')
 
   # There is another way of defining a context manager using the
-  # contextmanager decorator from the contextlib module. This is
+  # contextmanager decorator from the 'contextlib' module. This is
   # a more concise way of defining a context manager.
   # The contextmanager decorator is a generator-based approach
   # to defining context managers. The generator yields the resource
@@ -254,6 +257,7 @@ class TodoList:
   """
     A simple class to manage a TODO list
   """
+
   def __init__(self, tasks: list[str]):
     """
       Initialize the TODO list
@@ -323,6 +327,7 @@ class Committer:
     modifies both the TODO list and the commit log file, or does not
     modify either.
   """
+
   def __init__(self, todo_filename: str, commit_filename: str) -> None:
     """
       Create a Committer instance
@@ -339,6 +344,7 @@ class Committer:
       Save a task to the TODO list and return the index of the task
       :param task: The task to save
       :param index: The index of the task in the TODO list
+      :param filename: The name of the file to save the task to
       :return: The index of the task
     """
     with open(filename, 'a', encoding='UTF-8') as file:
