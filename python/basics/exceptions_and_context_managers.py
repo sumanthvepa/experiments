@@ -333,7 +333,8 @@ class Committer:
     self.commit_filename = commit_filename
     self.todo = TodoList.load(todo_filename)
 
-  def save_task(self, task: str, index: int, filename: str) -> None:
+  @staticmethod
+  def save_task(task: str, index: int, filename: str) -> None:
     """
       Save a task to the TODO list and return the index of the task
       :param task: The task to save
@@ -372,7 +373,7 @@ class Committer:
     tmp_todo_filename = f'{self.todo_filename}.tmp'
     try:
       task_index = working_copy.add(task)
-      self.save_task(task, task_index, tmp_commit_filename)
+      Committer.save_task(task, task_index, tmp_commit_filename)
       working_copy.save(tmp_todo_filename)
       os.rename(tmp_commit_filename, self.commit_filename)
       os.rename(tmp_todo_filename, self.todo_filename)
