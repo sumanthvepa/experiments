@@ -3,6 +3,7 @@
 """
   exceptions_and_context_managers.py: Explore exceptions
 """
+import copy
 # -------------------------------------------------------------------
 # exceptions_and_context_managers.py: Explore exceptions
 #
@@ -238,6 +239,17 @@ def explore_context_managers() -> None:
     print('Inside block')
 
 
+def remove_file_silent(filename: str) -> None:
+  """
+    Remove a file silently
+    :param filename: The name of the file
+  """
+  try:
+    os.remove(filename)
+  except (OSError, IOError, ValueError):
+    pass
+
+
 class TodoList:
   """
     A simple class to manage a TODO list
@@ -248,14 +260,15 @@ class TodoList:
       :param: tasks: The list of tasks
     """
     self.tasks = tasks
+    self.unsaved_tasks: list[str] = []
 
   def add(self, task: str) -> int:
     """
       Add a task to the TODO list
       :param task: The task to add
     """
-    self.tasks.append(task)
-    return len(self.tasks) - 1
+    self.unsaved_tasks.append(task)
+    return len(self.tasks) + len(self.unsaved_tasks) - 1
 
   def remove(self, index: int):
     """
@@ -269,9 +282,24 @@ class TodoList:
     """
       Save the TODO list to a file
     """
-    with open(filename, 'w', encoding='UTF-8') as file:
-      for task in self.tasks:
-        file.write(f'{task}\n')
+    try:
+      os.rename(filename, f'{filename}.bak')
+      with open(filename, 'w', encoding='UTF-8') as file:
+        task_count = 1
+        for task in self.tasks:
+          file.write(f'{task_count}: {task}\n')
+          task_count += 1
+        for task in self.unsaved_tasks:
+          file.write(f'{task_count}: {task}\n')
+          task_count += 1
+      self.tasks += self.unsaved_tasks
+      self.unsaved_tasks = []
+    except (OSError, IOError, ValueError) as ex:
+      remove_file_silent(filename)
+      os.rename(f'{filename}.bak', filename)
+      raise ex
+    finally:
+      remove_file_silent(f'{filename}.bak')
 
   @classmethod
   def load(cls, filename: str) -> 'TodoList':
@@ -301,25 +329,56 @@ class Committer:
       :param todo_filename: The name of the TODO file
       :param commit_filename: The name of the commit log file
     """
-    self.todo = TodoList.load(todo_filename)
+    self.todo_filename = todo_filename
     self.commit_filename = commit_filename
+    self.todo = TodoList.load(todo_filename)
 
-  def save_task(self, task: str, index: int) -> None:
+  def save_task(self, task: str, index: int, filename: str) -> None:
     """
       Save a task to the TODO list and return the index of the task
       :param task: The task to save
       :param index: The index of the task in the TODO list
       :return: The index of the task
     """
-    with open(self.commit_filename, 'a', encoding='UTF-8') as file:
-      file.write(f'Added task {index}: {task}\n')
+    with open(filename, 'a', encoding='UTF-8') as file:
+      try:
+        file.write(f'Added task {index}: {task}\n')
+      except (OSError, IOError, ValueError) as ex:
+        remove_file_silent(filename)
+        raise ex
 
   def commit(self, task: str) -> None:
     """
       Add a task to the TODO list and log the commit to a file
       :param task: The task to add
     """
-    task_index = self.todo.add(task)
-    with open(self.commit_filename, 'a', encoding='UTF-8') as file:
-      file.write(f'Added task {task_index}: {task}\n')
-    self.todo.save(self.commit_filename)
+    # The commit should atomically create two files: the commit log
+    # and the updated todo list file.
+    # If it fails to create either file, the original todo list file
+    # should kept unchanged, and there should be no commit log file.
+    # To accomplish this we create a working copy of the todo list.
+    # We then add the task to the working copy and save the task to
+    # a temporary commit log file. Then we save the working copy to
+    # a temporary todo list file.
+    # If all goes well we will rename the temporary commit log file
+    # to the actual commit log file and the temporary todo list file
+    # to the actual todo list file. If either rename fails, we will
+    # remove any commit log file and temporary files created.
+    # Only if all these steps succeed will we update the todo list
+    # in memory to reflect the changes.
+    # This is a two-phase commit protocol.
+    working_copy = copy.deepcopy(self.todo)
+    tmp_commit_filename = f'{self.commit_filename}.tmp'
+    tmp_todo_filename = f'{self.todo_filename}.tmp'
+    try:
+      task_index = working_copy.add(task)
+      self.save_task(task, task_index, tmp_commit_filename)
+      working_copy.save(tmp_todo_filename)
+      os.rename(tmp_commit_filename, self.commit_filename)
+      os.rename(tmp_todo_filename, self.todo_filename)
+      self.todo = working_copy
+    except (OSError, ValueError, TypeError) as ex:
+      remove_file_silent(self.commit_filename)
+      remove_file_silent(tmp_commit_filename)
+      remove_file_silent(tmp_todo_filename)
+      raise ex
