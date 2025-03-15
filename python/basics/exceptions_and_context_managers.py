@@ -382,5 +382,10 @@ def explore_two_phase_commit() -> None:
     Explore two-phase commit
     :return: None
   """
-  committer = Committer('todo.txt', 'commit.log')
-  committer.commit('Do the dishes')
+  original_todo = TodoList.load('todo.txt')
+  try:
+    committer = Committer('todo.txt', 'commit.log')
+    committer.commit('Do the dishes')
+  finally:
+    os.remove('commit.log')
+    original_todo.save('todo.txt')
