@@ -271,7 +271,8 @@ class TodoList:
       Add a task to the TODO list
       :param task: The task to add
     """
-    self.unsaved_tasks.append(task)
+    index = len(self.tasks) + len(self.unsaved_tasks)
+    self.unsaved_tasks.append(f'{index}: {task}')
     return len(self.tasks) + len(self.unsaved_tasks) - 1
 
   def remove(self, index: int):
@@ -286,24 +287,10 @@ class TodoList:
     """
       Save the TODO list to a file
     """
-    try:
-      os.rename(filename, f'{filename}.bak')
-      with open(filename, 'w', encoding='UTF-8') as file:
-        task_count = 1
-        for task in self.tasks:
-          file.write(f'{task_count}: {task}\n')
-          task_count += 1
-        for task in self.unsaved_tasks:
-          file.write(f'{task_count}: {task}\n')
-          task_count += 1
-      self.tasks += self.unsaved_tasks
-      self.unsaved_tasks = []
-    except (OSError, IOError, ValueError) as ex:
-      remove_file_silent(filename)
-      os.rename(f'{filename}.bak', filename)
-      raise ex
-    finally:
-      remove_file_silent(f'{filename}.bak')
+    with open(filename, 'w', encoding='UTF-8') as file:
+      for task in self.tasks:
+        file.write(f'{task}\n')
+
 
   @classmethod
   def load(cls, filename: str) -> 'TodoList':
