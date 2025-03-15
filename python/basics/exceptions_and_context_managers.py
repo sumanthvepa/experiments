@@ -376,3 +376,12 @@ class Committer:
       remove_file_silent(tmp_commit_filename)
       remove_file_silent(tmp_todo_filename)
       raise ex
+
+
+def explore_two_phase_commit() -> None:
+  """
+    Explore two-phase commit
+    :return: None
+  """
+  committer = Committer('todo.txt', 'commit.log')
+  committer.commit('Do the dishes')
