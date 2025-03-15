@@ -264,16 +264,15 @@ class TodoList:
       :param: tasks: The list of tasks
     """
     self.tasks = tasks
-    self.unsaved_tasks: list[str] = []
 
   def add(self, task: str) -> int:
     """
       Add a task to the TODO list
       :param task: The task to add
     """
-    index = len(self.tasks) + len(self.unsaved_tasks)
-    self.unsaved_tasks.append(f'{index}: {task}')
-    return len(self.tasks) + len(self.unsaved_tasks) - 1
+    index = len(self.tasks) + 1
+    self.tasks.append(f'{index}: {task}')
+    return index
 
   def remove(self, index: int):
     """
