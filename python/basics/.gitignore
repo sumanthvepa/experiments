@@ -5,3 +5,4 @@ __pycache__
 # Python features. It can safely be
 # deleted or ignored.
 data.txt
+commit.log

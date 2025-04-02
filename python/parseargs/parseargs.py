@@ -22,11 +22,59 @@
 # -------------------------------------------------------------------
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('project')
-parser.add_argument('--foo', dest='foo', required=True)
 
-args = parser.parse_args()
+def process_command_line(argv: list[str]) -> tuple[str, str]:
+  """
+    Process the command line to get the value of the --foo
+    option and the project argument.
 
-print(args.foo)
-print(args.project)
+    This function demonstrates passing the command line arguments as a
+    parameter. This is sometimes preferred if you want to unit test
+    the function
+
+    :param argv: list[str]: The command line arguments
+  """
+  if len(argv) < 1:
+    raise ValueError('argv must be non-empty list')
+  parser = argparse.ArgumentParser(prog=argv[0])
+  parser.add_argument('project')
+  parser.add_argument('--foo', dest='foo', required=True)
+
+  # Note the [1:], this excludes argv[0] which is usally
+  # the program name. That has been passed to the parser
+  # object as part of the constructor's prog= argument
+  args = parser.parse_args(argv[1:])
+  return (args.foo, args.project)
+
+
+def process_command_line_no_args() -> tuple[str, str]:
+  """
+    Process the command line to get the value of the --foo
+    option and the project argument. Command line args are
+    taken from sys.argv
+
+    :return: tuple[str, str]: A tuple containing the value of the foo
+      option and the project argument
+  """
+  parser = argparse.ArgumentParser()
+  parser.add_argument('project')
+  parser.add_argument('--foo', dest='foo', required=True)
+  args = parser.parse_args()
+  return (args.foo, args.project)
+
+
+def main() -> None:
+  # Use simulated command line arguments
+  foo, project = process_command_line(['progname', '--foo=bar', 'project1'])
+  print(foo)
+  print(project)
+
+  # Process the actual command line
+  foo, project = process_command_line_no_args()
+  print(foo)
+  print(project)
+
+
+if __name__ == '__main__':
+  main()
+

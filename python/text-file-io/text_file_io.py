@@ -37,6 +37,20 @@ def read_file(filename: str) -> str:
     return file.read()
 
 
+def read_file_by_line(filename: str) -> list[str]:
+  """
+  Read the contents of a file line by line into a list of strings.
+
+  :param: filename: The name of the file to read
+  :return: A list of strings, each element in the string is a line in the file
+  """
+  with open(filename, 'r', encoding='utf-8') as file:
+    lines: list[str] = []
+    for line in file:
+      lines.append(line)
+    return lines
+
+
 def write_file(filename: str, content: str) -> None:
   """
   Write the content to a file
@@ -81,6 +95,15 @@ def main() -> None:
     # errors. It is a good idea to catch this exception to
     # handle any other I/O related errors.
     print(f'Error reading file: {ex}')
+
+  # As shown above you can read a file line by line
+  # This is sometimes more efficient if you need to
+  # say create a list of objects. The read_by_line
+  # function does just that. It creates a list
+  # of strings.
+  lines = read_file_by_line('original.txt')
+  # Print only the first line
+  print(lines[0])
 
 
 if __name__ == '__main__':

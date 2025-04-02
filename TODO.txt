@@ -1,3 +1,19 @@
+[DONE][issue129] python-parseargs-update: Explore passing an argv list to the parser
+[DONE][issue128] python-text-file-io-update2: Explore reading a file line by line
+[issue127] samplews: A simple key value service used as an a sample to explore
+app deployment
+[issue126] db-postgres-name-value-store: Explore using postgres as a name value store
+[issue125] web-hello-world-dockerized: Create a dockerized hello world app
+[issue124] web-hello-world: Explore implementing a hello world app
+[issue123] web-d3js-trees: Explore d3js to display trees
+[issue122] web-html5boilerpplate: Explore html5 boilerplate
+[issue121] aiml-foundations-binary-classification: 
+  Explore using a single layer perceptron to do binary classification
+[DONE][issue120] ides-jetbrains-idea: Note on managing IDE update policy
+[issue119] python-testing: Explore unit testing in python
+[DONE][issue118] git-reset-hard-to-upstream-branch:
+  Explore the git command to reset a local branch to an upstream branch
+  dropping all commits on the local branch
 [DONE][issue117] cplusplus-makefile-template-update:
   Update the Makefile template 
 [DONE][issue116] cplusplus-compiler-macros:

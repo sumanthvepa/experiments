@@ -1,0 +1,31 @@
+This project is an exploration of the foundations of neural
+networks.
+
+The objective of this program is to train a single-layer
+perceptron to distinguish between two groups of points that
+are on either side of a given straight line.
+
+To start with we need to define the line.
+
+Straight lines have an equation of the form:
+
+y = mx + c
+
+m is the slope of the line, and c is point on y axis where the
+line intercepts the y-axis. A slope of 1 indicates a slope of 45
+degrees. A slope 0 indicates a horizontal line. A slope of infinity
+represents a vertical line. More practically a vertical line would
+be represented as x = k where k represents the point on the x-axis
+where the vertical line intercepts the x-axis.
+
+See interactive figure 1 for details
+
+For concreteness, let us consider a 2x2 square with a
+coordinate system centered at middle of the area. Consider the
+line.
+
+y = 2x + 1
+
+All points (xn, yn) where yn >= 2xn + 1 are considered to be in
+category 1, while all other points are considered to be in category
+2.
