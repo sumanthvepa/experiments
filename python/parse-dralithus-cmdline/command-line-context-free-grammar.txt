@@ -1,0 +1,17 @@
+command-line → option_parameter_list | ε
+option_parameter_list → option_parameter_list option_or_parameter
+option_or_parameter → option | PARAMETER
+option → value_option | multiflag_option | flag_option
+value_option → short_value_option | long_value_option
+short_value_option → - short_value_option_name value
+                     | - short_value_option_name whitespace value
+                     | - short_value_option_name = value
+long_value_option → -- long_value_option_name whitespace value
+                    | --long_value_option_name = value
+multiflag_option → - short_flag_name_list
+short_flag_name_list → short_flag_name_list short_flag_name
+flag_option → - short_flag_name | -- long_flag_name
+short_value_option_name → v
+long_value_option_name → verbose | verbosity | env | environment
+short_flag_name → h | v | e
+long_flag_name → help | verbose

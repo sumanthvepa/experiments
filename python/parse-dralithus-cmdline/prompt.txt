@@ -1,0 +1,57 @@
+Can you please write a python function that parses arguments passed on
+the command line?  The function must have the following signature:
+
+def parse_command_line(args: list[str]) -> tuple[dict[str, str|int|bool], list[str])
+
+The input args parameter is the same as sys.argv with the first argument
+removed (i.e. the program name/script name is not present)
+
+The function must return a tuple consisting of a dictionary and a list.
+The dictionary must contain the options specified on the command line
+and their value.  The list must contain the remaining positional
+parameters.
+
+The context free grammar for the command line is given in the attached file,
+command-line-context-free-grammar.txt.
+
+For example:
+parse_command_line(['-v', '1', '--env', 'test', 'application1', 'application2'])
+should return:
+({'v': 1, 'env': 'test'}, ['application1', 'application2'])
+
+Here's another example:
+parse_command_line(['-v1', '--env', 'test', 'application1'])
+should return:
+({'v': 1, 'env': 'test'}, ['application1'])
+
+The -v or --verbose options are cumulative flags, meaning that
+if they are specified multiple times, the value should be incremented
+by 1 for each occurrence.  The value of the -v or --verbose option
+should be an integer.  If the -v or --verbose option is not specified,
+the default value should be 0.
+So for example:
+parse_command_line(['-v', '-v', '--env', 'test', 'application1'])
+should return:
+({'v': 2, 'env': 'test'}, ['application1'])
+
+Also short option flags can be combined, so -vv is equivalent to -v -v
+# and -vvv is equivalent to -v -v -v and so on.
+
+If the the -h or --help option is specified, the function should
+set its value to True.  So, for example:
+parse_command_line(['-h', '--env', 'test', 'application1'])
+should return:
+({'h': True, 'env': 'test'}, ['application1'])
+
+The -h option is idempotent, meaning that if it is specified multiple times,
+the value should be True.  So for example:
+parse_command_line(['-h', '-h', '--env', 'test', 'application1'])
+should return:
+({'h': True, 'env': 'test'}, ['application1'])
+
+Do NOT use the argparse module or any other third-party library.
+Also, it is desirable to keep each individual function small and simple.
+About 5-10 lines of code per function is ideal (although this is not a hard and fast rule).
+The code should be well-structured and easy to read.
+Use docstrings to explain the purpose of each function.
+Also, please use type hints for all function signatures.
