@@ -10,12 +10,12 @@ def parse_command_line(args: List[str]) -> Tuple[Dict[str, Union[str, int, bool]
   Returns:
       Tuple[Dict[str, Union[str, int, bool]], List[str]]: A tuple containing a dictionary of options and a list of positional parameters.
   """
-  options = {'v': 0, 'h': False}
-  positional_params = []
-  i = 0
+  options: Dict[str, Union[str, int, bool]] = {'v': 0, 'h': False}
+  positional_params: List[str] = []
+  i: int = 0
 
   while i < len(args):
-    arg = args[i]
+    arg: str = args[i]
     if arg.startswith('--'):
       if '=' in arg:
         key, value = arg[2:].split('=', 1)
