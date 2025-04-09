@@ -55,3 +55,15 @@ About 5-10 lines of code per function is ideal (although this is not a hard and 
 The code should be well-structured and easy to read.
 Use docstrings to explain the purpose of each function.
 Also, please use type hints for all function signatures.
+
+
+FOLLOW-UP PROMPT 1
+Modify parse_command_line.py to add type hints. DO NOT MAKE ANY OTHER
+MODIFICATIONS.
+
+
+FOLLOW-UP PROMPT 2
+Now, modify parse_command_line.py to use native type hints. e.g. dict
+instead of Dict. list instead of List and tuple instead of Tuple etc.
+MAKE NO OTHER CHANGES to the file. DO NOT CHANGE the formatting or
+indentation.

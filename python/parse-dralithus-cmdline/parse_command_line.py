@@ -1,17 +1,15 @@
-from typing import List, Tuple, Dict, Union
-
-def parse_command_line(args: List[str]) -> Tuple[Dict[str, Union[str, int, bool]], List[str]]:
+def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], list[str]]:
   """
   Parses command-line arguments into options and positional parameters.
 
   Args:
-      args (List[str]): Command-line arguments (excluding the program name).
+      args (list[str]): Command-line arguments (excluding the program name).
 
   Returns:
-      Tuple[Dict[str, Union[str, int, bool]], List[str]]: A tuple containing a dictionary of options and a list of positional parameters.
+      tuple[dict[str, str | int | bool], list[str]]: A tuple containing a dictionary of options and a list of positional parameters.
   """
-  options: Dict[str, Union[str, int, bool]] = {'v': 0, 'h': False}
-  positional_params: List[str] = []
+  options: dict[str, str | int | bool] = {'v': 0, 'h': False}
+  positional_params: list[str] = []
   i: int = 0
 
   while i < len(args):
