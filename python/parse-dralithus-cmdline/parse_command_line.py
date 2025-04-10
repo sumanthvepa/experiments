@@ -23,6 +23,25 @@ def is_parameter(arg: str) -> bool:
     and arg[0] != '-'
 
 
+def is_short_option(arg: str) -> bool:
+  """
+    Check if the argument is a short option.
+
+    :param arg: The argument to check.
+    :return: True if the argument is a short option, False otherwise.
+  """
+  if arg.startswith('-'):
+    if len(arg) == 2 and arg[1].isalpha():
+      return True
+    elif len(arg) > 2:
+      if arg[1].isalpha():
+        for c in arg[2:]:
+          if not c.isdigit():
+            return False
+        return True
+  return False
+
+
 def is_long_option(arg: str) -> bool:
   """
     Check if the argument is a long option.
