@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 def is_option(arg: str) -> bool:
   """
     Check if the argument is an option.
@@ -19,6 +21,43 @@ def is_parameter(arg: str) -> bool:
     and arg != '--' \
     and not arg[0].isdigit() \
     and arg[0] != '-'
+
+
+class Option(NamedTuple):
+  """
+    A class representing an option with its name and value.
+    :param name: The name of the option.
+    :param value: The value of the option.
+  """
+  name: str
+  value: bool | int | str | list[str]
+
+
+def get_options(arg: str, next_arg: str) -> tuple[list[Option], int]:
+  """
+    Get the option name and its value from the argument and the next argument
+
+    :param arg: The argument to check.
+    :param next_arg: The next argument, in case the current one requires a value.
+    :return: Returns a tuple consisting of a list of Option objects and an increment value.
+    The increment value indicates how many arguments to skip in the next iteration.
+    A value of 1 means to skip the next argument, while a value of 2 means to
+    skip the next two arguments.
+  """
+  options: list[Option] = []
+  if not is_option(arg):
+    raise ValueError(f"Invalid option: {arg}")
+  if is_long_option(arg):
+    option, increment = get_long_option_name_and_value(arg, next_arg)
+    options.append(option)
+  elif is_short_option(arg):
+    option, increment  = get_short_option_name_and_value(arg, next_arg)
+    options.append(option)
+  elif is_multi_option(arg):
+    options, increment = get_multi_option_name_and_value(arg, next_arg)
+  else:
+    raise ValueError(f"Invalid option: {arg}")
+  return options, increment
 
 
 def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], list[str]]:
