@@ -23,6 +23,16 @@ def is_parameter(arg: str) -> bool:
     and arg[0] != '-'
 
 
+def is_long_option(arg: str) -> bool:
+  """
+    Check if the argument is a long option.
+
+    :param arg: The argument to check.
+    :return: True if the argument is a long option, False otherwise.
+  """
+  return arg.startswith('--') and len(arg) > 2
+
+
 class Option(NamedTuple):
   """
     A class representing an option with its name and value.
