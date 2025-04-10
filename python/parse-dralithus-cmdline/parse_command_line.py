@@ -52,6 +52,20 @@ def is_long_option(arg: str) -> bool:
   return arg.startswith('--') and len(arg) > 2
 
 
+def is_multi_option(arg: str) -> bool:
+  """
+    Check if the argument is a multi-option.
+    :param arg: The argument to check.
+    :return: True if the argument is a multi-option, False otherwise.
+  """
+  if arg.startswith('-') and len(arg) > 2:
+      for c in arg[1:]:
+        if not c.isalpha():
+          return False
+      return True
+  return False
+
+
 class Option(NamedTuple):
   """
     A class representing an option with its name and value.
