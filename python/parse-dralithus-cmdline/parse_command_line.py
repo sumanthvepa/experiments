@@ -14,6 +14,11 @@ def is_parameter(arg: str) -> bool:
     :param arg: The argument to check.
     :return:  True if the argument is a parameter, False otherwise.
   """
+  return len(arg) > 0 \
+    and not is_option(arg) \
+    and arg != '--' \
+    and not arg[0].isdigit() \
+    and arg[0] != '-'
 
 def option_name_and_value(arg: str, next_arg: str) -> tuple[str, bool | int | str | list[str], int]:
   """
