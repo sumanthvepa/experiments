@@ -5,7 +5,6 @@ def is_option(arg: str) -> bool:
     :param arg: The argument to check.
     :return True if the argument is an option, False otherwise.
   """
-  # TODO: Check that this AI generated implementation is correct.
   return arg.startswith('-') and len(arg) > 1 and not arg[1].isdigit()
 
 
