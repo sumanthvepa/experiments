@@ -8,6 +8,19 @@ def is_option(arg: str) -> bool:
   return arg.startswith('-') and len(arg) > 1 and not arg[1].isdigit()
 
 
+def is_parameter(arg: str) -> bool:
+  """
+    Check if the argument is a parameter.
+    :param arg: The argument to check.
+    :return:  True if the argument is a parameter, False otherwise.
+  """
+  return len(arg) > 0 \
+    and not is_option(arg) \
+    and arg != '--' \
+    and not arg[0].isdigit() \
+    and arg[0] != '-'
+
+
 def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], list[str]]:
   """
     Parses command-line arguments into options and positional parameters.
