@@ -133,6 +133,7 @@ def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int
       increment = 1
   return option, increment
 
+
 def get_multi_option_name_and_value(arg: str, next_arg: str) -> tuple[list[Option], int]:
   """
     Get the option name and its value from the multi-option argument.
