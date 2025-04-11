@@ -11,6 +11,24 @@ class Option(NamedTuple):
   value: bool | int | str | list[str]
 
 
+def get_option_name(value: str) -> str:
+  """
+    Get the option name from the given value.
+    The value could be a single character or a string. For example
+    'e' or 'env' or 'environment'. All three are valid option names
+    and represent the 'environment' option.
+
+    :param value: The value to get the option name from.
+    :return: The canonical option name.
+  """
+  if value == 'h' or value == 'help':
+    return 'help'
+  if value == 'v' or value == 'verbose' or value == 'verbosity':
+    return 'verbosity'
+  if value == 'e' or value == 'env' or value == 'environment':
+    return 'environment'
+  raise ValueError(f'Invalid option name: {value}')
+
 def is_option(arg: str) -> bool:
   """
     Check if the argument is an option.
