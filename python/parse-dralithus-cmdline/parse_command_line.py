@@ -214,11 +214,10 @@ def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int
   return option, increment
 
 
-def get_multi_option_name_and_value(arg: str, next_arg: str) -> tuple[list[Option], int]:
+def get_multi_option_name_and_value(arg: str) -> tuple[list[Option], int]:
   """
     Get the option name and its value from the multi-option argument.
     :param arg: The multi-option argument.
-    :param next_arg: The next argument, in case the current one requires a value.
     :return: A list of Option objects and an increment value.
   """
   # This precondition should be met before this function is called.
