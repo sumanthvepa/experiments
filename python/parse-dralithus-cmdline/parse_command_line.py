@@ -94,6 +94,13 @@ def is_multi_option(arg: str) -> bool:
       return True
   return False
 
+def requires_value(option_name: str) -> bool:
+  """
+    Check if the option requires a value.
+    :param option_name: The name of the option.
+    :return: True if the option requires a value, False otherwise.
+  """
+  return option_name in ['environment']
 
 def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int]:
   """
