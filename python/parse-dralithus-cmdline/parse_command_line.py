@@ -112,6 +112,14 @@ def permits_value(option_name: str) -> bool:
   return requires_value(option_name) or option_name in ['verbosity']
 
 
+def is_valid_environment(value: str) -> bool:
+  """
+    Check if the environment value is valid.
+    :param value: The environment value to check.
+    :return: True if the environment value is valid, False otherwise.
+  """
+  return value in ['local', 'dev', 'test', 'staging', 'alpha', 'beta', 'prod']
+
 def is_option_value(option_name: str, value: str) -> bool:
   """
     Check if the argument is a valid option value.
