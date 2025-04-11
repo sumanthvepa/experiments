@@ -112,6 +112,20 @@ def permits_value(option_name: str) -> bool:
   return requires_value(option_name) or option_name in ['verbosity']
 
 
+def is_option_value(option_name: str, value: str) -> bool:
+  """
+    Check if the argument is a valid option value.
+    :param option_name: The name of the option.
+    :param value: The value to check.
+    :return: True if the argument is a valid option value, False otherwise.
+  """
+  if option_name == 'environment':
+    return value in ['local', 'dev', 'test', 'staging', 'alpha', 'beta', 'prod']
+  if option_name == 'verbosity':
+    return value.isdecimal()and int(value) >= 0
+  return False
+
+
 def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int]:
   """
     Get the option name and its value from the short option argument.
