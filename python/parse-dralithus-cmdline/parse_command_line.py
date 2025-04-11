@@ -95,6 +95,47 @@ def is_multi_option(arg: str) -> bool:
   return False
 
 
+def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int]:
+  """
+    Get the option name and its value from the short option argument.
+    :param arg: The short option argument.
+    :param next_arg: The next argument, in case the current one requires a value.
+    :return: A tuple containing an Option object and an increment value.
+  """
+  # This precondition should be met before this function is called.
+  assert is_short_option(arg)
+  option_name = get_option_name(arg[1])
+  if requires_value(option_name):
+    if len(arg) > 2:
+      option_value = arg[2:]
+      option = Option(option_name, option_value)
+      increment = 1
+    else:
+      if next_arg is not None and is_option_value(next_arg):
+        option_value = next_arg
+        option = Option(option_name, option_value)
+        increment = 2
+      else:
+        raise ValueError(f"Option {option_name} requires a value")
+  elif permits_value(option_name):
+    if len(arg) > 2:
+      option_value = arg[2:]
+      option = Option(option_name, option_value)
+      increment = 1
+    else:
+      if next_arg is not None and is_option_value(next_arg):
+        option_value = next_arg
+        option = Option(option_name, option_value)
+        increment = 2
+      else:
+        option = Option(option_name, True)
+        increment = 1
+  else:
+    option = Option(option_name, True)
+    increment = 1
+  return option, increment
+
+
 def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int]:
   """
     Get the option name and its value from the long option argument.
