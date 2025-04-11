@@ -251,6 +251,36 @@ def get_options(arg: str, next_arg: str) -> tuple[list[Option], int]:
   return options, increment
 
 
+def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option_list: list[Option]) -> None:
+  """
+    Add an option and its value to the 'options' dictionary.
+
+    Do the right thing for the option being added:
+    - If the option is 'help', set it to True in the dictionary.
+    - If the option is 'verbosity', either increment the verbosity level or set it to the sum of
+      the current verbosity level and the new value.
+    - If the option is 'environment', set it to the value provided.
+
+    :param options: The options dictionary to update.
+    :param option_list: The list of Option objects to add.
+  """
+  for option in option_list:
+    if option.name == 'help':
+      options['help'] = True
+    elif option.name == 'verbosity':
+      if isinstance(option.value, str) and option.value.isdecimal():
+        options['verbosity'] = options['verbosity'] + int(option.value)
+      else:
+        raise ValueError(f"Invalid value for verbosity: {option.value}")
+    elif option.name == 'environment':
+      if isinstance(option.value, str) and is_valid_environment(option.value):
+        values = option.value.split(',')
+        options['environment'] += values
+      else:
+        raise ValueError(f"Invalid value for environment: {option.value}")
+    else:
+      raise ValueError(f"Unknown option: {option.name}")
+
 def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], list[str]]:
   """
     Parses command-line arguments into options and positional parameters.
