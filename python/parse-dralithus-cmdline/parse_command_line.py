@@ -295,7 +295,7 @@ def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], li
     :param args: Command-line arguments (excluding the program name).
     :return: A tuple containing a dictionary of options and a list of positional parameters.
   """
-  options: dict[str, str | int | bool] = {'v': 0, 'h': False}
+  options: dict[str, bool | int | str | list[str]] = {}
   parameters: list[str] = []
   i: int = 0
   while i < len(args):
