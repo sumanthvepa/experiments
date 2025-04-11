@@ -102,6 +102,16 @@ def requires_value(option_name: str) -> bool:
   """
   return option_name in ['environment']
 
+
+def permits_value(option_name: str) -> bool:
+  """
+    Check if the option permits a value.
+    :param option_name: The name of the option.
+    :return: True if the option permits a value, False otherwise.
+  """
+  return requires_value(option_name) or option_name in ['verbosity']
+
+
 def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int]:
   """
     Get the option name and its value from the short option argument.
