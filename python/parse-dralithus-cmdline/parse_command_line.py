@@ -150,7 +150,7 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
       option = Option(option_name, option_value)
       increment = 1
     else:
-      if next_arg is not None and is_option_value(next_arg):
+      if next_arg is not None and is_option_value(option_name, next_arg):
         option_value = next_arg
         option = Option(option_name, option_value)
         increment = 2
@@ -162,7 +162,7 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
       option = Option(option_name, option_value)
       increment = 1
     else:
-      if next_arg is not None and is_option_value(next_arg):
+      if next_arg is not None and is_option_value(option_name, next_arg):
         option_value = next_arg
         option = Option(option_name, option_value)
         increment = 2
@@ -194,14 +194,14 @@ def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int
   else:
     option_name = get_option_name(arg[2:])
     if requires_value(option_name):
-      if next_arg is not None and is_option_value(next_arg):
+      if next_arg is not None and is_option_value(option_name, next_arg):
         option_value = next_arg
         option = Option(option_name, option_value)
         increment = 2
       else:
         raise ValueError(f"Option {option_name} requires a value")
     elif permits_value(option_name):
-      if next_arg is not None and is_option_value(next_arg):
+      if next_arg is not None and is_option_value(option_name, next_arg):
         option_value = next_arg
         option = Option(option_name, option_value)
         increment = 2
@@ -253,7 +253,7 @@ def get_options(arg: str, next_arg: str) -> tuple[list[Option], int]:
     option, increment = get_long_option_name_and_value(arg, next_arg)
     options.append(option)
   elif is_multi_option(arg):
-    options, increment = get_multi_option_name_and_value(arg, next_arg)
+    options, increment = get_multi_option_name_and_value(arg)
   else:
     raise ValueError(f"Invalid option: {arg}")
   return options, increment
