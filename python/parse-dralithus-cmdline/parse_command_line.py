@@ -90,11 +90,11 @@ def get_options(arg: str, next_arg: str) -> tuple[list[Option], int]:
   options: list[Option] = []
   if not is_option(arg):
     raise ValueError(f"Invalid option: {arg}")
-  if is_long_option(arg):
-    option, increment = get_long_option_name_and_value(arg, next_arg)
-    options.append(option)
-  elif is_short_option(arg):
+  if is_short_option(arg):
     option, increment  = get_short_option_name_and_value(arg, next_arg)
+    options.append(option)
+  elif is_long_option(arg):
+    option, increment = get_long_option_name_and_value(arg, next_arg)
     options.append(option)
   elif is_multi_option(arg):
     options, increment = get_multi_option_name_and_value(arg, next_arg)
