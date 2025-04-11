@@ -77,6 +77,24 @@ def is_multi_option(arg: str) -> bool:
   return False
 
 
+def get_multi_option_name_and_value(arg: str, next_arg: str) -> tuple[list[Option], int]:
+  """
+    Get the option name and its value from the multi-option argument.
+    :param arg: The multi-option argument.
+    :param next_arg: The next argument, in case the current one requires a value.
+    :return: A list of Option objects and an increment value.
+  """
+  # This precondition should be met before this function is called.
+  assert is_multi_option(arg)
+  options: list[Option] = []
+  increment = 1
+  for c in arg[1:]:
+    assert c.isalpha()
+    option_name = get_option_name(c)
+    options.append(Option(option_name, True))
+  return options, increment
+
+
 def get_options(arg: str, next_arg: str) -> tuple[list[Option], int]:
   """
     Get the option name and its value from the argument and the next argument
