@@ -128,7 +128,7 @@ def is_option_value(option_name: str, value: str) -> bool:
     :return: True if the argument is a valid option value, False otherwise.
   """
   if option_name == 'environment':
-    return value in ['local', 'dev', 'test', 'staging', 'alpha', 'beta', 'prod']
+    return is_valid_environment(value)
   if option_name == 'verbosity':
     return value.isdecimal()and int(value) >= 0
   return False
