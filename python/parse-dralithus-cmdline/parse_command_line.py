@@ -1,5 +1,16 @@
 from typing import NamedTuple
 
+
+class Option(NamedTuple):
+  """
+    A class representing an option with its name and value.
+    :param name: The name of the option.
+    :param value: The value of the option.
+  """
+  name: str
+  value: bool | int | str | list[str]
+
+
 def is_option(arg: str) -> bool:
   """
     Check if the argument is an option.
@@ -64,16 +75,6 @@ def is_multi_option(arg: str) -> bool:
           return False
       return True
   return False
-
-
-class Option(NamedTuple):
-  """
-    A class representing an option with its name and value.
-    :param name: The name of the option.
-    :param value: The value of the option.
-  """
-  name: str
-  value: bool | int | str | list[str]
 
 
 def get_options(arg: str, next_arg: str) -> tuple[list[Option], int]:
