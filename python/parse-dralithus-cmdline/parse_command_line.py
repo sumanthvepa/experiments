@@ -291,10 +291,9 @@ def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option
     if option.name == 'help':
       options['help'] = True
     elif option.name == 'verbosity':
-      if isinstance(option.value, str) and option.value.isdecimal():
-        options['verbosity'] = options['verbosity'] + int(option.value)
-      else:
+      if not isinstance(option.value, int):
         raise ValueError(f"Invalid value for verbosity: {option.value}")
+      options['verbosity'] = options['verbosity'] + option.value
     elif option.name == 'environment':
       if isinstance(option.value, str) and is_valid_environment(option.value):
         values = option.value.split(',')
