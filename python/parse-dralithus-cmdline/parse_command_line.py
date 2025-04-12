@@ -64,7 +64,7 @@ def is_short_option(arg: str) -> bool:
     if len(arg) == 2 and arg[1].isalpha():
       return True
     elif len(arg) > 2 and arg[1].isalpha():
-      if arg[2] == '=' and arg[2:].isalnum():
+      if arg[2] == '=' and arg[3:].isalnum():
         return True
       else:
         for c in arg[2:]:
