@@ -164,7 +164,10 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
   option_name = get_option_name(arg[1])
   if requires_value(option_name):
     if len(arg) > 2:
-      option_value = arg[2:]
+      if arg[2] == '=':
+        option_value = arg[3:]
+      else:
+        option_value = arg[2:]
       option = Option(option_name, option_value)
       increment = 1
     else:
