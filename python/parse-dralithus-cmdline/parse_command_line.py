@@ -296,7 +296,8 @@ def validate_command_line(options: dict[str, bool | int | str | list[str]], para
     :param parameters: The list of positional parameters to validate.
     :return: True if the command-line arguments are valid, False otherwise.
   """
-  # TODO: Implement this.
+  if options['help'] is False and (len(options['environment']) == 0 or len(parameters) == 0):
+    raise ValueError("No environment or positional parameters provided")
 
 
 def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], list[str]]:
