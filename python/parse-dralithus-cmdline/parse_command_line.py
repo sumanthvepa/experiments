@@ -135,6 +135,20 @@ def is_option_value(option_name: str, value: str) -> bool:
     return value.isdecimal()and int(value) >= 0
   return False
 
+
+def option_value_type(option_name: str) -> type:
+  """
+    Get the type of the option value.
+    :param option_name: The name of the option.
+    :return: The type of the option value.
+  """
+  if option_name == 'verbosity':
+    return int
+  if option_name == 'environment':
+    return str
+  raise ValueError(f'{option_name} has no permitted value type')
+
+
 def default_option_value(option_name: str) -> int:
   """
     Get the default value for the options that have permitted values.
@@ -179,7 +193,8 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
         raise ValueError(f"Option {option_name} requires a value")
   elif permits_value(option_name):
     if len(arg) > 2:
-      option_value = arg[2:]
+      # Cast the value to the appropriate type
+      option_value = option_value_type(option_name)(arg[2:])
       option = Option(option_name, option_value)
       increment = 1
     else:
