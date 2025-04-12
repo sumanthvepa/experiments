@@ -4,7 +4,7 @@ from parse_command_line import parse_command_line
 class TestParseCommandLine(unittest.TestCase):
     def test_no_arguments(self) -> None:
         args: list[str] = []
-        expected_options: dict[str, int | bool] = {'verbosity': 0, 'help': True}
+        expected_options: dict[str, bool | int | str | list[str]] = {'verbosity': 0, 'help': True, 'environment': []}
         expected_positional: list[str] = []
         self.assertEqual((expected_options, expected_positional), parse_command_line(args))
 
