@@ -196,8 +196,12 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
         raise ValueError(f"Option {option_name} requires a value")
   elif permits_value(option_name):
     if len(arg) > 2:
+      if arg[2] == '=':
+        option_value = arg[3:]
+      else:
+        option_value = arg[2:]
       # Cast the value to the appropriate type
-      option_value = option_value_type(option_name)(arg[2:])
+      option_value = option_value_type(option_name)(option_value)
       option = Option(option_name, option_value)
       increment = 1
     else:
