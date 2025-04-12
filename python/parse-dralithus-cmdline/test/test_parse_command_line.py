@@ -15,6 +15,10 @@ class TestParseCommandLine(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_single_short_option(self) -> None:
+        """
+          Test the case when a single short option is provided.
+          :return: None
+        """
         args: list[str] = ['-v']
         expected_options: dict[str, bool | int | str | list[str]] = {'verbosity': 1, 'help': True, 'environment': []}
         expected_parameters: list[str] = []
