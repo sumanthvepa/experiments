@@ -133,6 +133,22 @@ def is_option_value(option_name: str, value: str) -> bool:
     return value.isdecimal()and int(value) >= 0
   return False
 
+def default_option_value(option_name: str) -> int:
+  """
+    Get the default value for the options that have permitted values.
+
+    For options with permitted_values but not required values, this
+    function specifies what the default value should be when no
+    value is provided.
+
+    Right now only verbosity is supported.
+
+    :param option_name: The name of the option.
+    :return: The default value for the option.
+  """
+  if option_name == 'verbosity':
+    return 1
+  raise ValueError(f'{option_name} has no permitted default value')
 
 def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int]:
   """
