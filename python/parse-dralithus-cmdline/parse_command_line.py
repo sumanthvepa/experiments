@@ -59,17 +59,19 @@ def is_short_option(arg: str) -> bool:
     :param arg: The argument to check.
     :return: True if the argument is a short option, False otherwise.
   """
-  if arg.startswith('-'):
+  # -v -v2 -v=2 -e=test -e=local,test are all valid short options
+  if arg.startswith('-') and len(arg) > 1:
     if len(arg) == 2 and arg[1].isalpha():
       return True
-    elif len(arg) > 2:
-      if arg[1].isalpha():
+    elif len(arg) > 2 and arg[1].isalpha():
+      if arg[2] == '=' and arg[2:].isalpha() or arg[2:].isdigit():
+        return True
+      else:
         for c in arg[2:]:
           if not c.isdigit():
             return False
         return True
   return False
-
 
 def is_long_option(arg: str) -> bool:
   """
