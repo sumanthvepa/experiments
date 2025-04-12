@@ -334,9 +334,4 @@ def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], li
   except ValueError as ex:
     print(f'{ex}\n')
     options['help'] = True
-    if 'verbosity' not in options:
-      options['verbosity'] = 0
-    if 'environment' not in options:
-      options['environment'] = []
-    parameters = []
   return options, parameters
