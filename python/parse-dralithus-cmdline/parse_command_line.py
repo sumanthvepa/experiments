@@ -1,3 +1,5 @@
+import re
+
 from typing import NamedTuple
 
 
@@ -64,7 +66,7 @@ def is_short_option(arg: str) -> bool:
     if len(arg) == 2 and arg[1].isalpha():
       return True
     elif len(arg) > 2 and arg[1].isalpha():
-      if arg[2] == '=' and arg[3:].isalnum():
+      if arg[2] == '=' and re.match(is_short_option.PATTERN, arg[3:]):
         return True
       else:
         for c in arg[2:]:
@@ -72,6 +74,8 @@ def is_short_option(arg: str) -> bool:
             return False
         return True
   return False
+
+is_short_option.PATTERN = re.compile(r'^[a-zA-Z0-9,]+$')
 
 def is_long_option(arg: str) -> bool:
   """
@@ -114,15 +118,20 @@ def permits_value(option_name: str) -> bool:
   return requires_value(option_name) or option_name in ['verbosity']
 
 
-def is_valid_environment(value: str) -> bool:
+def is_valid_environment(values: list[str]) -> bool:
   """
     Check if the environment value is valid.
-    :param value: The environment value to check.
+    :param values: The environment values to check
     :return: True if the environment value is valid, False otherwise.
   """
-  return value in ['local', 'dev', 'test', 'staging', 'alpha', 'beta', 'prod']
+  valid_environments = ['local', 'dev', 'test', 'staging', 'alpha', 'beta', 'prod']
+  for value in values:
+    if value not in valid_environments:
+      return False
+  return True
 
-def is_option_value(option_name: str, value: str) -> bool:
+
+def is_option_value(option_name: str, value: str | list[str]) -> bool:
   """
     Check if the argument is a valid option value.
     :param option_name: The name of the option.
@@ -145,8 +154,30 @@ def option_value_type(option_name: str) -> type:
   if option_name == 'verbosity':
     return int
   if option_name == 'environment':
-    return str
+    return list[str]
   raise ValueError(f'{option_name} has no permitted value type')
+
+def convert_to_type(required_type: type, value: str) -> bool | int | str | list[str]:
+  """
+    Convert the value to the specified type.
+    :param required_type: The type to convert to.
+    :param value: The value to convert.
+    :return: The converted value.
+  """
+  if required_type == bool:
+    if value.lower() == 'true' or value == '1':
+      return True
+    elif value.lower() == 'false' or value == '0':
+      return False
+    else:
+      raise ValueError(f'Invalid boolean value: {value}')
+  if required_type == int:
+    return int(value)
+  if required_type == str:
+    return str(value)
+  if required_type == list[str]:
+    return value.split(',')
+  raise ValueError(f'Invalid type: {required_type}')
 
 
 def default_option_value(option_name: str) -> int:
@@ -183,13 +214,13 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
       else:
         option_value = arg[2:]
       # Cast the value to the appropriate type
-      option_value = option_value_type(option_name)(option_value)
+      option_value = convert_to_type(option_value_type(option_name), option_value)
       option = Option(option_name, option_value)
       increment = 1
     else:
       if next_arg is not None and is_option_value(option_name, next_arg):
         # Cast the value to the appropriate type
-        option_value = option_value_type(option_name)(next_arg)
+        option_value = convert_to_type(option_value_type(option_name), next_arg)
         option = Option(option_name, option_value)
         increment = 2
       else:
@@ -201,13 +232,13 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
       else:
         option_value = arg[2:]
       # Cast the value to the appropriate type
-      option_value = option_value_type(option_name)(option_value)
+      option_value = convert_to_type(option_value_type(option_name), option_value)
       option = Option(option_name, option_value)
       increment = 1
     else:
       if next_arg is not None and is_option_value(option_name, next_arg):
         # Cast the value to the appropriate type
-        option_value = option_value_type(option_name)(next_arg)
+        option_value = convert_to_type(option_value_type(option_name), next_arg)
         option = Option(option_name, option_value)
         increment = 2
       else:
@@ -323,9 +354,10 @@ def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option
         raise ValueError(f"Invalid value for verbosity: {option.value}")
       options['verbosity'] = options['verbosity'] + option.value
     elif option.name == 'environment':
-      if isinstance(option.value, str) and is_valid_environment(option.value):
-        values = option.value.split(',')
-        options['environment'] += values
+      if isinstance(option.value, list) \
+          and all(isinstance(element, str) for element in option.value) \
+          and is_valid_environment(option.value):
+        options['environment'] += option.value
       else:
         raise ValueError(f"Invalid value for environment: {option.value}")
     else:
