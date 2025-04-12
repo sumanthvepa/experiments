@@ -297,20 +297,30 @@ def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], li
   """
   options: dict[str, bool | int | str | list[str]] = {}
   parameters: list[str] = []
-  i: int = 0
-  while i < len(args):
-    # Value 1: means do not skip the next argument, 2 means skip it
-    increment = 1
-    arg: str = args[i]
-    next_arg: str = args[i + 1] if i + 1 < len(args) else None
-    if is_option(arg):
-      # increment is 1 if the next argument is not the value for the
-      # current argument, and 2 if it is.
-      option_list, increment = get_options(arg, next_arg)
-      add_to_options_dict(options, option_list)
-    elif is_parameter(arg):
-      parameters.append(arg)
-    else:
-      raise ValueError(f"Unknown argument: {arg}")
-    i += increment
+  try:
+    i: int = 0
+    while i < len(args):
+      # Value 1: means do not skip the next argument, 2 means skip it
+      increment = 1
+      arg: str = args[i]
+      next_arg: str = args[i + 1] if i + 1 < len(args) else None
+      if is_option(arg):
+        # increment is 1 if the next argument is not the value for the
+        # current argument, and 2 if it is.
+        option_list, increment = get_options(arg, next_arg)
+        add_to_options_dict(options, option_list)
+      elif is_parameter(arg):
+        parameters.append(arg)
+      else:
+        raise ValueError(f"Unknown argument: {arg}")
+      i += increment
+    validate_command_line(options, parameters)
+  except ValueError as ex:
+    print(f'{ex}\n')
+    options = {
+      'help': True,
+      'verbosity': 0,
+      'environment': [],
+    }
+    parameters = []
   return options, parameters
