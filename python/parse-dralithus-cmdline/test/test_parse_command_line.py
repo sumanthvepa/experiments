@@ -3,6 +3,10 @@ from parse_command_line import parse_command_line
 
 class TestParseCommandLine(unittest.TestCase):
     def test_no_arguments(self) -> None:
+        """
+          Test the case when no arguments are provided.
+          :return: None
+        """
         args: list[str] = []
         expected_options: dict[str, bool | int | str | list[str]] = {'verbosity': 0, 'help': True, 'environment': []}
         expected_parameters: list[str] = []
