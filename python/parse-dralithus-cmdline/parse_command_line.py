@@ -288,6 +288,17 @@ def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option
     else:
       raise ValueError(f"Unknown option: {option.name}")
 
+
+def validate_command_line(options: dict[str, bool | int | str | list[str]], parameters: list[str]) -> bool:
+  """
+    Validate the command-line arguments.
+    :param options: The options dictionary to validate.
+    :param parameters: The list of positional parameters to validate.
+    :return: True if the command-line arguments are valid, False otherwise.
+  """
+  # TODO: Implement this.
+
+
 def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], list[str]]:
   """
     Parses command-line arguments into options and positional parameters.
