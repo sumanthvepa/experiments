@@ -5,8 +5,10 @@ class TestParseCommandLine(unittest.TestCase):
     def test_no_arguments(self) -> None:
         args: list[str] = []
         expected_options: dict[str, bool | int | str | list[str]] = {'verbosity': 0, 'help': True, 'environment': []}
-        expected_positional: list[str] = []
-        self.assertEqual((expected_options, expected_positional), parse_command_line(args))
+        expected_parameters: list[str] = []
+        expected = (expected_options, expected_parameters)
+        actual = parse_command_line(args)
+        self.assertEqual(expected, actual)
 
     # def test_single_short_option(self) -> None:
     #     args: list[str] = ['-v']
