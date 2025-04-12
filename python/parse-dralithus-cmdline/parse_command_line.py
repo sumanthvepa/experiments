@@ -183,7 +183,7 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
         option = Option(option_name, option_value)
         increment = 2
       else:
-        option = Option(option_name, True)
+        option = Option(option_name, default_option_value(option_name))
         increment = 1
   else:
     option = Option(option_name, True)
