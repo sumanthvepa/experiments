@@ -15,7 +15,7 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(args)
     self.assertEqual(expected, actual)
 
-  def test_single_short_option(self) -> None:
+  def test_single_short_option_verbosity(self) -> None:
     """
       Test the case when a single short option is provided.
       :return: None
@@ -27,6 +27,7 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(args)
     self.assertEqual(expected, actual)
 
+  def test_single_short_option_help(self) -> None:
     args = ['-h']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
     expected_parameters = []
@@ -34,6 +35,7 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(args)
     self.assertEqual(expected, actual)
 
+  def test_single_short_option_environment(self) -> None:
     args = ['-e']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
     expected_parameters = []
@@ -41,6 +43,7 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(args)
     self.assertEqual(expected, actual)
 
+  def test_single_short_option_environment_with_value(self) -> None:
     args = ['-e=test']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['test']}
     expected_parameters = []
