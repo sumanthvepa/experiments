@@ -27,6 +27,18 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(args)
     self.assertEqual(expected, actual)
 
+  def test_single_short_option_verbosity_with_value(self) -> None:
+    """
+      Test the case when a single short option with a value is provided.
+      :return: None
+    """
+    args: list[str] = ['-v2']
+    expected_options: dict[str, bool | int | str | list[str]] = {'verbosity': 2, 'help': True, 'environment': []}
+    expected_parameters: list[str] = []
+    expected = (expected_options, expected_parameters)
+    actual = parse_command_line(args)
+    self.assertEqual(expected, actual)
+
   def test_single_short_option_help(self) -> None:
     args = ['-h']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
