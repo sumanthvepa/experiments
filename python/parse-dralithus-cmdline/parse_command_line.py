@@ -306,7 +306,11 @@ def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], li
     :param args: Command-line arguments (excluding the program name).
     :return: A tuple containing a dictionary of options and a list of positional parameters.
   """
-  options: dict[str, bool | int | str | list[str]] = {}
+  options: dict[str, bool | int | str | list[str]] = {
+    'help': False,
+    'verbosity': 0,
+    'environment': []
+  }
   parameters: list[str] = []
   try:
     i: int = 0
