@@ -107,6 +107,15 @@ class TestParseCommandLine(unittest.TestCase):
     expected = (expected_options, expected_parameters)
     self.assertEqual(expected, actual)
 
+  def test_single_long_option_environment_with_value(self) -> None:
+    args: list[str] = ['--environment=local']
+    expected_options = {'verbosity': 0, 'help': True, 'environment': ['local']}
+    expected_parameters = []
+    actual = parse_command_line(args)
+    expected = (expected_options, expected_parameters)
+    self.assertEqual(expected, actual)
+
+
   #
   # def test_combined_short_options(self) -> None:
   #     args: list[str] = ['-vv']
