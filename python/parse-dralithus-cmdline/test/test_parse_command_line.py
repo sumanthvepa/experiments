@@ -83,11 +83,14 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(args)
     self.assertEqual(expected, actual)
 
-  # def test_single_long_option(self) -> None:
-  #     args: list[str] = ['--verbose']
-  #     expected_options: dict[str, int | bool] = {'v': 1, 'h': False}
-  #     expected_positional: list[str] = []
-  #     self.assertEqual(parse_command_line(args), (expected_options, expected_positional))
+  def test_single_long_option_verbose(self) -> None:
+    args: list[str] = ['--verbose']
+    expected_options = {'verbosity': 1, 'help': True, 'environment': []}
+    expected_parameters = []
+    actual = parse_command_line(args)
+    expected = (expected_options, expected_parameters)
+    self.assertEqual(expected, actual)
+
   #
   # def test_combined_short_options(self) -> None:
   #     args: list[str] = ['-vv']
