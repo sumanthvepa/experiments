@@ -6,6 +6,7 @@ class TestParseCommandLine(unittest.TestCase):
   def test_no_arguments(self) -> None:
     """
       Test the case when no arguments are provided.
+
       :return: None
     """
     args: list[str] = []
@@ -17,7 +18,9 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_short_option_verbosity(self) -> None:
     """
-      Test the case when a single short option is provided.
+      Test the case when a single short option for verbosity is
+      provided.
+
       :return: None
     """
     args: list[str] = ['-v']
@@ -30,6 +33,7 @@ class TestParseCommandLine(unittest.TestCase):
   def test_single_short_option_verbosity_with_value(self) -> None:
     """
       Test the case when a single short option with a value is provided.
+
       :return: None
     """
     args: list[str] = ['-v2']
@@ -42,6 +46,7 @@ class TestParseCommandLine(unittest.TestCase):
   def test_single_short_option_verbosity_with_value_equal(self) -> None:
     """
       Test the case when a single short option with a value is provided using an equal sign.
+
       :return: None
     """
     args: list[str] = ['-v=2']
@@ -53,7 +58,9 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_sing_le_short_option_verbosity_with_value_space(self) -> None:
     """
-      Test the case when a single short option with a value is provided using a space.
+      Test the case when a single short option for verbosity is
+      provided with a value using a space.
+
       :return: None
     """
     args: list[str] = ['-v', '2']
@@ -64,6 +71,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_short_option_help(self) -> None:
+    """
+    Test the case when a single short option for help is provided.
+
+    :return: None
+    """
     args = ['-h']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
     expected_parameters = []
@@ -72,6 +84,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_short_option_environment(self) -> None:
+    """
+    Test the case when a single short option for environment is provided.
+
+    :return:
+    """
     args = ['-e']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
     expected_parameters = []
@@ -80,6 +97,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_short_option_environment_with_value(self) -> None:
+    """
+    Test the case when a single short option for environment is provided with a value.
+
+    :return:
+    """
     args = ['-e=test']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['test']}
     expected_parameters = []
@@ -88,6 +110,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_short_option_environment_with_multi_value(self) -> None:
+    """
+    Test the case when a single short option for environment is provided with multiple values.
+
+    :return:
+    """
     args = ['-e=test,local']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['test', 'local']}
     expected_parameters = []
@@ -96,6 +123,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_long_option_verbose(self) -> None:
+    """
+    Test the case when a single long option for verbosity is provided.
+
+    :return:
+    """
     args: list[str] = ['--verbose']
     expected_options = {'verbosity': 1, 'help': True, 'environment': []}
     expected_parameters = []
@@ -104,6 +136,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_long_option_verbose_with_value(self) -> None:
+    """
+    Test the case when a single long option for verbosity is provided with a value.
+
+    :return:
+    """
     args: list[str] = ['--verbose=2']
     expected_options = {'verbosity': 2, 'help': True, 'environment': []}
     expected_parameters = []
@@ -112,6 +149,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_long_option_verbosity_with_value(self) -> None:
+    """
+    Test the case when a single long option for verbosity is provided with a value.
+
+    :return:
+    """
     args: list[str] = ['--verbosity=2']
     expected_options = {'verbosity': 2, 'help': True, 'environment': []}
     expected_parameters = []
@@ -119,8 +161,12 @@ class TestParseCommandLine(unittest.TestCase):
     expected = (expected_options, expected_parameters)
     self.assertEqual(expected, actual)
 
-
   def test_single_long_option_help(self) -> None:
+    """
+    Test the case when a single long option for help is provided.
+
+    :return:
+    """
     args: list[str] = ['--help']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
     expected_parameters = []
@@ -129,6 +175,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_long_option_environment(self) -> None:
+    """
+    Test the case when a single long option for environment is provided.
+
+    :return:
+    """
     args: list[str] = ['--environment']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
     expected_parameters = []
@@ -137,6 +188,10 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_long_option_environment_with_value(self) -> None:
+    """
+    Test the case when a single long option for environment is provided with a value.
+    :return:
+    """
     args: list[str] = ['--environment=local']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['local']}
     expected_parameters = []
@@ -145,6 +200,11 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_single_long_option_environment_with_multi_value(self) -> None:
+    """
+    Test the case when a single long option for environment is provided with multiple values.
+
+    :return:
+    """
     args: list[str] = ['--environment=local,test']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['local',  'test']}
     expected_parameters = []
