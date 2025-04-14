@@ -117,7 +117,7 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_long_option_environment_with_multi_value(self) -> None:
     args: list[str] = ['--environment=local,test']
-    expected_options = {'verbosity': 0, 'help': True, 'environment': ['local, test']}
+    expected_options = {'verbosity': 0, 'help': True, 'environment': ['local',  'test']}
     expected_parameters = []
     actual = parse_command_line(args)
     expected = (expected_options, expected_parameters)
