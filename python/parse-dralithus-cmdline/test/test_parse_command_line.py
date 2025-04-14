@@ -263,6 +263,14 @@ class TestParseCommandLine(unittest.TestCase):
       expected = (expected_options, expected_parameters)
       self.assertEqual(expected, actual)
 
+  def test_multi_option_verbose_help(self) -> None:
+      args: list[str] = ['-vvvh']
+      expected_options = {'verbosity': 3, 'help': True, 'environment': []}
+      expected_parameters = []
+      actual = parse_command_line(args)
+      expected = (expected_options, expected_parameters)
+      self.assertEqual(expected, actual)
+
   #
   # def test_option_with_value(self) -> None:
   #     args: list[str] = ['--env', 'test']
