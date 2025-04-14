@@ -70,6 +70,20 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(args)
     self.assertEqual(expected, actual)
 
+  def test_single_short_option_verbosity_with_wrong_value(self) -> None:
+    """
+    Test the case when a single short option for verbosity is provided
+    with a wrong value.
+
+    :return: None
+    """
+    args = ['-v=wrong']
+    expected_options = {'verbosity': 0, 'help': True, 'environment': []}
+    expected_parameters = []
+    expected = (expected_options, expected_parameters)
+    actual = parse_command_line(args)
+    self.assertEqual(expected, actual)
+
   def test_single_short_option_help(self) -> None:
     """
     Test the case when a single short option for help is provided.
