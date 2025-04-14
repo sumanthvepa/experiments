@@ -51,6 +51,18 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(args)
     self.assertEqual(expected, actual)
 
+  def test_sing_le_short_option_verbosity_with_value_space(self) -> None:
+    """
+      Test the case when a single short option with a value is provided using a space.
+      :return: None
+    """
+    args: list[str] = ['-v', '2']
+    expected_options = {'verbosity': 2, 'help': True, 'environment': []}
+    expected_parameters = []
+    expected = (expected_options, expected_parameters)
+    actual = parse_command_line(args)
+    self.assertEqual(expected, actual)
+
   def test_single_short_option_help(self) -> None:
     args = ['-h']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
