@@ -262,6 +262,7 @@ def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int
   if '=' in arg:
     option_name, option_value = arg[2:].split('=', 1)
     option_name = get_option_name(option_name)
+    option_value = convert_to_type(option_value_type(option_name), option_value)
     if not permits_value(option_name):
       raise ValueError(f"Option {option_name} does not take a value")
     option = Option(option_name, option_value)
@@ -270,14 +271,14 @@ def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int
     option_name = get_option_name(arg[2:])
     if requires_value(option_name):
       if next_arg is not None and is_option_value(option_name, next_arg):
-        option_value = next_arg
+        option_value = convert_to_type(option_value_type(option_name), next_arg)
         option = Option(option_name, option_value)
         increment = 2
       else:
         raise ValueError(f"Option {option_name} requires a value")
     elif permits_value(option_name):
       if next_arg is not None and is_option_value(option_name, next_arg):
-        option_value = next_arg
+        option_value = convert_to_type(option_value_type(option_name), next_arg)
         option = Option(option_name, option_value)
         increment = 2
       else:
