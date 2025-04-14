@@ -255,12 +255,14 @@ class TestParseCommandLine(unittest.TestCase):
     expected = (expected_options, expected_parameters)
     self.assertEqual(expected, actual)
 
-  #
-  # def test_combined_short_options(self) -> None:
-  #     args: list[str] = ['-vv']
-  #     expected_options: dict[str, int | bool] = {'v': 2, 'h': False}
-  #     expected_positional: list[str] = []
-  #     self.assertEqual(parse_command_line(args), (expected_options, expected_positional))
+  def test_multi_option_verbose(self) -> None:
+      args: list[str] = ['-vvv']
+      expected_options = {'verbosity': 3, 'help': True, 'environment': []}
+      expected_parameters = []
+      actual = parse_command_line(args)
+      expected = (expected_options, expected_parameters)
+      self.assertEqual(expected, actual)
+
   #
   # def test_option_with_value(self) -> None:
   #     args: list[str] = ['--env', 'test']
