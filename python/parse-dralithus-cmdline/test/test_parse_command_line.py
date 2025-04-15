@@ -331,6 +331,21 @@ class TestParseCommandLine(unittest.TestCase):
     expected = (expected_options, expected_parameters)
     self.assertEqual(expected, actual)
 
+  def test_multi_option_verbose_help_help(self) -> None:
+    """
+      Test the case when short the short option for help is duplicated
+      in a multi-option argument.
+
+      :return: None
+    """
+    args: list[str] = ['-hvh']
+    expected_options = {'verbosity': 1, 'help': True, 'environment': []}
+    expected_parameters = []
+    actual = parse_command_line(args)
+    expected = (expected_options, expected_parameters)
+    self.assertEqual(expected, actual)
+
+
   def test_multi_option_environment_wrong(self) -> None:
     """
       Test the case when multiple short options for verbosity and
