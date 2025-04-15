@@ -309,6 +309,18 @@ class TestParseCommandLine(unittest.TestCase):
       expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
       expected_parameters=[])
 
+  def test_single_long_option_environment_with_multi_value_space(self) -> None:
+    """
+      Test the case when a single long option for environment is provided
+      with multiple values using a space.
+
+      :return: None
+    """
+    self.execute_test(
+      args=['--environment', 'local,test'],
+      expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+      expected_parameters=[])
+
   def test_single_long_option_env_with_multi_value(self) -> None:
     """
     Test the case when a single long option for env is provided with
