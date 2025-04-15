@@ -181,6 +181,18 @@ class TestParseCommandLine(unittest.TestCase):
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
 
+  def test_single_long_option_verbose_with_value_space(self) -> None:
+    """
+      Test the case when a single long option for verbosity is provided
+      with a value using a space.
+
+      :return: None
+    """
+    self.execute_test(
+      args=['--verbose', '2'],
+      expected_options={'verbosity': 2, 'help': True, 'environment': []},
+      expected_parameters=[])
+
   def test_single_long_option_verbosity_with_value(self) -> None:
     """
       Test the case when a single long option for verbosity is provided
@@ -190,6 +202,18 @@ class TestParseCommandLine(unittest.TestCase):
     """
     self.execute_test(
       args=['--verbosity=2'],
+      expected_options={'verbosity': 2, 'help': True, 'environment': []},
+      expected_parameters=[])
+
+  def test_single_long_option_verbosity_with_value_space(self) -> None:
+    """
+      Test the case when a single long option for verbosity is provided
+      with a value using a space.
+
+      :return: None
+    """
+    self.execute_test(
+      args=['--verbosity', '2'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
 
