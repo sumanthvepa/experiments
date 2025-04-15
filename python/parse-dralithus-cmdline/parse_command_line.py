@@ -365,15 +365,18 @@ def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option
       raise ValueError(f"Unknown option: {option.name}")
 
 
-def validate_command_line(options: dict[str, bool | int | str | list[str]], parameters: list[str]) -> bool:
+def validate_command_line(options: dict[str, bool | int | str | list[str]], parameters: list[str]) -> None:
   """
-    Validate the command-line arguments.
+    Raise an exception if the command line arguments are invalid.
+
     :param options: The options dictionary to validate.
     :param parameters: The list of positional parameters to validate.
-    :return: True if the command-line arguments are valid, False otherwise.
+    :return: None.
   """
-  if options['help'] is False and (len(options['environment']) == 0 or len(parameters) == 0):
-    raise ValueError("No environment or positional parameters provided")
+  if options['help'] is False and len(options['environment']) == 0:
+    raise ValueError("No environment provided")
+  if options['help'] is False and len(parameters) == 0:
+    raise ValueError("No positional parameters provided")
 
 
 def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], list[str]]:
