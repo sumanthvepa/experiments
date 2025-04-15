@@ -72,10 +72,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_short_option_verbosity_with_wrong_value(self) -> None:
     """
-    Test the case when a single short option for verbosity is provided
-    with a wrong value.
+      Test the case when a single short option for verbosity is provided
+      with a wrong value.
 
-    :return: None
+      :return: None
     """
     args = ['-v=wrong']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
@@ -86,9 +86,9 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_short_option_help(self) -> None:
     """
-    Test the case when a single short option for help is provided.
+      Test the case when a single short option for help is provided.
 
-    :return: None
+      :return: None
     """
     args = ['-h']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
@@ -99,10 +99,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_short_option_help_with_wrong_value(self) -> None:
     """
-    Test the case when a single short option for help is provided with
-    an unnecessary value.
+      Test the case when a single short option for help is provided with
+      an unnecessary value.
 
-    :return: None
+      :return: None
     """
     args = ['-h=true']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
@@ -114,9 +114,9 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_short_option_environment(self) -> None:
     """
-    Test the case when a single short option for environment is provided.
+      Test the case when a single short option for environment is provided.
 
-    :return:
+      :return: None
     """
     args = ['-e']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
@@ -127,9 +127,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_short_option_environment_with_value(self) -> None:
     """
-    Test the case when a single short option for environment is provided with a value.
+      Test the case when a single short option for environment is provided
+      with a value.
 
-    :return:
+      :return: None
     """
     args = ['-e=test']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['test']}
@@ -140,9 +141,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_short_option_environment_with_multi_value(self) -> None:
     """
-    Test the case when a single short option for environment is provided with multiple values.
+      Test the case when a single short option for environment is provided
+      with multiple values.
 
-    :return:
+      :return: None
     """
     args = ['-e=test,local']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['test', 'local']}
@@ -153,10 +155,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_short_option_environment_with_wrong_value(self) -> None:
     """
-    Test the case when a single short option for environment is provided with an
-    incorrect value.
+      Test the case when a single short option for environment is provided with an
+      incorrect value.
 
-    :return: None
+      :return: None
     """
     args = ['-e=wrong']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
@@ -167,9 +169,9 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_long_option_verbose(self) -> None:
     """
-    Test the case when a single long option for verbosity is provided.
+      Test the case when a single long option for verbosity is provided.
 
-    :return:
+      :return: None
     """
     args: list[str] = ['--verbose']
     expected_options = {'verbosity': 1, 'help': True, 'environment': []}
@@ -180,9 +182,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_long_option_verbose_with_value(self) -> None:
     """
-    Test the case when a single long option for verbosity is provided with a value.
+      Test the case when a single long option for verbosity is provided
+      with a value.
 
-    :return:
+      :return: None
     """
     args: list[str] = ['--verbose=2']
     expected_options = {'verbosity': 2, 'help': True, 'environment': []}
@@ -193,9 +196,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_long_option_verbosity_with_value(self) -> None:
     """
-    Test the case when a single long option for verbosity is provided with a value.
+      Test the case when a single long option for verbosity is provided
+      with a value.
 
-    :return:
+      :return: None
     """
     args: list[str] = ['--verbosity=2']
     expected_options = {'verbosity': 2, 'help': True, 'environment': []}
@@ -206,9 +210,9 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_long_option_help(self) -> None:
     """
-    Test the case when a single long option for help is provided.
+      Test the case when a single long option for help is provided.
 
-    :return:
+      :return: None
     """
     args: list[str] = ['--help']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
@@ -219,9 +223,9 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_long_option_environment(self) -> None:
     """
-    Test the case when a single long option for environment is provided.
+      Test the case when a single long option for environment is provided.
 
-    :return:
+      :return: None
     """
     args: list[str] = ['--environment']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
@@ -246,8 +250,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_long_option_environment_with_value(self) -> None:
     """
-    Test the case when a single long option for environment is provided with a value.
-    :return:
+    Test the case when a single long option for environment is provided
+    with a value.
+
+    :return: None
     """
     args: list[str] = ['--environment=local']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['local']}
@@ -258,8 +264,10 @@ class TestParseCommandLine(unittest.TestCase):
 
   def test_single_long_option_env_with_value(self) -> None:
     """
-    Test the case when a single long option for environment is provided with a value.
-    :return:
+    Test the case when a single long option for environment is provided
+    with a value.
+
+    :return: None
     """
     args: list[str] = ['--env=local']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['local']}
@@ -268,12 +276,11 @@ class TestParseCommandLine(unittest.TestCase):
     expected = (expected_options, expected_parameters)
     self.assertEqual(expected, actual)
 
-
   def test_single_long_option_environment_with_multi_value(self) -> None:
     """
     Test the case when a single long option for environment is provided with multiple values.
 
-    :return:
+    :return: None
     """
     args: list[str] = ['--environment=local,test']
     expected_options = {'verbosity': 0, 'help': True, 'environment': ['local',  'test']}
@@ -283,22 +290,40 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_multi_option_verbose(self) -> None:
-      args: list[str] = ['-vvv']
-      expected_options = {'verbosity': 3, 'help': True, 'environment': []}
-      expected_parameters = []
-      actual = parse_command_line(args)
-      expected = (expected_options, expected_parameters)
-      self.assertEqual(expected, actual)
+    """
+      Test the case when multiple short options for verbosity are provided in one
+      multi-option argument.
+
+      :return: None
+    """
+    args: list[str] = ['-vvv']
+    expected_options = {'verbosity': 3, 'help': True, 'environment': []}
+    expected_parameters = []
+    actual = parse_command_line(args)
+    expected = (expected_options, expected_parameters)
+    self.assertEqual(expected, actual)
 
   def test_multi_option_verbose_help(self) -> None:
-      args: list[str] = ['-vvvh']
-      expected_options = {'verbosity': 3, 'help': True, 'environment': []}
-      expected_parameters = []
-      actual = parse_command_line(args)
-      expected = (expected_options, expected_parameters)
-      self.assertEqual(expected, actual)
+    """
+      Test the case when short options for verbosity and help are
+      provided in one multi-option argument.
+
+      :return: None
+    """
+    args: list[str] = ['-vvvh']
+    expected_options = {'verbosity': 3, 'help': True, 'environment': []}
+    expected_parameters = []
+    actual = parse_command_line(args)
+    expected = (expected_options, expected_parameters)
+    self.assertEqual(expected, actual)
 
   def test_multi_option_help_help(self) -> None:
+    """
+      Test the case when short the short option for help is duplicated
+      in a multi-option argument.
+
+      :return: None
+    """
     args: list[str] = ['-hh']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
     expected_parameters = []
@@ -307,6 +332,12 @@ class TestParseCommandLine(unittest.TestCase):
     self.assertEqual(expected, actual)
 
   def test_multi_option_environment_wrong(self) -> None:
+    """
+      Test the case when multiple short options for verbosity and
+      environment are provided in one multi-option argument.
+
+      :return: None
+    """
     args: list[str] = ['-vve=local']
     expected_options = {'verbosity': 0, 'help': True, 'environment': []}
     expected_parameters = []
