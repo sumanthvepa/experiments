@@ -289,6 +289,21 @@ class TestParseCommandLine(unittest.TestCase):
     expected = (expected_options, expected_parameters)
     self.assertEqual(expected, actual)
 
+  def test_single_long_option_env_with_multi_value(self) -> None:
+    """
+    Test the case when a single long option for env is provided with
+    multiple values.
+
+    :return: None
+    """
+    args: list[str] = ['--env=local,test']
+    expected_options = {'verbosity': 0, 'help': True, 'environment': ['local',  'test']}
+    expected_parameters = []
+    actual = parse_command_line(args)
+    expected = (expected_options, expected_parameters)
+    self.assertEqual(expected, actual)
+
+
   def test_multi_option_verbose(self) -> None:
     """
       Test the case when multiple short options for verbosity are provided in one
