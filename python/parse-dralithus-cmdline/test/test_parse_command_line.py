@@ -3,7 +3,25 @@ from parse_command_line import parse_command_line
 
 
 class TestParseCommandLine(unittest.TestCase):
-  def test_no_arguments(self) -> None:
+
+  def execute_test(
+      self,
+      args: list[str],
+      expected_options: dict[str, bool | int | str | list[str]],
+      expected_parameters: list[str]) -> None:
+    """
+      Execute the test with the provided arguments and check the expected
+      :param args: The command line arguments to test.
+      :param expected_options: The expected options dictionary.
+      :param expected_parameters: The expected parameters list.
+      :return: None
+    """
+    expected = (expected_options, expected_parameters)
+    actual = parse_command_line(args)
+    self.assertEqual(expected, actual)
+
+
+def test_no_arguments(self) -> None:
     """
       Test the case when no arguments are provided.
 
