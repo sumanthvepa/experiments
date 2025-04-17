@@ -405,6 +405,17 @@ class TestParseCommandLine(unittest.TestCase):
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
 
+  def test_multiple_short_options_help(self) -> None:
+    """
+      Test the case when multiple short options for help are provided.
+
+      :return: None
+    """
+    self.execute_test(
+      args=['-h', '-h'],
+      expected_options={'verbosity': 0, 'help': True, 'environment': []},
+      expected_parameters=[])
+
   #
   # def test_positional_arguments(self) -> None:
   #     args: list[str] = ['application1', 'application2']
