@@ -25,32 +25,17 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(case['args'])
     self.assertEqual(expected, actual)
 
-  def execute_test_old(
-    self,
-    args: list[str],
-    expected_options: dict[str, bool | int | str | list[str]],
-    expected_parameters: list[str]) -> None:
-    """
-      Execute the test with the provided arguments and check the expected
-      :param args: The command line arguments to test.
-      :param expected_options: The expected options dictionary.
-      :param expected_parameters: The expected parameters list.
-      :return: None
-    """
-    expected = (expected_options, expected_parameters)
-    actual = parse_command_line(args)
-    self.assertEqual(expected, actual)
-
   def test_no_arguments(self) -> None:
     """
       Test the case when no arguments are provided.
 
       :return: None
     """
-    self.execute_test_old(
-      args=[],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': [],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_verbosity(self) -> None:
     """
@@ -59,10 +44,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-v'],
-      expected_options={'verbosity': 1, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-v'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_verbosity_with_value(self) -> None:
     """
@@ -70,10 +56,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-v2'],
-      expected_options={'verbosity': 2, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-v2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_verbosity_with_value_equal(self) -> None:
     """
@@ -81,10 +68,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-v=2'],
-      expected_options={'verbosity': 2, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-v=2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_sing_le_short_option_verbosity_with_value_space(self) -> None:
     """
@@ -93,10 +81,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-v', '2'],
-      expected_options={'verbosity': 2, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-v', '2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_verbosity_with_wrong_value(self) -> None:
     """
@@ -105,10 +94,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-v=wrong'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-v=wrong'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_help(self) -> None:
     """
@@ -116,10 +106,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-h'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-h'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_help_with_wrong_value(self) -> None:
     """
@@ -128,10 +119,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-h=true'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-h=true'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_environment(self) -> None:
     """
@@ -139,10 +131,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-e'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-e'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_environment_with_value(self) -> None:
     """
@@ -151,10 +144,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-e=test'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['test']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-e=test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test']},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_environment_with_multi_value(self) -> None:
     """
@@ -163,10 +157,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-e=test,local'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-e=test,local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
+      'expected_parameters': []
+    })
 
   def test_single_short_option_environment_with_wrong_value(self) -> None:
     """
@@ -175,10 +170,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-e=wrong'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-e=wrong'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_verbose(self) -> None:
     """
@@ -186,10 +182,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--verbose'],
-      expected_options={'verbosity': 1, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--verbose'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_verbose_with_value(self) -> None:
     """
@@ -198,10 +195,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--verbose=2'],
-      expected_options={'verbosity': 2, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--verbose=2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_verbose_with_value_space(self) -> None:
     """
@@ -210,10 +208,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--verbose', '2'],
-      expected_options={'verbosity': 2, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--verbose', '2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_verbosity_with_value(self) -> None:
     """
@@ -222,10 +221,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--verbosity=2'],
-      expected_options={'verbosity': 2, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--verbosity=2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_verbosity_with_value_space(self) -> None:
     """
@@ -234,10 +234,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--verbosity', '2'],
-      expected_options={'verbosity': 2, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--verbosity', '2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_help(self) -> None:
     """
@@ -245,10 +246,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--help'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--help'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_environment(self) -> None:
     """
@@ -256,10 +258,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--environment'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--environment'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_env(self) -> None:
     """
@@ -267,10 +270,11 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test_old(
-      args=['--env'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--env'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_environment_with_value(self) -> None:
     """
@@ -279,10 +283,11 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test_old(
-      args=['--environment=local'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['local']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--environment=local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_environment_with_value_space(self) -> None:
     """
@@ -291,10 +296,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--environment', 'local'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['local']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--environment', 'local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_env_with_value(self) -> None:
     """
@@ -303,10 +309,11 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test_old(
-      args=['--env=local'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['local']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--env=local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_env_with_value_space(self) -> None:
     """
@@ -315,10 +322,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--env', 'local'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['local']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--env', 'local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_environment_with_multi_value(self) -> None:
     """
@@ -326,10 +334,11 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test_old(
-      args=['--environment=local,test'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--environment=local,test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_environment_with_multi_value_space(self) -> None:
     """
@@ -338,10 +347,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['--environment', 'local,test'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--environment', 'local,test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    })
 
   def test_single_long_option_env_with_multi_value(self) -> None:
     """
@@ -350,10 +360,11 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test_old(
-      args=['--env=local,test'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['--env=local,test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    })
 
   def test_multi_option_verbose(self) -> None:
     """
@@ -362,10 +373,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-vvv'],
-      expected_options={'verbosity': 3, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-vvv'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_multi_option_verbose_help(self) -> None:
     """
@@ -374,10 +386,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-vvvh'],
-      expected_options={'verbosity': 3, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-vvvh'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_multi_option_help_help(self) -> None:
     """
@@ -386,10 +399,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-hh'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-hh'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_multi_option_verbose_help_help(self) -> None:
     """
@@ -398,10 +412,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-hvh'],
-      expected_options={'verbosity': 1, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-hvh'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_multi_option_environment_wrong(self) -> None:
     """
@@ -410,10 +425,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-vve=local'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-vve=local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_multiple_short_options_verbosity(self) -> None:
     """
@@ -422,10 +438,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-v', '-v'],
-      expected_options={'verbosity': 2, 'help': True, 'environment': []},
-      expected_parameters=[])
+    self.execute_test({
+      'args': ['-v', '-v'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
 
   def test_multiple_short_options_help(self) -> None:
     """
@@ -433,11 +450,11 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test_old(
-      args=['-h', '-h'],
-      expected_options={'verbosity': 0, 'help': True, 'environment': []},
-      expected_parameters=[])
-
+    self.execute_test({
+      'args': ['-h', '-h'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    })
   #
   # def test_positional_arguments(self) -> None:
   #     args: list[str] = ['application1', 'application2']
