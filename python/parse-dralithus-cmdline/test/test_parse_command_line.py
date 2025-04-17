@@ -1,5 +1,15 @@
 import unittest
+from typing import TypedDict
+
 from parse_command_line import parse_command_line
+
+class TestCaseData(TypedDict):
+  """
+    A TypedDict to define the structure of a test case
+  """
+  args: list[str]
+  expected_options: dict[str, bool | int | str | list[str]]
+  expected_parameters: list[str]
 
 
 class TestParseCommandLine(unittest.TestCase):
