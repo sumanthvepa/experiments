@@ -393,12 +393,18 @@ class TestParseCommandLine(unittest.TestCase):
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
 
-  #
-  # def test_option_with_value(self) -> None:
-  #     args: list[str] = ['--env', 'test']
-  #     expected_options: dict[str, int | bool | str] = {'v': 0, 'h': False, 'env': 'test'}
-  #     expected_positional: list[str] = []
-  #     self.assertEqual(parse_command_line(args), (expected_options, expected_positional))
+  def test_multiple_short_options_verbosity(self) -> None:
+    """
+      Test the case when multiple short options for verbosity are
+      provided.
+
+      :return: None
+    """
+    self.execute_test(
+      args=['-v', '-v'],
+      expected_options={'verbosity': 2, 'help': True, 'environment': []},
+      expected_parameters=[])
+
   #
   # def test_positional_arguments(self) -> None:
   #     args: list[str] = ['application1', 'application2']
