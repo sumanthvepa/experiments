@@ -1,6 +1,8 @@
 import unittest
 from typing import TypedDict
 
+from parameterized import parameterized
+
 from parse_command_line import parse_command_line
 
 class TestCaseData(TypedDict):
@@ -24,6 +26,186 @@ class TestParseCommandLine(unittest.TestCase):
     expected = (case['expected_options'], case['expected_parameters'])
     actual = parse_command_line(case['args'])
     self.assertEqual(expected, actual)
+
+  @staticmethod
+  def all_cases() -> list[TestCaseData]:
+      """
+      Return a list of all test cases.
+
+      :return: A list of test case dictionaries.
+      """
+      return [
+          {
+              'args': [],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-v'],
+              'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-v2'],
+              'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-v=2'],
+              'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-v', '2'],
+              'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-v=wrong'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-h'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-h=true'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-e'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-e=test'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-e=test,local'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-e=wrong'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--verbose'],
+              'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--verbose=2'],
+              'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--verbose', '2'],
+              'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--verbosity=2'],
+              'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--verbosity', '2'],
+              'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--help'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--environment'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--env'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--environment=local'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--environment', 'local'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--env=local'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--env', 'local'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--environment=local,test'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--environment', 'local,test'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['--env=local,test'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-vvv'],
+              'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-vvvh'],
+              'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-hh'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-hvh'],
+              'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-vve=local'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-v', '-v'],
+              'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+              'expected_parameters': []
+          },
+          {
+              'args': ['-h', '-h'],
+              'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+              'expected_parameters': []
+          }
+      ]
 
   def test_no_arguments(self) -> None:
     """
