@@ -13,7 +13,7 @@ class TestCaseData(TypedDict):
 
 
 class TestParseCommandLine(unittest.TestCase):
-  def execute_test(
+  def execute_test_old(
     self,
     args: list[str],
     expected_options: dict[str, bool | int | str | list[str]],
@@ -35,7 +35,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=[],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -47,7 +47,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-v'],
       expected_options={'verbosity': 1, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -58,7 +58,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-v2'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -69,7 +69,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-v=2'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -81,7 +81,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-v', '2'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -93,7 +93,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-v=wrong'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -104,7 +104,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-h'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -116,7 +116,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-h=true'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -127,7 +127,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-e'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -139,7 +139,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-e=test'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['test']},
       expected_parameters=[])
@@ -151,7 +151,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-e=test,local'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
       expected_parameters=[])
@@ -163,7 +163,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-e=wrong'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -174,7 +174,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--verbose'],
       expected_options={'verbosity': 1, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -186,7 +186,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--verbose=2'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -198,7 +198,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--verbose', '2'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -210,7 +210,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--verbosity=2'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -222,7 +222,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--verbosity', '2'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -233,7 +233,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--help'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -244,7 +244,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--environment'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -255,7 +255,7 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--env'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -267,7 +267,7 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--environment=local'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['local']},
       expected_parameters=[])
@@ -279,7 +279,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--environment', 'local'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['local']},
       expected_parameters=[])
@@ -291,7 +291,7 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--env=local'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['local']},
       expected_parameters=[])
@@ -303,7 +303,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--env', 'local'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['local']},
       expected_parameters=[])
@@ -314,7 +314,7 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--environment=local,test'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
       expected_parameters=[])
@@ -326,7 +326,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--environment', 'local,test'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
       expected_parameters=[])
@@ -338,7 +338,7 @@ class TestParseCommandLine(unittest.TestCase):
 
     :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['--env=local,test'],
       expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
       expected_parameters=[])
@@ -350,7 +350,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-vvv'],
       expected_options={'verbosity': 3, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -362,7 +362,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-vvvh'],
       expected_options={'verbosity': 3, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -374,7 +374,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-hh'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -386,7 +386,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-hvh'],
       expected_options={'verbosity': 1, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -398,7 +398,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-vve=local'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -410,7 +410,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-v', '-v'],
       expected_options={'verbosity': 2, 'help': True, 'environment': []},
       expected_parameters=[])
@@ -421,7 +421,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    self.execute_test(
+    self.execute_test_old(
       args=['-h', '-h'],
       expected_options={'verbosity': 0, 'help': True, 'environment': []},
       expected_parameters=[])
