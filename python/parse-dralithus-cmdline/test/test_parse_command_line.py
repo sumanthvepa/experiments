@@ -13,6 +13,18 @@ class TestCaseData(TypedDict):
 
 
 class TestParseCommandLine(unittest.TestCase):
+  def execute_test(self, case: TestCaseData) -> None:
+    """
+      Execute the test with the provided case data and check that
+      the actual output matches the expected output.
+
+      :param case: A test case
+      :return: None
+    """
+    expected = (case['expected_options'], case['expected_parameters'])
+    actual = parse_command_line(case['args'])
+    self.assertEqual(expected, actual)
+
   def execute_test_old(
     self,
     args: list[str],
