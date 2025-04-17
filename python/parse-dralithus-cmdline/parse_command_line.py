@@ -131,7 +131,7 @@ def is_valid_environment(values: list[str]) -> bool:
   return True
 
 
-def is_option_value(option_name: str, value: str | list[str]) -> bool:
+def is_option_value(option_name: str, value: bool | int | str | list[str]) -> bool:
   """
     Check if the argument is a valid option value.
     :param option_name: The name of the option.
@@ -161,7 +161,7 @@ def convert_to_type(required_type: type, value: str) -> bool | int | str | list[
   """
     Convert the value to the specified type.
     :param required_type: The type to convert to.
-    :param value: The value to convert.
+    :param value: The value to convert
     :return: The converted value.
   """
   if required_type == bool:
@@ -270,10 +270,13 @@ def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int
   else:
     option_name = get_option_name(arg[2:])
     if requires_value(option_name):
-      if next_arg is not None and is_option_value(option_name, next_arg):
+      if next_arg is not None:
         option_value = convert_to_type(option_value_type(option_name), next_arg)
-        option = Option(option_name, option_value)
-        increment = 2
+        if is_option_value(option_name, option_value):
+          option = Option(option_name, option_value)
+          increment = 2
+        else:
+          raise ValueError(f"{next_arg} is not a valid value for {option_name}")
       else:
         raise ValueError(f"Option {option_name} requires a value")
     elif permits_value(option_name):
