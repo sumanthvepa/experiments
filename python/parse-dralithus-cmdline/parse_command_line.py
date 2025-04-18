@@ -218,7 +218,8 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
       option = Option(option_name, option_value)
       increment = 1
     else:
-      if next_arg is not None and is_option_value(option_name, next_arg):
+      option_value = convert_to_type(option_value_type(option_name), next_arg)
+      if next_arg is not None and is_option_value(option_name, option_value):
         # Cast the value to the appropriate type
         option_value = convert_to_type(option_value_type(option_name), next_arg)
         option = Option(option_name, option_value)
