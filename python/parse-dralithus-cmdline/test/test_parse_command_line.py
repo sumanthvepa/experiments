@@ -203,6 +203,11 @@ class TestParseCommandLine(unittest.TestCase):
         'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
         'expected_parameters': []
       }),
+      ('multiple_short_options_verbosity_environment_equal', {
+        'args': ['-v', '-e=local'],
+        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
+        'expected_parameters': []
+      }),
       ('multiple_short_options_verbosity_environment', {
        'args': ['-v', '-e', 'local'],
        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
