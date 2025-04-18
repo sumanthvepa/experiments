@@ -5,6 +5,7 @@ from parameterized import parameterized
 
 from parse_command_line import parse_command_line
 
+
 class TestCaseData(TypedDict):
   """
     A TypedDict to define the structure of a test case
@@ -207,6 +208,18 @@ class TestParseCommandLine(unittest.TestCase):
         'expected_parameters': []
       })
     ]
+
+  @parameterized.expand(all_cases())
+  def test_cases(self, name: str, case: TestCaseData) -> None:
+    """
+      Execute the test with the provided case data
+
+      :param name: The name of the test-case
+      :param case: Test-case data with input and expected
+        output
+      :return: None
+    """
+    self.execute_test(case)
 
   def test_no_arguments(self) -> None:
     """
