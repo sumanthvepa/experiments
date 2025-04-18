@@ -213,7 +213,12 @@ class TestParseCommandLine(unittest.TestCase):
   @parameterized.expand(all_cases())
   def test_cases(self, name: str, case: TestCaseData) -> None:
     """
-      Execute the test with the provided case data
+      Execute the test with the provided case data.
+
+      Note that despite the arrow next to the test in the
+      IntelliJ IDEA IDE, you cannot run this this test
+      by clicking on the arrow. You need to run the whole
+      class, the whole file, or all the tests in the project.
 
       :param name: The name of the test-case
       :param case: Test-case data with input and expected
