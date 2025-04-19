@@ -242,6 +242,11 @@ class TestParseCommandLine(unittest.TestCase):
         'args': ['--verbose', '--verbose'],
         'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
         'expected_parameters': []
+      }),
+      ('multiple_long_options_help_help', {
+        'args': ['--help', '--help'],
+        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+        'expected_parameters': []
       })
     ]
 
