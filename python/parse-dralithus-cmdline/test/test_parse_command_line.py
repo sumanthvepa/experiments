@@ -282,6 +282,11 @@ class TestParseCommandLine(unittest.TestCase):
         'args': ['--environment', 'test', '--environment', 'local'],
         'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
         'expected_parameters': []
+      }),
+      ('multiple_long_options_environment_equal_environment_multi_equal', {
+        'args': ['--environment=local', '--environment=test,staging'],
+        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test', 'staging']},
+        'expected_parameters': []
       })
     ]
 
