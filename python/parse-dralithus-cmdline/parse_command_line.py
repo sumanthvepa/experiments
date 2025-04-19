@@ -364,7 +364,10 @@ def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option
       if isinstance(option.value, list) \
           and all(isinstance(element, str) for element in option.value) \
           and is_valid_environment(option.value):
-        options['environment'] += option.value
+        for value in option.value:
+          # Skip duplicate values
+          if value not in options['environment']:
+            options['environment'].append(value)
       else:
         raise ValueError(f"Invalid value for environment: {option.value}")
     else:
