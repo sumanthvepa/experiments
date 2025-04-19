@@ -232,6 +232,11 @@ class TestParseCommandLine(unittest.TestCase):
         'args': ['-e', 'local', '-v', '1'],
         'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
         'expected_parameters': []
+      }),
+      ('multiple_long_options_verbosity_verbosity', {
+        'args': ['--verbosity', '--verbosity'],
+        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+        'expected_parameters': []
       })
     ]
 
@@ -265,14 +270,14 @@ class TestParseCommandLine(unittest.TestCase):
     """
     self.execute_test(case)
 
-  # def test_debug(self) -> None:
-  #   """
-  #     Debug a failing test case
-  #
-  #     :return: None
-  #   """
-  #   case = TestParseCommandLine.all_cases()[35][1]
-  #   self.execute_test(case)
+  def test_debug(self) -> None:
+    """
+      Debug a failing test case
+
+      :return: None
+    """
+    case = TestParseCommandLine.all_cases()[55][1]
+    self.execute_test(case)
 
   #
   # def test_positional_arguments(self) -> None:
