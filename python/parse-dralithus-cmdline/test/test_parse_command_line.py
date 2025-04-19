@@ -355,14 +355,15 @@ class TestParseCommandLine(unittest.TestCase):
     """
     self.execute_test(case)
 
-  # def test_debug(self) -> None:
-  #   """
-  #     Debug a failing test case
-  #
-  #     :return: None
-  #   """
-  #   case = TestParseCommandLine.all_cases()[55][1]
-  #   self.execute_test(case)
+  @unittest.skip("Debugging for a failing test")
+  def test_debug(self) -> None:
+    """
+      Debug a failing test case
+
+      :return: None
+    """
+    case = TestParseCommandLine.all_cases()[55][1]
+    self.execute_test(case)
 
   #
   # def test_positional_arguments(self) -> None:
