@@ -253,6 +253,11 @@ class TestParseCommandLine(unittest.TestCase):
         'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
         'expected_parameters': []
       }),
+      ('multiple_long_options_help_verbosity_space', {
+        'args': ['--help', '--verbosity', '3'],
+        'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+        'expected_parameters': []
+      })
     ]
 
   def execute_test(self, case: TestCaseData) -> None:
