@@ -307,6 +307,11 @@ class TestParseCommandLine(unittest.TestCase):
         'args': ['-e', 'local', '-vhvv', '--environment', 'test,staging'],
         'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
         'expected_parameters': []
+      }),
+      ('multiple_options_verbosity_help_e_space_environment_multi_equal', {
+        'args': ['-e', 'local', '-vvhv', '--environment=test,staging'],
+        'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
+        'expected_parameters': []
       })
     ]
 
