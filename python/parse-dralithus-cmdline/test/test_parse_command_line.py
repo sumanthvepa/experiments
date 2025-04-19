@@ -27,6 +27,7 @@ class TestParseCommandLine(unittest.TestCase):
         elements, the name of the test case and a TestCaseData object
     """
 
+    # noinspection SpellCheckingInspection
     return [
       ('no_arguments', {
         'args': [],
@@ -337,20 +338,19 @@ class TestParseCommandLine(unittest.TestCase):
     actual = parse_command_line(case['args'])
     self.assertEqual(expected, actual)
 
-
+  # noinspection PyUnusedLocal
   @parameterized.expand(all_cases())
   def test_cases(self, name: str, case: TestCaseData) -> None:
     """
       Execute the test with the provided case data.
 
       Note that despite the arrow next to the test in the
-      IntelliJ IDEA IDE, you cannot run this this test
+      IntelliJ IDEA IDE, you cannot run this test
       by clicking on the arrow. You need to run the whole
       class, the whole file, or all the tests in the project.
 
-      :param name: The name of the test-case
-      :param case: Test-case data with input and expected
-        output
+      :param name: The name of the test case
+      :param case: A test case with input and expected output
       :return: None
     """
     self.execute_test(case)
