@@ -19,9 +19,12 @@ class TestCaseData(TypedDict):
 
 class TestParseCommandLine(unittest.TestCase):
   @staticmethod
-  def all_cases() -> list[tuple[str, TestCaseData]]:
+  def no_parameters_test_cases() -> list[tuple[str, TestCaseData]]:
     """
-      Return a list of all test cases with their names
+      Return a list of no parameter test cases.
+
+      A no parameter test cases, is a test case that does not
+      contain any positional parameters.
 
       :return: A list of tuples, where each tuple consists of two
         elements, the name of the test case and a TestCaseData object
@@ -325,6 +328,16 @@ class TestParseCommandLine(unittest.TestCase):
         'expected_parameters': []
       })
     ]
+
+  @staticmethod
+  def all_cases() -> list[tuple[str, TestCaseData]]:
+    """
+      Return a list of all test cases with their names
+
+      :return: A list of tuples, where each tuple consists of two
+        elements, the name of the test case and a TestCaseData object
+    """
+    return TestParseCommandLine.no_parameters_test_cases()
 
   def execute_test(self, case: TestCaseData) -> None:
     """
