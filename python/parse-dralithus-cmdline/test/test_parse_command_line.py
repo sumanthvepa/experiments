@@ -15,330 +15,385 @@ class TestCaseData(TypedDict):
   expected_parameters: list[str]
 
 
+def is_asking_for_help(args: list[str]) -> bool:
+  """
+    Check if the help option is present in the args list.
+
+    The help option is considered present if '--help' is in the args list,
+    '-h' is in the args list, or 'h' is part of a multi-option (e.g., '-vhv').
+
+    :param args: A list of command-line arguments
+    :return: True if the help option is present, False otherwise
+  """
+  for arg in args:
+    if arg == '--help' or arg == '-h':
+      return True
+    if arg.startswith('-') and 'h' in arg[1:]:
+      return True
+  return False
+
+
+def parameter_missing_cases() -> list[tuple[str, TestCaseData]]:
+  """
+    Return a list of no parameter test cases.
+
+    A no parameter test cases, is a test case that does not
+    contain any positional parameters.
+
+    :return: A list of tuples, where each tuple consists of two
+      elements, the name of the test case and a TestCaseData object
+  """
+  # noinspection SpellCheckingInspection
+  return [
+    ('no_arguments', {
+      'args': [],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_verbosity', {
+      'args': ['-v'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_verbosity_with_value', {
+      'args': ['-v2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_verbosity_with_value_equal', {
+      'args': ['-v=2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_verbosity_with_value_space', {
+      'args': ['-v', '2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_verbosity_with_wrong_value', {
+      'args': ['-v=wrong'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_help', {
+      'args': ['-h'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_help_with_wrong_value', {
+      'args': ['-h=true'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_environment', {
+      'args': ['-e'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_short_option_environment_with_value', {
+      'args': ['-e=test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test']},
+      'expected_parameters': []
+    }),
+    ('single_short_option_environment_with_multi_value', {
+      'args': ['-e=test,local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
+      'expected_parameters': []
+    }),
+    ('single_short_option_environment_with_wrong_value', {
+      'args': ['-e=wrong'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_verbose', {
+      'args': ['--verbose'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_verbose_with_value', {
+      'args': ['--verbose=2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_verbose_with_value_space', {
+      'args': ['--verbose', '2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_verbosity_with_value', {
+      'args': ['--verbosity=2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_verbosity_with_value_space', {
+      'args': ['--verbosity', '2'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_help', {
+      'args': ['--help'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_environment', {
+      'args': ['--environment'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_env', {
+      'args': ['--env'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('single_long_option_environment_with_value', {
+      'args': ['--environment=local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('single_long_option_environment_with_value_space', {
+      'args': ['--environment', 'local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('single_long_option_env_with_value', {
+      'args': ['--env=local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('single_long_option_env_with_value_space', {
+      'args': ['--env', 'local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('single_long_option_environment_with_multi_value', {
+      'args': ['--environment=local,test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    }),
+    ('single_long_option_environment_with_multi_value_space', {
+      'args': ['--environment', 'local,test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    }),
+    ('single_long_option_env_with_multi_value', {
+      'args': ['--env=local,test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    }),
+    ('multi_option_verbose', {
+      'args': ['-vvv'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multi_option_verbose_help', {
+      'args': ['-vvvh'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multi_option_help_help', {
+      'args': ['-hh'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multi_option_verbose_help_help', {
+      'args': ['-hvh'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multi_option_environment_wrong', {
+      'args': ['-vve=local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_verbosity', {
+      'args': ['-v', '-v'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_help', {
+      'args': ['-h', '-h'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_help_verbosity', {
+      'args': ['-h', '-v'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_verbosity_environment_equal', {
+      'args': ['-v', '-e=local'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_verbosity_environment_space', {
+      'args': ['-v', '-e', 'local'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_verbosity_environment_multi_space', {
+      'args': ['-v', '-e', 'local,test'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_verbosity_environment_multi_equal', {
+      'args': ['-v', '-e=local,test'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_environment_equal_verbosity_equal', {
+      'args': ['-e=local', '-v=1'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('multiple_short_options_environment_space_verbosity_space', {
+      'args': ['-e', 'local', '-v', '1'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_verbosity_verbosity', {
+      'args': ['--verbosity', '--verbosity'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_verbose_verbose', {
+      'args': ['--verbose', '--verbose'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_help_help', {
+      'args': ['--help', '--help'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_help_verbosity_equal', {
+      'args': ['--help', '--verbosity=3'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_help_verbosity_space', {
+      'args': ['--help', '--verbosity', '3'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_verbose_environment_equal', {
+      'args': ['--verbose', '--environment=local'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_verbose_environment_space', {
+      'args': ['--verbose', '--environment', 'local'],
+      'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_environment_environment', {
+      'args': ['--environment', '--environment'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_environment_environment_equal', {
+      'args': ['--environment=local', '--environment=test'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_environment_space_environment_space', {
+      'args': ['--environment', 'test', '--environment', 'local'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
+      'expected_parameters': []
+    }),
+    ('multiple_long_options_environment_equal_environment_multi_equal', {
+      'args': ['--environment=local', '--environment=test,staging'],
+      'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test', 'staging']},
+      'expected_parameters': []
+    }),
+    ('multiple_multi_options_help_verbosity_long_verbose', {
+      'args': ['-hv', '--verbose'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+      'expected_parameters': []
+    }),
+    ('multiple_multi_options_verbosity_verbosity_long_environment', {
+      'args': ['-vv', '--environment=local'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': ['local']},
+      'expected_parameters': []
+    }),
+    ('multiple_options_verbosity_help_e_equal_environment_multi_equal', {
+      'args': ['-e=local', '-hvvv', '--environment=test,staging'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
+      'expected_parameters': []
+    }),
+    ('multiple_options_verbosity_help_e_space_environment_multi_space', {
+      'args': ['-e', 'local', '-vhvv', '--environment', 'test,staging'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
+      'expected_parameters': []
+    }),
+    ('multiple_options_verbosity_help_e_space_environment_multi_equal', {
+      'args': ['-e', 'local', '-vvhv', '--environment=test,staging'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
+      'expected_parameters': []
+    }),
+    ('multiple_options_verbosity_help_e_equal_environment_multi_space', {
+      'args': ['-e=local', '-vvvh', '--environment', 'test,staging'],
+      'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
+      'expected_parameters': []
+    }),
+    ('multiple_options_verbosity_help_e_equal_environment_multi_space', {
+      'args': ['-e=local', '-hhvv', '--environment', 'local,staging'],
+      'expected_options': {'verbosity': 2, 'help': True, 'environment': ['local', 'staging']},
+      'expected_parameters': []
+    })
+  ]
+
+def parameter_present_cases() -> list[tuple[str, TestCaseData]]:
+  """
+    Return a list of parameterized test cases where there are
+    parameters present in the args list.
+
+    Each test case corresponds to three variations of the test cases
+    returned by no_parameters_test_cases(), with additional parameters
+    ['sample'], ['sample', 'echo'], and ['sample', 'echo', 'dralithus'].
+
+    :return: A list of tuples, where each tuple consists of two
+      elements, the name of the test case and a TestCaseData object
+  """
+  parameter_variations = [['sample'], ['sample', 'echo'], ['sample', 'echo', 'dralithus']]
+  test_cases = []
+
+  for name, case in parameter_missing_cases():
+    for i, parameters in enumerate(parameter_variations):
+      suffix = '_parameters_' + '_'.join(parameters)
+      new_name = name + suffix
+      new_args = case['args'] + parameters
+      new_expected_parameters = parameters
+      new_expected_options = case['expected_options'].copy()
+
+      # Adjust the 'help' option based on the rules
+      if is_asking_for_help(new_args) or len(new_expected_options['environment']) == 0:
+        new_expected_options['help'] = True
+      else:
+        new_expected_options['help'] = False
+
+      test_cases.append((
+        new_name,
+        {
+          'args': new_args,
+          'expected_options': new_expected_options,
+          'expected_parameters': new_expected_parameters
+        }
+      ))
+
+  return test_cases
+
+
+def all_cases() -> list[tuple[str, TestCaseData]]:
+  """
+    Return a list of all test cases with their names
+
+    :return: A list of tuples, where each tuple consists of two
+      elements, the name of the test case and a TestCaseData object
+  """
+  return parameter_missing_cases() + parameter_present_cases()
 
 
 class TestParseCommandLine(unittest.TestCase):
-  @staticmethod
-  def no_parameters_test_cases() -> list[tuple[str, TestCaseData]]:
-    """
-      Return a list of no parameter test cases.
-
-      A no parameter test cases, is a test case that does not
-      contain any positional parameters.
-
-      :return: A list of tuples, where each tuple consists of two
-        elements, the name of the test case and a TestCaseData object
-    """
-
-    # noinspection SpellCheckingInspection
-    return [
-      ('no_arguments', {
-        'args': [],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_verbosity', {
-        'args': ['-v'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_verbosity_with_value', {
-        'args': ['-v2'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_verbosity_with_value_equal', {
-        'args': ['-v=2'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_verbosity_with_value_space', {
-        'args': ['-v', '2'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_verbosity_with_wrong_value', {
-        'args': ['-v=wrong'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_help', {
-        'args': ['-h'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_help_with_wrong_value', {
-        'args': ['-h=true'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_environment', {
-        'args': ['-e'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_short_option_environment_with_value', {
-        'args': ['-e=test'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test']},
-        'expected_parameters': []
-      }),
-      ('single_short_option_environment_with_multi_value', {
-        'args': ['-e=test,local'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
-        'expected_parameters': []
-      }),
-      ('single_short_option_environment_with_wrong_value', {
-        'args': ['-e=wrong'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_verbose', {
-        'args': ['--verbose'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_verbose_with_value', {
-        'args': ['--verbose=2'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_verbose_with_value_space', {
-        'args': ['--verbose', '2'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_verbosity_with_value', {
-        'args': ['--verbosity=2'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_verbosity_with_value_space', {
-        'args': ['--verbosity', '2'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_help', {
-        'args': ['--help'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_environment', {
-        'args': ['--environment'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_env', {
-        'args': ['--env'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('single_long_option_environment_with_value', {
-        'args': ['--environment=local'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('single_long_option_environment_with_value_space', {
-        'args': ['--environment', 'local'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('single_long_option_env_with_value', {
-        'args': ['--env=local'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('single_long_option_env_with_value_space', {
-        'args': ['--env', 'local'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('single_long_option_environment_with_multi_value', {
-        'args': ['--environment=local,test'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
-        'expected_parameters': []
-      }),
-      ('single_long_option_environment_with_multi_value_space', {
-        'args': ['--environment', 'local,test'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
-        'expected_parameters': []
-      }),
-      ('single_long_option_env_with_multi_value', {
-        'args': ['--env=local,test'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
-        'expected_parameters': []
-      }),
-      ('multi_option_verbose', {
-        'args': ['-vvv'],
-        'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multi_option_verbose_help', {
-        'args': ['-vvvh'],
-        'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multi_option_help_help', {
-        'args': ['-hh'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multi_option_verbose_help_help', {
-        'args': ['-hvh'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multi_option_environment_wrong', {
-        'args': ['-vve=local'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_short_options_verbosity', {
-        'args': ['-v', '-v'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_short_options_help', {
-        'args': ['-h', '-h'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_short_options_help_verbosity', {
-        'args': ['-h', '-v'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_short_options_verbosity_environment_equal', {
-        'args': ['-v', '-e=local'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('multiple_short_options_verbosity_environment_space', {
-       'args': ['-v', '-e', 'local'],
-       'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
-       'expected_parameters': []
-      }),
-      ('multiple_short_options_verbosity_environment_multi_space', {
-       'args': ['-v', '-e', 'local,test'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local', 'test']},
-        'expected_parameters': []
-      }),
-      ('multiple_short_options_verbosity_environment_multi_equal', {
-       'args': ['-v', '-e=local,test'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local', 'test']},
-        'expected_parameters': []
-      }),
-      ('multiple_short_options_environment_equal_verbosity_equal', {
-        'args': ['-e=local', '-v=1'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('multiple_short_options_environment_space_verbosity_space', {
-        'args': ['-e', 'local', '-v', '1'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_verbosity_verbosity', {
-        'args': ['--verbosity', '--verbosity'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_verbose_verbose', {
-        'args': ['--verbose', '--verbose'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_help_help', {
-        'args': ['--help', '--help'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_help_verbosity_equal', {
-        'args': ['--help', '--verbosity=3'],
-        'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_help_verbosity_space', {
-        'args': ['--help', '--verbosity', '3'],
-        'expected_options': {'verbosity': 3, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_verbose_environment_equal', {
-        'args': ['--verbose', '--environment=local'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_verbose_environment_space', {
-        'args': ['--verbose', '--environment', 'local'],
-        'expected_options': {'verbosity': 1, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_environment_environment', {
-        'args': ['--environment', '--environment'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_environment_environment_equal', {
-        'args': ['--environment=local', '--environment=test'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test']},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_environment_space_environment_space', {
-        'args': ['--environment', 'test', '--environment', 'local'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['test', 'local']},
-        'expected_parameters': []
-      }),
-      ('multiple_long_options_environment_equal_environment_multi_equal', {
-        'args': ['--environment=local', '--environment=test,staging'],
-        'expected_options': {'verbosity': 0, 'help': True, 'environment': ['local', 'test', 'staging']},
-        'expected_parameters': []
-      }),
-      ('multiple_multi_options_help_verbosity_long_verbose', {
-        'args': ['-hv', '--verbose'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
-        'expected_parameters': []
-      }),
-      ('multiple_multi_options_verbosity_verbosity_long_environment', {
-        'args': ['-vv', '--environment=local'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': ['local']},
-        'expected_parameters': []
-      }),
-      ('multiple_options_verbosity_help_e_equal_environment_multi_equal', {
-        'args': ['-e=local', '-hvvv', '--environment=test,staging'],
-        'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
-        'expected_parameters': []
-      }),
-      ('multiple_options_verbosity_help_e_space_environment_multi_space', {
-        'args': ['-e', 'local', '-vhvv', '--environment', 'test,staging'],
-        'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
-        'expected_parameters': []
-      }),
-      ('multiple_options_verbosity_help_e_space_environment_multi_equal', {
-        'args': ['-e', 'local', '-vvhv', '--environment=test,staging'],
-        'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
-        'expected_parameters': []
-      }),
-      ('multiple_options_verbosity_help_e_equal_environment_multi_space', {
-        'args': ['-e=local', '-vvvh', '--environment', 'test,staging'],
-        'expected_options': {'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']},
-        'expected_parameters': []
-      }),
-      ('multiple_options_verbosity_help_e_equal_environment_multi_space', {
-        'args': ['-e=local', '-hhvv', '--environment', 'local,staging'],
-        'expected_options': {'verbosity': 2, 'help': True, 'environment': ['local', 'staging']},
-        'expected_parameters': []
-      })
-    ]
-
-  @staticmethod
-  def all_cases() -> list[tuple[str, TestCaseData]]:
-    """
-      Return a list of all test cases with their names
-
-      :return: A list of tuples, where each tuple consists of two
-        elements, the name of the test case and a TestCaseData object
-    """
-    return TestParseCommandLine.no_parameters_test_cases()
-
   def execute_test(self, case: TestCaseData) -> None:
     """
       Execute the test with the provided case data and check that
@@ -375,7 +430,7 @@ class TestParseCommandLine(unittest.TestCase):
 
       :return: None
     """
-    case = TestParseCommandLine.all_cases()[55][1]
+    case = all_cases()[55][1]
     self.execute_test(case)
 
   #
