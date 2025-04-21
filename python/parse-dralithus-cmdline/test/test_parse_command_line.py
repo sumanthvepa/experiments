@@ -173,7 +173,7 @@ class TestParseCommandLine(unittest.TestCase):
     """
     expected = (case['expected_options'], case['expected_parameters'])
     actual = parse_command_line(case['args'])
-    self.assertEqual(expected, actual)
+    self.assertEqual(expected, actual, msg=f"Failed for args: {case['args']}")
 
   # noinspection PyUnusedLocal
   @parameterized.expand(all_cases())
