@@ -150,6 +150,12 @@ def all_cases() -> list[tuple[str, TestCaseData]]:
   """
     Return a list of all test cases with their names
 
+    This is a global function rather than a staticmethod
+    because it is used in the parameterized decorator. It appears
+    that any staticmethod used in the parameterized decorator
+    cannot itself call a staticmethod. Not sure if this is a bug
+    or a feature of the parameterized library.
+
     :return: A list of tuples, where each tuple consists of two
       elements, the name of the test case and a TestCaseData object
   """
