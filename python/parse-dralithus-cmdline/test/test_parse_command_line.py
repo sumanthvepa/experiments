@@ -34,78 +34,77 @@ def is_asking_for_help(args: list[str]) -> bool:
   return False
 
 
-def parameter_missing_cases() -> list[tuple[str, TestCaseData]]:
+def parameter_missing_cases() -> list[TestCaseData]:
   """
     Return a list of no parameter test cases.
 
     A no parameter test case does not contain any positional parameters.
 
-    :return: A list of tuples, where each tuple consists of two
-      elements, the name of the test case and a TestCaseData object
+    :return: A list of test cases.
   """
   # noinspection SpellCheckingInspection
   return [
-    ('no_arguments', TestCaseData(name='no_arguments', args=[], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_verbosity', TestCaseData(name='single_short_option_verbosity', args=['-v'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_verbosity_with_value', TestCaseData(name='single_short_option_verbosity_with_value', args=['-v2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_verbosity_with_value_equal', TestCaseData(name='single_short_option_verbosity_with_value_equal', args=['-v=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_verbosity_with_value_space', TestCaseData(name='single_short_option_verbosity_with_value_space', args=['-v', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_help', TestCaseData(name='single_short_option_help', args=['-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_help_with_wrong_value', TestCaseData(name='single_short_option_help_with_wrong_value', args=['-h=true'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_environment', TestCaseData(name='single_short_option_environment', args=['-e'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_environment_with_value', TestCaseData(name='single_short_option_environment_with_value', args=['-e=test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test']}, expected_parameters=[])),
-    ('single_short_option_environment_with_multi_value', TestCaseData(name='single_short_option_environment_with_multi_value', args=['-e=test,local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']}, expected_parameters=[])),
-    ('single_short_option_environment_with_wrong_value', TestCaseData(name='single_short_option_environment_with_wrong_value', args=['-e=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_verbose', TestCaseData(name='single_long_option_verbose', args=['--verbose'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_verbose_with_value', TestCaseData(name='single_long_option_verbose_with_value', args=['--verbose=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_verbose_with_value_space', TestCaseData(name='single_long_option_verbose_with_value_space', args=['--verbose', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_verbosity_with_value', TestCaseData(name='single_long_option_verbosity_with_value', args=['--verbosity=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_verbosity_with_value_space', TestCaseData(name='single_long_option_verbosity_with_value_space', args=['--verbosity', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_help', TestCaseData(name='single_long_option_help', args=['--help'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_environment', TestCaseData(name='single_long_option_environment', args=['--environment'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_env', TestCaseData(name='single_long_option_env', args=['--env'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_long_option_environment_with_value', TestCaseData(name='single_long_option_environment_with_value', args=['--environment=local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('single_long_option_environment_with_value_space', TestCaseData(name='single_long_option_environment_with_value_space', args=['--environment', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('single_long_option_env_with_value', TestCaseData(name='single_long_option_env_with_value', args=['--env=local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('single_long_option_env_with_value_space', TestCaseData(name='single_long_option_env_with_value_space', args=['--env', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('single_long_option_environment_with_multi_value', TestCaseData(name='single_long_option_environment_with_multi_value', args=['--environment=local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[])),
-    ('single_long_option_environment_with_multi_value_space', TestCaseData(name='single_long_option_environment_with_multi_value_space', args=['--environment', 'local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[])),
-    ('single_long_option_env_with_multi_value', TestCaseData(name='single_long_option_env_with_multi_value', args=['--env=local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[])),
-    ('multi_option_verbose', TestCaseData(name='multi_option_verbose', args=['-vvv'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multi_option_verbose_help', TestCaseData(name='multi_option_verbose_help', args=['-vvvh'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multi_option_help_help', TestCaseData(name='multi_option_help_help', args=['-hh'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multi_option_verbose_help_help', TestCaseData(name='multi_option_verbose_help_help', args=['-hvh'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multi_option_environment_wrong', TestCaseData(name='multi_option_environment_wrong', args=['-vve=local'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_short_options_verbosity', TestCaseData(name='multiple_short_options_verbosity', args=['-v', '-v'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_short_options_help', TestCaseData(name='multiple_short_options_help', args=['-h', '-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_short_options_help_verbosity', TestCaseData(name='multiple_short_options_help_verbosity', args=['-h', '-v'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_short_options_verbosity_environment_equal', TestCaseData(name='multiple_short_options_verbosity_environment_equal', args=['-v', '-e=local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('multiple_short_options_verbosity_environment_space', TestCaseData(name='multiple_short_options_verbosity_environment_space', args=['-v', '-e', 'local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('multiple_short_options_verbosity_environment_multi_space', TestCaseData(name='multiple_short_options_verbosity_environment_multi_space', args=['-v', '-e', 'local,test'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[])),
-    ('multiple_short_options_verbosity_environment_multi_equal', TestCaseData(name='multiple_short_options_verbosity_environment_multi_equal', args=['-v', '-e=local,test'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[])),
-    ('multiple_short_options_environment_equal_verbosity_equal', TestCaseData(name='multiple_short_options_environment_equal_verbosity_equal', args=['-e=local', '-v=1'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('multiple_short_options_environment_space_verbosity_space', TestCaseData(name='multiple_short_options_environment_space_verbosity_space', args=['-e', 'local', '-v', '1'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('multiple_long_options_verbosity_verbosity', TestCaseData(name='multiple_long_options_verbosity_verbosity', args=['--verbosity', '--verbosity'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_long_options_verbose_verbose', TestCaseData(name='multiple_long_options_verbose_verbose', args=['--verbose', '--verbose'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_long_options_help_help', TestCaseData(name='multiple_long_options_help_help', args=['--help', '--help'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_long_options_help_verbosity_equal', TestCaseData(name='multiple_long_options_help_verbosity_equal', args=['--help', '--verbosity=3'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_long_options_help_verbosity_space', TestCaseData(name='multiple_long_options_help_verbosity_space', args=['--help', '--verbosity', '3'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_long_options_verbose_environment_equal', TestCaseData(name='multiple_long_options_verbose_environment_equal', args=['--verbose', '--environment=local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('multiple_long_options_verbose_environment_space', TestCaseData(name='multiple_long_options_verbose_environment_space', args=['--verbose', '--environment', 'local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('multiple_long_options_environment_environment', TestCaseData(name='multiple_long_options_environment_environment', args=['--environment', '--environment'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_long_options_environment_environment_equal', TestCaseData(name='multiple_long_options_environment_environment_equal', args=['--environment=local', '--environment=test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[])),
-    ('multiple_long_options_environment_space_environment_space', TestCaseData(name='multiple_long_options_environment_space_environment_space', args=['--environment', 'test', '--environment', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']}, expected_parameters=[])),
-    ('multiple_long_options_environment_equal_environment_multi_equal', TestCaseData(name='multiple_long_options_environment_equal_environment_multi_equal', args=['--environment=local', '--environment=test,staging'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[])),
-    ('multiple_multi_options_help_verbosity_long_verbose', TestCaseData(name='multiple_multi_options_help_verbosity_long_verbose', args=['-hv', '--verbose'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('multiple_multi_options_verbosity_verbosity_long_environment', TestCaseData(name='multiple_multi_options_verbosity_verbosity_long_environment', args=['-vv', '--environment=local'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local']}, expected_parameters=[])),
-    ('multiple_options_verbosity_help_e_equal_environment_multi_equal', TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_equal', args=['-e=local', '-hvvv', '--environment=test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[])),
-    ('multiple_options_verbosity_help_e_space_environment_multi_space', TestCaseData(name='multiple_options_verbosity_help_e_space_environment_multi_space', args=['-e', 'local', '-vhvv', '--environment', 'test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[])),
-    ('multiple_options_verbosity_help_e_space_environment_multi_equal', TestCaseData(name='multiple_options_verbosity_help_e_space_environment_multi_equal', args=['-e', 'local', '-vvhv', '--environment=test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[])),
-    ('multiple_options_verbosity_help_e_equal_environment_multi_space', TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_space', args=['-e=local', '-vvvh', '--environment', 'test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[])),
-    ('multiple_options_verbosity_help_e_equal_environment_multi_space', TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_space', args=['-e=local', '-hhvv', '--environment', 'local,staging'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local', 'staging']}, expected_parameters=[])),
+    TestCaseData(name='no_arguments', args=[], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_verbosity', args=['-v'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_verbosity_with_value', args=['-v2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_verbosity_with_value_equal', args=['-v=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_verbosity_with_value_space', args=['-v', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_help', args=['-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_help_with_wrong_value', args=['-h=true'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_environment', args=['-e'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_environment_with_value', args=['-e=test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test']}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_environment_with_multi_value', args=['-e=test,local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']}, expected_parameters=[]),
+    TestCaseData(name='single_short_option_environment_with_wrong_value', args=['-e=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_verbose', args=['--verbose'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_verbose_with_value', args=['--verbose=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_verbose_with_value_space', args=['--verbose', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_verbosity_with_value', args=['--verbosity=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_verbosity_with_value_space', args=['--verbosity', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_help', args=['--help'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_environment', args=['--environment'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_env', args=['--env'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_environment_with_value', args=['--environment=local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_environment_with_value_space', args=['--environment', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_env_with_value', args=['--env=local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_env_with_value_space', args=['--env', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_environment_with_multi_value', args=['--environment=local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_environment_with_multi_value_space', args=['--environment', 'local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
+    TestCaseData(name='single_long_option_env_with_multi_value', args=['--env=local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
+    TestCaseData(name='multi_option_verbose', args=['-vvv'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multi_option_verbose_help', args=['-vvvh'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multi_option_help_help', args=['-hh'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multi_option_verbose_help_help', args=['-hvh'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multi_option_environment_wrong', args=['-vve=local'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_verbosity', args=['-v', '-v'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_help', args=['-h', '-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_help_verbosity', args=['-h', '-v'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_verbosity_environment_equal', args=['-v', '-e=local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_verbosity_environment_space', args=['-v', '-e', 'local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_verbosity_environment_multi_space', args=['-v', '-e', 'local,test'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_verbosity_environment_multi_equal', args=['-v', '-e=local,test'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_environment_equal_verbosity_equal', args=['-e=local', '-v=1'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='multiple_short_options_environment_space_verbosity_space', args=['-e', 'local', '-v', '1'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_verbosity_verbosity', args=['--verbosity', '--verbosity'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_verbose_verbose', args=['--verbose', '--verbose'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_help_help', args=['--help', '--help'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_help_verbosity_equal', args=['--help', '--verbosity=3'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_help_verbosity_space', args=['--help', '--verbosity', '3'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_verbose_environment_equal', args=['--verbose', '--environment=local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_verbose_environment_space', args=['--verbose', '--environment', 'local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_environment_environment', args=['--environment', '--environment'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_environment_environment_equal', args=['--environment=local', '--environment=test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_environment_space_environment_space', args=['--environment', 'test', '--environment', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']}, expected_parameters=[]),
+    TestCaseData(name='multiple_long_options_environment_equal_environment_multi_equal', args=['--environment=local', '--environment=test,staging'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
+    TestCaseData(name='multiple_multi_options_help_verbosity_long_verbose', args=['-hv', '--verbose'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
+    TestCaseData(name='multiple_multi_options_verbosity_verbosity_long_environment', args=['-vv', '--environment=local'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local']}, expected_parameters=[]),
+    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_equal', args=['-e=local', '-hvvv', '--environment=test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
+    TestCaseData(name='multiple_options_verbosity_help_e_space_environment_multi_space', args=['-e', 'local', '-vhvv', '--environment', 'test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
+    TestCaseData(name='multiple_options_verbosity_help_e_space_environment_multi_equal', args=['-e', 'local', '-vvhv', '--environment=test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
+    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_space', args=['-e=local', '-vvvh', '--environment', 'test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
+    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_space', args=['-e=local', '-hhvv', '--environment', 'local,staging'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local', 'staging']}, expected_parameters=[])
   ]
 
-def incorrect_option_cases() -> list[tuple[str, TestCaseData]]:
+def incorrect_option_cases() -> list[TestCaseData]:
   """
     Return a list of test cases with incorrect options.
 
@@ -119,15 +118,14 @@ def incorrect_option_cases() -> list[tuple[str, TestCaseData]]:
     for options that are after the incorrect option, their values are
     set to the default values.
 
-    :return: A list of tuples, where each tuple consists of two
-      elements, the name of the test case and a TestCaseData object
+    :return: A list of test cases.
   """
   return [
-    ('single_short_option_verbosity_with_wrong_value', TestCaseData(name='single_short_option_verbosity_with_wrong_value', args=['-v=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]))
+    TestCaseData(name='single_short_option_verbosity_with_wrong_value', args=['-v=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])
   ]
 
 
-def parameter_present_cases() -> list[tuple[str, TestCaseData]]:
+def parameter_present_cases() -> list[TestCaseData]:
   """
     Return a list of parameterized test cases where there are
     parameters present in the args list.
@@ -136,16 +134,15 @@ def parameter_present_cases() -> list[tuple[str, TestCaseData]]:
     returned by no_parameters_test_cases(), with additional parameters
     ['sample'], ['sample', 'echo'], and ['sample', 'echo', 'dralithus'].
 
-    :return: A list of tuples, where each tuple consists of two
-      elements, the name of the test case and a TestCaseData object
+    :return: A list test cases
   """
   parameter_variations = [['sample'], ['sample', 'echo'], ['sample', 'echo', 'dralithus']]
   test_cases = []
 
-  for name, case in parameter_missing_cases():
+  for case in parameter_missing_cases():
     for i, parameters in enumerate(parameter_variations):
       suffix = '_parameters_' + '_'.join(parameters)
-      new_name = name + suffix
+      new_name = case['name'] + suffix
       new_args = case['args'] + parameters
       new_expected_parameters = parameters
       new_expected_options = case['expected_options'].copy()
@@ -156,15 +153,12 @@ def parameter_present_cases() -> list[tuple[str, TestCaseData]]:
       else:
         new_expected_options['help'] = False
 
-      test_cases.append((
-        new_name,
+      test_cases.append(
         TestCaseData(
           name=new_name,
           args=new_args,
           expected_options=new_expected_options,
-          expected_parameters=new_expected_parameters)
-      ))
-
+          expected_parameters=new_expected_parameters))
   return test_cases
 
 
@@ -178,25 +172,33 @@ def all_cases() -> list[tuple[str, TestCaseData]]:
     cannot itself call a staticmethod. Not sure if this is a bug
     or a feature of the parameterized library.
 
+    Also note that this returns a list of tuples with the name
+    of the test as the first element of the tuple and the case
+    itself as the second element. This is because the
+    @parameterized.expand() decorator expects a list of tuples,
+    where the first element of each tuple is the name of the test
+    and subsequent elements are inputs to the test (in our case
+    the TestCaseData object)
+
     :return: A list of tuples, where each tuple consists of two
       elements, the name of the test case and a TestCaseData object
   """
-  return parameter_missing_cases() + incorrect_option_cases() + parameter_present_cases()
+  cases: list[TestCaseData] = parameter_missing_cases() + incorrect_option_cases() + parameter_present_cases()
+  return [(case['name'], case) for case in cases]
 
 
 class TestParseCommandLine(unittest.TestCase):
-  def execute_test(self, name: str, case: TestCaseData) -> None:
+  def execute_test(self, case: TestCaseData) -> None:
     """
       Execute the test with the provided case data and check that
       the actual output matches the expected output.
 
-      :param name: The name of the test case
       :param case: A test case
       :return: None
     """
     expected = (case['expected_options'], case['expected_parameters'])
     actual = parse_command_line(case['args'])
-    self.assertEqual(expected, actual, msg=f"Test {name} failed for args: {case['args']}")
+    self.assertEqual(expected, actual, msg=f"Test {case['name']} failed for args: {case['args']}")
 
   # noinspection PyUnusedLocal
   @parameterized.expand(all_cases())
@@ -209,11 +211,11 @@ class TestParseCommandLine(unittest.TestCase):
       by clicking on the arrow. You need to run the whole
       class, the whole file, or all the tests in the project.
 
-      :param name: The name of the test case
+      :param: name: The name of the test case
       :param case: A test case with input and expected output
       :return: None
     """
-    self.execute_test(name, case)
+    self.execute_test(case)
 
   @unittest.skipIf(os.environ.get('DEBUG_TEST_NUMBER') is None,'Environment variable DEBUG_TEST_NUMBER is not defined')
   def test_debug(self) -> None:
@@ -226,9 +228,8 @@ class TestParseCommandLine(unittest.TestCase):
     if test_number is not None:
       try:
         test_number = int(test_number)
-        name = all_cases()[test_number][0]
-        case = all_cases()[test_number][1]
-        self.execute_test(name, case)
+        case = all_cases()[test_number]
+        self.execute_test(case)
       except ValueError:
         self.fail(f'DEBUG_TEST_NUMBER is not an integer: {test_number}')
   #
