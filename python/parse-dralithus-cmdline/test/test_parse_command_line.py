@@ -49,7 +49,6 @@ def parameter_missing_cases() -> list[tuple[str, TestCaseData]]:
     ('single_short_option_verbosity_with_value', TestCaseData(args=['-v2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
     ('single_short_option_verbosity_with_value_equal', TestCaseData(args=['-v=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
     ('single_short_option_verbosity_with_value_space', TestCaseData(args=['-v', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[])),
-    ('single_short_option_verbosity_with_wrong_value', TestCaseData(args=['-v=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
     ('single_short_option_help', TestCaseData(args=['-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
     ('single_short_option_help_with_wrong_value', TestCaseData(args=['-h=true'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
     ('single_short_option_environment', TestCaseData(args=['-e'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])),
@@ -105,6 +104,29 @@ def parameter_missing_cases() -> list[tuple[str, TestCaseData]]:
     ('multiple_options_verbosity_help_e_equal_environment_multi_space', TestCaseData(args=['-e=local', '-hhvv', '--environment', 'local,staging'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local', 'staging']}, expected_parameters=[])),
   ]
 
+
+def incorrect_option_cases() -> list[tuple[str, TestCaseData]]:
+  """
+    Return a list of test cases with incorrect options.
+
+    These test cases are used to check the behavior of the command line
+    parser when it encounters invalid options. The expected behavior is
+    to raise an exception which is caught internally, and the function
+    returns help as the expected output. The values of other options
+    and parameters are dependent on where the incorrect option is
+    located in the args list. For options that are before the incorrect
+    option, their values are set to those specified in args list, but
+    for options that are after the incorrect option, their values are
+    set to the default values.
+
+    :return: A list of tuples, where each tuple consists of two
+      elements, the name of the test case and a TestCaseData object
+  """
+  return [
+    ('single_short_option_verbosity_with_wrong_value', TestCaseData(args=['-v=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]))
+  ]
+
+
 def parameter_present_cases() -> list[tuple[str, TestCaseData]]:
   """
     Return a list of parameterized test cases where there are
@@ -159,7 +181,7 @@ def all_cases() -> list[tuple[str, TestCaseData]]:
     :return: A list of tuples, where each tuple consists of two
       elements, the name of the test case and a TestCaseData object
   """
-  return parameter_missing_cases() + parameter_present_cases()
+  return parameter_missing_cases() + incorrect_option_cases() + parameter_present_cases()
 
 
 class TestParseCommandLine(unittest.TestCase):
