@@ -1,3 +1,4 @@
+import os
 import unittest
 from typing import TypedDict
 
@@ -183,7 +184,6 @@ def all_cases() -> list[tuple[str, TestCaseData]]:
   """
   return parameter_missing_cases() + incorrect_option_cases() + parameter_present_cases()
 
-DEBUG_TEST_NUMBER: int | None = None
 
 class TestParseCommandLine(unittest.TestCase):
   def execute_test(self, case: TestCaseData) -> None:
@@ -215,16 +215,21 @@ class TestParseCommandLine(unittest.TestCase):
     """
     self.execute_test(case)
 
-  @unittest.skipIf(DEBUG_TEST_NUMBER is None,"No test number provided in variable DEBUG_TEST_NUMBER")
+  @unittest.skipIf(os.environ.get('DEBUG_TEST_NUMBER') is None,'Environment variable DEBUG_TEST_NUMBER is not defined')
   def test_debug(self) -> None:
     """
       Debug a failing test case
 
       :return: None
     """
-    case = all_cases()[DEBUG_TEST_NUMBER][1]
-    self.execute_test(case)
-
+    test_number = os.environ.get('DEBUG_TEST_NUMBER')
+    if test_number is not None:
+      try:
+        test_number = int(test_number)
+        case = all_cases()[test_number][1]
+        self.execute_test(case)
+      except ValueError:
+        self.fail(f'DEBUG_TEST_NUMBER is not an integer: {test_number}')
   #
   # def test_positional_arguments(self) -> None:
   #     args: list[str] = ['application1', 'application2']
