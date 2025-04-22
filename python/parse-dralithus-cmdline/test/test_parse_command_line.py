@@ -131,7 +131,7 @@ def parameter_present_cases() -> list[TestCaseData]:
     parameters present in the args list.
 
     Each test case corresponds to three variations of the test cases
-    returned by no_parameters_test_cases(), with additional parameters
+    returned by parameter_missing_cases(), with additional parameters
     ['sample'], ['sample', 'echo'], and ['sample', 'echo', 'dralithus'].
 
     :return: A list test cases
@@ -162,6 +162,34 @@ def parameter_present_cases() -> list[TestCaseData]:
   return test_cases
 
 
+def parameter_present_incorrect_option_cases() -> list[TestCaseData]:
+  """
+    Return a list of test cases with incorrect options but with
+    parameters present in the args list.
+
+    In all of these cases the help option is always set to true.
+
+    :return: A list of test cases
+  """
+  parameter_variations = [['sample'], ['sample', 'echo'], ['sample', 'echo', 'dralithus']]
+  test_cases = []
+
+  for case in incorrect_option_cases():
+    for i, parameters in enumerate(parameter_variations):
+      suffix = '_parameters_' + '_'.join(parameters)
+      new_name = case['name'] + suffix
+      new_args = case['args'] + parameters
+      new_expected_parameters = []
+      new_expected_options = case['expected_options'].copy()
+      test_cases.append(
+        TestCaseData(
+          name=new_name,
+          args=new_args,
+          expected_options=new_expected_options,
+          expected_parameters=new_expected_parameters))
+  return test_cases
+
+
 def all_cases() -> list[tuple[str, TestCaseData]]:
   """
     Return a list of all test cases with their names
@@ -183,7 +211,11 @@ def all_cases() -> list[tuple[str, TestCaseData]]:
     :return: A list of tuples, where each tuple consists of two
       elements, the name of the test case and a TestCaseData object
   """
-  cases: list[TestCaseData] = parameter_missing_cases() + incorrect_option_cases() + parameter_present_cases()
+  cases: list[TestCaseData] = \
+    parameter_missing_cases() \
+    + incorrect_option_cases() \
+    + parameter_present_cases() \
+    + parameter_present_incorrect_option_cases()
   return [(case['name'], case) for case in cases]
 
 
