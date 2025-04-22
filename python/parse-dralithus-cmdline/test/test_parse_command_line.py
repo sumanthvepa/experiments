@@ -183,6 +183,7 @@ def all_cases() -> list[tuple[str, TestCaseData]]:
   """
   return parameter_missing_cases() + incorrect_option_cases() + parameter_present_cases()
 
+DEBUG_TEST_NUMBER: int | None = None
 
 class TestParseCommandLine(unittest.TestCase):
   def execute_test(self, case: TestCaseData) -> None:
@@ -214,14 +215,14 @@ class TestParseCommandLine(unittest.TestCase):
     """
     self.execute_test(case)
 
-  @unittest.skip("Debugging for a failing test")
+  @unittest.skipIf(DEBUG_TEST_NUMBER is None,"No test number provided in variable DEBUG_TEST_NUMBER")
   def test_debug(self) -> None:
     """
       Debug a failing test case
 
       :return: None
     """
-    case = all_cases()[55][1]
+    case = all_cases()[DEBUG_TEST_NUMBER][1]
     self.execute_test(case)
 
   #
