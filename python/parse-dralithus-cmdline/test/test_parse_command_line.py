@@ -260,7 +260,7 @@ class TestParseCommandLine(unittest.TestCase):
     if test_number is not None:
       try:
         test_number = int(test_number)
-        case = all_cases()[test_number]
+        (name, case) = all_cases()[test_number]
         self.execute_test(case)
       except ValueError:
         self.fail(f'DEBUG_TEST_NUMBER is not an integer: {test_number}')
