@@ -186,17 +186,18 @@ def all_cases() -> list[tuple[str, TestCaseData]]:
 
 
 class TestParseCommandLine(unittest.TestCase):
-  def execute_test(self, case: TestCaseData) -> None:
+  def execute_test(self, name: str, case: TestCaseData) -> None:
     """
       Execute the test with the provided case data and check that
       the actual output matches the expected output.
 
+      :param name: The name of the test case
       :param case: A test case
       :return: None
     """
     expected = (case['expected_options'], case['expected_parameters'])
     actual = parse_command_line(case['args'])
-    self.assertEqual(expected, actual, msg=f"Failed for args: {case['args']}")
+    self.assertEqual(expected, actual, msg=f"Test {name} failed for args: {case['args']}")
 
   # noinspection PyUnusedLocal
   @parameterized.expand(all_cases())
@@ -213,7 +214,7 @@ class TestParseCommandLine(unittest.TestCase):
       :param case: A test case with input and expected output
       :return: None
     """
-    self.execute_test(case)
+    self.execute_test(name, case)
 
   @unittest.skipIf(os.environ.get('DEBUG_TEST_NUMBER') is None,'Environment variable DEBUG_TEST_NUMBER is not defined')
   def test_debug(self) -> None:
@@ -226,8 +227,9 @@ class TestParseCommandLine(unittest.TestCase):
     if test_number is not None:
       try:
         test_number = int(test_number)
+        name = all_cases()[test_number][0]
         case = all_cases()[test_number][1]
-        self.execute_test(case)
+        self.execute_test(name, case)
       except ValueError:
         self.fail(f'DEBUG_TEST_NUMBER is not an integer: {test_number}')
   #
