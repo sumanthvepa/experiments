@@ -36,6 +36,7 @@ import number_literals
 import none_not_implemented
 import class_basics
 import class_basics2
+import properties
 import sequences
 import operators
 import control_flow
@@ -336,29 +337,32 @@ def main():
   # Note 13: Explore dunder methods
   class_basics2.explore_dunder_methods()
 
-  # Note 14: Explore enums
+  # Note 14: Explore properties
+  properties.explore_properties()
+
+  # Note 15: Explore enums
   enumerations.explore_enumerations()
 
-  # Note 15: Explore dynamic typing
+  # Note 16: Explore dynamic typing
   dynamic_typing.explore_dynamic_type_creation()
 
-  # Note 16: Explore metaclasses
+  # Note 17: Explore metaclasses
   metaclasses.explore_metaclasses()
 
-  # Note 17: Explore abstract base classes
+  # Note 18: Explore abstract base classes
   abstract_base_classes.explore_abstract_base_classes()
 
-  # Note 18: Explore Dataclasses
+  # Note 19: Explore Dataclasses
   data_classes.explore_dataclasses()
 
-  # Note 19: Explore advanced class concepts
+  # Note 20: Explore advanced class concepts
   advanced_class_concepts.explore_slots()
 
-  # Note 20: Explore exceptions
+  # Note 21: Explore exceptions
   exceptions_and_context_managers.explore_exceptions()
   exceptions_and_context_managers.explore_context_managers()
 
-  # Note 21: Explore async/await and asyncio
+  # Note 22: Explore async/await and asyncio
   async_await.explore_async_await()
 
   # Future explorations
