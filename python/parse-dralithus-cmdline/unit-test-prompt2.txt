@@ -1,0 +1,77 @@
+Add a method to the class TestParseCommandLine with the following signature:
+
+@staticmethod
+def parameters_test_cases() -> list[tuple[str, TestCaseData]]
+
+This function returns a list of test cases where the args list contains
+one or more parameters from the following list:
+
+['sample', 'echo', 'dralithus']
+
+For your understanding, these are names of applications to be deployed.
+
+This method should return a list three times length as the method no_parameter_test_cases().
+
+Each element in list returned by no_parameters_test_cases() should correspond to three test cases in the list returned by parameters_test_cases()
+
+The first corresponding element  should be the same as the corresponding element returned by no_parameter_test_cases except for the name str which will have the suffix _parameters_sample, and the parameter_list element of the TestCaseData dictionary will have 'sample' in the list value for 'expected_parameters'.
+
+The second element in the list should be the same as the corresponding element returned by no_parameter_test_cases except for the name which will now have the suffix _parameters_sample_echo, and the parameter_list element of the TestCaseData dictionary will have 'sample' and 'echo' in the list values for 'expected_parameters'.
+
+Finally, the third element in the list should be the same as the corresponding element  returned by no_parameter_test_cases except for the name which will now have the suffix _parameters_sample_echo_dralithus, and the parameter_list element of the TestCaseData dictionary will have 'sample', 'echo' and 'dralithus' in the list values for 'expected_parameters'.
+
+Additionally, for each of the three elements in the list the help option should be set to False in 'expected_options', unless, the help option is present in the args. (i.e. if -h or --help is present in some form.)
+The exception to this rule is if the 'environment' option is an empty list. In that case, the help option should be set to True in 'expected_options'.
+
+Here's an example of three element in the list returned by parameters_test_cases() corresponding to the following element in the list returned by no_parameters_test_cases():
+      ('single_short_option_verbosity_with_value', {
+        'args': ['-v2'],
+        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+        'expected_parameters': []
+      })
+ Will correspond to the following three elements in the list returned by parameters_test_cases():
+      ('single_short_option_verbosity_with_value_parameters_sample', {
+        'args': ['-v2', 'sample'],
+        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+        'expected_parameters': ['sample']
+      }),
+      ('single_short_option_verbosity_with_value_parameters_sample_echo', {
+        'args': ['-v2', 'sample', 'echo'],
+        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+        'expected_parameters': ['sample', 'echo']
+      }),
+      ('single_short_option_verbosity_with_value_parameters_sample_echo_dralithus', {
+        'args': ['-v2', 'sample', 'echo', 'dralithus'],
+        'expected_options': {'verbosity': 2, 'help': True, 'environment': []},
+        'expected_parameters': ['sample', 'echo', 'dralithus']
+      }),
+
+Note that 'help' is set to True because 'environment' list was empty in the original test case.
+
+Here's another example, this time with the environment option set:
+      ('multiple_multi_options_verbosity_verbosity_long_environment_multi', {
+        'args': ['-vv', '--environment=local,test'],
+        'expected_options': {'verbosity': 2, 'help': True, 'environment': ['local', test]},
+        'expected_parameters': []
+      })
+ The element above will result in the following three elements being present
+ in the list returned by parameters_test_cases():
+      ('multiple_multi_options_verbosity_verbosity_long_environment_multi_parameters_sample', {
+        'args': ['-vv', '--environment=local,test', 'sample'],
+        'expected_options': {'verbosity': 2, 'help': False, 'environment': ['local', test]},
+        'expected_parameters': ['sample']
+      }),
+      ('multiple_multi_options_verbosity_verbosity_long_environment_multi_parameters_sample_echo', {
+        'args': ['-vv', '--environment=local,test', 'sample', 'echo'],
+        'expected_options': {'verbosity': 2, 'help': False, 'environment': ['local', test]},
+        'expected_parameters': ['sample', 'echo']
+      }),
+      ('multiple_multi_options_verbosity_verbosity_long_environment_multi_parameters_sample_echo_dralithus', {
+        'args': ['-vv', '--environment=local,test', 'sample', 'echo', 'dralithus'],
+        'expected_options': {'verbosity': 2, 'help': False, 'environment': ['local', test]},
+        'expected_parameters': ['sample', 'echo', 'dralithus']
+      }),
+
+ Note that help is set to False because 'environment' was not an empty list in the original test case.
+
+ Use the same indentation style as the rest of the code.
