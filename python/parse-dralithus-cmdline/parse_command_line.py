@@ -1,3 +1,6 @@
+"""
+  parse_command_line.py: Experimental parser to parse dralithus command options
+"""
 import re
 
 from typing import NamedTuple
@@ -23,11 +26,11 @@ def get_option_name(value: str) -> str:
     :param value: The value to get the option name from.
     :return: The canonical option name.
   """
-  if value == 'h' or value == 'help':
+  if value in ['h', 'help']:
     return 'help'
-  if value == 'v' or value == 'verbose' or value == 'verbosity':
+  if value in ['v', 'verbose', 'verbosity']:
     return 'verbosity'
-  if value == 'e' or value == 'env' or value == 'environment':
+  if value in ['e', 'env', 'environment']:
     return 'environment'
   raise ValueError(f'Invalid option name: {value}')
 
@@ -61,21 +64,20 @@ def is_short_option(arg: str) -> bool:
     :param arg: The argument to check.
     :return: True if the argument is a short option, False otherwise.
   """
+  pattern = re.compile(r'^[a-zA-Z0-9,]+$')
   # -v -v2 -v=2 -e=test -e=local,test are all valid short options
   if arg.startswith('-') and len(arg) > 1:
     if len(arg) == 2 and arg[1].isalpha():
       return True
-    elif len(arg) > 2 and arg[1].isalpha():
-      if arg[2] == '=' and re.match(is_short_option.PATTERN, arg[3:]):
+    if len(arg) > 2 and arg[1].isalpha():
+      if arg[2] == '=' and re.match(pattern, arg[3:]):
         return True
-      else:
-        for c in arg[2:]:
-          if not c.isdigit():
-            return False
-        return True
+      for c in arg[2:]:
+        if not c.isdigit():
+          return False
+      return True
   return False
 
-is_short_option.PATTERN = re.compile(r'^[a-zA-Z0-9,]+$')
 
 def is_long_option(arg: str) -> bool:
   """
@@ -94,10 +96,10 @@ def is_multi_option(arg: str) -> bool:
     :return: True if the argument is a multi-option, False otherwise.
   """
   if arg.startswith('-') and len(arg) > 2:
-      for c in arg[1:]:
-        if not c.isalpha():
-          return False
-      return True
+    for c in arg[1:]:
+      if not c.isalpha():
+        return False
+    return True
   return False
 
 def requires_value(option_name: str) -> bool:
@@ -139,8 +141,10 @@ def is_option_value(option_name: str, value: bool | int | str | list[str]) -> bo
     :return: True if the argument is a valid option value, False otherwise.
   """
   if option_name == 'environment':
+    assert isinstance(value, list)
     return is_valid_environment(value)
   if option_name == 'verbosity':
+    assert isinstance(value, str)
     return value.isdecimal()and int(value) >= 0
   return False
 
@@ -167,10 +171,9 @@ def convert_to_type(required_type: type, value: str) -> bool | int | str | list[
   if required_type == bool:
     if value.lower() == 'true' or value == '1':
       return True
-    elif value.lower() == 'false' or value == '0':
+    if value.lower() == 'false' or value == '0':
       return False
-    else:
-      raise ValueError(f'Invalid boolean value: {value}')
+    raise ValueError(f'Invalid boolean value: {value}')
   if required_type == int:
     return int(value)
   if required_type == str:
@@ -197,7 +200,7 @@ def default_option_value(option_name: str) -> int:
     return 1
   raise ValueError(f'{option_name} has no permitted default value')
 
-def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int]:
+def get_short_option_name_and_value(arg: str, next_arg: str | None) -> tuple[Option, int]:
   """
     Get the option name and its value from the short option argument.
     :param arg: The short option argument.
@@ -214,15 +217,15 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
       else:
         option_value = arg[2:]
       # Cast the value to the appropriate type
-      option_value = convert_to_type(option_value_type(option_name), option_value)
-      option = Option(option_name, option_value)
+      typed_option_value = convert_to_type(option_value_type(option_name), option_value)
+      option = Option(option_name, typed_option_value)
       increment = 1
     else:
       if next_arg is not None:
         # Cast the value to the appropriate type
-        option_value = convert_to_type(option_value_type(option_name), next_arg)
-        if is_option_value(option_name, option_value):
-          option = Option(option_name, option_value)
+        typed_option_value = convert_to_type(option_value_type(option_name), next_arg)
+        if is_option_value(option_name, typed_option_value):
+          option = Option(option_name, typed_option_value)
           increment = 2
         else:
           raise ValueError(f"{next_arg} is not a valid value for {option_name}")
@@ -235,14 +238,14 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
       else:
         option_value = arg[2:]
       # Cast the value to the appropriate type
-      option_value = convert_to_type(option_value_type(option_name), option_value)
-      option = Option(option_name, option_value)
+      typed_option_value = convert_to_type(option_value_type(option_name), option_value)
+      option = Option(option_name, typed_option_value)
       increment = 1
     else:
       if next_arg is not None and is_option_value(option_name, next_arg):
         # Cast the value to the appropriate type
-        option_value = convert_to_type(option_value_type(option_name), next_arg)
-        option = Option(option_name, option_value)
+        typed_option_value = convert_to_type(option_value_type(option_name), next_arg)
+        option = Option(option_name, typed_option_value)
         increment = 2
       else:
         option = Option(option_name, default_option_value(option_name))
@@ -253,7 +256,7 @@ def get_short_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, in
   return option, increment
 
 
-def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int]:
+def get_long_option_name_and_value(arg: str, next_arg: str | None) -> tuple[Option, int]:
   """
     Get the option name and its value from the long option argument.
     :param arg: The long option argument.
@@ -265,18 +268,18 @@ def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int
   if '=' in arg:
     option_name, option_value = arg[2:].split('=', 1)
     option_name = get_option_name(option_name)
-    option_value = convert_to_type(option_value_type(option_name), option_value)
+    typed_option_value = convert_to_type(option_value_type(option_name), option_value)
     if not permits_value(option_name):
       raise ValueError(f"Option {option_name} does not take a value")
-    option = Option(option_name, option_value)
+    option = Option(option_name, typed_option_value)
     increment = 1
   else:
     option_name = get_option_name(arg[2:])
     if requires_value(option_name):
       if next_arg is not None:
-        option_value = convert_to_type(option_value_type(option_name), next_arg)
-        if is_option_value(option_name, option_value):
-          option = Option(option_name, option_value)
+        typed_option_value = convert_to_type(option_value_type(option_name), next_arg)
+        if is_option_value(option_name, typed_option_value):
+          option = Option(option_name, typed_option_value)
           increment = 2
         else:
           raise ValueError(f"{next_arg} is not a valid value for {option_name}")
@@ -284,8 +287,8 @@ def get_long_option_name_and_value(arg: str, next_arg: str) -> tuple[Option, int
         raise ValueError(f"Option {option_name} requires a value")
     elif permits_value(option_name):
       if next_arg is not None and is_option_value(option_name, next_arg):
-        option_value = convert_to_type(option_value_type(option_name), next_arg)
-        option = Option(option_name, option_value)
+        typed_option_value = convert_to_type(option_value_type(option_name), next_arg)
+        option = Option(option_name, typed_option_value)
         increment = 2
       else:
         option = Option(option_name, True)
@@ -313,7 +316,7 @@ def get_multi_option_name_and_value(arg: str) -> tuple[list[Option], int]:
   return options, increment
 
 
-def get_options(arg: str, next_arg: str) -> tuple[list[Option], int]:
+def get_options(arg: str, next_arg: str | None) -> tuple[list[Option], int]:
   """
     Get the option name and its value from the argument and the next argument
 
@@ -340,7 +343,9 @@ def get_options(arg: str, next_arg: str) -> tuple[list[Option], int]:
   return options, increment
 
 
-def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option_list: list[Option]) -> None:
+def add_to_options_dict(
+    options: dict[str, bool | int | str | list[str]],
+    option_list: list[Option]) -> None:
   """
     Add an option and its value to the 'options' dictionary.
 
@@ -359,13 +364,15 @@ def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option
     elif option.name == 'verbosity':
       if not isinstance(option.value, int):
         raise ValueError(f"Invalid value for verbosity: {option.value}")
-      options['verbosity'] = options['verbosity'] + option.value
+      assert isinstance(options['verbosity'], int)
+      options['verbosity'] += option.value
     elif option.name == 'environment':
       if isinstance(option.value, list) \
           and all(isinstance(element, str) for element in option.value) \
           and is_valid_environment(option.value):
         for value in option.value:
           # Skip duplicate values
+          assert isinstance(options['environment'], list)
           if value not in options['environment']:
             options['environment'].append(value)
       else:
@@ -374,7 +381,9 @@ def add_to_options_dict(options: dict[str, bool | int | str | list[str]], option
       raise ValueError(f"Unknown option: {option.name}")
 
 
-def validate_command_line(options: dict[str, bool | int | str | list[str]], parameters: list[str]) -> None:
+def validate_command_line(
+    options: dict[str, bool | int | str | list[str]],
+    parameters: list[str]) -> None:
   """
     Raise an exception if the command line arguments are invalid.
 
@@ -382,13 +391,16 @@ def validate_command_line(options: dict[str, bool | int | str | list[str]], para
     :param parameters: The list of positional parameters to validate.
     :return: None.
   """
+  assert isinstance(options['environment'], list) \
+         and all(isinstance(element, str) for element in options['environment'])
   if options['help'] is False and len(options['environment']) == 0:
     raise ValueError("No environment provided")
   if options['help'] is False and len(parameters) == 0:
     raise ValueError("No positional parameters provided")
 
 
-def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], list[str]]:
+def parse_command_line(args: list[str]) \
+    -> tuple[dict[str, bool | int | str | list[str]], list[str]]:
   """
     Parses command-line arguments into options and positional parameters.
 
@@ -407,7 +419,7 @@ def parse_command_line(args: list[str]) -> tuple[dict[str, str | int | bool], li
       # Value 1: means do not skip the next argument, 2 means skip it
       increment = 1
       arg: str = args[i]
-      next_arg: str = args[i + 1] if i + 1 < len(args) else None
+      next_arg: str | None = args[i + 1] if i + 1 < len(args) else None
       if is_option(arg):
         # increment is 1 if the next argument is not the value for the
         # current argument, and 2 if it is.
