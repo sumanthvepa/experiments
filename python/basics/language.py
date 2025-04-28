@@ -48,6 +48,7 @@ import abstract_base_classes
 import data_classes
 import advanced_class_concepts
 import exceptions_and_context_managers
+import generators
 import async_await
 
 print('Exploring Python')
@@ -363,7 +364,10 @@ def main():
   exceptions_and_context_managers.explore_exception_chaining()
   exceptions_and_context_managers.explore_context_managers()
 
-  # Note 22: Explore async/await and asyncio
+  # Note 22: Explore generators
+  generators.explore_generators()
+
+  # Note 23: Explore async/await and asyncio
   async_await.explore_async_await()
 
   # Future explorations
