@@ -360,6 +360,7 @@ def main():
 
   # Note 21: Explore exceptions
   exceptions_and_context_managers.explore_exceptions()
+  exceptions_and_context_managers.explore_exception_chaining()
   exceptions_and_context_managers.explore_context_managers()
 
   # Note 22: Explore async/await and asyncio

@@ -140,6 +140,72 @@ def explore_exceptions() -> None:
     print('This is the finally block')
 
 
+def explore_exception_chaining() -> None:
+  """
+    Explore exception chaining.
+
+    :return: None
+  """
+  # Exception chaining is a way to raise a new exception while
+  # preserving the original exception. This is useful for debugging
+  # and logging.
+  # You can use the 'from' keyword to chain exceptions.
+
+  # Here we raise a ValueError, catch it and then raise
+  # a MyException with the original exception as the cause.
+
+  class MyException(Exception):
+    """
+      Custom exception
+    """
+    def __init__(self, message: str) -> None:
+      """
+        Initialize the custom exception
+        :param message: The message to display
+      """
+      super().__init__(message)
+
+  def raises_my_exception() -> None:
+    """
+      A function that raises a MyException
+    """
+    try:
+      raise ValueError('This is a ValueError')
+    except ValueError as my_ex:
+      raise MyException('This is a MyException') from my_ex
+
+  try:
+    raises_my_exception()
+  except MyException as an_ex:
+    print(f'Caught a MyException: {an_ex}')
+    print(f'Original exception: {an_ex.__cause__}')
+
+  # You can also use the 'raise' statement with no exception to re-raise
+  # the original exception. This is useful when you want to catch an
+  # exception do some processing and then re-raise the original exception.
+  # Here we catch a ValueError and then re-raise it.
+  def re_raises_exception() -> None:
+    """
+      A function that raises a ValueError
+    """
+    try:
+      raise ValueError('This is a ValueError')
+    except ValueError as value_ex:
+      print(f'Caught a ValueError: {value_ex}')
+      raise  # Re-raise the original exception
+
+  try:
+    re_raises_exception()
+  except ValueError as an_ex:
+    print(f'Caught a ValueError: {an_ex}')
+
+  try:
+    raise ValueError('This is a ValueError')
+  except ValueError:
+    print('Caught a ValueError')
+    raise
+
+
 def explore_context_managers() -> None:
   """
     Explore context managers
