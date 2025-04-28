@@ -1,3 +1,6 @@
+"""
+  test_parse_command_line.py: Unit tests for the command line parser
+"""
 import os
 import unittest
 from typing import TypedDict
@@ -27,7 +30,7 @@ def is_asking_for_help(args: list[str]) -> bool:
     :return: True if the help option is present, False otherwise
   """
   for arg in args:
-    if arg == '--help' or arg == '-h':
+    if arg in ['-h', '--help']:
       return True
     if arg.startswith('-') and 'h' in arg[1:]:
       return True
@@ -44,58 +47,58 @@ def parameter_missing_cases() -> list[TestCaseData]:
   """
   # noinspection SpellCheckingInspection
   return [
-    TestCaseData(name='no_arguments', args=[], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_verbosity', args=['-v'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_verbosity_with_value', args=['-v2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_verbosity_with_value_equal', args=['-v=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_verbosity_with_value_space', args=['-v', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_help', args=['-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_help_with_wrong_value', args=['-h=true'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_environment_with_value', args=['-e=test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test']}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_environment_with_multi_value', args=['-e=test,local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_verbose', args=['--verbose'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_verbose_with_value', args=['--verbose=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_verbose_with_value_space', args=['--verbose', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_verbosity_with_value', args=['--verbosity=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_verbosity_with_value_space', args=['--verbosity', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_help', args=['--help'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_environment_with_value', args=['--environment=local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_environment_with_value_space', args=['--environment', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_env_with_value', args=['--env=local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_env_with_value_space', args=['--env', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_environment_with_multi_value', args=['--environment=local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_environment_with_multi_value_space', args=['--environment', 'local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_env_with_multi_value', args=['--env=local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
-    TestCaseData(name='multi_option_verbose', args=['-vvv'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multi_option_verbose_help', args=['-vvvh'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multi_option_help_help', args=['-hh'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multi_option_verbose_help_help', args=['-hvh'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_verbosity', args=['-v', '-v'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_help', args=['-h', '-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_help_verbosity', args=['-h', '-v'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_verbosity_environment_equal', args=['-v', '-e=local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_verbosity_environment_space', args=['-v', '-e', 'local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_verbosity_environment_multi_space', args=['-v', '-e', 'local,test'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_verbosity_environment_multi_equal', args=['-v', '-e=local,test'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_environment_equal_verbosity_equal', args=['-e=local', '-v=1'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='multiple_short_options_environment_space_verbosity_space', args=['-e', 'local', '-v', '1'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_verbosity_verbosity', args=['--verbosity', '--verbosity'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_verbose_verbose', args=['--verbose', '--verbose'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_help_help', args=['--help', '--help'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_help_verbosity_equal', args=['--help', '--verbosity=3'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_help_verbosity_space', args=['--help', '--verbosity', '3'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_verbose_environment_equal', args=['--verbose', '--environment=local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_verbose_environment_space', args=['--verbose', '--environment', 'local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_environment_environment_equal', args=['--environment=local', '--environment=test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_environment_space_environment_space', args=['--environment', 'test', '--environment', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_environment_equal_environment_multi_equal', args=['--environment=local', '--environment=test,staging'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
-    TestCaseData(name='multiple_multi_options_help_verbosity_long_verbose', args=['-hv', '--verbose'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_multi_options_verbosity_verbosity_long_environment', args=['-vv', '--environment=local'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local']}, expected_parameters=[]),
-    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_equal', args=['-e=local', '-hvvv', '--environment=test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
-    TestCaseData(name='multiple_options_verbosity_help_e_space_environment_multi_space', args=['-e', 'local', '-vhvv', '--environment', 'test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
-    TestCaseData(name='multiple_options_verbosity_help_e_space_environment_multi_equal', args=['-e', 'local', '-vvhv', '--environment=test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
-    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_space', args=['-e=local', '-vvvh', '--environment', 'test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),
-    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_space', args=['-e=local', '-hhvv', '--environment', 'local,staging'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local', 'staging']}, expected_parameters=[])
+    TestCaseData(name='no_arguments', args=[], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_verbosity', args=['-v'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_verbosity_with_value', args=['-v2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_verbosity_with_value_equal', args=['-v=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_verbosity_with_value_space', args=['-v', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_help', args=['-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_help_with_wrong_value', args=['-h=true'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_environment_with_value', args=['-e=test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_environment_with_multi_value', args=['-e=test,local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_verbose', args=['--verbose'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_verbose_with_value', args=['--verbose=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_verbose_with_value_space', args=['--verbose', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_verbosity_with_value', args=['--verbosity=2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_verbosity_with_value_space', args=['--verbosity', '2'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_help', args=['--help'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_environment_with_value', args=['--environment=local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_environment_with_value_space', args=['--environment', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_env_with_value', args=['--env=local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_env_with_value_space', args=['--env', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_environment_with_multi_value', args=['--environment=local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_environment_with_multi_value_space', args=['--environment', 'local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_env_with_multi_value', args=['--env=local,test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multi_option_verbose', args=['-vvv'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multi_option_verbose_help', args=['-vvvh'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multi_option_help_help', args=['-hh'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multi_option_verbose_help_help', args=['-hvh'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_verbosity', args=['-v', '-v'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_help', args=['-h', '-h'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_help_verbosity', args=['-h', '-v'], expected_options={'verbosity': 1, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_verbosity_environment_equal', args=['-v', '-e=local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_verbosity_environment_space', args=['-v', '-e', 'local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_verbosity_environment_multi_space', args=['-v', '-e', 'local,test'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_verbosity_environment_multi_equal', args=['-v', '-e=local,test'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_environment_equal_verbosity_equal', args=['-e=local', '-v=1'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_short_options_environment_space_verbosity_space', args=['-e', 'local', '-v', '1'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_verbosity_verbosity', args=['--verbosity', '--verbosity'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_verbose_verbose', args=['--verbose', '--verbose'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_help_help', args=['--help', '--help'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_help_verbosity_equal', args=['--help', '--verbosity=3'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]), # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_help_verbosity_space', args=['--help', '--verbosity', '3'], expected_options={'verbosity': 3, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_verbose_environment_equal', args=['--verbose', '--environment=local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_verbose_environment_space', args=['--verbose', '--environment', 'local'], expected_options={'verbosity': 1, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_environment_environment_equal', args=['--environment=local', '--environment=test'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_environment_space_environment_space', args=['--environment', 'test', '--environment', 'local'], expected_options={'verbosity': 0, 'help': True, 'environment': ['test', 'local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_environment_equal_environment_multi_equal', args=['--environment=local', '--environment=test,staging'], expected_options={'verbosity': 0, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_multi_options_help_verbosity_long_verbose', args=['-hv', '--verbose'], expected_options={'verbosity': 2, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_multi_options_verbosity_verbosity_long_environment', args=['-vv', '--environment=local'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_equal', args=['-e=local', '-hvvv', '--environment=test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_options_verbosity_help_e_space_environment_multi_space', args=['-e', 'local', '-vhvv', '--environment', 'test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_options_verbosity_help_e_space_environment_multi_equal', args=['-e', 'local', '-vvhv', '--environment=test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_space', args=['-e=local', '-vvvh', '--environment', 'test,staging'], expected_options={'verbosity': 3, 'help': True, 'environment': ['local', 'test', 'staging']}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_options_verbosity_help_e_equal_environment_multi_space', args=['-e=local', '-hhvv', '--environment', 'local,staging'], expected_options={'verbosity': 2, 'help': True, 'environment': ['local', 'staging']}, expected_parameters=[])  # pylint: disable=line-too-long
   ]
 
 def incorrect_option_cases() -> list[TestCaseData]:
@@ -115,13 +118,13 @@ def incorrect_option_cases() -> list[TestCaseData]:
     :return: A list of test cases.
   """
   return [
-    TestCaseData(name='single_short_option_verbosity_with_wrong_value', args=['-v=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_environment', args=['-e'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_short_option_environment_with_wrong_value', args=['-e=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_environment', args=['--environment'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='single_long_option_env', args=['--env'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multi_option_environment_wrong', args=['-vve=local'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),
-    TestCaseData(name='multiple_long_options_environment_environment', args=['--environment', '--environment'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])
+    TestCaseData(name='single_short_option_verbosity_with_wrong_value', args=['-v=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_environment', args=['-e'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_short_option_environment_with_wrong_value', args=['-e=wrong'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_environment', args=['--environment'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='single_long_option_env', args=['--env'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multi_option_environment_wrong', args=['-vve=local'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[]),  # pylint: disable=line-too-long
+    TestCaseData(name='multiple_long_options_environment_environment', args=['--environment', '--environment'], expected_options={'verbosity': 0, 'help': True, 'environment': []}, expected_parameters=[])  # pylint: disable=line-too-long
   ]
 
 
@@ -140,7 +143,7 @@ def parameter_present_cases() -> list[TestCaseData]:
   test_cases = []
 
   for case in parameter_missing_cases():
-    for i, parameters in enumerate(parameter_variations):
+    for parameters in parameter_variations:
       suffix = '_parameters_' + '_'.join(parameters)
       new_name = case['name'] + suffix
       new_args = case['args'] + parameters
@@ -148,6 +151,7 @@ def parameter_present_cases() -> list[TestCaseData]:
       new_expected_options = case['expected_options'].copy()
 
       # Adjust the 'help' option based on the rules
+      assert isinstance(new_expected_options['environment'], list)
       if is_asking_for_help(new_args) or len(new_expected_options['environment']) == 0:
         new_expected_options['help'] = True
       else:
@@ -175,11 +179,11 @@ def parameter_present_incorrect_option_cases() -> list[TestCaseData]:
   test_cases = []
 
   for case in incorrect_option_cases():
-    for i, parameters in enumerate(parameter_variations):
+    for parameters in parameter_variations:
       suffix = '_parameters_' + '_'.join(parameters)
       new_name = case['name'] + suffix
       new_args = case['args'] + parameters
-      new_expected_parameters = []
+      new_expected_parameters: list[str] = []
       new_expected_options = case['expected_options'].copy()
       test_cases.append(
         TestCaseData(
@@ -220,6 +224,9 @@ def all_cases() -> list[tuple[str, TestCaseData]]:
 
 
 class TestParseCommandLine(unittest.TestCase):
+  """
+    Unit tests for the command line parser
+  """
   def execute_test(self, case: TestCaseData) -> None:
     """
       Execute the test with the provided case data and check that
@@ -234,7 +241,7 @@ class TestParseCommandLine(unittest.TestCase):
 
   # noinspection PyUnusedLocal
   @parameterized.expand(all_cases())
-  def test_cases(self, name: str, case: TestCaseData) -> None:
+  def test_cases(self, name: str, case: TestCaseData) -> None:  # pylint: disable=unused-argument
     """
       Execute the test with the provided case data.
 
@@ -249,7 +256,9 @@ class TestParseCommandLine(unittest.TestCase):
     """
     self.execute_test(case)
 
-  @unittest.skipIf(os.environ.get('DEBUG_TEST_NUMBER') is None,'Environment variable DEBUG_TEST_NUMBER is not defined')
+  @unittest.skipIf(
+    os.environ.get('DEBUG_TEST_NUMBER') is None,
+    'Environment variable DEBUG_TEST_NUMBER is not defined')
   def test_debug(self) -> None:
     """
       Debug a failing test case
@@ -259,8 +268,8 @@ class TestParseCommandLine(unittest.TestCase):
     test_number = os.environ.get('DEBUG_TEST_NUMBER')
     if test_number is not None:
       try:
-        test_number = int(test_number)
-        (name, case) = all_cases()[test_number]
+        typed_test_number = int(test_number)
+        (_, case) = all_cases()[typed_test_number]
         self.execute_test(case)
       except ValueError:
         self.fail(f'DEBUG_TEST_NUMBER is not an integer: {test_number}')
