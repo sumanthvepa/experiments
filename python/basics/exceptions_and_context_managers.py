@@ -199,12 +199,6 @@ def explore_exception_chaining() -> None:
   except ValueError as an_ex:
     print(f'Caught a ValueError: {an_ex}')
 
-  try:
-    raise ValueError('This is a ValueError')
-  except ValueError:
-    print('Caught a ValueError')
-    raise
-
 
 def explore_context_managers() -> None:
   """
@@ -306,6 +300,34 @@ def explore_context_managers() -> None:
 
   with code_block('block3'):
     print('Inside block')
+
+  # You can yield a resource created within the context manager to
+  # the code block gated by it. For example, you want to create handle
+  # to a resource and return it to the code block. The resource is
+  # cleaned up when the code block exits.
+  @contextmanager
+  def resource_manager(name: str) -> Generator[dict[str, str], None, None]:
+    """
+      A context manager that manages a resource
+      :param name: The name of the resource.
+      :return: The resource
+    """
+    print(f'Creating resource {name}')
+    resource = {'name': name}
+    try:
+      yield resource
+    finally:
+      print(f'Cleaning up resource {name}')
+      del resource
+
+  # We can use the resource manager context manager to create a
+  # resource and use it in the code block. The resource is cleaned
+  # up when the code block exits.
+  with resource_manager('resource1') as resource:
+    print(f'Using resource {resource["name"]}')
+    # Do something with the resource
+    resource['name'] = 'new_resource1'
+    print(f'Using resource {resource["name"]}')
 
 
 def remove_file_silent(filename: str) -> None:
@@ -455,3 +477,10 @@ def explore_two_phase_commit() -> None:
   finally:
     os.remove('commit.log')
     original_todo.save('todo.txt')
+
+
+if __name__ == '__main__':
+  explore_exceptions()
+  explore_exception_chaining()
+  explore_context_managers()
+  explore_two_phase_commit()
