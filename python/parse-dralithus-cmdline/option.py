@@ -39,3 +39,16 @@ class Option(ABC):
       :param dictionary: The dictionary to add the option to
     """
     raise NotImplementedError("Option.add_to() is an abstract method")
+
+  @classmethod
+  @abstractmethod
+  def make(cls, current_arg: str, next_arg: str | None) -> tuple[Option, bool]:
+    """
+      Create an Option object from command line arguments.
+
+      :param current_arg: The current argument string
+      :param next_arg: The next argument string
+      :return: A tuple containing the Option object and a boolean
+        indicating whether to skip the next argument
+    """
+    raise NotImplementedError("Option.make() is an abstract method")
