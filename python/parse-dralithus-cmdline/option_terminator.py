@@ -6,6 +6,7 @@ from typing import override
 
 from option import Option
 
+
 class OptionTerminator(Option):
   """
     A class to represent an option terminator: --
