@@ -42,6 +42,21 @@ class Option(ABC):
 
   @classmethod
   @abstractmethod
+  def is_option(cls, arg: str) -> bool:
+    """
+      Check if a string is an option that can be represented by this
+      class.
+
+      Derived classes must implement this method to check if the
+      argument string can be represented by this class.
+
+      :param arg: The argument string
+      :return: True if the argument can be represented by this class
+    """
+    raise NotImplementedError("Option.is_option() is an abstract method")
+
+  @classmethod
+  @abstractmethod
   def make(cls, current_arg: str, next_arg: str | None) -> tuple[Option, bool]:
     """
       Create an Option object from command line arguments.
