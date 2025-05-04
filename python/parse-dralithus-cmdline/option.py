@@ -8,9 +8,13 @@ from abc import ABC, abstractmethod
 class Option(ABC):
   """
     A class to represent a command line option.
+
+    This is an abstract base class that defines the interface for
+    all option objects.
   """
   # Note that the order of the decorators is important. The @abstractmethod
   # must be the innermost decorator.
+  # See: https://stackoverflow.com/questions/72736760/making-abstract-property-in-python-3-results-in-attributeerror
   @property
   @abstractmethod
   def value(self) -> None | bool | int | str | set[str]:
