@@ -44,6 +44,16 @@ class TestOption(unittest.TestCase):
         dictionary["dummy"] = self._value
 
       @classmethod
+      def is_option(cls, arg: str) -> bool:
+        """
+          Check if the argument is a dummy option.
+
+          :param arg: The argument string
+          :return: True if the argument is a dummy option
+        """
+        return arg in ['-d', '--dummy']
+
+      @classmethod
       def make(cls, _: str, __: str | None) -> tuple[DummyOption, bool]:
         # noinspection GrazieInspection
         """
