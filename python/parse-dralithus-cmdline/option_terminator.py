@@ -43,7 +43,7 @@ class OptionTerminator(Option):
   # Note: You cannot use @override here because, @override only works with
   # normal methods. Not with class methods.
   @classmethod
-  def make(cls, _: str, __: str | None) \
+  def make(cls, current_arg: str, _: str | None) \
       -> tuple[OptionTerminator, bool]:
     """
       Create an OptionTerminator object from command line arguments.
@@ -52,9 +52,11 @@ class OptionTerminator(Option):
       method must match the signature of the make methods in other
       subclasses of Option.
 
-      :param _: (current_arg) Not used
-      :param __: (next_arg) Not used
+      :param current_arg: The current arg. Used to check if it is, in
+        fact, an option terminator.
+      :param _: (next_arg) Not used
       :return: A tuple containing the OptionTerminator object and a
         boolean indicating whether to skip the next argument (always False).
     """
+    assert cls.is_option(current_arg)
     return OptionTerminator(), False
