@@ -54,6 +54,16 @@ class TestOption(unittest.TestCase):
         return arg in ['-d', '--dummy']
 
       @classmethod
+      def is_valid_type(cls, str_value: str) -> bool:
+        """
+          Check if the value is valid for this option.
+
+          :param str_value: The value to check
+          :return: Always False. The dummy option does not take a value
+        """
+        return False
+
+      @classmethod
       def make(cls, _: str, __: str | None) -> tuple[DummyOption, bool]:
         # noinspection GrazieInspection
         """

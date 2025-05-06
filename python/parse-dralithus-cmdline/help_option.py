@@ -41,6 +41,15 @@ class HelpOption(Option):
     return arg in ('-h', '--help')
 
   @classmethod
+  def is_valid_type(cls, str_value: str) -> bool:
+    """
+      Check if the value is a valid verbosity level.
+      :param str_value:
+      :return: False. No value is valid for help option.
+    """
+    return False
+
+  @classmethod
   def make(cls, current_arg: str, next_arg: str | None) -> tuple[HelpOption, bool]:
     """
       Create a HelpOption object from command line arguments.

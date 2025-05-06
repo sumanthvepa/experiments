@@ -1,5 +1,5 @@
 """
-  test_verbosity_option.py: Unit tests for the VerbosityOption class.
+  test_verbosity_option.py: Unit tests for class VerbosityOption.
 """
 import unittest
 
@@ -40,31 +40,38 @@ def make_correct_cases() -> list[tuple[str, str, str | None, int, bool]]:
     ('short_bad_value_next_arg_true', '-v', 'True', 1, False),
     ('long_bad_value_next_arg_true', '--verbosity', 'True', 1, False)]
 
-def make_bad_cases() -> list[tuple[str, str, str | None]]:
+def make_incorrect_cases() -> list[tuple[str, str, str | None, type[Exception]]]:
   """
     Generate test cases for the VerbosityOption class with bad values.
 
     :return: A list of test cases
   """
   return [
-    ('short_bad_value_equal', '-v=bad_value', None),
-    ('short_bad_value2_equal', '-v=True', None),
-    ('short_bad_value3_equal', '-v=-2', None),
-    ('long_bad_value_equal', '--verbose=bad_value', None),
-    ('long_bad_value2_equal', '--verbose=True', None),
-    ('long_bad_value3_equal', '--verbose=-2', None),
-    ('long2_bad_value_equal', '--verbosity=bad_value', None),
-    ('long2_bad_value2_equal', '--verbosity=True', None),
-    ('long2_bad_value3_equal', '--verbosity=-2', None),
-    ('short_bad_value_next_arg_negative', '-v', '-2'),
-    ('long_bad_value_next_arg', '--verbosity=bad_value', 'parameter')]
+    ('short_bad_value_equal', '-v=bad_value', None, ValueError),
+    ('short_bad_value2_equal', '-v=True', None, ValueError),
+    ('short_bad_value3_equal', '-v=-2', None, ValueError),
+    ('long_bad_value_equal', '--verbose=bad_value', None, ValueError),
+    ('long_bad_value2_equal', '--verbose=True', None, ValueError),
+    ('long_bad_value3_equal', '--verbose=-2', None, ValueError),
+    ('long2_bad_value_equal', '--verbosity=bad_value', None, ValueError),
+    ('long2_bad_value2_equal', '--verbosity=True', None, ValueError),
+    ('long2_bad_value3_equal', '--verbosity=-2', None, ValueError),
+    ('short_bad_value_next_arg_negative', '-v', '-2', ValueError),
+    ('long_bad_value_next_arg', '--verbosity=bad_value', 'parameter', ValueError),
+    ('wrong_short_option_no_value', '-h', None, AssertionError),
+    ('wrong_short_option_value', '-h=True', None, AssertionError),
+    ('wrong_long_option_no_value', '--help', None, AssertionError),
+    ('wrong_long_option_value', '--help=True', None, AssertionError),
+    ('wrong_short_option_next_arg', '-h', '1', AssertionError),
+    ('wrong_long_option_next_arg', '--help', '1', AssertionError),
+    ('wrong_no_option', 'parameter', None, AssertionError)]
 
 class TestVerbosityOption(unittest.TestCase):
   """
     Unit tests for class VerbosityOption
   """
 
-  def test_value(self):
+  def test_value(self) -> None:
     """
       Test the value of the verbosity option.
     """
@@ -77,7 +84,12 @@ class TestVerbosityOption(unittest.TestCase):
     ('add_3_to_dict_1', 3, {'verbosity': 1}, 4),
     ('add_1_to_none_dict', 1, {'verbosity': None}, 1),
     ('and_1_to_dict_0', 1, {'verbosity': 0}, 1)])
-  def test_add_to(self, name, verbosity, dictionary, expected_verbosity): # pylint: disable=unused-argument
+  def test_add_to(
+      self,
+      name: str,  # pylint: disable=unused-argument
+      verbosity: int,
+      dictionary: dict[str, None | bool | int | str | set[str]],
+      expected_verbosity: int):
     """
       Test the add_to method.
     """
@@ -95,9 +107,12 @@ class TestVerbosityOption(unittest.TestCase):
     ('long2_value', '--verbosity=1', True),
     ('short_bad_value', '-v=True', True),  # Yes, this an option, although not a valid one
     ('long_bad_value', '--verbosity=True', True),  # So is this, for the same reason
-    ('short_wrong_option', '-h', False),
+    ('short_wrong_option_no_value', '-h', False),
+    ('short_wrong_option_value', '-h=True', False),
+    ('long_wrong_option_no_value', '--help', False),
+    ('long_wrong_option_value', '--environment=local,test', False),
     ('not_option','parameter', False)])
-  def test_is_option(self, name, arg, expected_result):  # pylint: disable=unused-argument
+  def test_is_option(self, name: str, arg: str, expected_result: bool) -> None:  # pylint: disable=unused-argument
     """
       Test the is_option method.
     """
@@ -107,7 +122,11 @@ class TestVerbosityOption(unittest.TestCase):
   # noinspection PyUnusedLocal
   @parameterized.expand(make_correct_cases())
   def test_make(self,  # pylint: disable=too-many-arguments, too-many-positional-arguments
-      name, current_arg, next_arg, expected_verbosity, expected_skip_next_arg) -> None:  # pylint: disable=unused-argument
+      name: str,  # pylint: disable=unused-argument
+      current_arg: str,
+      next_arg: str | None,
+      expected_verbosity: int,
+      expected_skip_next_arg: bool) -> None:
     """
       Test the make method with parameterized inputs.
     """
@@ -117,11 +136,12 @@ class TestVerbosityOption(unittest.TestCase):
     self.assertEqual(expected_skip_next_arg, skip_next_arg)
 
   # noinspection PyUnusedLocal
-  @parameterized.expand(make_bad_cases())
-  def test_make_bad_cases(self,  # pylint: disable=too-many-arguments, too-many-positional-arguments
-      name: str, current_arg: str, next_arg: str | None) -> None:  # pylint: disable=unused-argument
+  @parameterized.expand(make_incorrect_cases())
+  def test_make_incorrect_cases(self,  # pylint: disable=too-many-arguments, too-many-positional-arguments
+      name: str, current_arg: str, next_arg: str | None,  # pylint: disable=unused-argument
+      exception_type: type[Exception]) -> None:
     """
       Test the make method with a bad value.
     """
-    with self.assertRaises(ValueError):
+    with self.assertRaises(exception_type):
       VerbosityOption.make(current_arg, next_arg)

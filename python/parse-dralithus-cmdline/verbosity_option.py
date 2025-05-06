@@ -6,6 +6,7 @@ from typing import override
 
 from option import Option
 
+
 def int_cast(value: str) -> int | None:
   """
     Cast a string to an integer or return None if it fails.
@@ -23,38 +24,6 @@ class VerbosityOption(Option):
   """
     A class to represent a verbosity option.
   """
-  @staticmethod
-  def _split_flag_value(arg: str) -> tuple[str, str | None]:
-    """
-      Split the argument into flag and value parts.
-
-      :param arg: The argument string
-      :return: A tuple containing the flag and value parts
-    """
-    flag_value: list[str] = arg.split('=', 1)
-    if len(flag_value) > 1:
-      return flag_value[0], flag_value[1]
-    if not flag_value[0].startswith('--') and len(flag_value[0]) > 2:
-      return flag_value[0][:2], flag_value[0][2:]
-    return flag_value[0], None
-
-  @staticmethod
-  def _extract_value(current_arg: str, next_arg: str | None) -> tuple[str | None, bool]:
-    """
-      Extract the value from the current argument or the next argument.
-
-      :param current_arg: The current argument string
-      :param next_arg: The next argument string
-      :return: A tuple containing of the flag, if present (on None if
-        not) and a boolean indicating whether to skip the next argument
-    """
-    _, str_value = VerbosityOption._split_flag_value(current_arg)
-    if str_value is not None:
-      return str_value, False
-    if next_arg is not None and int_cast(next_arg) is not None:
-      return next_arg, True
-    return None, False
-
   def __init__(self, verbosity: int) -> None:
     """
       Initialize the verbosity option with a verbosity level.
@@ -94,8 +63,17 @@ class VerbosityOption(Option):
       :param arg: The argument string
       :return: True if the argument is a verbosity option
     """
-    flag, _ = cls._split_flag_value(arg)
+    flag, _ = Option._split_flag_value(arg)
     return flag in ('-v', '--verbose', '--verbosity')
+
+  @classmethod
+  def is_valid_type(cls, str_value: str) -> bool:
+    """
+      Check if the value is a valid verbosity level.
+      :param str_value:
+      :return:
+    """
+    return int_cast(str_value) is not None
 
   @classmethod
   def make(cls, current_arg: str, next_arg: str | None) -> tuple[VerbosityOption, bool]:

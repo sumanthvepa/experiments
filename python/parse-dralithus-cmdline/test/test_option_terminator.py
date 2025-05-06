@@ -11,7 +11,7 @@ class TestOptionTerminator(unittest.TestCase):
     Unit tests for class OptionTerminator
   """
 
-  def test_value(self):
+  def test_value(self) -> None:
     """
       Test the value of the option terminator.
     """
@@ -19,7 +19,7 @@ class TestOptionTerminator(unittest.TestCase):
     self.assertEqual(terminator.value, '--')
 
 
-  def test_is_option(self):
+  def test_is_option(self) -> None:
     """
       Test the is_option method.
     """
@@ -27,7 +27,7 @@ class TestOptionTerminator(unittest.TestCase):
     self.assertFalse(OptionTerminator.is_option('-h'))
 
 
-  def test_make(self):
+  def test_make(self) -> None:
     """
       Test the make method.
     """

@@ -40,6 +40,15 @@ class OptionTerminator(Option):
     """
     return arg == '--'
 
+  @classmethod
+  def is_valid_type(cls, str_value: str) -> bool:
+    """
+      Check if the value is a valid verbosity level.
+      :param str_value:
+      :return: False. No value is valid for option terminator.
+    """
+    return False
+
   # Note: You cannot use @override here because, @override only works with
   # normal methods. Not with class methods.
   @classmethod

@@ -12,6 +12,42 @@ class Option(ABC):
     This is an abstract base class that defines the interface for
     all option objects.
   """
+  @staticmethod
+  def _split_flag_value(arg: str) -> tuple[str, str | None]:
+    """
+      Split the argument into flag and value parts.
+
+      This is intended to be used by derived classes to parse command line
+      arguments.
+
+      :param arg: The argument string
+      :return: A tuple containing the flag and value parts
+    """
+    flag_value: list[str] = arg.split('=', 1)
+    if len(flag_value) > 1:
+      return flag_value[0], flag_value[1]
+    if not flag_value[0].startswith('--') and len(flag_value[0]) > 2:
+      return flag_value[0][:2], flag_value[0][2:]
+    return flag_value[0], None
+
+  @classmethod
+  def _extract_value(cls, current_arg: str, next_arg: str | None) -> tuple[str | None, bool]:
+    """
+      Extract the value from the current argument or the next argument.
+
+      :param current_arg: The current argument string
+      :param next_arg: The next argument string
+      :return: A tuple containing value of the flag, if present (on None if
+        not) and a boolean indicating whether to skip the next argument
+    """
+    _, str_value = Option._split_flag_value(current_arg)
+    if str_value is not None:
+      return str_value, False
+    if next_arg is not None and cls.is_valid_type(next_arg):
+      return next_arg, True
+    return None, False
+
+
   # Note that the order of the decorators is important. The @abstractmethod
   # must be the innermost decorator.
   # See: https://stackoverflow.com/questions/72736760/making-abstract-property-in-python-3-results-in-attributeerror
@@ -54,6 +90,17 @@ class Option(ABC):
       :return: True if the argument can be represented by this class
     """
     raise NotImplementedError("Option.is_option() is an abstract method")
+
+  @classmethod
+  @abstractmethod
+  def is_valid_type(cls, str_value: str) -> bool:
+    """
+      Check if the value is valid for this option.
+
+      :param str_value: The value to check
+      :return: True if the value is valid, False otherwise
+    """
+    raise NotImplementedError("Option.is_valid_value() is an abstract method")
 
   @classmethod
   @abstractmethod
