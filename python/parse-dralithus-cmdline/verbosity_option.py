@@ -63,7 +63,7 @@ class VerbosityOption(Option):
       :param arg: The argument string
       :return: True if the argument is a verbosity option
     """
-    flag, _ = Option._split_flag_value(arg)
+    flag, _ = cls._split_flag_value(arg)
     return flag in ('-v', '--verbose', '--verbosity')
 
   @classmethod
@@ -86,7 +86,7 @@ class VerbosityOption(Option):
         whether to skip the next argument
       :raises ValueError: If the verbosity level is not a valid integer
     """
-    assert VerbosityOption.is_option(current_arg)
+    assert cls.is_option(current_arg)
     str_value, skip_next_arg = cls._extract_value(current_arg, next_arg)
     value: int = int(str_value) if str_value is not None else 1
     if value < 1:

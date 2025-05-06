@@ -64,7 +64,7 @@ class EnvironmentOption(Option):
       :param arg: The argument string
       :return: True if the argument is an environment option
     """
-    flag, _ = Option._split_flag_value(arg)
+    flag, _ = cls._split_flag_value(arg)
     return flag in ('-e', '--env', '--environment')
 
   @classmethod
