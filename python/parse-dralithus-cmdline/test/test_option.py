@@ -6,14 +6,217 @@ from __future__ import annotations
 import unittest
 from typing import override
 
-from option import Option
+from parameterized import parameterized
 
+from option import Option
+from option_terminator import OptionTerminator
+from help_option import HelpOption
+from verbosity_option import VerbosityOption
+from environment_option import EnvironmentOption
+
+
+def make_correct_cases() -> list[
+      tuple[
+        str,
+        str,
+        str | None,
+        type[Option],
+        bool | int | str | set[str],
+        bool]]:
+  """
+    Generate test cases for the Option class.
+
+    Note that not all cases are obviously correct.
+
+    Indeed, some cases would be incorrect if the argument pair were
+    part of a larger set of arguments, but are considered correct for
+    the specific option being created. For example: -v -2 would be
+    invalid as part of a command line since -2 is not a valid command
+    option. But the purpose of this test is to test only the first
+    argument and the next argument is only processed if it is needed
+    to create the option. So -v -2 is a valid test case. It results
+    in a VerbosityOption with a value of 1 and a skip_next_arg
+    value of False.
+
+    :return: A list of test cases
+  """
+  # pylint: disable=line-too-long
+  return [
+    ('option-terminator', '--', None, OptionTerminator, '--', False),
+    ('short-help', '-h', None, HelpOption, True, False),
+    ('short-help-next-arg', '-h', 'True', HelpOption, True, False),
+    ('short-help-next-arg2', '-h', '2', HelpOption, True, False),
+    ('short-help-next-arg3', '-h', '-2', HelpOption, True, False),
+    ('long-help', '--help', None, HelpOption, True, False),
+    ('long-help-next-arg', '--help', 'True', HelpOption, True, False),
+    ('long-help-next-arg2', '--help', '2', HelpOption, True, False),
+    ('long-help-next-arg3', '--help', '-2', HelpOption, True, False),
+    ('short-verbosity', '-v', None, VerbosityOption, 1, False),
+    ('short-verbosity-value', '-v=2', None, VerbosityOption, 2, False),
+    ('short-verbosity-next-arg', '-v', '2', VerbosityOption, 2, True),
+    ('short-verbosity-next-arg-value', '-v', '2', VerbosityOption, 2, True),
+    ('short-verbosity-next-arg-bad-value', '-v', 'bad_value', VerbosityOption, 1, False),
+    ('short-verbosity-next-arg-bad-value2', '-v', 'True', VerbosityOption, 1, False),
+    ('short-verbosity-next-arg-option', '-v', '-h', VerbosityOption, 1, False),
+    ('short-verbosity-next-arg-verbosity', '-v', '-v', VerbosityOption, 1, False),
+    ('short-verbosity-next-arg-parameter', '-v', 'parameter', VerbosityOption, 1, False),
+    ('long-verbosity', '--verbosity', None, VerbosityOption, 1, False),
+    ('long-verbosity-value', '--verbosity=2', None, VerbosityOption, 2, False),
+    ('long-verbosity-next-arg', '--verbosity', '2', VerbosityOption, 2, True),
+    ('long-verbosity-next-arg-option', '--verbosity', '-h', VerbosityOption, 1, False),
+    ('long-verbosity-next-arg-verbosity', '--verbosity', '-v', VerbosityOption, 1, False),
+    ('long-verbosity-next-arg-parameter', '--verbosity', 'parameter', VerbosityOption, 1, False),
+    ('long2-verbosity', '--verbose', None, VerbosityOption, 1, False),
+    ('long2-verbosity-value', '--verbose=2', None, VerbosityOption, 2, False),
+    ('long2-verbosity-next-arg', '--verbose', '2', VerbosityOption, 2, True),
+    ('long2-verbosity-next-arg-option', '--verbose', '-h', VerbosityOption, 1, False),
+    ('long2-verbosity-next-arg-verbosity', '--verbose', '-v', VerbosityOption, 1, False),
+    ('long2-verbosity-next-arg-parameter', '--verbose', 'parameter', VerbosityOption, 1, False),
+    ('short-env', '-e=local', None, EnvironmentOption, {'local'}, False),
+    ('short-env-multi-value', '-e=local,test', None, EnvironmentOption, {'local', 'test'}, False),
+    ('short-env-next-arg', '-e', 'local', EnvironmentOption, {'local'}, True),
+    ('short-env-next-arg-multi-value', '-e', 'local,test', EnvironmentOption, {'local', 'test'}, True),
+    ('short-env-next-arg-option', '-e=local', '-h', EnvironmentOption, {'local'}, False),
+    ('short-env-next-arg-parameter', '-e=local', 'parameter', EnvironmentOption, {'local'}, False),
+    ('short-env-multi-value-next-arg-option', '-e=local,test', '-h', EnvironmentOption, {'local', 'test'}, False),
+    ('short-env-multi-value-next-arg-parameter', '-e=local,test', 'parameter', EnvironmentOption, {'local', 'test'}, False),
+    ('long-env', '--env=local', None, EnvironmentOption, {'local'}, False),
+    ('long-env-multi-value', '--env=local,test', None, EnvironmentOption, {'local', 'test'}, False),
+    ('long-env-next-arg', '--env', 'local', EnvironmentOption, {'local'}, True),
+    ('long-env-next-arg-multi-value', '--env', 'local,test', EnvironmentOption, {'local', 'test'}, True),
+    ('long-env-next-arg-option', '--env=local', '-h', EnvironmentOption, {'local'}, False),
+    ('long-env-next-arg-parameter', '--env=local', 'parameter', EnvironmentOption, {'local'}, False),
+    ('long-env-multi-value-next-arg-option', '--env=local,test', '-h', EnvironmentOption, {'local', 'test'}, False),
+    ('long-env-multi-value-next-arg-parameter', '--env=local,test', 'parameter', EnvironmentOption, {'local', 'test'}, False),
+    ('long2-env', '--environment=local', None, EnvironmentOption, {'local'}, False),
+    ('long2-env-multi-value', '--environment=local,test', None, EnvironmentOption, {'local', 'test'}, False),
+    ('long2-env-next-arg', '--environment', 'local', EnvironmentOption, {'local'}, True),
+    ('long2-env-next-arg-multi-value', '--environment', 'local,test', EnvironmentOption, {'local', 'test'}, True),
+    ('long2-env-next-arg-option', '--environment=local', '-h', EnvironmentOption, {'local'}, False),
+    ('long2-env-next-arg-parameter', '--environment=local', 'parameter', EnvironmentOption, {'local'}, False),
+    ('long2-env-multi-value-next-arg-option', '--environment=local,test', '-h', EnvironmentOption, {'local', 'test'}, False),
+    ('long2-env-multi-value-next-arg-parameter', '--environment=local,test', 'parameter', EnvironmentOption, {'local', 'test'}, False)]
+
+def make_incorrect_cases() -> \
+    list[tuple[str, str, str | None, type[Exception]]]:
+  """
+    Generate test cases that cause an exception for the Option.make() method
+    :return: A list of test cases
+  """
+  return [
+    ('short-help-value', '-h=True', None, ValueError),
+    ('short-help-value2', '-h=2', None, ValueError),
+    ('short-help-value3', '-h=-2', None, ValueError),
+    ('long-help-value', '--help=True', None, ValueError),
+    ('long-help-value2', '--help=2', None, ValueError),
+    ('long-help-value3', '--help=-2', None, ValueError),
+    ('short-verbosity-bad-value', '-v=bad_value', None, ValueError),
+    ('short-verbosity-bad-value2', '-v=True', None, ValueError),
+    ('short-verbosity-bad-value3', '-v=-2', None, ValueError),
+    ('short-verbosity-next-arg', '-v', '-2', ValueError),
+    ('long-verbosity-bad-value', '--verbosity=bad_value', None,ValueError),
+    ('long-verbosity-bad-value2', '--verbosity=True', None, ValueError),
+    ('long-verbosity-bad-value3', '--verbosity=-2', None, ValueError),
+    ('long-verbosity-next-arg', '--verbosity', '-2', ValueError),
+    ('long2-verbosity-bad-value', '--verbose=bad_value', None, ValueError),
+    ('long2-verbosity-bad-value2', '--verbose=True', None, ValueError),
+    ('long2-verbosity-bad-value3', '--verbose=-2', None, ValueError),
+    ('long2-verbosity-next-arg', '--verbose', '-2', ValueError),
+    ('short-env-bad_value', '-e=bad_value', None, ValueError),
+    ('short-env-bad_value2', '-e=True', None, ValueError),
+    ('short-env-bad_value3', '-e=-2', None, ValueError),
+    ('short-env-next-arg', '-e', 'bad_value', ValueError),
+    ('short-env-next-arg2', '-e', 'True', ValueError),
+    ('short-env-next-arg3', '-e', '-2', ValueError),
+    ('long-env-bad_value', '--env=bad_value', None, ValueError),
+    ('long-env-bad_value2', '--env=True', None, ValueError),
+    ('long-env-bad_value3', '--env=-2', None, ValueError),
+    ('long-env-next-arg', '--env', 'bad_value', ValueError),
+    ('long-env-next-arg2', '--env', 'True', ValueError),
+    ('long-env-next-arg3', '--env', '-2', ValueError),
+    ('long2-env-bad_value', '--environment=bad_value', None, ValueError),
+    ('long2-env-bad_value2', '--environment=True', None, ValueError),
+    ('long2-env-bad_value3', '--environment=-2', None, ValueError),
+    ('long2-env-next-arg', '--environment', 'bad_value', ValueError),
+    ('long2-env-next-arg2', '--environment', 'True', ValueError),
+    ('long2-env-next-arg3', '--environment', '-2', ValueError)
+  ]
 
 class TestOption(unittest.TestCase):
   """
     Unit tests for class Option
   """
-  def test_subclassing(self):
+
+  # noinspection PyUnusedLocal
+  @parameterized.expand([
+    ('option-terminator', '--', OptionTerminator),
+    ('short-help', '-h', HelpOption),
+    ('long-help', '--help', HelpOption),
+    ('short-verbosity', '-v', VerbosityOption),
+    ('long-verbosity', '--verbosity', VerbosityOption),
+    ('long-verbosity-value', '--verbosity=2', VerbosityOption),
+    ('long2-verbosity', '--verbose', VerbosityOption),
+    ('long2-verbosity-value', '--verbose=2', VerbosityOption),
+    ('short-verbosity-bad-value', '-v=bad_value', VerbosityOption),
+    ('short-verbosity-bad-value2', '-v=True', VerbosityOption),
+    ('short-verbosity-bad-value3', '-v=-2', VerbosityOption),
+    ('long-verbosity-bad-value', '--verbosity=bad_value', VerbosityOption),
+    ('long-verbosity-bad-value2', '--verbosity=True', VerbosityOption),
+    ('long-verbosity-bad-value3', '--verbosity=-2', VerbosityOption),
+    ('short-env', '-e', EnvironmentOption),
+    ('short-env-value', '-e=local', EnvironmentOption),
+    ('short-env-multi-value', '-e=local,test', EnvironmentOption),
+    ('short-env-bad_value', '-e=bad_value', EnvironmentOption),
+    ('long-env', '--env', EnvironmentOption),
+    ('long-env-value', '--env=local', EnvironmentOption),
+    ('long-env-multi-value', '--env=local,test', EnvironmentOption),
+    ('long-env-bad_value', '--env=bad_value', EnvironmentOption),
+    ('long2-env', '--environment', EnvironmentOption),
+    ('long2-env-value', '--environment=local', EnvironmentOption),
+    ('long2-env-multi-value', '--environment=local,test', EnvironmentOption),
+    ('long2-env-bad_value', '--environment=bad_value', EnvironmentOption)])
+  def test_type_of(self,
+    name: str,  # pylint: disable=unused-argument
+    arg: str, expected_cls: type[Option]) -> None:
+    """
+      Test the type_of method
+    """
+    actual_cls = Option.type_of(arg)
+    self.assertEqual(expected_cls, actual_cls)
+
+  # noinspection PyUnusedLocal
+  @parameterized.expand(make_correct_cases())
+  def test_make(self,  # pylint: disable=too-many-arguments, too-many-positional-arguments
+      name: str, # pylint: disable=unused-argument
+      current_arg: str,
+      next_arg: str | None,
+      expected_option_type: type[Option],
+      expected_option_value: bool | int | str | set[str],
+      expected_skip_next_arg: bool) -> None:
+    """
+      Test the make method of the Option class.
+      :return: None
+    """
+    option, skip_next_arg = Option.make(current_arg, next_arg)
+    self.assertIsInstance(option, expected_option_type)
+    self.assertEqual(expected_option_value, option.value)
+    self.assertEqual(expected_skip_next_arg, skip_next_arg)
+
+  # noinspection PyUnusedLocal
+  @parameterized.expand(make_incorrect_cases())
+  def test_make_incorrect_cases(self,
+      name: str,  # pylint: disable=unused-argument
+      current_arg: str,
+      next_arg: str| None,
+      exception_type: type[Exception]) -> None:
+    """
+      Test the make method with incorrect cases.
+      :return: None
+    """
+    with self.assertRaises(exception_type):
+      Option.make(current_arg, next_arg)
+
+  def test_subclassing(self) -> None:
     """
       Test that Option is an abstract class can be subclassed.
     """
@@ -54,7 +257,7 @@ class TestOption(unittest.TestCase):
         return arg in ['-d', '--dummy']
 
       @classmethod
-      def is_valid_type(cls, str_value: str) -> bool:
+      def is_valid_value_type(cls, str_value: str) -> bool:
         """
           Check if the value is valid for this option.
 

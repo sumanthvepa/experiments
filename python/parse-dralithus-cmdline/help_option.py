@@ -41,7 +41,7 @@ class HelpOption(Option):
     return arg in ('-h', '--help')
 
   @classmethod
-  def is_valid_type(cls, str_value: str) -> bool:
+  def is_valid_value_type(cls, str_value: str) -> bool:
     """
       Check if the value is a valid verbosity level.
       :param str_value:

@@ -67,7 +67,7 @@ class VerbosityOption(Option):
     return flag in ('-v', '--verbose', '--verbosity')
 
   @classmethod
-  def is_valid_type(cls, str_value: str) -> bool:
+  def is_valid_value_type(cls, str_value: str) -> bool:
     """
       Check if the value is a valid verbosity level.
       :param str_value:

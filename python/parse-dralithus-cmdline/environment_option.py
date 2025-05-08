@@ -68,7 +68,7 @@ class EnvironmentOption(Option):
     return flag in ('-e', '--env', '--environment')
 
   @classmethod
-  def is_valid_type(cls, str_value: str) -> bool:
+  def is_valid_value_type(cls, str_value: str) -> bool:
     """
       Check if the value is a valid verbosity level.
       :param str_value:
@@ -100,7 +100,7 @@ class EnvironmentOption(Option):
     str_value, skip_next_arg = cls._extract_value(current_arg, next_arg)
     if str_value is None:
       raise ValueError(f"Missing value for environment option: {current_arg}")
-    environments: set[str] = set(str_value.split(','))
+    environments: set[str] = {env.strip() for env in str_value.split(',')}
     for environment in environments:
       if not cls.is_valid_environment(environment):
         raise ValueError(f"Invalid environment name: {environment}")

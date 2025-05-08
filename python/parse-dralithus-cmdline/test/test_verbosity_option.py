@@ -118,7 +118,6 @@ class TestVerbosityOption(unittest.TestCase):
     """
     self.assertEqual(expected_result, VerbosityOption.is_option(arg))
 
-
   # noinspection PyUnusedLocal
   @parameterized.expand(make_correct_cases())
   def test_make(self,  # pylint: disable=too-many-arguments, too-many-positional-arguments

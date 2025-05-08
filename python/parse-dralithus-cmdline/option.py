@@ -43,11 +43,12 @@ class Option(ABC):
     _, str_value = Option._split_flag_value(current_arg)
     if str_value is not None:
       return str_value, False
-    if next_arg is not None and cls.is_valid_type(next_arg):
+    if next_arg is not None and cls.is_valid_value_type(next_arg):
       return next_arg, True
     return None, False
 
 
+  # pylint: disable=line-too-long
   # Note that the order of the decorators is important. The @abstractmethod
   # must be the innermost decorator.
   # See: https://stackoverflow.com/questions/72736760/making-abstract-property-in-python-3-results-in-attributeerror
@@ -93,7 +94,7 @@ class Option(ABC):
 
   @classmethod
   @abstractmethod
-  def is_valid_type(cls, str_value: str) -> bool:
+  def is_valid_value_type(cls, str_value: str) -> bool:
     """
       Check if the value is valid for this option.
 
@@ -102,8 +103,33 @@ class Option(ABC):
     """
     raise NotImplementedError("Option.is_valid_value() is an abstract method")
 
+  @staticmethod
+  def type_of(arg: str) -> type[Option] | None:
+    """
+      Determine the type of option based on the argument string.
+
+      :param arg: The argument string
+      :return: The type of option or None if not found
+    """
+    # Note the import statements are inside the function. This is done
+    # to avoid circular imports.
+    # pylint: disable=import-outside-toplevel
+    from option_terminator import OptionTerminator
+    from help_option import HelpOption
+    from verbosity_option import VerbosityOption
+    from environment_option import EnvironmentOption
+
+    if OptionTerminator.is_option(arg):
+      return OptionTerminator
+    if HelpOption.is_option(arg):
+      return HelpOption
+    if VerbosityOption.is_option(arg):
+      return VerbosityOption
+    if EnvironmentOption.is_option(arg):
+      return EnvironmentOption
+    return None
+
   @classmethod
-  @abstractmethod
   def make(cls, current_arg: str, next_arg: str | None) -> tuple[Option, bool]:
     """
       Create an Option object from command line arguments.
@@ -113,4 +139,7 @@ class Option(ABC):
       :return: A tuple containing the Option object and a boolean
         indicating whether to skip the next argument
     """
-    raise NotImplementedError("Option.make() is an abstract method")
+    actual_class: type[Option] | None = Option.type_of(current_arg)
+    if actual_class is None:
+      raise ValueError(f"Invalid option: {current_arg}")
+    return actual_class.make(current_arg, next_arg)
