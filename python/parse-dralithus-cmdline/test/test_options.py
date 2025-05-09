@@ -76,30 +76,59 @@ def make_single_option_cases() -> list[tuple[str, OptionsTestCaseData]]:
 
 def combine_cases(
     name1: str, case1: OptionsTestCaseData,
-    name2: str, case2: OptionsTestCaseData) -> tuple[str, OptionsTestCaseData]:
+    name2: str | None, case2: OptionsTestCaseData | None,
+    insert_terminator: bool = False) -> tuple[str, OptionsTestCaseData]:
   """
     Combine two test cases into a single test case.
+
+    Case 2 can be None and an optional terminator can be inserted between the two cases.
+    The terminator, if specified, is always inserted after the first case, and
+    the second case, if not none is always appended to the end of that combination.
 
     :param name1: The name of the first test case
     :param case1: The first test case
     :param name2: The name of the second test case
     :param case2: The second test case
+    :param insert_terminator: True if an option terminator should be inserted between the two cases
     :return: The combined test case
   """
-  combined_args = case1.args + case2.args
+  if not insert_terminator:
+    if case2 is None:
+      combined_args = case1.args
+      requires_help = case1.expected_dict['requires_help']
+      verbosity = case1.expected_dict['verbosity']
+      environments = case1.expected_dict['environments']
+      end_index = len(combined_args)
+    else:
+      combined_args = case1.args + case2.args
+      requires_help = case1.expected_dict['requires_help'] or case2.expected_dict['requires_help']
+      verbosity = case1.expected_dict['verbosity'] + case2.expected_dict['verbosity']
+      environments = case1.expected_dict['environments'] | case2.expected_dict['environments']
+      end_index = len(combined_args)
+    name = f'{name1}-' if name2 is None else f'{name1}-{name2}'
+  else:
+    if case2 is None:
+      combined_args = case1.args + ['--']
+      requires_help = case1.expected_dict['requires_help']
+      verbosity = case1.expected_dict['verbosity']
+      environments = case1.expected_dict['environments']
+      end_index = len(case1.args) + 1
+    else:
+      combined_args = case1.args + ['--'] + case2.args
+      requires_help = case1.expected_dict['requires_help']
+      verbosity = case1.expected_dict['verbosity']
+      environments = case1.expected_dict['environments']
+      end_index = len(case1.args) + 1
+    name = f'{name1}-terminator' if name2 is None else f'{name1}-terminator-{name2}'
   combined_expected_dict = {
-    'requires_help': \
-      case1.expected_dict['requires_help'] or case2.expected_dict['requires_help'],
-    'verbosity': \
-      case1.expected_dict['verbosity'] + case2.expected_dict['verbosity'],
-    'environments': \
-      case1.expected_dict['environments'] | case2.expected_dict['environments']
+    'requires_help': requires_help,
+    'verbosity': verbosity,
+    'environments': environments
   }
   case = OptionsTestCaseData(
     args=combined_args,
     expected_dict=combined_expected_dict,
-    expected_end_index=len(combined_args))
-  name = f'{name1}-{name2}'
+    expected_end_index=end_index)
   return name, case
 
 def make_double_option_cases() -> list[tuple[str, OptionsTestCaseData]]:
@@ -115,11 +144,35 @@ def make_double_option_cases() -> list[tuple[str, OptionsTestCaseData]]:
   double_option_cases: list[tuple[str, OptionsTestCaseData]] = []
   for name1, case1 in single_option_cases:
     for name2, case2 in single_option_cases:
-      double_option_cases.append(combine_cases(name1, case1, name2, case2))
+      double_option_cases.append(
+        combine_cases(name1, case1, name2, case2, insert_terminator=False))
       if name1 != name2:
         # pylint: disable=arguments-out-of-order
-        double_option_cases.append(combine_cases(name2, case2, name1, case1))
+        double_option_cases.append(
+          combine_cases(name2, case2, name1, case1, insert_terminator=False))
   return double_option_cases
+
+
+def make_option_terminator_cases() -> list[tuple[str, OptionsTestCaseData]]:
+  """
+    Make valid cases with option terminators.
+
+    :return: A list of test cases
+  """
+  single_option_cases = make_single_option_cases()
+  option_terminator_cases: list[tuple[str, OptionsTestCaseData]] = []
+  for name1, case1 in single_option_cases:
+    # Add option terminator to the end of the args list in the following
+    # three combinations: case1 --,  case1 -- case2, case2 -- case1
+    option_terminator_cases.append(
+      combine_cases(name1, case1, None, None, insert_terminator=True))
+    for name2, case2 in single_option_cases:
+      option_terminator_cases.append(
+        combine_cases(name1, case1, name2, case2, insert_terminator=True))
+      option_terminator_cases.append(
+        combine_cases(name2, case2, name1, case1, insert_terminator=True))
+  return option_terminator_cases
+
 
 def make_cases_with_extra_args() -> list[tuple[str, OptionsTestCaseData]]:
   """
@@ -128,7 +181,10 @@ def make_cases_with_extra_args() -> list[tuple[str, OptionsTestCaseData]]:
     :return: A list of test cases
   """
   cases_with_no_extra_args \
-    = make_empty_case() + make_single_option_cases() + make_double_option_cases()
+    = make_empty_case() \
+      + make_single_option_cases() \
+      + make_double_option_cases() \
+      + make_option_terminator_cases()
   cases_with_extra_args: list[tuple[str, OptionsTestCaseData]] = []
   for name, case in cases_with_no_extra_args:
     # Add extra args to the end of the args list
@@ -136,7 +192,7 @@ def make_cases_with_extra_args() -> list[tuple[str, OptionsTestCaseData]]:
     case_with_extra_args = OptionsTestCaseData(
       args=case.args + extra_args,
       expected_dict=case.expected_dict,
-      expected_end_index=len(case.args))
+      expected_end_index=case.expected_end_index)
     cases_with_extra_args.append((f'{name}-extra-args', case_with_extra_args))
   return cases_with_extra_args
 
@@ -149,7 +205,9 @@ def make_correct_cases() -> list[tuple[str, OptionsTestCaseData]]:
       make_empty_case() \
       + make_single_option_cases() \
       + make_double_option_cases() \
+      + make_option_terminator_cases() \
       + make_cases_with_extra_args()
+
 
 class TestOptions(unittest.TestCase):
   """
