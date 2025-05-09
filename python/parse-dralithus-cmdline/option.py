@@ -78,19 +78,24 @@ class Option(ABC):
     raise NotImplementedError("Option.add_to() is an abstract method")
 
   @classmethod
-  @abstractmethod
   def is_option(cls, arg: str) -> bool:
     """
       Check if a string is an option that can be represented by this
       class.
 
+      This class checks, only to see if the string conforms to the
+      format of a command line option. It does not check if the
+      option matches the specific option that a derived class might
+      represent.
+
       Derived classes must implement this method to check if the
-      argument string can be represented by this class.
+      string represent the specific option that the derived class
+      represents.
 
       :param arg: The argument string
       :return: True if the argument can be represented by this class
     """
-    raise NotImplementedError("Option.is_option() is an abstract method")
+    return arg.startswith('--') or (arg.startswith('-') and len(arg) > 1 and arg[1:].isalpha())
 
   @classmethod
   @abstractmethod
@@ -130,7 +135,7 @@ class Option(ABC):
     return None
 
   @classmethod
-  def make(cls, current_arg: str, next_arg: str | None) -> tuple[Option, bool]:
+  def make(cls, current_arg: str, next_arg: str | None) -> tuple[Option | None, bool]:
     """
       Create an Option object from command line arguments.
 
@@ -141,5 +146,7 @@ class Option(ABC):
     """
     actual_class: type[Option] | None = Option.type_of(current_arg)
     if actual_class is None:
-      raise ValueError(f"Invalid option: {current_arg}")
+      if cls.is_option(current_arg): # The arg is an option, but not a recognized one.
+        raise ValueError(f"Invalid option: {current_arg}")
+      return None, False
     return actual_class.make(current_arg, next_arg)

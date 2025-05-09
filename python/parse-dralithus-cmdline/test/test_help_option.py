@@ -36,8 +36,8 @@ class TestHelpOption(unittest.TestCase):
     """
     self.assertTrue(HelpOption.is_option('-h'))
     self.assertTrue(HelpOption.is_option('--help'))
-    self.assertFalse(HelpOption.is_option('-h=True'))
-    self.assertFalse(HelpOption.is_option('--help=True'))
+    self.assertTrue(HelpOption.is_option('-h=True'))
+    self.assertTrue(HelpOption.is_option('--help=True'))
     self.assertFalse(HelpOption.is_option('-v'))
     self.assertFalse(HelpOption.is_option('parameter'))
 

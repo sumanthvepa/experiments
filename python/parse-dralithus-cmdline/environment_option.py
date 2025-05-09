@@ -84,7 +84,7 @@ class EnvironmentOption(Option):
       :param environment: The environment name
       :return: True if the environment name is valid
     """
-    return environment in ('local', 'test', 'staging', 'production')
+    return environment in ('local', 'development', 'test', 'staging', 'production')
 
   @classmethod
   def make(cls, current_arg: str, next_arg: str | None) -> tuple[EnvironmentOption, bool]:

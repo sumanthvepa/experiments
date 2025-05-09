@@ -38,7 +38,8 @@ class HelpOption(Option):
       :param arg: The argument string
       :return: True if the argument is a help option
     """
-    return arg in ('-h', '--help')
+    flag, _ = cls._split_flag_value(arg)
+    return flag in ('-h', '--help')
 
   @classmethod
   def is_valid_value_type(cls, str_value: str) -> bool:
@@ -60,4 +61,7 @@ class HelpOption(Option):
         whether to skip the next argument
     """
     assert cls.is_option(current_arg)
+    _, value = cls._split_flag_value(current_arg)
+    if value is not None:
+      raise ValueError(f"Help option does not accept a value: {current_arg}")
     return HelpOption(), False
