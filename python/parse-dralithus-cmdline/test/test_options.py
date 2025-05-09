@@ -19,6 +19,15 @@ class OptionsTestCaseData:
   expected_end_index: int
 
 
+@dataclass
+class OptionsErrorCaseData:
+  """
+    Data class for test cases with errors.
+  """
+  args: list[str]
+  expected_exception: type[Exception]
+
+
 def make_empty_case() -> list[tuple[str, OptionsTestCaseData]]:
   """
     Generate the empty test case.
@@ -209,6 +218,38 @@ def make_correct_cases() -> list[tuple[str, OptionsTestCaseData]]:
       + make_cases_with_extra_args()
 
 
+def make_incorrect_cases() -> list[tuple[str, OptionsErrorCaseData]]:
+  """
+    Generate a list of incorrect cases for the Options class.
+  """
+  # pylint: disable=line-too-long
+  return [
+    ('error-short-help-value-equal', OptionsErrorCaseData(args=['-h=True'], expected_exception=ValueError)),
+    ('error-short-help-value-equal2', OptionsErrorCaseData(args=['-h=2'], expected_exception=ValueError)),
+    ('error-long-help-value-equal', OptionsErrorCaseData(args=['--help=True'], expected_exception=ValueError)),
+    ('error-long-help-value-equal2', OptionsErrorCaseData(args=['--help=2'], expected_exception=ValueError)),
+    ('error-short-version-bad-value', OptionsErrorCaseData(args=['-v=bad-value'], expected_exception=ValueError)),
+    ('error-short-version-bad-value2', OptionsErrorCaseData(args=['-v=True'], expected_exception=ValueError)),
+    ('error-long-version-bad-value', OptionsErrorCaseData(args=['--verbose=bad-value'], expected_exception=ValueError)),
+    ('error-long-version-bad-value2', OptionsErrorCaseData(args=['--verbose=True'], expected_exception=ValueError)),
+    ('error-long-version2-bad-value', OptionsErrorCaseData(args=['--verbosity=bad-value'], expected_exception=ValueError)),
+    ('error-long-version2-bad-value2', OptionsErrorCaseData(args=['--verbosity=True'], expected_exception=ValueError)),
+    ('error-short-environment-bad-value', OptionsErrorCaseData(args=['-e=bad-value'], expected_exception=ValueError)),
+    ('error-short-environment-bad-value2', OptionsErrorCaseData(args=['-e=True'], expected_exception=ValueError)),
+    ('error-short-environment-bad-value-multiple', OptionsErrorCaseData(args=['-e=bad-value,local'], expected_exception=ValueError)),
+    ('error-short-environment-bad-value-multiple2', OptionsErrorCaseData(args=['-e=local,bad-value'], expected_exception=ValueError)),
+    ('error-long-environment-bad-value', OptionsErrorCaseData(args=['--env=bad-value'], expected_exception=ValueError)),
+    ('error-long-environment-bad-value2', OptionsErrorCaseData(args=['--env=True'], expected_exception=ValueError)),
+    ('error-long-environment-bad-value-multiple', OptionsErrorCaseData(args=['--env=bad-value,local'], expected_exception=ValueError)),
+    ('error-long-environment-bad-value-multiple2', OptionsErrorCaseData(args=['--env=local,bad-value'], expected_exception=ValueError)),
+    ('error-long-environment2-bad-value', OptionsErrorCaseData(args=['--environment=bad-value'], expected_exception=ValueError)),
+    ('error-long-environment2-bad-value2', OptionsErrorCaseData(args=['--environment=True'], expected_exception=ValueError)),
+    ('error-long-environment2-bad-value-multiple', OptionsErrorCaseData(args=['--environment=bad-value,local'], expected_exception=ValueError)),
+    ('error-long-environment2-bad-value-multiple2', OptionsErrorCaseData(args=['--environment=local,bad-value'], expected_exception=ValueError)),
+    ('error-short-help-value-correct-verbosity', OptionsErrorCaseData(args=['-h=1', '-v'], expected_exception=ValueError)),
+    ('error-short-help-value-correct-verbosity', OptionsErrorCaseData(args=['-v', '-h=1'], expected_exception=ValueError)),
+  ]
+
 class TestOptions(unittest.TestCase):
   """
     Unit tests for the Options class.
@@ -225,3 +266,14 @@ class TestOptions(unittest.TestCase):
     self.assertIsInstance(options, Options)
     self.assertDictEqual(case.expected_dict, dict(options))
     self.assertEqual(case.expected_end_index, options.end_index)
+
+  # noinspection PyUnusedLocal
+  @parameterized.expand(make_incorrect_cases())
+  def test_constructor_incorrect_cases(self,
+    name: str,  # pylint: disable=unused-argument
+    case: OptionsErrorCaseData) -> None:
+    """
+      Test the constructor of the Options class with errors.
+    """
+    with self.assertRaises(case.expected_exception):
+      Options(case.args)
