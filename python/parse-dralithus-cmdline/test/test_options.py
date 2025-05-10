@@ -205,6 +205,22 @@ def make_cases_with_extra_args() -> list[tuple[str, OptionsTestCaseData]]:
     cases_with_extra_args.append((f'{name}-extra-args', case_with_extra_args))
   return cases_with_extra_args
 
+def make_edge_cases() -> list[tuple[str, OptionsTestCaseData]]:
+  """
+    Make edge cases to test the option class.
+
+    These are cases that don't fall into any particular category
+
+  :return:
+  """
+  # pylint: disable=line-too-long
+  return [
+    ('bad-help-value', OptionsTestCaseData(args=['-h', 'True', '-v', '1'], expected_dict={'requires_help': True, 'verbosity': 0, 'environments': set()}, expected_end_index=1)),
+    ('option-after-first-parameter', OptionsTestCaseData(args=['-v', '1', 'parameter' '-h'], expected_dict={'requires_help': False, 'verbosity': 1, 'environments': set()}, expected_end_index=2)),
+    ('terminator-before-option-value', OptionsTestCaseData(args=['-v', '--', '3', '-h'], expected_dict={'requires_help': False, 'verbosity': 1, 'environments': set()}, expected_end_index=2)),
+    ('multiple-terminators', OptionsTestCaseData(args=['-v', '--', '3', '--', '-h'], expected_dict={'requires_help': False, 'verbosity': 1, 'environments': set()}, expected_end_index=2)),
+    ('terminator-before-environment-value', OptionsTestCaseData(args=['-e=local,test', '--', '-e=development,staging'], expected_dict={'requires_help': False, 'verbosity': 0, 'environments': {'local', 'test'}}, expected_end_index=2))
+  ]
 
 def make_correct_cases() -> list[tuple[str, OptionsTestCaseData]]:
   """
@@ -215,7 +231,8 @@ def make_correct_cases() -> list[tuple[str, OptionsTestCaseData]]:
       + make_single_option_cases() \
       + make_double_option_cases() \
       + make_option_terminator_cases() \
-      + make_cases_with_extra_args()
+      + make_cases_with_extra_args() \
+      + make_edge_cases()
 
 
 def make_incorrect_cases() -> list[tuple[str, OptionsErrorCaseData]]:
@@ -248,6 +265,7 @@ def make_incorrect_cases() -> list[tuple[str, OptionsErrorCaseData]]:
     ('error-long-environment2-bad-value-multiple2', OptionsErrorCaseData(args=['--environment=local,bad-value'], expected_exception=ValueError)),
     ('error-short-help-value-correct-verbosity', OptionsErrorCaseData(args=['-h=1', '-v'], expected_exception=ValueError)),
     ('error-short-help-value-correct-verbosity', OptionsErrorCaseData(args=['-v', '-h=1'], expected_exception=ValueError)),
+    ('error-terminator-before-environment-value', OptionsErrorCaseData(args=['--environment', '--', 'local,test'], expected_exception=ValueError))
   ]
 
 class TestOptions(unittest.TestCase):
