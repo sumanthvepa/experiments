@@ -216,7 +216,7 @@ def make_edge_cases() -> list[tuple[str, OptionsTestCaseData]]:
   # pylint: disable=line-too-long
   return [
     ('bad-help-value', OptionsTestCaseData(args=['-h', 'True', '-v', '1'], expected_dict={'requires_help': True, 'verbosity': 0, 'environments': set()}, expected_end_index=1)),
-    ('option-after-first-parameter', OptionsTestCaseData(args=['-v', '1', 'parameter' '-h'], expected_dict={'requires_help': False, 'verbosity': 1, 'environments': set()}, expected_end_index=2)),
+    ('option-after-first-parameter', OptionsTestCaseData(args=['-v', '1', 'parameter', '-h'], expected_dict={'requires_help': False, 'verbosity': 1, 'environments': set()}, expected_end_index=2)),
     ('terminator-before-option-value', OptionsTestCaseData(args=['-v', '--', '3', '-h'], expected_dict={'requires_help': False, 'verbosity': 1, 'environments': set()}, expected_end_index=2)),
     ('multiple-terminators', OptionsTestCaseData(args=['-v', '--', '3', '--', '-h'], expected_dict={'requires_help': False, 'verbosity': 1, 'environments': set()}, expected_end_index=2)),
     ('terminator-before-environment-value', OptionsTestCaseData(args=['-e=local,test', '--', '-e=development,staging'], expected_dict={'requires_help': False, 'verbosity': 0, 'environments': {'local', 'test'}}, expected_end_index=2))
