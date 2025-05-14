@@ -11,6 +11,52 @@ class HelpOption(Option):
   """
     A class to represent a help option.
   """
+  def __init__(self, flag) -> None:
+    """
+      Initialize the help option.
+    """
+    self._flag = flag
+
+  @classmethod
+  def supported_short_flags(cls) -> list[str]:
+    """
+      The short flag for this option.
+
+      :return: A list containing the short flag '-h'
+    """
+    return ['h']
+
+  @classmethod
+  def supported_long_flags(cls) -> list[str]:
+    """
+      The long flags for this option.
+
+      :return: A list containing the long flag '--help'
+    """
+    return ['help']
+
+  @override
+  def __eq__(self, other: object) -> bool:
+    """
+      Check if two options are equal.
+
+      :param other: The other option to compare to
+      :return: True if the options are equal, False otherwise
+    """
+    if not isinstance(other, HelpOption):
+      return False
+    return self._flag == other._flag
+
+  @override
+  @property
+  def flag(self) -> str:
+    """
+      The flag string which was used to create this option.
+
+      :return: The flag string used to create this option
+    """
+    return self._flag
+
   @override
   @property
   def value(self) -> bool:
@@ -31,15 +77,21 @@ class HelpOption(Option):
     dictionary['requires_help'] = True
 
   @classmethod
-  def is_option(cls, arg: str) -> bool:
+  def is_option(cls, arg: str, next_arg: str | None) -> bool:  # pylint: disable=unused-argument
     """
       Check if the argument is a help option.
 
       :param arg: The argument string
+      :param next_arg: The next argument string (unused)
       :return: True if the argument is a help option
     """
-    flag, _ = cls._split_flag_value(arg)
-    return flag in ('-h', '--help')
+    for flag in cls.supported_short_flags():
+      if arg == '-' + flag:
+        return True
+    for flag in cls.supported_long_flags():
+      if arg == '--' + flag:
+        return True
+    return False
 
   @classmethod
   def is_valid_value_type(cls, str_value: str) -> bool:
@@ -60,8 +112,8 @@ class HelpOption(Option):
       :return: A tuple containing the HelpOption object and a boolean indicating
         whether to skip the next argument
     """
-    assert cls.is_option(current_arg)
-    _, value = cls._split_flag_value(current_arg)
+    assert cls.is_option(current_arg, next_arg)
+    flag, value = cls._split_flag_value(current_arg)
     if value is not None:
       raise ValueError(f"Help option does not accept a value: {current_arg}")
-    return HelpOption(), False
+    return HelpOption(flag), False

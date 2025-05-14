@@ -42,24 +42,24 @@ def make_incorrect_cases() -> list[tuple[str, str, str | None, type[Exception]]]
     :return: A list of test cases
   """
   return [
-    ('short_bad_value_equal', '-e=bad_value', None, ValueError),
-    ('short_bad_value2_equal', '-e=True', None, ValueError),
-    ('short_bad_value3_equal', '-e=-2', None, ValueError),
-    ('long_bad_value_equal', '--env=bad_value', None, ValueError),
-    ('long_bad_value2_equal', '--env=True', None, ValueError),
-    ('long_bad_value3_equal', '--env=-2', None, ValueError),
-    ('long2_bad_value_equal', '--environment=bad_value', None, ValueError),
-    ('long2_bad_value2_equal', '--environment=True', None, ValueError),
-    ('long2_bad_value3_equal', '--environment=-2', None, ValueError),
-    ('short_next_arg_bad_value', '-e', 'bad_value', ValueError),
-    ('short_next_arg_bad_value2', '-e', 'True', ValueError),
-    ('short_next_arg_bad_value3', '-e', '-2', ValueError),
-    ('long_next_arg_bad_value', '--env', 'bad_value', ValueError),
-    ('long_next_arg_bad_value2', '--env', 'True', ValueError),
-    ('long_next_arg_bad_value3', '--env', '-2', ValueError),
-    ('long2_next_arg_bad_value', '--environment', 'bad_value', ValueError),
-    ('long2_next_arg_bad_value2', '--environment', 'True', ValueError),
-    ('long2_next_arg_bad_value3', '--environment', '-2', ValueError),
+    ('short_bad_value_equal', '-e=bad_value', None, AssertionError),
+    ('short_bad_value2_equal', '-e=True', None, AssertionError),
+    ('short_bad_value3_equal', '-e=-2', None, AssertionError),
+    ('long_bad_value_equal', '--env=bad_value', None, AssertionError),
+    ('long_bad_value2_equal', '--env=True', None, AssertionError),
+    ('long_bad_value3_equal', '--env=-2', None, AssertionError),
+    ('long2_bad_value_equal', '--environment=bad_value', None, AssertionError),
+    ('long2_bad_value2_equal', '--environment=True', None, AssertionError),
+    ('long2_bad_value3_equal', '--environment=-2', None, AssertionError),
+    ('short_next_arg_bad_value', '-e', 'bad_value', AssertionError),
+    ('short_next_arg_bad_value2', '-e', 'True', AssertionError),
+    ('short_next_arg_bad_value3', '-e', '-2', AssertionError),
+    ('long_next_arg_bad_value', '--env', 'bad_value', AssertionError),
+    ('long_next_arg_bad_value2', '--env', 'True', AssertionError),
+    ('long_next_arg_bad_value3', '--env', '-2', AssertionError),
+    ('long2_next_arg_bad_value', '--environment', 'bad_value', AssertionError),
+    ('long2_next_arg_bad_value2', '--environment', 'True', AssertionError),
+    ('long2_next_arg_bad_value3', '--environment', '-2', AssertionError),
     ('wrong_short_option_no_value', '-h', None, AssertionError),
     ('wrong_short_option_value', '-h=True', None, AssertionError),
     ('wrong_long_option_no_value', '--verbosity', None, AssertionError),
@@ -67,13 +67,13 @@ def make_incorrect_cases() -> list[tuple[str, str, str | None, type[Exception]]]
     ('wrong_short_option_next_arg', '-v', '1', AssertionError),
     ('wrong_long_option_next_arg', '--verbosity', '1', AssertionError),
     ('wrong_no_option', 'parameter', None, AssertionError),
-    ('short_invalid_environment_equal', '-e=invalid', None, ValueError),
-    ('long_invalid_environment_equal', '--env=invalid', None, ValueError),
-    ('long2_invalid_environment_equal', '--environment=invalid', None, ValueError),
-    ('short_one_invalid_multi_environment_equal', '-e=local,invalid', None, ValueError),
-    ('short_one_invalid_multi_environment_equal_reversed', '-e=invalid,local', None, ValueError),
-    ('long_one_invalid_multi_environment_equal', '--env=local,invalid', None, ValueError),
-    ('long_one_invalid_multi_environment_equal_reversed', '--env=invalid,local', None, ValueError)]
+    ('short_invalid_environment_equal', '-e=invalid', None, AssertionError),
+    ('long_invalid_environment_equal', '--env=invalid', None, AssertionError),
+    ('long2_invalid_environment_equal', '--environment=invalid', None, AssertionError),
+    ('short_one_invalid_multi_environment_equal', '-e=local,invalid', None, AssertionError),
+    ('short_one_invalid_multi_environment_equal_reversed', '-e=invalid,local', None, AssertionError),
+    ('long_one_invalid_multi_environment_equal', '--env=local,invalid', None, AssertionError),
+    ('long_one_invalid_multi_environment_equal_reversed', '--env=invalid,local', None, AssertionError)]
 
 
 class TestEnvironmentOption(unittest.TestCase):
@@ -85,7 +85,7 @@ class TestEnvironmentOption(unittest.TestCase):
       Test the value of the environment option.
     """
     expected_environment = {'local'}
-    option = EnvironmentOption(expected_environment)
+    option = EnvironmentOption('environment', expected_environment)
     self.assertSetEqual(expected_environment, option.value)
 
   #noinspection PyUnusedLocal
@@ -102,34 +102,44 @@ class TestEnvironmentOption(unittest.TestCase):
     """
       Test the add_to method.
     """
-    option = EnvironmentOption(environments)
+    option = EnvironmentOption('e', environments)
     option.add_to(dictionary)
     self.assertSetEqual(expected_environments, dictionary['environments'])
 
   # noinspection PyUnusedLocal
   @parameterized.expand([
-    ('short_no_value', '-e', True),
-    ('long_no_value', '--env', True),
-    ('long2_no_value', '--environment', True),
-    ('short_value_equal', '-e=local', True),
-    ('long_value_equal', '--env=local', True),
-    ('long2_value_equal', '--environment=local', True),
-    ('short_multi_value', '-e=local,test', True),
-    ('long_multi_value', '--env=local,test', True),
-    ('long2_multi_value', '--environment=local,test', True),
-    ('wrong_short_option_no_value', '-h', False),
-    ('wrong_short_option_value', '-h=True', False),
-    ('wrong_long_option_no_value', '--verbosity', False),
-    ('wrong_long_option_value', '--verbosity=True', False),
-    ('not_option','parameter', False)])
+    ('short_no_value', '-e', None, False),
+    ('long_no_value', '--env', None, False),
+    ('long2_no_value', '--environment', None, False),
+    ('short_value_equal', '-e=local', None, True),
+    ('long_value_equal', '--env=local', None, True),
+    ('long2_value_equal', '--environment=local', None, True),
+    ('short_multi_value', '-e=local,test', None, True),
+    ('long_multi_value', '--env=local,test', None, True),
+    ('long2_multi_value', '--environment=local,test', None, True),
+    ('short_invalid_value', '-e=invalid', None, False),
+    ('long_invalid_value', '--env=invalid', None, False),
+    ('long2_invalid_value', '--environment=invalid', None, False),
+    ('short_one_invalid_multi_value', '-e=local,invalid', None, False),
+    ('short_one_invalid_multi_value_reversed', '-e=invalid,local', None, False),
+    ('long_one_invalid_multi_value', '--env=local,invalid', None, False),
+    ('long_one_invalid_multi_value_reversed', '--env=invalid,local', None, False),
+    ('long2_one_invalid_multi_value', '--environment=local,invalid', None, False),
+    ('long2_one_invalid_multi_value_reversed', '--environment=invalid,local', None, False),
+    ('wrong_short_option_no_value', '-h', None, False),
+    ('wrong_short_option_value', '-h=True', None, False),
+    ('wrong_long_option_no_value', '--verbosity', None, False),
+    ('wrong_long_option_value', '--verbosity=True', None, False),
+    ('not_option','parameter', None, False)])
   def test_is_option(self,
     name: str,  # pylint: disable=unused-argument
     arg: str,
+    next_arg: str | None,
     expected: bool) -> None:
     """
       Test the is_option method.
     """
-    self.assertEqual(expected, EnvironmentOption.is_option(arg))
+    self.assertEqual(expected, EnvironmentOption.is_option(arg, next_arg))
 
   # noinspection PyUnusedLocal
   @parameterized.expand(make_correct_cases())

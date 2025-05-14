@@ -47,17 +47,17 @@ def make_incorrect_cases() -> list[tuple[str, str, str | None, type[Exception]]]
     :return: A list of test cases
   """
   return [
-    ('short_bad_value_equal', '-v=bad_value', None, ValueError),
-    ('short_bad_value2_equal', '-v=True', None, ValueError),
-    ('short_bad_value3_equal', '-v=-2', None, ValueError),
-    ('long_bad_value_equal', '--verbose=bad_value', None, ValueError),
-    ('long_bad_value2_equal', '--verbose=True', None, ValueError),
-    ('long_bad_value3_equal', '--verbose=-2', None, ValueError),
-    ('long2_bad_value_equal', '--verbosity=bad_value', None, ValueError),
-    ('long2_bad_value2_equal', '--verbosity=True', None, ValueError),
-    ('long2_bad_value3_equal', '--verbosity=-2', None, ValueError),
+    ('short_bad_value_equal', '-v=bad_value', None, AssertionError),
+    ('short_bad_value2_equal', '-v=True', None, AssertionError),
+    ('short_bad_value3_equal', '-v=-2', None,  AssertionError),
+    ('long_bad_value_equal', '--verbose=bad_value', None, AssertionError),
+    ('long_bad_value2_equal', '--verbose=True', None, AssertionError),
+    ('long_bad_value3_equal', '--verbose=-2', None, AssertionError),
+    ('long2_bad_value_equal', '--verbosity=bad_value', None, AssertionError),
+    ('long2_bad_value2_equal', '--verbosity=True', None, AssertionError),
+    ('long2_bad_value3_equal', '--verbosity=-2', None, AssertionError),
     ('short_bad_value_next_arg_negative', '-v', '-2', ValueError),
-    ('long_bad_value_next_arg', '--verbosity=bad_value', 'parameter', ValueError),
+    ('long_bad_value_next_arg', '--verbosity=bad_value', 'parameter', AssertionError),
     ('wrong_short_option_no_value', '-h', None, AssertionError),
     ('wrong_short_option_value', '-h=True', None, AssertionError),
     ('wrong_long_option_no_value', '--help', None, AssertionError),
@@ -75,7 +75,7 @@ class TestVerbosityOption(unittest.TestCase):
     """
       Test the value of the verbosity option.
     """
-    verbosity_option = VerbosityOption(2)
+    verbosity_option = VerbosityOption('v', 2)
     self.assertEqual(verbosity_option.value, 2)
 
   # noinspection PyUnusedLocal
@@ -93,30 +93,33 @@ class TestVerbosityOption(unittest.TestCase):
     """
       Test the add_to method.
     """
-    verbosity_option = VerbosityOption(verbosity)
+    verbosity_option = VerbosityOption('v', verbosity)
     verbosity_option.add_to(dictionary)
     self.assertEqual(expected_verbosity, dictionary['verbosity'])
 
   # noinspection PyUnusedLocal
   @parameterized.expand([
-    ('short_no_value', '-v', True),
-    ('long_no_value', '--verbose', True),
-    ('long2_no_value', '--verbosity', True),
-    ('short_value', '-v=1', True),
-    ('long_value', '--verbose=1', True),
-    ('long2_value', '--verbosity=1', True),
-    ('short_bad_value', '-v=True', True),  # Yes, this an option, although not a valid one
-    ('long_bad_value', '--verbosity=True', True),  # So is this, for the same reason
-    ('short_wrong_option_no_value', '-h', False),
-    ('short_wrong_option_value', '-h=True', False),
-    ('long_wrong_option_no_value', '--help', False),
-    ('long_wrong_option_value', '--environment=local,test', False),
-    ('not_option','parameter', False)])
-  def test_is_option(self, name: str, arg: str, expected_result: bool) -> None:  # pylint: disable=unused-argument
+    ('short_no_value', '-v', None, True),
+    ('long_no_value', '--verbose', None, True),
+    ('long2_no_value', '--verbosity', None, True),
+    ('short_value', '-v=1', None, True),
+    ('long_value', '--verbose=1', None, True),
+    ('long2_value', '--verbosity=1', None, True),
+    ('short_bad_value', '-v=True', None, False),
+    ('long_bad_value', '--verbosity=True', None, False),
+    ('short_wrong_option_no_value', '-h', None, False),
+    ('short_wrong_option_value', '-h=True', None, False),
+    ('long_wrong_option_no_value', '--help', None, False),
+    ('long_wrong_option_value', '--environment=local,test', None, False),
+    ('not_option','parameter', None, False)])
+  def test_is_option(self,
+    name: str,  # pylint: disable=unused-argument
+    arg: str, next_arg: str,
+    expected_result: bool) -> None:  # pylint: disable=unused-argument
     """
       Test the is_option method.
     """
-    self.assertEqual(expected_result, VerbosityOption.is_option(arg))
+    self.assertEqual(expected_result, VerbosityOption.is_option(arg, next_arg))
 
   # noinspection PyUnusedLocal
   @parameterized.expand(make_correct_cases())

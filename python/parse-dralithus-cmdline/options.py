@@ -13,44 +13,6 @@ class Options(Mapping[str, None | bool | int | str | set[str]]):
   """
     A class to represent a mapping of options.
   """
-  @staticmethod
-  def _is_multi_option(arg: str) -> bool:
-    return arg.startswith('-') and len(arg) > 2 and arg[1:].isalpha()
-
-  @staticmethod
-  def _split_multi_option(arg: str) -> list[str]:
-    """
-      Split a multi-option argument into individual options.
-
-      :param arg: The multi-option argument
-      :return: A list of individual options
-    """
-    return [f'-{c}' for c in arg[1:]]
-
-  @staticmethod
-  def _split_multi_options(args: list[str]) -> list[str]:
-    """
-      Process the command line arguments and split multi-option arguments
-      into separate individual options.
-
-      A multi-option argument is an argument that starts with a single
-      hyphen and is followed by one or more option letters. For example,
-      -vh is a multi-option argument that specifies the -v and -h
-      options. Multi options cannot have values. So, -hv=1 is not a
-      valid multi-option argument. Multi-option arguments are split into
-      separate arguments. For example, -vh is split into -v and -h and
-      the multi-option is replaced with the individual options in the
-      args list. The function returns the modified args list.
-
-      :param args:
-      :return: A list of options
-    """
-    for i, arg in enumerate(args):
-      if Options._is_multi_option(arg):
-        flags = Options._split_multi_option(arg)
-        args[i:i + 1] = flags
-    return args
-
   def _next_option(self) -> Option | None:
     """
       Get the next option
@@ -114,7 +76,7 @@ class Options(Mapping[str, None | bool | int | str | set[str]]):
       :return: A generator that yields the parser state
     """
     self._end_index: int  = 0
-    self._args: list[str] = self._split_multi_options(args[:])
+    self._args: list[str] = args[:]  # Make a copy of the args list
     try:
       yield
     finally:

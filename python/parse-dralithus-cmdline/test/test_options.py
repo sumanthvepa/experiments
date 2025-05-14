@@ -82,6 +82,19 @@ def make_single_option_cases() -> list[tuple[str, OptionsTestCaseData]]:
     ('environment2-long2-multiple-space', OptionsTestCaseData(args=['--environment', 'development,staging'], expected_dict={'requires_help': False, 'verbosity': 0, 'environments': {'development', 'staging'}}, expected_end_index=2))
   ]
 
+def make_multi_option_cases() -> list[tuple[str, OptionsTestCaseData]]:
+  """
+    Generate a list of multi-option test cases.
+    :return: A list of test cases
+  """
+  # pylint: disable=line-too-long
+  return [
+    ('multi-option', OptionsTestCaseData(args=['-vh'], expected_dict={'requires_help': True, 'verbosity': 1, 'environments': set()}, expected_end_index=1)),
+    ('multi-option2', OptionsTestCaseData(args=['-hv'], expected_dict={'requires_help': True, 'verbosity': 1, 'environments': set()}, expected_end_index=1)),
+    ('multi-option3', OptionsTestCaseData(args=['-vv'], expected_dict={'requires_help': False, 'verbosity': 2, 'environments': set()}, expected_end_index=1)),
+    ('multi-option4', OptionsTestCaseData(args=['-vvhvh', '-e', 'local'], expected_dict={'requires_help': True, 'verbosity': 3, 'environments': {'local'}}, expected_end_index=3))
+  ]
+
 
 def combine_cases(
     name1: str, case1: OptionsTestCaseData,
@@ -230,6 +243,7 @@ def make_correct_cases() -> list[tuple[str, OptionsTestCaseData]]:
       make_empty_case() \
       + make_single_option_cases() \
       + make_double_option_cases() \
+      + make_multi_option_cases() \
       + make_option_terminator_cases() \
       + make_cases_with_extra_args() \
       + make_edge_cases()

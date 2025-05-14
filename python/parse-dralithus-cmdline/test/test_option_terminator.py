@@ -16,15 +16,15 @@ class TestOptionTerminator(unittest.TestCase):
       Test the value of the option terminator.
     """
     terminator = OptionTerminator()
-    self.assertEqual(terminator.value, '--')
+    self.assertEqual(None, terminator.value)
 
 
   def test_is_option(self) -> None:
     """
       Test the is_option method.
     """
-    self.assertTrue(OptionTerminator.is_option('--'))
-    self.assertFalse(OptionTerminator.is_option('-h'))
+    self.assertTrue(OptionTerminator.is_option('--', None))
+    self.assertFalse(OptionTerminator.is_option('-h', None))
 
 
   def test_make(self) -> None:
@@ -33,5 +33,6 @@ class TestOptionTerminator(unittest.TestCase):
     """
     terminator, skip_next = OptionTerminator.make('--', None)
     self.assertIsInstance(terminator, OptionTerminator)
-    self.assertEqual(terminator.value, '--')
+    self.assertEqual('-', terminator.flag)
+    self.assertEqual(None, terminator.value)
     self.assertFalse(skip_next)
