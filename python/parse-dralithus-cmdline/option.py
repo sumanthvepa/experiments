@@ -3,6 +3,7 @@
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import re
 
 
 class Option(ABC):
@@ -12,6 +13,12 @@ class Option(ABC):
     This is an abstract base class that defines the interface for
     all option objects.
   """
+  flag_with_value = re.compile(r'^-[a-zA-Z][0-9]*$')
+  flag_with_equal_value = re.compile(r'^-[a-zA-Z]=.+$')
+  multi_option = re.compile(r'^-[a-zA-Z]+$')
+  double_hyphen_option = re.compile(r'^--[a-zA-Z][a-zA-Z_-]+$')
+  double_hyphen_option_with_value = re.compile(r'^--[a-zA-Z][a-zA-Z_-]+=.*$')
+
   @staticmethod
   def _split_flag_value(arg: str) -> tuple[str, str | None]:
     """
@@ -180,48 +187,14 @@ class Option(ABC):
       :param next_arg: The next argument string
       :return: True if the argument can be represented by this class
     """
-    valid_punctuation = {'=', ',', '-', '_'}
-
-    if len(arg) < 2 or not arg.startswith('-'):
-      return False
-
-    if arg == '--':
-      # Double hyphen with no letters: this is a special case
-      # that is used to indicate the option terminator
-      return True
-
-    if arg.startswith('--'):
-      # Double hyphen: must be followed by at least two letters
-      len_greater_than_three = len(arg) > 3
-      arg_2_is_alpha = arg[2].isalpha()
-      all_chars_after_2_are_either_alnum_or_approved_punctuation = \
-        all(c.isalnum() or c in valid_punctuation for c in arg[2:])
-      return len_greater_than_three and arg_2_is_alpha and \
-        all_chars_after_2_are_either_alnum_or_approved_punctuation
-
-    if arg.startswith('-'):
-      # Single hyphen: must be followed by at least one letter
-      if not arg[1].isalpha():
-        return False
-      if len(arg) == 2:
-        # Single hyphen followed by a letter if fine. (e.g. -v)
-        return True
-
-      if arg[2] == '=':
-        # Single hyphen with equal sign: must be followed by a value
-        return len(arg) > 3 and all(c.isalnum() or c in valid_punctuation for c in arg[3:])
-      if arg[2].isdigit() or arg[2] == '-':
-        # Only allow digits after this point
-        return len(arg) >= 3 and all(c.isdigit() for c in arg[3:])
-
-      if arg[2].isalpha():
-        # Single hyphen and two or more letters (i.e a multi-option)
-        return  all(c.isalpha() for c in arg[2:])
-
-    return False
+    return arg == '--' \
+      or (cls.flag_with_value.match(arg) is not None) \
+      or (cls.flag_with_equal_value.match(arg) is not None) \
+      or (cls.multi_option.match(arg) is not None) \
+      or cls.double_hyphen_option.match(arg) is not None \
+      or cls.double_hyphen_option_with_value.match(arg) is not None
 
   @classmethod
-  @abstractmethod
   def is_valid_value_type(cls, str_value: str) -> bool:
     """
       Check if the value is valid for this option.
