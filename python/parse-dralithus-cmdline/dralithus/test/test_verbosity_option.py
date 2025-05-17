@@ -5,7 +5,7 @@ import unittest
 
 from parameterized import parameterized
 
-from verbosity_option import VerbosityOption
+from dralithus.verbosity_option import VerbosityOption
 
 
 def make_correct_cases() -> list[tuple[str, str, str | None, int, bool]]:

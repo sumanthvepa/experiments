@@ -4,7 +4,7 @@
 from __future__ import annotations
 from typing import override
 
-from option import Option
+from dralithus.option import Option
 
 
 class HelpOption(Option):

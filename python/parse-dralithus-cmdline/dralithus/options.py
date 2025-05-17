@@ -5,8 +5,8 @@ from collections.abc import Mapping
 from contextlib import contextmanager
 from typing import Generator, Iterator, override
 
-from option import Option
-from option_terminator import OptionTerminator
+from dralithus.option import Option
+from dralithus.option_terminator import OptionTerminator
 
 
 class Options(Mapping[str, None | bool | int | str | set[str]]):

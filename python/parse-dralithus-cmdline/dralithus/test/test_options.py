@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from parameterized import parameterized
 
-from options import Options
+from dralithus.options import Options
 
 
 @dataclass

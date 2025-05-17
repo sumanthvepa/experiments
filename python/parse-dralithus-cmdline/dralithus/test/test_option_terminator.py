@@ -3,7 +3,7 @@
 """
 import unittest
 
-from option_terminator import OptionTerminator
+from dralithus.option_terminator import OptionTerminator
 
 
 class TestOptionTerminator(unittest.TestCase):

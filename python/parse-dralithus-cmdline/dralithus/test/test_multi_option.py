@@ -7,10 +7,10 @@ import unittest
 
 from parameterized import parameterized
 
-from option import Option
-from help_option import HelpOption
-from verbosity_option import VerbosityOption
-from multi_option import MultiOption
+from dralithus.option import Option
+from dralithus.help_option import HelpOption
+from dralithus.verbosity_option import VerbosityOption
+from dralithus.multi_option import MultiOption
 
 def make_correct_cases() \
     -> list[tuple[str, str, str | None, list[Option]]]:

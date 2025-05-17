@@ -5,7 +5,7 @@ import unittest
 
 from parameterized import parameterized
 
-from environment_option import EnvironmentOption
+from dralithus.environment_option import EnvironmentOption
 
 # pylint: disable=line-too-long
 def make_correct_cases() -> list[tuple[str, str, str | None, set[str], bool]]:

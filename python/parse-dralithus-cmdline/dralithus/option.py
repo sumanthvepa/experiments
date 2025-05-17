@@ -207,18 +207,18 @@ class Option(ABC):
   @staticmethod
   def supported_sub_types() -> list[type[Option]]:
     """
-      Get the list of supported sub-types of this option.
+      Get the list of supported subtypes of this option.
 
-      :return: A list of supported sub-types
+      :return: A list of supported subtypes
     """
     # Note the import statements are inside the function. This is done
     # to avoid circular imports.
     # pylint: disable=import-outside-toplevel
-    from option_terminator import OptionTerminator
-    from help_option import HelpOption
-    from verbosity_option import VerbosityOption
-    from environment_option import EnvironmentOption
-    from multi_option import MultiOption
+    from dralithus.option_terminator import OptionTerminator
+    from dralithus.help_option import HelpOption
+    from dralithus.verbosity_option import VerbosityOption
+    from dralithus.environment_option import EnvironmentOption
+    from dralithus.multi_option import MultiOption
     return [OptionTerminator, HelpOption, VerbosityOption, EnvironmentOption, MultiOption]
 
   @staticmethod

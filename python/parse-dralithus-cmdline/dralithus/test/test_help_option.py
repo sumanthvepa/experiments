@@ -5,7 +5,7 @@ import unittest
 
 from parameterized import parameterized
 
-from help_option import HelpOption
+from dralithus.help_option import HelpOption
 
 class TestHelpOption(unittest.TestCase):
   """

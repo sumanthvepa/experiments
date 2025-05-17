@@ -8,12 +8,12 @@ from typing import override
 
 from parameterized import parameterized
 
-from option import Option
-from option_terminator import OptionTerminator
-from help_option import HelpOption
-from verbosity_option import VerbosityOption
-from environment_option import EnvironmentOption
-from multi_option import MultiOption
+from dralithus.option import Option
+from dralithus.option_terminator import OptionTerminator
+from dralithus.help_option import HelpOption
+from dralithus.verbosity_option import VerbosityOption
+from dralithus.environment_option import EnvironmentOption
+from dralithus.multi_option import MultiOption
 
 
 def make_correct_cases() -> list[
