@@ -313,12 +313,12 @@ def explore_context_managers() -> None:
       :return: The resource
     """
     print(f'Creating resource {name}')
-    resource = {'name': name}
+    a_resource = {'name': name}
     try:
-      yield resource
+      yield a_resource
     finally:
       print(f'Cleaning up resource {name}')
-      del resource
+      del a_resource
 
   # We can use the resource manager context manager to create a
   # resource and use it in the code block. The resource is cleaned
