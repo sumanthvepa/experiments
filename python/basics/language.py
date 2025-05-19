@@ -47,6 +47,7 @@ import metaclasses
 import abstract_base_classes
 import data_classes
 import advanced_class_concepts
+import protocol_mixins
 import exceptions_and_context_managers
 import generators
 import async_await
@@ -359,15 +360,18 @@ def main():
   # Note 20: Explore advanced class concepts
   advanced_class_concepts.explore_slots()
 
-  # Note 21: Explore exceptions
+  # Note 21: Explore protocol mixins
+  protocol_mixins.explore_protocol_mixins()
+
+  # Note 22: Explore exceptions
   exceptions_and_context_managers.explore_exceptions()
   exceptions_and_context_managers.explore_exception_chaining()
   exceptions_and_context_managers.explore_context_managers()
 
-  # Note 22: Explore generators
+  # Note 23: Explore generators
   generators.explore_generators()
 
-  # Note 23: Explore async/await and asyncio
+  # Note 24: Explore async/await and asyncio
   async_await.explore_async_await()
 
   # Future explorations
