@@ -1,3 +1,5 @@
+[DONE]issue131-python-testing-v1: Explore use of test names with parametric tests
+issue130-python-parse-drelithus-cmdline: Experimental parser for the dralithus command line
 [DONE][issue129] python-parseargs-update: Explore passing an argv list to the parser
 [DONE][issue128] python-text-file-io-update2: Explore reading a file line by line
 [issue127] samplews: A simple key value service used as an a sample to explore
@@ -10,7 +12,7 @@ app deployment
 [issue121] aiml-foundations-binary-classification: 
   Explore using a single layer perceptron to do binary classification
 [DONE][issue120] ides-jetbrains-idea: Note on managing IDE update policy
-[issue119] python-testing: Explore unit testing in python
+[DONE][issue119] python-testing: Explore unit testing in python
 [DONE][issue118] git-reset-hard-to-upstream-branch:
   Explore the git command to reset a local branch to an upstream branch
   dropping all commits on the local branch

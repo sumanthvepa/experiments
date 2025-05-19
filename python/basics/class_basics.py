@@ -29,7 +29,7 @@ from __future__ import annotations
 # Mark an attribute as a class attribute in type hints.
 # This causes mypy to warn if you try to access this attribute
 # via an instance of the class.
-from typing import ClassVar
+from typing import ClassVar, override
 
 
 class F:  # pylint: disable=too-few-public-methods
@@ -55,12 +55,16 @@ def explore_class_basics() -> None:  # pylint: disable=too-many-locals, too-many
   # A class is a blueprint for creating objects. An object is an
   # instance of a class. A class is defined using the class keyword.
   # A class is defined as follows:
+  # noinspection PyMissingOrEmptyDocstring
   class ClassA:  # pylint: disable=too-few-public-methods, missing-class-docstring
     # Note the pylint directive above. This is because the class
     # definition is empty. The directive disables the warning that
     # the class has too few public methods. The directive also disables
     # the warning that the class is missing a docstring. Class
     # docstrings are described in the next section.
+    # Also note the noinspection directive above the class. This
+    # used to cause IntelliJ IDEA to not warn about the missing
+    # docstring.
 
     # Note the indentation. Everything inside the class is indented.
 
@@ -160,6 +164,9 @@ def explore_class_basics() -> None:  # pylint: disable=too-many-locals, too-many
     """
     # Class attributes are defined outside the constructor.
     # They are accessed using the class name.
+    # Note the use of ClassVar to indicate to mypy that this is a
+    # class attribute. This will cause mypy to warn if you try to
+    # access this attribute via an instance of the class.
     value: ClassVar[str] = 'd'
 
   # Class attributes are accessed using the class name.
@@ -171,7 +178,9 @@ def explore_class_basics() -> None:  # pylint: disable=too-many-locals, too-many
   # to confusion.
   # For example:
   d = D()
-  # You can access the class attribute via the instance.
+  # You can access the class attribute via the instance. There nothing
+  # wrong with this. But it is not recommended. It can lead to confusion
+  # because it looks like you are accessing an instance attribute.
   # The following print 'd' as expected:
   print(d.value)  # Displays d.
   # But if you change the value of the attribute via the instance,
@@ -485,6 +494,7 @@ def explore_inheritance() -> None:
       return f'Hello, my name is {self.full_name()}. ' \
           + f'I am {self.age} years old. You can contact me at {self.email}.'
 
+  # Class Employee inherits from class Person.
   class Employee(Person):  # pylint: disable=too-few-public-methods
     """
       A representation of an employee.
@@ -504,10 +514,18 @@ def explore_inheritance() -> None:
       super().__init__(first_name, last_name, age, email)
       self.job = job
 
+    @override
     def greet(self) -> str:
       """
         Method of the derived class.
         :return: The value attribute of the object.
+
+        Note that this method overrides the greet method of the base
+        class. The @override decorator is used to indicate that this
+        method overrides the greet method of the base class. This
+        decorator is not strictly necessary. The code will work
+        correctly without it. But mypy will warn you if you try to
+        override a method that does not exist in the base class.
       """
       return super().greet() + f' I work as a {self.job}.'
 

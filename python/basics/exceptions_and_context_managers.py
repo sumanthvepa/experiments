@@ -140,6 +140,66 @@ def explore_exceptions() -> None:
     print('This is the finally block')
 
 
+def explore_exception_chaining() -> None:
+  """
+    Explore exception chaining.
+
+    :return: None
+  """
+  # Exception chaining is a way to raise a new exception while
+  # preserving the original exception. This is useful for debugging
+  # and logging.
+  # You can use the 'from' keyword to chain exceptions.
+
+  # Here we raise a ValueError, catch it and then raise
+  # a MyException with the original exception as the cause.
+
+  class MyException(Exception):
+    """
+      Custom exception
+    """
+    def __init__(self, message: str) -> None:
+      """
+        Initialize the custom exception
+        :param message: The message to display
+      """
+      super().__init__(message)
+
+  def raises_my_exception() -> None:
+    """
+      A function that raises a MyException
+    """
+    try:
+      raise ValueError('This is a ValueError')
+    except ValueError as my_ex:
+      raise MyException('This is a MyException') from my_ex
+
+  try:
+    raises_my_exception()
+  except MyException as an_ex:
+    print(f'Caught a MyException: {an_ex}')
+    print(f'Original exception: {an_ex.__cause__}')
+
+  # You can also use the 'raise' statement with no exception to re-raise
+  # the original exception. This is useful when you want to catch an
+  # exception do some processing and then re-raise the original exception.
+  # Here we catch a ValueError and then re-raise it.
+  def re_raises_exception() -> None:
+    """
+      A function that raises a ValueError
+    """
+    try:
+      raise ValueError('This is a ValueError')
+    except ValueError as value_ex:
+      print(f'Caught a ValueError: {value_ex}')
+      raise  # Re-raise the original exception
+
+  try:
+    re_raises_exception()
+  except ValueError as an_ex:
+    print(f'Caught a ValueError: {an_ex}')
+
+
 def explore_context_managers() -> None:
   """
     Explore context managers
@@ -240,6 +300,34 @@ def explore_context_managers() -> None:
 
   with code_block('block3'):
     print('Inside block')
+
+  # You can yield a resource created within the context manager to
+  # the code block gated by it. For example, you want to create handle
+  # to a resource and return it to the code block. The resource is
+  # cleaned up when the code block exits.
+  @contextmanager
+  def resource_manager(name: str) -> Generator[dict[str, str], None, None]:
+    """
+      A context manager that manages a resource
+      :param name: The name of the resource.
+      :return: The resource
+    """
+    print(f'Creating resource {name}')
+    a_resource = {'name': name}
+    try:
+      yield a_resource
+    finally:
+      print(f'Cleaning up resource {name}')
+      del a_resource
+
+  # We can use the resource manager context manager to create a
+  # resource and use it in the code block. The resource is cleaned
+  # up when the code block exits.
+  with resource_manager('resource1') as resource:
+    print(f'Using resource {resource["name"]}')
+    # Do something with the resource
+    resource['name'] = 'new_resource1'
+    print(f'Using resource {resource["name"]}')
 
 
 def remove_file_silent(filename: str) -> None:
@@ -389,3 +477,10 @@ def explore_two_phase_commit() -> None:
   finally:
     os.remove('commit.log')
     original_todo.save('todo.txt')
+
+
+if __name__ == '__main__':
+  explore_exceptions()
+  explore_exception_chaining()
+  explore_context_managers()
+  explore_two_phase_commit()

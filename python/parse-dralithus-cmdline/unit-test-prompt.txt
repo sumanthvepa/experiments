@@ -1,0 +1,6 @@
+Initial Prompt:
+Create a skeleton unit test for the parse_command_line function
+
+Subsequent Prompt
+Modify the code in test_parse_command_line.py to add type hints. DO NOT MODIFY ANYTHING ELSE
+(Attached file test_parse_command_line.py)

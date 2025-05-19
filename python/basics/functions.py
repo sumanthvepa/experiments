@@ -176,6 +176,50 @@ def explore_functions() -> None:  # pylint: disable='too-many-locals'
   # E.g.:
   print_all_args_and_kwargs(*t, **d)
 
+  # Functions can have default values for their parameters. This means that
+  # if the parameter is not passed, the default value will be used.
+  # E.g.:
+  def add_with_default(a: int, b: int = 0) -> int:
+    """
+      Add two numbers with a default value for b
+      :param int a: argument 1
+      :param int b: argument 2
+      :return int: sum of a and b
+    """
+    return a + b
+  # In this call to add_with_default, b is not passed and the default
+  # value of 0 is used.
+  print(f'Sum of {n1} and default value is {add_with_default(n1)}')
+
+  # In this call to add_with_default, b is passed and the value of
+  # b is used.
+  print(f'Sum of {n1} and {n2} is {add_with_default(n1, n2)}')
+
+  # However, be careful when using default values that are mutable
+  # reference types. The dafault value is only evaluated once when the
+  # function is defined, not each time the function is called. This
+  # means that if the default value is a mutable reference type, it
+  # will be shared between all calls to the function. This can lead
+  # to unexpected behavior. E.g.:
+  def append_to_list(value: int, lst: list[int] = []) -> list[int]:
+    """
+      Append a value to a list
+      :param int value: The value to be appended
+      :param list[int] lst: The list to which the value is appended
+      :return list[int]: The list with the value appended
+    """
+    lst.append(value)
+    return lst
+  # In this call to append_to_list, the default value of lst is used
+  # and the value 1 is appended to it.
+  print(f'List after appending 1: {append_to_list(1)}') # [1]
+  # In this call to append_to_list, the default value of lst is used
+  # again and the value 2 is appended to it. However, since the
+  # default value is a mutable reference type, the value 2 is
+  # appended to the same list that was used in the previous call.
+  # This means that the list now contains both 1 and 2.
+  print(f'List after appending 2: {append_to_list(2)}')  # [1, 2], not [2] as expected
+
   # Python has support for anonymous functions called lambda functions.
   # Lambda functions are defined using the lambda keyword followed by
   # the parameters and the expression.
