@@ -3,7 +3,7 @@
   test_sample.py: Demonstrate how to write unit tests in python
 """
 # -------------------------------------------------------------------
-# tesT_sample.py: Demonstrate how to write unit tests in python
+# test_sample.py: Demonstrate how to write unit tests in python
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
 #
@@ -254,6 +254,26 @@ class TestParametric(unittest.TestCase):
     else:
       difference = abs(square_root(n) - expected)
       self.assertLess(difference, 0.0000001)
+
+  # You can give each test case a name by using the name parameter
+  # of the parameterized decorator. This is useful when you want to
+  # run a specific test case. The name is used to identify the test
+  # case in the test report. The decorator will automatically
+  # generate a name for each test case name passed.
+  # Note the use of noinspection and pylint disable to suppress
+  # warnings about unused parameters.
+
+  # noinspection PyUnusedLocal
+  @parameterized.expand([
+    ('case1', 1, 3, 4),
+    ('case2', 9, 12, 21),
+    ('case3', -1, 5, 4)
+  ])
+  def test_sum_of_named_params(
+      self, name: str,  # pylint: disable=unused-argument
+      a: int, b: int, expected: int) -> None:
+    """ Test the sum_of function with named parameters """
+    self.assertEqual(sum_of(a, b), expected)
 
   # To pass test cases, you can wrap each TestCaseData object in
   # tuple. The reason for this is that @parameterized.expand takes
