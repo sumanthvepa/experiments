@@ -1,3 +1,18 @@
+As of macOS Sequoia, on Macs you need to give
+permission to VSCode to allow it to connect to the
+local network. Pings or ssh to such machines won't work
+until you do so.
+
+Open the Settings app on macOS
+Select 'Privacy & Security' in the panel on the left
+Scroll down the panel on the right until you find Local Network,
+and select it.
+Locate the entry containing VisualStudio Code and push the
+toggle button on.
+
+
+Now follow the regular instructions for Remote SSH
+
 Meta-Shift-P to open the command palette
 Search for Remote-SSH: Connect to Host...
 Select the host or add one...

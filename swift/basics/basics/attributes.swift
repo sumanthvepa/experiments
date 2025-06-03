@@ -26,6 +26,9 @@
 // declaration or type. An attribute is specified by prefixing
 // the name of an attribute with an @ sign.
 
+// Attributes are documented here:
+// https://docs.swift.org/swift-book/documentation/the-swift-programming-language/attributes/
+
 // For example, the @discardableResult attribute can be used to
 // suppress the warning when the result of a function is not used.
 @discardableResult
