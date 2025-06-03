@@ -1,3 +1,4 @@
+[DONE]issue312-update-notes-remote-ssh-ide-vscode-on-macOS-sequoia: Update notes on using remote SSH in VSCode on macOS Sequoia
 [DONE]issue131-python-testing-v1: Explore use of test names with parametric tests
 issue130-python-parse-drelithus-cmdline: Experimental parser for the dralithus command line
 [DONE][issue129] python-parseargs-update: Explore passing an argv list to the parser
