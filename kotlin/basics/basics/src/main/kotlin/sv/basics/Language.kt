@@ -85,6 +85,38 @@ package sv.basics
     Clean, build, test and run the project to make sure that it works.
     See Step 2 for instructions on how to do this.
  */
+/*
+  Upgrading a Kotlin project to use the latest version of Kotlin.
+
+  I have not been successful in upgrading the Kotlin version
+  using techniques described on the web. The one reliable way
+  I have found is to regenerate the project.
+
+  For this project, I create new generic project using the
+  instructions in the comment above.
+  I then copied the following files and directories:
+    1. settings.gradle.kts
+    2. basics/build.gradle.kts
+    3. gradlew
+    4. gradlew.bat
+    5. gradle (directory)
+
+    I deleted the .gradle directory in the project root
+    And basics/build (directory) to ensure that the project
+    is built from scratch.
+
+    This project has no dependencies, so I did not have
+    to copy any dependencies. But if I had dependencies,
+    I would have copied the dependencies from the old
+    build.gradle.kts file to the new build.gradle.kts file.
+    I would have also updated them to their latest versions.
+
+    Yes. This doesn't sound like a good way to upgrade
+    a project, but it is the only way I have found that
+    works reliably, and has the additional benefit of
+    ensuring that generated files are confirm to the
+    standard that later gradle versions generate.
+ */
 
 /**
  * Explore the Kotlin programming language.
@@ -111,6 +143,7 @@ package sv.basics
  * for more information.
  */
 fun main() {
-    exploreComments()
-    exploreConstants()
+  println("Kotlin version: " + getKotlinVersion())
+  exploreComments()
+  exploreConstants()
 }

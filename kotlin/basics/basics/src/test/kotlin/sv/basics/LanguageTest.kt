@@ -7,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 class LanguageTest {
-    @Test fun dummyTest() {
-        assertNotNull("This is a dummy test")
-    }
+  @Test fun dummyTest() {
+    assertNotNull("This is a dummy test")
+  }
 }
