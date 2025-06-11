@@ -3,7 +3,7 @@
 # dig-cmd/Dockerfile: Exploratory Docker file to create a
 # dig installation the is executed using CMD
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a
