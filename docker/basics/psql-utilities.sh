@@ -26,7 +26,7 @@
 # scripts to determine the path to the psql client binary.
 
 # This function checks if the user has defined PSQL_BINARY and if so
-# checks if it is a valid path to a binary. The path is set but does
+# checks if it is a valid path to a binary. If the path is set but does
 # not point to a valid binary, it will return an error. Otherwise, it
 # returns the value of PSQL_BINARY. If PSQL_BINARY is not set, it
 # looks in some standard places: /usr/bin/psql and
