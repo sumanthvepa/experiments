@@ -27,8 +27,8 @@ FROM almalinux:9-minimal
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
 LABEL org.opencontainers.image.description="This a demo image to show how to setup node almalinux:9-minimal"
-LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:node-test"
-LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/node-test"
+LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:python-test"
+LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/python-test"
 
 # Most of the time want the latest available package version
 # for python. The default version of python in almalinux:9-minimal
