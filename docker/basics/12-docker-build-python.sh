@@ -27,12 +27,13 @@ echo '12-docker-build-python.sh'
 docker build --tag python-test ./python-test
 
 # Now we can run the image
-docker run --rm python-test python -c 'print("Hello, World!")'
+docker container run --rm python-test python -c 'print("Hello, World!")'
 
 # We can also run the image interactively
 echo 'Running a python container interactively'
 echo 'Type quit() to exit'
-docker run --rm -it python-test python
+docker container run --rm --interactive --tty python-test python
 
 # Finally we clean up by removing the image
 docker image rm python-test
+
