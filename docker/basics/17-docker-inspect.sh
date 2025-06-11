@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 16-docker-inspect.sh: Explore the docker inspect command
+# 17-docker-inspect.sh: Explore the docker inspect command
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
 #
@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '16-docker-inspect'
+echo '17-docker-inspect'
 
 # The docker inspect command is used to get detailed information about
 # a docker artifact: a container, image, network, or volume. The

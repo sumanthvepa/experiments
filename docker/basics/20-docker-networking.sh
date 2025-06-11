@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 19-docker-networking.sh: Explore networking in Docker
+# 20-docker-networking.sh: Explore networking in Docker
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
 #
@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '19-docker-networking'
+echo '20-docker-networking'
 
 # In order to make containers work and communcate with the world and
 # each other Docker provides a networking stack. You might have had

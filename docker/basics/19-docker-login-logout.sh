@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 18-docker-login-logout.sh: Explore the docker login and logout commands
+# 19-docker-login-logout.sh: Explore the docker login and logout commands
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
 #
@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '18-docker-login-logout'
+echo '19-docker-login-logout'
 
 # This script expects the DOCKERHUB_USERNAME and DOCKERHUB_PASSWORD
 # environment variables to be set. These variables are used to login

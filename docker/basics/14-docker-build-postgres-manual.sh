@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 13-docker-build-postgres-manual.sh: Explore building a postgres
+# 14-docker-build-postgres-manual.sh: Explore building a postgres
 # Docker image, that required manual invocation of a setup script
 # inside the image
 #
@@ -22,7 +22,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '13-docker-build-postgres-manual.sh'
+echo '14-docker-build-postgres-manual.sh'
 
 # This script creates a Postgres Docker image that has postgres
 # installed, but not started. The user is expected to start the

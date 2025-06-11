@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 17-docker-save-load.sh: Explore the docker save and load commands
+# 18-docker-save-load.sh: Explore the docker save and load commands
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
 #
@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '16-docker-save-load'
+echo '18-docker-save-load'
 
 # For this exploration we need an image to work with. We will create
 # a postgres-test image from Dockerfile in the postgres-test directory.

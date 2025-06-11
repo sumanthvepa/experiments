@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 15-docker-run-postgres-test.sh: Create and run a Postgres Docker
+# 16-docker-run-postgres-test.sh: Create and run a Postgres Docker
 # image
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
@@ -21,7 +21,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '15-docker-run-postgres-test.sh'
+echo '16-docker-run-postgres-test.sh'
 
 # This script runs the postgres-test Docker image that was built
 # using 14-docker-build-postgres-test.sh. (It will build the image

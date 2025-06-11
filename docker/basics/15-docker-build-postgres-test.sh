@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 14-docker-build-postgres-test.sh: Build an unoptimized container
+# 15-docker-build-postgres-test.sh: Build an unoptimized container
 # image that runs postgres
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
@@ -26,7 +26,7 @@
 # to automatically start postgres unless it is told to start
 # shell mode or an option like --version is passed to it that
 # requires it not to start a postgres daemon.
-echo '14-docker-build-postgres-test.sh'
+echo '15-docker-build-postgres-test.sh'
 
 # The script relies on the variables and utility functions defined
 # in docker-build-postgres-test-utilities.sh. We source that
