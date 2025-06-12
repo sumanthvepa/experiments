@@ -262,6 +262,8 @@ Check in the '.idea' directory. This is the IntelliJ
 IDEA project. Some things like run configurations won't
 be checked in, but everything else will.
 
+---
+
 # Appendix A: How Package.json and Package-lock.json Work
 
 <div style="border: 1px solid #ff9933; padding: 10px; margin: 10px 0; color: black; background-color: #fcd0b1; border-radius: 5px;">
@@ -273,7 +275,6 @@ In an NPM (Node Package Manager) project, two important files manage
 dependencies: **`package.json`** and **`package-lock.json`**. Each
 serves a distinct but related purpose.
 
----
 
 ## 1. `package.json` — **Project Manifest**
 
@@ -297,7 +298,6 @@ serves a distinct but related purpose.
   When someone runs `npm install`, NPM looks here to know what
 * packages (and versions ranges) are needed.
 
----
 
 ## 2. `package-lock.json` — **Exact Dependency Snapshot**
 
@@ -320,8 +320,6 @@ serves a distinct but related purpose.
 * **Key role**:
   Ensures reproducible installs — the exact same versions get installed on any machine (for you, your team, CI/CD pipelines, etc.).
 
----
-
 ## Summary of Differences:
 
 | Aspect                          | `package.json`      | `package-lock.json`            |
@@ -332,14 +330,9 @@ serves a distinct but related purpose.
 | **Should be committed to Git?** | Yes                 | Yes                            |
 | **Edited by hand?**             | Yes                 | Rarely (usually auto-managed)  |
 
----
-
 ### Simple analogy:
 
 | **package.json**                                  | **package-lock.json**                                            |
 |---------------------------------------------------|------------------------------------------------------------------|
 | **Recipe**: "Get chocolate between 70–85% cocoa." | **Shopping receipt**: "Bought 72% cocoa Lindt bar from Store X." |
 
----
-
-Let me know if you want a real-world example or a visual diagram to make this clearer!
