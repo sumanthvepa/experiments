@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 14-comparisons.mjs: Explore comparisons in Javascript
+ * @module 15-comparisons.mjs: Explore comparisons in Javascript
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 14-comparisons.mjs: Explore comparisons in Javascript
+ * 15-comparisons.mjs: Explore comparisons in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

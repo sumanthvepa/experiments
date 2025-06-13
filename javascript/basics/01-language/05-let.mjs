@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 04-let.mjs: Exploring the let keyword
+ * @module 05-let.mjs: Exploring the let keyword
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 04-let.mjs: Exploring the let keyword.
+ * 05-let.mjs: Exploring the let keyword.
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 06-implicit-globals.js: Exploring implicit globals
+ * @file 07-implicit-globals.js: Exploring implicit globals
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 06-implicit-globals.js: Exploring implicit globals.
+ * 07-implicit-globals.js: Exploring implicit globals.
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

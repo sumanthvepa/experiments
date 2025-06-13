@@ -1,6 +1,11 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 09-number.mjs: Explore numbers in Javascript
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
- * 08-number.mjs: Explore numbers in Javascript
+ * 09-number.mjs: Explore numbers in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

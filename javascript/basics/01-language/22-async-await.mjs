@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 21-async-await.mjs: Explore promises
+ * @module 22-async-await.mjs: Explore async/await
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 21-async-await.mjs: Explore async/await
+ * 22-async-await.mjs: Explore async/await
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

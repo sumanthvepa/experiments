@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 02-printing.mjs: Explore output to the console in Javascript
+ * @module 03-printing.mjs: Explore output to the console in Javascript
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 02-printing.mjs: Explore output to the console in Javascript.
+ * 03-printing.mjs: Explore output to the console in Javascript.
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

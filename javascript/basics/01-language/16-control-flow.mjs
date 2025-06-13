@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 15-control-flow.mjs: Explore control flow in Javascript
+ * @module 16-control-flow.mjs: Explore control flow in Javascript
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 15-control-flow.mjs: Explore control flow in Javascript
+ * 16-control-flow.mjs: Explore control flow in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

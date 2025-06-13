@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 12-null-and-undefined.mjs: Explore null and undefined in Javascript
+ * @module 13-null-and-undefined.mjs: Explore null and undefined in Javascript
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 12-null-and-undefined.mjs: Explore null and undefined in Javascript
+ * 13-null-and-undefined.mjs: Explore null and undefined in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

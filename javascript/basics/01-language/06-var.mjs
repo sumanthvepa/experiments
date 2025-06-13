@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 05-vars.mjs: Exploring the var keyword
+ * @module 06-var.mjs: Exploring the var keyword
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 05-vars.mjs: Exploring the var keyword.
+ * 06-var.mjs: Exploring the var keyword.
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

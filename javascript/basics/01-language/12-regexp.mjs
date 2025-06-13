@@ -1,6 +1,11 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 12-regexp.mjs: Explore regular expressions in Javascript
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
- * 11-regexp.mjs: Explore regular expressions in Javascript
+ * 12-regexp.mjs: Explore regular expressions in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

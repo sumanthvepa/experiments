@@ -1,12 +1,12 @@
 /**
- * @file imports-and-exports.mjs: Notes on using imports and exports
+ * @file 02-imports-and-exports.mjs: Notes on using imports and exports
  * in JavaScript.
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @license GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * language.mjs: A series of notes on the Javascript programming
- * language, written as a collection of Javascript modules and files.
+ * 02-imports-and-exports.mjs: Notes on using imports and exports
+ * in JavaScript.
  *
  * Copyright (C) 2024-25 Sumanth Vepa.
  *

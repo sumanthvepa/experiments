@@ -1,6 +1,11 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 08-dynamic-typing.mjs: Explore dynamic typing
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
- * 07-dynamic-typing.mjs: Explore dynamic typing
+ * 08-dynamic-typing.mjs: Explore dynamic typing
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

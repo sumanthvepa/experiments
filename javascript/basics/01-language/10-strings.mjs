@@ -1,7 +1,11 @@
 //-*- coding: utf-8 -*-
-
+/**
+ * @module 10-strings.mjs: Explore strings in Javascript
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
- * 09-strings.mjs: Explore strings in Javascript
+ * 10-strings.mjs: Explore strings in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

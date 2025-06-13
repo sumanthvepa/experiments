@@ -1,6 +1,11 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 14-type-conversions.mjs: Explore strings in Javascript
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
- * 13-type-conversions.mjs: Explore type conversions in Javascript
+ * 14-type-conversions.mjs: Explore type conversions in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

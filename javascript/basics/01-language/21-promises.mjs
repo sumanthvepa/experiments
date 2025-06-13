@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 20-promises.mjs: Explore promises
+ * @module 21-promises.mjs: Explore promises
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 20-promises.mjs: Explore promises
+ * 21-promises.mjs: Explore promises
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

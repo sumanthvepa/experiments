@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 16-functions.mjs: Explore functions in Javascript
+ * @module 17-functions.mjs: Explore functions in Javascript
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 16-functions.mjs: Explore functions in Javascript
+ * 17-functions.mjs: Explore functions in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

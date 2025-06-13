@@ -1,11 +1,11 @@
 //-*- coding: utf-8 -*-
 /**
- * @module 19-callbacks.mjs: Learn about callback style programming
+ * @module 20-callbacks.mjs: Learn about callback style programming
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 19-callbacks.mjs: Learn about callback style programming
+ * 20-callbacks.mjs: Learn about callback style programming
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

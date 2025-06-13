@@ -1,12 +1,11 @@
 //-*- coding: utf-8 -*-
-
 /**
- * @module 17-objects-and-classes.mjs: Explore objects and classes
+ * @module 18-objects-and-classes.mjs: Explore objects and classes
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 17-objects-and-classes.mjs: Explore objects and classes
+ * 18-objects-and-classes.mjs: Explore objects and classes
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

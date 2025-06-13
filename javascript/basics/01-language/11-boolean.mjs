@@ -1,6 +1,11 @@
 //-*- coding: utf-8 -*-
+/**
+ * @module 11-boolean.mjs: Explore booleans in Javascript
+ * @author Sumanth Vepa <svepa@milestone42.com>
+ * @licence GNU General Public License v3.0
+ */
 /* -------------------------------------------------------------------
- * 10-boolean.mjs: Explore booleans in Javascript
+ * 11-boolean.mjs: Explore booleans in Javascript
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *

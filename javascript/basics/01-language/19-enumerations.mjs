@@ -1,12 +1,11 @@
 //-*- coding: utf-8 -*-
-
 /**
- * @module 18-enumerations.mjs: Learn how to simulate enums
+ * @module 19-enumerations.mjs: Learn how to simulate enums
  * @author Sumanth Vepa <svepa@milestone42.com>
  * @licence GNU General Public License v3.0
  */
 /* -------------------------------------------------------------------
- * 18-enumerations.mjs: Learn how to simulate enums
+ * 19-enumerations.mjs: Learn how to simulate enums
  *
  * Copyright (C) 2024 Sumanth Vepa.
  *
