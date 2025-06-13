@@ -92,7 +92,7 @@ export function f3() {
 
 /**
  * @function f4
- * @description A function that demonstrates the a var variable may
+ * @description A function that demonstrates that a 'var' variable may
  * be redeclared multiple times within a function without any errors.
  * It will be considered the same variable.
  */
