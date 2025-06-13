@@ -158,9 +158,9 @@ export function exploreStrings() {
 
   // If you want locale-insensitive comparisons, you can use
   // the localeCompare method.
-  const s9= 'e';
+  const s9 = 'e';
   const s10 = 'É';
-  if (s9.localeCompare(s10, {'sensitivity': 'base'}) === 0) {
+  if (s9.localeCompare(s10, undefined, { sensitivity: 'base' }) === 0) {
     console.log(`The strings ${s9} and ${s10} are equal`);
   } else {
     console.log(`The strings ${s9} and ${s10} are not equal`);
