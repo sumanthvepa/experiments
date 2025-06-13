@@ -24,7 +24,6 @@
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
 
-
 export function exploreTypeConversion() {
     // Javascript provides a number of functions to convert values from one type to another.
     // The most common type conversions are:
