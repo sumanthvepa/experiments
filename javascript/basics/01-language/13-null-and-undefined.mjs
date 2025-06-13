@@ -211,63 +211,29 @@ export function exploreNullAndUndefined() {
   // This operator returns the right-hand operand when the
   // left-hand operand is null or undefined. Otherwise, it
   // returns the left-hand operand.
+
+  // For example, consider the following code:
   /**
-   * @description x is the result of using the nullish coalescing operator.
+   * @description userValue is a variable that is either null or a number.
+   * @type {null | number}
+   */
+  let userValue = null; // A user value that is either null or a number
+  /**
+   * @description defaultValue is a default value that is used when the
+   * userValue is null or undefined.
    * @type {number}
-   * @constant
-   * @default 5
    */
-  const x = null ?? 5;
-  console.log(`x = ${x}`); // 5
+  let defaultValue = 5; // A default value that is used when
 
-  // noinspection GrazieInspection
-  /**
-   * @function clampValueToRange0To10
-   * @description Clamps a value to the range 0-10. This is a helper
-   * function used in {@link exploreNullAndUndefined}.
-   * @param setting {number} - A number whose value is to be clamped
-   * @returns {number|null} - Returns setting if it is in the range [0-10),
-   * otherwise returns null.
-   */
-  function clampValueToRange0To10(setting) {
-    if (setting >= 0 && setting < 10) return setting;
-    else return null;
-  }
+  // We can use the nullish coalescing operator to set a variable
+  // to the user value if it is not null or undefined, otherwise
+  // we can set it to the default value.
+  let result = userValue ?? defaultValue; // result will be 5, the default value
+  console.log(`result = ${result}`); // 5
 
-  // Consider a value that is either null or a number.
-  // You want set another value y to 10 if value is null or undefined
-  // or to the value itself if it is not.
-  // You can use a ternary conditional operator as shown below for
-  // that purpose. However, the same operation can be achieved using
-  // the nullish coalescing operator.
-  // noinspection GrazieInspection
-  /**
-   * @description A value that is either in the range [0-10) or is null
-   * @type {number|null}
-   * @constant
-   */
-  const value = clampValueToRange0To10(25);
-
-  /**
-   * @description: Is set to the given value if it is not null,
-   * otherwise it is set to 10.
-   * @type {number}
-   * @constant
-   */
-  const y = (value === undefined || value === null)? 10 : value;
-  console.log(`y = ${y}`);
-
-  // The following has the same effect as the ternary conditional
-  // operator:
-  /**
-   * @description Is set to the given vale if it is not null, otherwise
-   * it is set to 10. This value will be identical to y.
-   * @type {number}
-   * @constant
-   */
-  const z = value ?? 10;
-  console.log(`z = ${z}`)
-  console.log(`y === z is ${y === z}`);
+  userValue = 10; // Now the user value is set to 10
+  result = userValue ?? defaultValue; // result will be 10, the user value
+  console.log(`result = ${result}`); // 10
 
   // Another useful operator is the optional chaining operator ?.
   // This is useful in situations where you need to access the property
