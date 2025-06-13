@@ -9,7 +9,7 @@
  * language.mjs: A series of notes on the Javascript programming
  * language, written as a collection of Javascript modules and files.
  *
- * Copyright (C) 2024 Sumanth Vepa.
+ * Copyright (C) 2024-25 Sumanth Vepa.
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,6 +45,16 @@
 // 09-strings.mjs: Explore strings in Javascript
 // 10-boolean.mjs: Explore booleans in Javascript
 // 11-regexp.mjs: Explore regular expressions in Javascript
+// 12-null-and-undefined.mjs: Explore null and undefined in Javascript
+// 13-type-conversions.mjs: Explore type conversions in Javascript
+// 14-comparisons.mjs: Explore comparisons in Javascript
+// 15-control-flow.mjs: Explore control flow
+// 16-functions.mjs: Explore functions in Javascript
+// 17-objects-and-classes.mjs: Explore objects and classes
+// 18-enumerations.mjs: Explore enumerations
+// 19-callbacks.mjs: Explore callbacks
+// 20-promises.mjs: Explore promises
+// 21-async-await.mjs: Explore async/await
 
 // For more information on the Javascript programming language, see the following
 // references:
@@ -76,6 +86,27 @@
 // However, in a more complex project, this could cause much confusion.
 // In general, it is a good idea to place all the imports at the top of
 // the file.
+
+// A note on types of imports.
+// As a general rule of thumb, I use ES56 import statements
+// for all my imports, rather than the older CommonJS require()
+// statements.
+
+// There are two types of imports in ES6:
+// 1. Default imports: These are imported without curly braces.
+//    A module can have only one default export, but it can have
+//    multiple named exports.
+// For example the code blow import anImportableFunction from 02-imports-and-exports.mjs
+
+import anImportableFunction from './02-imports-and-exports.mjs';
+anImportableFunction()
+
+// 2. Named imports: These are imported with curly braces.
+//    A module can have multiple named exports, but only one default
+//    export.
+//    Named exports are useful when you want to export
+//    multiple values from a module, while default exports are useful
+//    when you want to export a single value from a module.
 
 // A note on the .mjs extension and "type": "module" in package.json
 // The .mjs extension is used to indicate that a file is a Javascript
@@ -109,11 +140,87 @@
 // https://gist.github.com/pylover/7870c235867cf22817ac5b096defb768
 
 // Note 0: Explore comments in Javascript
-import {exploreComments } from './00-comments.mjs'
+import { exploreComments } from './00-comments.mjs'
 exploreComments();
 
 // Note1: Print 'Hello, World!' on the console.
 import './01-hello.js';
+
+// Note 2: Explore imports and exports
+// There are two types of imports in ES6:
+// 1. Default imports: These are imported without curly braces.
+// 2. Named imports: These are imported with curly braces.
+
+// Note that no curly braces are used for the default import.
+// Also, not that the path to the module is specified relative to the
+// location of this file. Note that any file modules must be imported
+// with a path.
+import defaultExportedFunction from './02-imports-and-exports.mjs';
+defaultExportedFunction();
+
+// You can use any name for the default import. It does not have to
+// match the name of the exported function in the module.
+// Notice that we've imported the same function twice, once as
+// defaultExportedFunction and once as theDefaultExportedFunction.
+// We would not typically do this in production code, but we do it
+// here to demonstrate the that you can import a default export
+// using any name you like, and that the name does not have to match
+// the name of the exported function in the module.
+import theDefaultExportedFunction from './02-imports-and-exports.mjs';
+theDefaultExportedFunction();
+
+// Named imports are imported with curly braces. Unlike, you have to use
+// the exact name of the exported function in the module when you
+// import it.
+import { namedExportedFunction1 } from './02-imports-and-exports.mjs';
+namedExportedFunction1()
+
+// You can import multiple named exports from a module using a single
+import { namedExportedFunction2, namedExportedFunction3 } from './02-imports-and-exports.mjs';
+namedExportedFunction2();
+namedExportedFunction3()
+
+// You can change the name of a named import using the 'as' keyword.
+// Although you must refer to name of the function as it is specified
+// in the module when you alias it.
+import { namedExportedFunction4 as renamedFunction } from './02-imports-and-exports.mjs';
+renamedFunction();
+
+// You can import from npm packages that you have installed in your
+// project. For example, the 'lodash' package is a popular utility
+// library that provides a lot of useful functions for working with
+// arrays, objects, and other data types. You can install it using
+// npm install lodash and then import it in your code.
+// To add it to you package.json file, you can use the command:
+// npm install --save lodash. This will add lodash to the
+// dependencies section of your package.json file. Always do this when
+// you install a package using npm. This way, the package will be
+// automatically installed when you run npm install in your project.
+// Otherwise, the import will fail when you try to run your code after
+// fresh checkout of the project from a version control system.
+// noinspection ES6UnusedImports
+
+// Also note the use of _ as the name of the imported module.
+// This is a common convention in the Javascript community for
+// importing the lodash library. It is not a requirement, but it is
+// a widely used convention. '_' is a valid identifier in Javascript,
+import _ from 'lodash';
+
+// You can import from built-in modules as well.
+// noinspection ES6UnusedImports
+import { readFileSync } from 'fs';
+
+// It is recommended to specify that you are importing from a builtin
+// module provided by Node.js. This prevents the built-in module from
+// being confused with a local or npm installed module of the same name.
+// This is done by using the 'node:' prefix in the import statement.
+// Note the use of 'node:' prefix in the import statement.
+// noinspection ES6UnusedImports
+import { readFileSync as readFileSyncFromNode } from 'node:fs';
+
+// You can import submodules from a module as well.
+// noinspection ES6UnusedImports
+import { readFile as readFilePromisesFromNodeSubmodule } from 'node:fs/promises';
 
 // Note2: Explore printing in Javascript
 import { explorePrinting } from './02-printing.mjs';
