@@ -68,4 +68,6 @@ export function completeTask() {
   // 0, -0, 0n, "", null, undefined, NaN and document.all (why
   // the latter? See this explanation on Stackoverflow:
   // https://stackoverflow.com/questions/10350142/why-is-document-all-falsy
+  // Note thet document.all is a legacy feature and should not be used
+  // and most modern browsers do not support it.
 }
