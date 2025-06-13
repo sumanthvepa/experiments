@@ -254,5 +254,5 @@ export function exploreControlFlow() {
 
   // 4. throw statement:
   // The throw statement is used to throw an exception.
-  // This is discussed in more detail in the 17-exceptions.mjs module.
+  // This is discussed in more detail in the 20-exceptions.mjs module.
 }
