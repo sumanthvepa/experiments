@@ -22,39 +22,35 @@
 
 echo '13-docker-build-flask.sh'
 
+# We will use the docker-build-flask-test-utilities.sh script to build
+# and run the flask-test image. This script contains utility functions
+# that will help us build and run the flask-test image.
+# See the script for details on how to build a flask server image.
+source ./docker-build-flask-test-utilities.sh
+
+# First we need to build the flask-test image.
+build_flask_test_image
+if [[ $? -ne 0 ]]; then
+  echo "Failed to build the flask-test image. Exiting."
+  exit 1
+fi
+
+# Now we can run a container using the flask-test image.
+run_flask_test_container flask-test 5000
+if [[ $? -ne 0 ]]; then
+  echo "Failed to run the flask-test container. Exiting."
+  exit 1
+fi
+
+# You can now query the flask API
+curl http://localhost:5000/ 
+
 # There isn't much to do outside of the Dockerfile to build
 # a Flask application image.
 docker build --tag flask-test ./flask-test
 
-# Let's set the port that the Flask application will run on.
-FLASK_PORT=5000
-
-# Now we can run the image (we have to detach it so that it runs in
-# the background)
-docker container run --name=flask-test --detach --publish "$FLASK_PORT":"$FLASK_PORT" flask-test
-
-# Now we can check if the Flask application is running
-echo "Waiting for the flask service to start..."
-IS_FLASK_SERVER_READY=0
-while [[  $IS_FLASK_SERVER_READY -ne 200 ]]; do
-  sleep 5
-  IS_FLASK_SERVER_READY=$(curl --silent --output /dev/null --write-out "%{http_code}" http://localhost:"$FLASK_PORT"/)
-done
-echo "Flask service has started successfully"
-
-# Now we can test the Flask application by sending a request to it
-# (Well, if execution has reach here, then we've already done that,
-# but we'll do it again to show that it works)
-curl http://localhost:"$FLASK_PORT"/
-
-# We can stop stop the container now that we've tested it
+# Clean up after this exploration
 docker container stop flask-test
-
-# We now wait for the container to stop
 docker wait flask-test
-
-# Now we can remove the container
 docker container rm flask-test
-
-# Finally we clean up by removing the image
 docker image rm flask-test
