@@ -24,8 +24,7 @@
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
 
-// The let keyword is used to declare a lexically
-// block-scoped variable.
+// The let keyword is used to declare a lexically block-scoped variable.
 // For example, this variable is only defined within this module.
 /**
  * A block-scoped variable that has been initialized.
@@ -46,6 +45,7 @@ console.log(x);
  * @default undefined
  */
 let y;
+
 // Supress IntelliJ IDEA warning about using an uninitialized variable.
 // noinspection JSUnusedAssignment
 console.log(y); // undefined
@@ -101,16 +101,18 @@ for (let i = 0; i < 5; i++) {
  * The function demonstrates block scoping and non-hoisting.
  */
 export function letExample() {
-    // The variable k is block-scoped to the function letExample.
-    let k = 60;
-    console.log(k);
+  // The variable k is scoped to this function.
+  let k = 60;
+  console.log(k);
   {
-    // The variable k is block-scoped to the block.
+    // The variable l is scoped to this inner block.
     let l = 70;
-    console.log(k);
+    console.log(l); // 70, l is accessible here
+    console.log(k); // 60, k is accessible here
   }
   // l is not defined outside the block.
   // console.log(l); // ReferenceError: l is not defined
+  console.log(k); // 60, k is still accessible here
 
   // As before, let variables are not hoisted to the top of the block.
   // console.log(m); // ReferenceError: Cannot access 'm' before
