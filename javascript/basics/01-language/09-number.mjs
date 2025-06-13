@@ -251,7 +251,7 @@ export function exploreNumbers() {
 
   // The atan() method returns the arctangent of a number as a value
   // between -PI/2 and PI/2 radians. The atan2() method returns the
-  // angle theta of an (x,y) point as a numeric value between
+  // angle theta of a (x,y) point as a numeric value between
   // -PI and PI radians.
   console.log(Math.atan(1)); // 0.7853981633974483
   console.log(Math.atan2(1, 1)); // 0.785398163397448
