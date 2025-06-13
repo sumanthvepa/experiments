@@ -30,7 +30,7 @@
  * this module. A module can have only one default export.
  */
 export default function defaultExportedFunction() {
-  console.log("This is a default exported function.");
+  console.log('This is a default exported function.');
 }
 
 // Wrong.
@@ -44,7 +44,7 @@ export default function defaultExportedFunction() {
  * this module
  */
 export function namedExportedFunction1() {
-  console.log("This is a named exported function 1.");
+  console.log('This is a named exported function 1.');
 }
 
 /**
@@ -52,7 +52,7 @@ export function namedExportedFunction1() {
  * @description A module can have multiple named exports.
  */
 export function namedExportedFunction2() {
-  console.log("This is a named exported function 2.");
+  console.log('This is a named exported function 2.');
 }
 
 /**
@@ -60,7 +60,7 @@ export function namedExportedFunction2() {
  * @description A module can have multiple named exports.
  */
 export function namedExportedFunction3() {
-  console.log("This is a named exported function 3.");
+  console.log('This is a named exported function 3.');
 }
 
 /**
@@ -68,5 +68,5 @@ export function namedExportedFunction3() {
  * @description A module can have multiple named exports.
  */
 export function namedExportedFunction4() {
-  console.log("This is a named exported function 4.");
+  console.log('This is a named exported function 4.');
 }
