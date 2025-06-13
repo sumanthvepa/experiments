@@ -30,6 +30,11 @@ export function exploreFunctions() {
   // Unlike other languages, Javascript functions are first-class objects.
   // This means that functions can be passed around as arguments to other
   // functions, returned from other functions, and assigned to variables.
+
+  // It's a very common idom in Javascript to use functions as
+  // arguments to other functions, especially in the context of
+  // asynchronous programming and event handling.
+
   // Functions in Javascript can be defined in the following ways:
   // 1. Function declaration
   // 2. Function expression
@@ -231,5 +236,6 @@ export function exploreFunctions() {
   // An Arrow function does not have its own 'this' value. Instead, it
   // inherits the 'this' value from the enclosing scope. This is useful
   // when you want to use the 'this' value from the enclosing scope.
-  // This will be explore in more detail in 17-classes-and-objects.mjs.
+  // This will be explored in more detail in
+  // 18-classes-and-objects.mjs.
 }
