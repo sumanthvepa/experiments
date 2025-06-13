@@ -123,5 +123,25 @@ export function exploreComparisons() {
 
     // Be careful when mixing ==  and other comparison operators with
     // null or undefined and 0 For example:
-    console.log("null == 0: ", null == 0) // false, because the
+    console.log("null == 0: ", null == 0) // false
+
+    //4. Strict inequality operator:
+    // The strict inequality operator is used to compare two values for
+    // inequality. The strict inequality operator is denoted by the !== symbol.
+    // The strict inequality operator does not perform type coercion before
+    // comparing the values. If the values are of different types, the strict
+    // inequality operator returns true.
+    /**
+     * @description A variable that is a number.
+     * @type {number}
+     */
+    let e = 10;
+    /**
+     * @description A variable that is a string representation of the number e.
+     * @type {string}
+     */
+    let f = '10';
+    console.log(`The value of e is ${e} and the value of f is ${f}`);
+    // noinspection JSIncompatibleTypesComparison
+    console.log(`The value of e !== f is ${e !== f}`);
 }
