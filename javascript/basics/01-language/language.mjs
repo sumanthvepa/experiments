@@ -248,7 +248,7 @@ console.log(anImplicitGlobal); // Yup, because imports are processed
                                // available even before the import
                                // statement. Don't use implicit globals!
 import './07-implicit-globals.js';
-console.log(anImplicitGlobal); // defined in 06-implicit-globals.js:f1()
+console.log(anImplicitGlobal); // defined in 07-implicit-globals.js:f1()
                                // but is available everywhere without
                                // an import.
 

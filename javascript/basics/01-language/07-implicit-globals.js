@@ -41,6 +41,6 @@ function f1() {
    */
   anImplicitGlobal = 'This is an implicit global';
 }
-f1(); // Call f5 to bring anImplicitGlobal into existence.
+f1(); // Call f1 to bring anImplicitGlobal into existence.
 console.log(anImplicitGlobal); // Available outside function scope.
                                // Also see language.mjs.
