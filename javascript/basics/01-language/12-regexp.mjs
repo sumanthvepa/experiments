@@ -77,16 +77,14 @@ export function exploreRegexps() {
   // suppression comment that suppresses the warning.
   // noinspection EqualityComparisonWithCoercionJS
   console.log(re1 == re2); // false.
+  // This is the proper way to check if two regular expressions are
+  // the same.
+  console.log(String(re1) === String(re2)); // true
 
-  // You can use regular expressions to replace parts of
-  // of a string that match a regular expression
-  // In this example, which is used in 10-template-server,
+  // You can use regular expressions to replace parts of a string that
+  // match it. In this example, which is used in 10-template-server,
   // the objective is to strip the leading / from URL.
   const url = '/page/';
   const strippedUrl = url.replace(/^\//,'');
   console.log(`Removing the leading / from ${url} results in ${strippedUrl}`);
-
-  // This is the proper way to check if two regular expressions are the
-  // same.
-  console.log(String(re1) === String(re2)); // true
 }
