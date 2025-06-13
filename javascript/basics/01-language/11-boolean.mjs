@@ -65,7 +65,7 @@ export function completeTask() {
   // See https://developer.mozilla.org/en-US/docs/Glossary/Truthy
   // All values are considered to be truthy, unless they are defined
   // to be falsy. The only values that are falsy are:
-  // 0, -0, 0n, "", null, undefined, NaN and document.all (why
+  // 0, -0, 0n, "", null, undefined, NaN and document.all. Why
   // the latter? See this explanation on Stackoverflow:
   // https://stackoverflow.com/questions/10350142/why-is-document-all-falsy
   // Note thet document.all is a legacy feature and should not be used
