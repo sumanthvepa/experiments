@@ -1,40 +1,42 @@
 # Creating and Managing a Node.js/NPM Project
 This project and file describes how to set up a simple Node.js project.
 
-<!-- toc -->
-
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
   * [Install NodeJS and NPM](#install-nodejs-and-npm)
-    + [Installation Instructions for macOS](#installation-instructions-for-macos)
-    + [AlmaLinux setup instructions](#almalinux-setup-instructions)
-    + [Alternative instructions for containers](#alternative-instructions-for-containers)
-  * [First Time Setup](#first-time-setup)
-  * [Initialize npm for the project](#initialize-npm-for-the-project)
-  * [Install Project Dependencies](#install-project-dependencies)
-  * [Add support for ES6 imports](#add-support-for-es6-imports)
-  * [Preparing the package for running](#preparing-the-package-for-running)
-  * [Running the program](#running-the-program)
-    + [Run directly using the node interpreter](#run-directly-using-the-node-interpreter)
-    + [Run With npm](#run-with-npm)
-  * [npm start and npm test](#npm-start-and-npm-test)
-  * [Setting up a Freshly Checked Out Project](#setting-up-a-freshly-checked-out-project)
-  * [Updating node_modules when git pull brings in changes to package-lock.json](#updating-node_modules-when-git-pull-brings-in-changes-to-package-lockjson)
-  * [Updating a Checked out Project](#updating-a-checked-out-project)
-    + [Updating package-lock.json](#updating-package-lockjson)
-    + [Updating major versions in package.json](#updating-major-versions-in-packagejson)
+
+  - [Install NodeJS and NPM](#install-nodejs-and-npm)
+    - [Installation Instructions for macOS](#installation-instructions-for-macos)
+    - [AlmaLinux setup instructions](#almalinux-setup-instructions)
+    - [Alternative instructions for containers](#alternative-instructions-for-containers)
+  - [First Time Setup](#first-time-setup)
+  - [Initialize npm for the project](#initialize-npm-for-the-project)
+  - [Install Project Dependencies](#install-project-dependencies)
+  - [Add support for ES6 imports](#add-support-for-es6-imports)
+  - [Preparing the package for running](#preparing-the-package-for-running)
+  - [Running the program](#running-the-program)
+    - [Run directly using the node interpreter](#run-directly-using-the-node-interpreter)
+    - [Run With npm](#run-with-npm)
+  - [npm start and npm test](#npm-start-and-npm-test)
+  - [Setting up a Freshly Checked Out Project](#setting-up-a-freshly-checked-out-project)
+  - [Updating node_modules when git pull brings in changes to package-lock.json](#updating-node_modules-when-git-pull-brings-in-changes-to-package-lockjson)
+  - [Updating a Checked out Project](#updating-a-checked-out-project)
+    - [Updating package-lock.json](#updating-package-lockjson)
+    - [Updating major versions in package.json](#updating-major-versions-in-packagejson)
       - [Manually updating package.json](#manually-updating-packagejson)
       - [Automatically updating package.json](#automatically-updating-packagejson)
-  * [Creating an IntelliJ IDEA project](#creating-an-intellij-idea-project)
-    + [Turn on Coding Assistance for Node.js](#turn-on-coding-assistance-for-nodejs)
-    + [Setup Run Configurations](#setup-run-configurations)
-    + [Check in all committable project artifacts](#check-in-all-committable-project-artifacts)
+  - [Creating an IntelliJ IDEA project](#creating-an-intellij-idea-project)
+    - [Turn on Coding Assistance for Node.js](#turn-on-coding-assistance-for-nodejs)
+    - [Setup Run Configurations](#setup-run-configurations)
+    - [Check in all committable project artifacts](#check-in-all-committable-project-artifacts)
 - [Appendix A: How Package.json and Package-lock.json Work](#appendix-a-how-packagejson-and-package-lockjson-work)
-  * [1. `package.json` — **Project Manifest**](#1-packagejson--project-manifest)
-  * [2. `package-lock.json` — **Exact Dependency Snapshot**](#2-package-lockjson--exact-dependency-snapshot)
-  * [Summary of Differences:](#summary-of-differences)
-    + [Simple analogy:](#simple-analogy)
+  - [1. `package.json` — **Project Manifest**](#1-packagejson--project-manifest)
+  - [2. `package-lock.json` — **Exact Dependency Snapshot**](#2-package-lockjson--exact-dependency-snapshot)
+  - [Summary of Differences:](#summary-of-differences)
+    - [Simple analogy:](#simple-analogy)
 - [Appendix B: Colophon](#appendix-b-colophon)
 
-<!-- tocstop -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Install NodeJS and NPM
 ### Installation Instructions for macOS
@@ -475,19 +477,22 @@ serves a distinct but related purpose.
 ---
 # Appendix B: Colophon
 This document was created by manually editing a markdown file.
-The table of contents was created using the markdown-toc npm package.
+
+The table of contents was created using the doctoc npm package.
 This can be installed locally using the following command:
 ```
-  npm install --save-dev markdown-toc
+  npm install --save-dev doctoc
 ```
 
 Then you can run the following command to generate the table of contents:
 ```
-  npx markdown-toc -i README.md
+  npx doctoc README.md
 ```
 The same command can be used to update the table of contents as well.
 
 To locate the ToC in a specific place in the document, you can use the
-phrase 'toc' in a comment, and the phrase 'tocstop' in a following
+phrase 'START doctoc' in a comment, and the phrase 'STOP doctoc' in a following
 comment. When markdown-toc runs, it will place the ToC between these
-two comments.
+two comments. It also modifies the comments to include a notice asking
+not to edit the section manually, as it will be overwritten by the
+doctoc command.

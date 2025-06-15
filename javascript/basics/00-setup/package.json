@@ -21,7 +21,7 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "markdown-toc": "^1.2.0",
+    "doctoc": "^2.2.1",
     "npm-check-updates": "^18.0.1"
   }
 }
