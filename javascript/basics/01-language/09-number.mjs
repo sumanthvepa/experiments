@@ -24,6 +24,7 @@
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
 
+// noinspection GrazieInspection
 export function exploreNumbers() {
   // Javascript has a single number type: number.
   // This type can represent both integers and floating point numbers.
@@ -187,8 +188,8 @@ export function exploreNumbers() {
 
   // The toLocaleString method is used to format numbers according to
   // the locale of the user. For example, in the US, the comma is used
-  // as the thousands separator. In Europe, the period is used as the
-  // thousands separator. The toLocaleString method takes an optional
+  // as the thousand separator. In Europe, the period is used as the
+  // thousand separator. The toLocaleString method takes an optional
   // argument that specifies the locale. For example:
   console.log(j.toLocaleString('en-US'));
   console.log(j.toLocaleString('de-DE'));

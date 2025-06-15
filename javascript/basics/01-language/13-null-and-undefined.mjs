@@ -91,7 +91,8 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default true
    */
-  const cmp0 = null === null; // true
+  const cmp0 = null === null; // eslint-disable-line no-constant-binary-expression
+                              // true, because null is equal to itself.
   console.log(`null === null: ${cmp0}`);
 
   // Undefined is also === to undefined.
@@ -102,7 +103,9 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default true
    */
-  const cmp1 = undefined === undefined; // true
+  const cmp1 = undefined === undefined; // eslint-disable-line no-constant-binary-expression
+                                        // true, because undefined is
+                                        // equal to itself.
   console.log(`undefined === undefined: ${cmp1}`);
 
   // Type conversions and comparisons with null and undefined
@@ -116,9 +119,9 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default true
    */
-  const cmp2 = null == 0; // true. == converts null to a
-                                   // number, 0 and then does the
-                                   // comparison.
+  const cmp2 = null == 0; // eslint-disable-line no-constant-binary-expression
+                          // true. == converts null to a number, 0
+                          // and then does the comparison.
   console.log(`null == 0: ${cmp2}`);
 
   /**
@@ -127,10 +130,11 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default false
    */
-  const cmp3 = null === 0; // false, === does not perform type
-                                    // conversion. typeof null is
-                                    // object and typeof 0 is number.
-                                    // So the comparison is false.
+  const cmp3 = null === 0; // eslint-disable-line no-constant-binary-expression
+                           // false, === does not perform type
+                           // conversion. typeof null is object and
+                           // typeof 0 is number. So the comparison is
+                           // false.
   console.log(`null === 0: ${cmp3}`);
 
   // undefined converts to NaN when compared using ==.
@@ -142,8 +146,13 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default false
    */
-  const cmp4 = undefined == NaN; // false.
+  const cmp4 = undefined == NaN; // eslint-disable-line use-isnan
+                                 // false.
   console.log(`undefined == NaN: ${cmp4}`);
+  // BTw the recommended way to check for NaN is to use the isNaN() function.
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isNaN
+  const cmp4a = isNaN(undefined); // true, because undefined converts to NaN.
+  console.log(`isNaN(undefined): ${cmp4a}`); // true
 
   // But when compared using ===, the result is false because
   // undefined is not equal to NaN.
@@ -154,8 +163,12 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default false
    */
-  const cmp5 = undefined === NaN; // false.
+  const cmp5 = undefined === NaN; // eslint-disable-line use-isnan
+                                  // false.
   console.log(`undefined === Nan: ${cmp5}`);
+  // Again, the recommended way to check for NaN is to use the isNaN() function.
+  const cmp5a = isNaN(undefined); // true, because undefined converts to NaN.
+  console.log(`isNaN(undefined): ${cmp5a}`); // true
 
   // When using ==, null is equal to undefined because both
   // convert to 0.
@@ -166,7 +179,8 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default true
    */
-  const cmp6 = undefined == null; // true.
+  const cmp6 = undefined == null; // eslint-disable-line no-constant-binary-expression
+                                  // true.
   console.log(`undefined == null: ${cmp6}`);
 
   // But when using ===, null is not equal to undefined because
@@ -178,7 +192,8 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default false
    */
-  const cmp7 = undefined === null; // false.
+  const cmp7 = undefined === null; // eslint-disable-line no-constant-binary-expression
+                                   // false.
   console.log(`undefined === null: ${cmp7}`);
 
   // Comparing undefined to undefined using == will return true, because
@@ -190,7 +205,8 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default true
    */
-  const cmp8 = undefined == undefined; // true
+  const cmp8 = undefined == undefined; // eslint-disable-line no-constant-binary-expression
+                                       // true
   console.log(`undefined == undefined: ${cmp8}`);
 
   // Comparing undefined to undefine using === will also return true.
@@ -203,7 +219,8 @@ export function exploreNullAndUndefined() {
    * @constant
    * @default true
    */
-  const cmp9 = undefined === undefined; // true.
+  const cmp9 = undefined === undefined; // eslint-disable-line no-constant-binary-expression
+                                        // true.
   console.log(`undefined === undefined: ${cmp9}`);
 
   // One useful operator to know about when dealing with

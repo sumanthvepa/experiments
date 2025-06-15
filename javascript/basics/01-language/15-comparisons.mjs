@@ -58,7 +58,8 @@ export function exploreComparisons() {
 
     // The equality operator has some quirks when comparing null and undefined
     // with other values. For example:
-    console.log("null == 0: ", null == 0) // false, because the null value
+    console.log("null == 0: ", null == 0) // eslint-disable-line no-constant-binary-expression
+                                          // false, because the null value
                                           // is treated as not equal to any
                                           // other value when compared using
                                           // the equality operator,
@@ -123,7 +124,8 @@ export function exploreComparisons() {
 
     // Be careful when mixing ==  and other comparison operators with
     // null or undefined and 0 For example:
-    console.log("null == 0: ", null == 0) // false
+    console.log("null == 0: ", null == 0); // eslint-disable-line no-constant-binary-expression
+                                           // false
 
     //4. Strict inequality operator:
     // The strict inequality operator is used to compare two values for

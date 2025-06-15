@@ -38,7 +38,7 @@
 // The variable f1a is scoped to the function foo.
 /**
  * @function f1
- * @description A function that demonstrates the use use of a var
+ * @description A function that demonstrates the use of a var
  * declaration the results in the variable being scoped to the function.
  */
 export function f1() {
@@ -107,7 +107,10 @@ export function f4() {
 
     // Same reason as above to supress IntelliJ IDEA warnings.
     // noinspection ES6ConvertVarToLetConst, JSDuplicatedDeclaration
-    var a ="Hello, World!"; // Not an error. Redeclaration allowed.
+    var a ="Hello, World!"; // eslint-disable-line no-redeclare
+                            // Not an error. Redeclaration allowed.
+                            // Although, you do have to supress the
+                            // warnings from IntelliJ IDEA and ESLint.
     console.log(a); // Hello, World!
   }
 }

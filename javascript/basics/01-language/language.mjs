@@ -104,6 +104,11 @@
 // I use the Google Javascript style guide for my code.
 // https://google.github.io/styleguide/jsguide.html
 
+// Enabling ESLint
+// A complete description of how to enable ESLint in a project
+// can be found in the file eslint.config.mjs.
+
+// Suppressing warnings from IntelliJ IDEA
 // A note on suppressing ESLint and IntelliJ IDEA warnings.
 // These show up as a comment before the code that is causing the
 // warning. The comment will have the word 'noinspection' followed by
@@ -118,6 +123,22 @@
 // the problems tab of IntelliJ.
 // You can get a complete list of noinspection comment values here:
 // https://gist.github.com/pylover/7870c235867cf22817ac5b096defb768
+
+// Suppressing warnings from ESLint
+// A note on suppressing ESLint warnings.
+// You can suppress ESLint warnings using the 'eslint-disable-next-line'
+// and 'eslint-disable-line' comments.
+//
+// The former is used to suppress warnings for the next line of code,
+// while the latter is used to suppress warnings for the current line,
+// and is placed at the end of the line.
+//
+// The format for these comments is as follows:
+// // eslint-disable-next-line <rule-name, e.g. no-unused-vars>
+// So, for example, to suppress the 'no-unused-vars' warning
+// for the next line of code, you would write:
+// // eslint-disable-next-line no-unused-vars
+// You can see examples of these directives in the code below.
 
 // Note 0: Explore comments in Javascript
 import { exploreComments } from './00-comments.mjs'
@@ -193,11 +214,11 @@ renamedFunction();
 // importing the lodash library. It is not a requirement, but it is
 // a widely used convention. '_' is a valid identifier in Javascript,
 // noinspection ES6UnusedImports
-import _ from 'lodash';
+import _ from 'lodash';  // eslint-disable-line no-unused-vars
 
 // You can import from built-in modules as well.
 // noinspection ES6UnusedImports
-import { readFileSync } from 'fs';
+import { readFileSync } from 'fs'; // eslint-disable-line no-unused-vars
 
 // It is recommended that you specify that you are importing from a
 // builtin module provided by Node.js. This prevents the built-in
@@ -205,12 +226,13 @@ import { readFileSync } from 'fs';
 // of the same name.
 // This is done by using the 'node:' prefix in the import statement.
 // Note the use of 'node:' prefix in the import statement.
+
 // noinspection ES6UnusedImports
-import { readFileSync as readFileSyncFromNode } from 'node:fs';
+import { readFileSync as readFileSyncFromNode } from 'node:fs'; // eslint-disable-line no-unused-vars
 
 // You can import submodules from a module as well.
 // noinspection ES6UnusedImports
-import { readFile as readFilePromisesFromNodeSubmodule } from 'node:fs/promises';
+import { readFile as readFilePromisesFromNodeSubmodule } from 'node:fs/promises'; // eslint-disable-line no-unused-vars
 
 // Note 3: Explore printing in Javascript
 import { explorePrinting } from './03-printing.mjs';
@@ -227,13 +249,18 @@ console.log('HOLIDAYS:', HOLIDAYS);
 
 
 // Note 5: Explore the let keyword
-import { exportedVariable, modifyExportedVariable } from './05-let.mjs';
+import { exportedVariable, modifyExportedVariable, letExample } from './05-let.mjs';
 console.log('exportedVariable:', exportedVariable); // 40
 // exportedVariable cannot be changed directly.
 // exportedVariable = 27; // TypeError: Assignment to constant variable.
 // But it can be modified indirectly.
 modifyExportedVariable(27);
 console.log('exportedVariable:', exportedVariable); // 27
+
+// The letExample function demonstrates the use of the let keyword
+// within functions and blocks, and how it behaves differently from
+// the var keyword.
+letExample()
 
 // Note 6: Explore the var keyword
 import { f1, f2, f3, f4 } from './06-var.mjs';
@@ -243,11 +270,13 @@ f3();
 f4();
 
 // Note 7: Explore implicit globals
+// eslint-disable-next-line no-undef
 console.log(anImplicitGlobal); // Yup, because imports are processed
                                // first, the implicit global is
                                // available even before the import
                                // statement. Don't use implicit globals!
 import './07-implicit-globals.js';
+// eslint-disable-next-line no-undef
 console.log(anImplicitGlobal); // defined in 07-implicit-globals.js:f1()
                                // but is available everywhere without
                                // an import.

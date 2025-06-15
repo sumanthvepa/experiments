@@ -122,9 +122,9 @@ export function exploreControlFlow() {
   switch (x) {
     case 5:
       console.log('x is equal to 5');
-    case 10:
+    case 10: // eslint-disable-line no-fallthrough
       console.log('x is equal to 10');
-    default:
+    default:  // eslint-disable-line no-fallthrough
       console.log('x is not equal to 5 or 10');
   }
 

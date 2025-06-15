@@ -121,14 +121,13 @@ export function exploreObjects() {
   // error if the property does not exist. The bracket notation will
   // return 'undefined' if the property does not exist.
   try {
-    // noinspection JSUnusedLocalSymbols,JSUnresolvedReference
+    // noinspection JSUnresolvedReference
     /**
      * @description Country that person1 is from
      * @type {string}
      */
     let country = person1.country; // Throws an error
-    // noinspection JSUnresolvedReference
-    console.log(person1.country); // New York
+    console.log(country); // New York
   } catch (e) {
     console.error(e);
   }

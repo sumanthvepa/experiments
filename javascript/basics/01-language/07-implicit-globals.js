@@ -39,8 +39,9 @@ function f1() {
    * @global
    * @default 'This is an implicit global'
    */
-  anImplicitGlobal = 'This is an implicit global';
+  anImplicitGlobal = 'This is an implicit global'; // eslint-disable-line no-undef
 }
 f1(); // Call f1 to bring anImplicitGlobal into existence.
+// eslint-disable-next-line no-undef
 console.log(anImplicitGlobal); // Available outside function scope.
                                // Also see language.mjs.

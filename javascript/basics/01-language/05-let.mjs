@@ -118,4 +118,5 @@ export function letExample() {
   // console.log(m); // ReferenceError: Cannot access 'm' before
                      // initialization
   let m = 80;
+  console.log(m); // 80, m is accessible here
 }

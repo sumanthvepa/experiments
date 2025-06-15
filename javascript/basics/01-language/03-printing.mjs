@@ -73,7 +73,7 @@ export function explorePrinting() {
 
   // A more useful way to format output is to use a combination of
   // template literals, number .toFixed method, and string .padStart
-  // methods. This is more flexible then format specifiers.
+  // methods. This is more flexible than format specifiers.
   // see 09-strings.mjs for more information on template literals
   // and how to use them for formatting.
 

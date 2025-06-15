@@ -158,7 +158,7 @@ export function exploreFunctions() {
     }
     // Return the null function if the operation is not recognized.
     // noinspection JSUnusedLocalSymbols
-    return (a, b) => 0
+    return (a, b) => 0; // eslint-disable-line no-unused-vars
   }
   const operation = returnFunction('subtract');
   console.log(operation(10, 5)); // 5

@@ -55,7 +55,7 @@ export function completeTask() {
   // given and proceeds to execute the code in the
   // conditional block if the expression evaluates
   // to true.
-  if (5 > 1) {
+  if (5 > 1) { // eslint-disable-line no-constant-condition
     console.log('5 > 1');
   }
 
