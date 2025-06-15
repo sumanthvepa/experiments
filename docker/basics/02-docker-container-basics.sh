@@ -4,7 +4,7 @@
 # 02-docker-container-basics.sh: Explore basic docker container
 # commands.
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a
@@ -228,7 +228,7 @@ echo '... cleanup completed.'
 
 # The third case is an interactive program running in a
 # container. In this case, the user is provided with a
-# prompt. When the user 'exits' the program the container
+# prompt. When the user 'exits' the program running in the container
 # is stopped, but can be resumed by attaching to the
 # container again. Examples of such a container include
 # containers that run a shell such as bash. Or a container

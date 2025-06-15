@@ -9,7 +9,7 @@
  * language.mjs: A series of notes on the Javascript programming
  * language, written as a collection of Javascript modules and files.
  *
- * Copyright (C) 2024 Sumanth Vepa.
+ * Copyright (C) 2024-25 Sumanth Vepa.
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,16 +35,27 @@
 // are organized as follows:
 // 00-comments.mjs: Explore comments in Javascript
 // 01-hello.js: Print 'Hello, World!' on the console.
-// 02-printing.mjs: Explore printing in Javascript
-// 03-const.mjs: Explore the intricacies of constants
-// 04-let.mjs: Explore the let keyword
-// 05-vars.mjs: Explore the var keyword
-// 06-implicit-globals.js: Explore implicit globals
-// 07-dynamic-typing.mjs: Explore dynamic typing
-// 08-number.mjs: Explore numbers in Javascript
-// 09-strings.mjs: Explore strings in Javascript
-// 10-boolean.mjs: Explore booleans in Javascript
-// 11-regexp.mjs: Explore regular expressions in Javascript
+// 02-imports-and-exports.mjs: Explore imports and exports in Javascript
+// 03-printing.mjs: Explore printing in Javascript
+// 04-const.mjs: Explore the intricacies of constants
+// 05-let.mjs: Explore the let keyword
+// 06-vars.mjs: Explore the var keyword
+// 07-implicit-globals.js: Explore implicit globals
+// 08-dynamic-typing.mjs: Explore dynamic typing
+// 09-number.mjs: Explore numbers in Javascript
+// 10-strings.mjs: Explore strings in Javascript
+// 11-boolean.mjs: Explore booleans in Javascript
+// 12-regexp.mjs: Explore regular expressions in Javascript
+// 13-null-and-undefined.mjs: Explore null and undefined in Javascript
+// 14-type-conversions.mjs: Explore type conversions in Javascript
+// 15-comparisons.mjs: Explore comparisons in Javascript
+// 16-control-flow.mjs: Explore control flow
+// 17-functions.mjs: Explore functions in Javascript
+// 18-objects-and-classes.mjs: Explore objects and classes
+// 19-enumerations.mjs: Explore enumerations
+// 20-callbacks.mjs: Explore callbacks
+// 21-promises.mjs: Explore promises
+// 22-async-await.mjs: Explore async/await
 
 // For more information on the Javascript programming language, see the following
 // references:
@@ -93,6 +104,11 @@
 // I use the Google Javascript style guide for my code.
 // https://google.github.io/styleguide/jsguide.html
 
+// Enabling ESLint
+// A complete description of how to enable ESLint in a project
+// can be found in the file eslint.config.mjs.
+
+// Suppressing warnings from IntelliJ IDEA
 // A note on suppressing ESLint and IntelliJ IDEA warnings.
 // These show up as a comment before the code that is causing the
 // warning. The comment will have the word 'noinspection' followed by
@@ -108,29 +124,132 @@
 // You can get a complete list of noinspection comment values here:
 // https://gist.github.com/pylover/7870c235867cf22817ac5b096defb768
 
+// Suppressing warnings from ESLint
+// A note on suppressing ESLint warnings.
+// You can suppress ESLint warnings using the 'eslint-disable-next-line'
+// and 'eslint-disable-line' comments.
+//
+// The former is used to suppress warnings for the next line of code,
+// while the latter is used to suppress warnings for the current line,
+// and is placed at the end of the line.
+//
+// The format for these comments is as follows:
+// // eslint-disable-next-line <rule-name, e.g. no-unused-vars>
+// So, for example, to suppress the 'no-unused-vars' warning
+// for the next line of code, you would write:
+// // eslint-disable-next-line no-unused-vars
+// You can see examples of these directives in the code below.
+
 // Note 0: Explore comments in Javascript
-import {exploreComments } from './00-comments.mjs'
+import { exploreComments } from './00-comments.mjs'
 exploreComments();
 
 // Note1: Print 'Hello, World!' on the console.
 import './01-hello.js';
 
-// Note2: Explore printing in Javascript
-import { explorePrinting } from './02-printing.mjs';
+// Note 2: Explore imports and exports
+// As a general rule of thumb, I use ES56 import statements
+// for all my imports, rather than the older CommonJS require()
+// statements.
+// There are two types of imports in ES6:
+// 1. Default imports: These are imported without curly braces.
+//    A module can have only one default export.
+// 2. Named imports: These are imported with curly braces.
+//    A module can have multiple named exports, but only one default
+//    export. Named exports are useful when you want to export
+//    multiple values from a module, while default exports are useful
+//    when you want to export a single value from a module.
+
+// Note that no curly braces are used for the default import.
+// Also, note that the path to the module is specified relative to the
+// location of this file. Note that any file modules must be imported
+// with a path.
+import defaultExportedFunction from './02-imports-and-exports.mjs';
+defaultExportedFunction();
+
+// You can use any name for the default import. It does not have to
+// match the name of the exported function in the module.
+
+// Notice that we've imported the same function twice, once as
+// defaultExportedFunction and once as theDefaultExportedFunction.
+// We would not typically do this in production code, but we do it
+// here to demonstrate the that you can import a default export
+// using any name you like, and that the name does not have to match
+// the name of the exported function in the module.
+import theDefaultExportedFunction from './02-imports-and-exports.mjs';
+theDefaultExportedFunction();
+
+// Named imports are imported with curly braces. Unlike default imports,
+// you have to use the exact name of the exported function in the
+// module when you import it.
+import { namedExportedFunction1 } from './02-imports-and-exports.mjs';
+namedExportedFunction1()
+
+// You can import multiple named exports from a module using a single
+import { namedExportedFunction2, namedExportedFunction3 } from './02-imports-and-exports.mjs';
+namedExportedFunction2();
+namedExportedFunction3()
+
+// You can change the name of a named import using the 'as' keyword.
+// Although you must refer to name of the function as it is specified
+// in the module when you alias it.
+import { namedExportedFunction4 as renamedFunction } from './02-imports-and-exports.mjs';
+renamedFunction();
+
+// You can import from npm packages that you have installed in your
+// project. For example, the 'lodash' package is a popular utility
+// library that provides a lot of useful functions for working with
+// arrays, objects, and other data types. You can install it using
+// npm install lodash and then import it in your code.
+// To add it to you package.json file, you can use the command:
+// npm install --save lodash. This will add lodash to the
+// dependencies section of your package.json file. Always do this when
+// you install a package using npm. This way, the package will be
+// automatically installed when you run npm install in your project.
+// Otherwise, the import will fail when you try to run your code after
+// fresh checkout of the project from a version control system.
+
+// Also note the use of _ as the name of the imported module.
+// This is a common convention in the Javascript community for
+// importing the lodash library. It is not a requirement, but it is
+// a widely used convention. '_' is a valid identifier in Javascript,
+// noinspection ES6UnusedImports
+import _ from 'lodash';  // eslint-disable-line no-unused-vars
+
+// You can import from built-in modules as well.
+// noinspection ES6UnusedImports
+import { readFileSync } from 'fs'; // eslint-disable-line no-unused-vars
+
+// It is recommended that you specify that you are importing from a
+// builtin module provided by Node.js. This prevents the built-in
+// module from being overridden by a local or npm installed module
+// of the same name.
+// This is done by using the 'node:' prefix in the import statement.
+// Note the use of 'node:' prefix in the import statement.
+
+// noinspection ES6UnusedImports
+import { readFileSync as readFileSyncFromNode } from 'node:fs'; // eslint-disable-line no-unused-vars
+
+// You can import submodules from a module as well.
+// noinspection ES6UnusedImports
+import { readFile as readFilePromisesFromNodeSubmodule } from 'node:fs/promises'; // eslint-disable-line no-unused-vars
+
+// Note 3: Explore printing in Javascript
+import { explorePrinting } from './03-printing.mjs';
 explorePrinting()
 
-// Note 3: Explore the intricacies of constants
+// Note 4: Explore the intricacies of constants
 // DAYS_PER_WEEK is a default import hence the lack of curly braces
-import DAYS_PER_WEEK from './03-const.mjs';
+import DAYS_PER_WEEK from './04-const.mjs';
 // HOLIDAYS is a named import hence the curly braces
 // A module can have multiple named exports but only one default export
-import { HOLIDAYS } from './03-const.mjs';
+import { HOLIDAYS } from './04-const.mjs';
 console.log('DAYS_PER_WEEK:', DAYS_PER_WEEK);
 console.log('HOLIDAYS:', HOLIDAYS);
 
 
-// Note 4: Explore the let keyword
-import { exportedVariable, modifyExportedVariable } from './04-let.mjs';
+// Note 5: Explore the let keyword
+import { exportedVariable, modifyExportedVariable, letExample } from './05-let.mjs';
 console.log('exportedVariable:', exportedVariable); // 40
 // exportedVariable cannot be changed directly.
 // exportedVariable = 27; // TypeError: Assignment to constant variable.
@@ -138,95 +257,103 @@ console.log('exportedVariable:', exportedVariable); // 40
 modifyExportedVariable(27);
 console.log('exportedVariable:', exportedVariable); // 27
 
-// Note 5: Explore the var keyword
-import { f1, f2, f3, f4 } from './05-vars.mjs';
+// The letExample function demonstrates the use of the let keyword
+// within functions and blocks, and how it behaves differently from
+// the var keyword.
+letExample()
+
+// Note 6: Explore the var keyword
+import { f1, f2, f3, f4 } from './06-var.mjs';
 f1();
 f2();
 f3();
 f4();
 
-// Note 6: Explore implicit globals
+// Note 7: Explore implicit globals
+// eslint-disable-next-line no-undef
 console.log(anImplicitGlobal); // Yup, because imports are processed
                                // first, the implicit global is
                                // available even before the import
                                // statement. Don't use implicit globals!
-import './06-implicit-globals.js';
-console.log(anImplicitGlobal); // defined in 06-implicit-globals.js:f1()
+import './07-implicit-globals.js';
+// eslint-disable-next-line no-undef
+console.log(anImplicitGlobal); // defined in 07-implicit-globals.js:f1()
                                // but is available everywhere without
                                // an import.
 
-// Note 7: Explore dynamic typing
-import './07-dynamic-typing.mjs';
+// Note 8: Explore dynamic typing
+import './08-dynamic-typing.mjs';
 
-// Note 8: Explore numbers in Javascript
-import { exploreNumbers} from './08-number.mjs';
+// Note 9: Explore numbers in Javascript
+import { exploreNumbers} from './09-number.mjs';
 exploreNumbers();
 
-// Note 9: Explore strings in Javascript
-import { exploreStrings } from './09-strings.mjs';
+// Note 10: Explore strings in Javascript
+import { exploreStrings } from './10-strings.mjs';
 exploreStrings()
 
-// Note 10: Explore booleans in Javascript
-import { taskCompleted, completeTask } from './10-boolean.mjs';
+// Note 11: Explore booleans in Javascript
+import { taskCompleted, completeTask } from './11-boolean.mjs';
 if (!taskCompleted) {
   completeTask();
 }
 console.log('taskCompleted:', taskCompleted); // true
 
-// Note 11: Explore regular expressions in Javascript
-import { exploreRegexps} from './11-regexp.mjs';
+// Note 12: Explore regular expressions in Javascript
+import { exploreRegexps} from './12-regexp.mjs';
 exploreRegexps();
 
-// Note 12: Explore null and undefined in Javascript
-import { exploreNullAndUndefined } from './12-null-and-undefined.mjs';
+// Note 13: Explore null and undefined in Javascript
+import { exploreNullAndUndefined } from './13-null-and-undefined.mjs';
 exploreNullAndUndefined();
 
-// Note 13: Explore type conversions in Javascript
-import { exploreTypeConversion } from './13-type-conversions.mjs';
+// Note 14: Explore type conversions in Javascript
+import { exploreTypeConversion } from './14-type-conversions.mjs';
 exploreTypeConversion();
 
 
-// Note 14: Explore comparisons in Javascript
-import { exploreComparisons } from './14-comparisons.mjs';
+// Note 15: Explore comparisons in Javascript
+import { exploreComparisons } from './15-comparisons.mjs';
 exploreComparisons();
 
-// Note 15: Explore control flow
-import { exploreControlFlow } from './15-control-flow.mjs';
+// Note 16: Explore control flow
+import { exploreControlFlow } from './16-control-flow.mjs';
 exploreControlFlow();
 
-// Note 16: Explore functions in Javascript
-import { exploreFunctions } from './16-functions.mjs';
+// Note 17: Explore functions in Javascript
+import { exploreFunctions } from './17-functions.mjs';
 exploreFunctions();
 
-// Note 17: Explore objects and classes
+// Note 18: Explore objects and classes
 import {
   exploreObjects,
   exploreClasses,
   exploreObjectInheritance,
   exploreConstructorFunctionBasedClasses,
   exploreClassInheritance
-} from './17-objects-and-classes.mjs';
+} from './18-objects-and-classes.mjs';
 exploreObjects();
 exploreObjectInheritance();
 exploreConstructorFunctionBasedClasses();
 exploreClasses();
 exploreClassInheritance();
 
-// Note 18: Explore enumerations
-import { exploreEnumerations } from "./18-enumerations.mjs";
+// Note 19: Explore enumerations
+import { exploreEnumerations } from "./19-enumerations.mjs";
 exploreEnumerations();
 
-// Note 19: Explore callbacks
-import { exploreCallbacks } from "./19-callbacks.mjs";
+// Note 20: Explore callbacks
+import { exploreCallbacks } from "./20-callbacks.mjs";
 exploreCallbacks();
 
-// Note 20: Explore promises
-import { explorePromises } from "./20-promises.mjs";
+// Note 21: Explore promises
+import { explorePromises } from "./21-promises.mjs";
 explorePromises();
 
+// Note 22: Explore async/await
 import {
   exploreAsyncAwait,
-  exploreCallingAsyncFunctionsFromWithinNonAsyncFunctions } from "./21-async-await.mjs";
+  exploreCallingAsyncFunctionsFromWithinNonAsyncFunctions } from "./22-async-await.mjs";
 await exploreAsyncAwait();
 // Call a non-async function that calls an async function
 exploreCallingAsyncFunctionsFromWithinNonAsyncFunctions();

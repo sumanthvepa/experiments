@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------
 # psql_binary_path.sh: Determine the path to the psql client binary
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a
@@ -26,7 +26,7 @@
 # scripts to determine the path to the psql client binary.
 
 # This function checks if the user has defined PSQL_BINARY and if so
-# checks if it is a valid path to a binary. The path is set but does
+# checks if it is a valid path to a binary. If the path is set but does
 # not point to a valid binary, it will return an error. Otherwise, it
 # returns the value of PSQL_BINARY. If PSQL_BINARY is not set, it
 # looks in some standard places: /usr/bin/psql and

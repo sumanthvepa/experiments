@@ -5,7 +5,7 @@
  * language.kt: A series of notes on the Kotlin programming
  * language, written as a collection of Kotlin packages and files.
  *
- * Copyright (C) 2024 Sumanth Vepa.
+ * Copyright (C) 2024-25 Sumanth Vepa.
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,6 @@
  * along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  -------------------------------------------------------------------*/
-
 package sv.basics
 
 /**

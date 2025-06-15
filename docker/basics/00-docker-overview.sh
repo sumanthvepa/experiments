@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------
 # 00-docker-overview.sh: Print out an overview of docker
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a

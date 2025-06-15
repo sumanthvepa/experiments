@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------
- * 04-server.mjs: A configurable express server that returns
+ * 08-server.mjs: A configurable express server that returns
  * "Hello, World!"
  *
  * Copyright (C) 2024 Sumanth Vepa.

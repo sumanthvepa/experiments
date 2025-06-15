@@ -4,7 +4,7 @@
 # 04-docker-kill-top-stats.sh: Explore docker container kill, top and
 # stats commands
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a
