@@ -1,3 +1,5 @@
+[DONE]issue135-boilerplate-generator:
+  Create a script that generates a minimal boilerplate website
 issue134-javascript-basics-00setup:
   Open issue exploring setup of a javascript/node project
 [DONE]issue133-macos-ip-forwarding: Explore ip forwarding on macOS
