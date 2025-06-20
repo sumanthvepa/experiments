@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Demonstration of a sticky footer copyright notice.",
   "scripts": {
-    "start": "http-server --port=5000",
+    "start": "http-server --port=5001",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

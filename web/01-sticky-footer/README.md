@@ -81,6 +81,12 @@ to test it on Windows.
 ### Which Browser to Use for Development
 My preferrence for development is to use Firefox.
 
+## Design
+The design of the boilerplate site was made Adobe Illustrator.
+This site does not implement the background image layer. To see
+what the site as designed in Illustrator, go to the layers tab
+and turn off the layer with the image.
+
 ## Notes on HTML and CSS
 Please see the HTML, CSS and Javascript files for comments
 describing everything in them.

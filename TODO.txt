@@ -1,4 +1,4 @@
-issue139-01-stickey-footer:
+[DONE]issue139-01-stickey-footer:
   Demonstrate the implementation of a sticky footer in CSS.
 [DONE]issue138-make-woff:
   Scripts to convert TIFF font files to WOFF and WOFF2 formats
