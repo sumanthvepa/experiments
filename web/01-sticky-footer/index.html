@@ -1,0 +1,285 @@
+<!doctype html>
+<!--
+  The html declaration below is the root element of an HTML document.
+
+  "no-js" Design Pattern
+  ----------------------
+  Note the class "no-js" which is used to indicate that JavaScript
+  is not enabled. The primary purpose is to provide a fallback for
+  CSS styles or behaviors that rely on JavaScript.
+
+  This is a common design pattern that allows you to apply styles
+  or behaviors to elements when JavaScript is not enabled or
+  available.
+
+  The idea is that the first javascript file that runs on the page
+  will remove the "no-js" class from the html element and add a
+  "js" class. The code would look like this:
+  <script>
+    document.documentElement.className
+      = document.documentElement.classList.replace('no-js', 'js');
+  </script>
+
+  You can design your CSS to apply different styles based on the
+  presence of the "no-js" or "js" class. For example, if your
+  application relies on JavaScript to implement a dropdown menu, where
+  clicking on a button toggles the visibility of a menu, you can use
+  the no-js class to show alternate navigation style where all of the
+  menus items are always visible. (TODO: Maybe cover this technique
+  in a future prototype e.g. "02-dropdown-menu-no-js".)
+
+  This allows for progressive enhancement, where the website becomes
+  more interactive and feature-rich when JavaScript is enabled, while
+  still providing a functional experience for users without
+  JavaScript.
+
+  In general though, it is better to design the website to be fully
+  functional without any JavaScript.
+
+  A finally, very important use of the "no-js" class is to allow the
+  CSS styling to display content that is visible to non-human user
+  agents, like search engine crawlers, and LLM crawlers. This makes
+  for better SEO and LLM results.
+
+
+  The lang attribute
+  ------------------
+  The lang attribute specifies the language of the document.
+  The value "en" indicates that the document is in English.
+  You could get more specific by using a language code like "en-US"
+  or "en-GB" to indicate a specific variant of English, but "en" is
+  a good default for most cases.
+
+  The lang attribute is important for accessibility and search
+  engines, as it helps them understand the language of the content.
+
+  See documentation on the lang attribute in Mozilla's MDN
+  Documentation:
+  https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang
+
+  The HTTP protocol allows a Accept-Language header to be sent by
+  the browser to indicate the user's preferred language. A correctly,
+  configured web server will use this header to serve an HTML document
+  with the appropriate lang attribute.  The HTML might be generated
+  dynamically or statically. If static, it is recommended to name
+  the HTML file with the language code, like "index.en.html" or
+  "index.en-US.html", so that the web server can serve the correct
+  file based on the Accept-Language header. This is not a requirement,
+  and also the web server must be configured to serve the correct
+  file based on the Accept-Language header.
+
+  For most of the prototype explorations in this repository,
+  we wll just set the lang attribute to "en" and only serve
+  index.html. If time permits, I will explore a setup that
+  serves different HTML files based on the Accept-Language header.
+  (TODO: nn-multilingual-website)
+  See Mozilla's MDN Documentation on the Accept-Language header
+  https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Accept-Language
+  for more information on the Accept-Language header.
+-->
+<html class="no-js" lang="en">
+<head>
+  <!--
+    meta tags are used to provide metadata about the HTML document.
+    Full documentation on meta tags can be found in Mozilla's MDN
+    Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta
+    The charset meta tag specifies the character encoding for the HTML
+    document. I've never seen anything other than "utf-8" used.
+  -->
+  <meta charset="utf-8">
+  <!--
+    The viewport meta tag is used to control the layout on mobile browsers.
+
+    This is required for responsive web design. Details on why this
+    works is described in Mozilla's MDN Documentation:
+    https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Viewport_meta_element
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!--
+    The title of the page as shown in the browser's title bar or tab.
+
+    Goog title tags are important for SEO and should be descriptive
+    of the content of the page. The title should be concise and
+    relevant to the content of the page. It should also be unique
+    for each page on the website.
+  -->
+  <title>01-sticky-footer: Implementation of a CSS Sticky Footer</title>
+  <!--
+    The link below loads the stylesheet for this website. You can have
+    multiple stylesheets as link tags. The browser will load them and
+    treat them as one large stylesheet that contains all the styles
+    for your website.
+
+    If multiple stylesheets links are present, the browser will load
+    them in parallel. But the order of the link tags determines the
+    order in which the styles are applied. The last stylesheet
+    link tag will override the styles of the previous ones if there
+    are any conflicts.
+  -->
+  <link rel="stylesheet" href="css/main.css">
+  <!--
+    The meta tags below are used to provide metadata about the HTML
+    document. They are used by search engines and social media platforms
+    to display information about the page when it is shared.
+
+    The description meta tag provides a brief summary of the page's content.
+    It is often used by search engines to display a snippet of the page
+    in search results. It should be concise and relevant to the content
+    of the page.
+  -->
+  <meta name="description" content="
+    This website is implementation of a CSS sticky footer.
+    The sticky footer is a common design pattern that keeps the footer
+    at the bottom of the page, even when the content is not tall enough
+    to fill the viewport.
+
+    Additionally, the README.md file, and comments in the HTML, CSS and
+    Javascript file on this page provide a detailed explanation what
+    of the various elements in a website are are, and how they work.">
+
+  <!--
+    The og: tags are Open Graph meta tags.
+    They are used by social media platforms to display information
+    about the page when it is shared on social media.
+
+    Of course the site should be reachable from the Internet for
+    this to work. If your page cannot be reached from the open
+    Internet, then these tags serve no purpose.
+   -->
+  <meta property="og:title"
+    content="01-sticky-footer: Implementation of a CSS Sticky Footer">
+  <meta property="og:type" content="
+    This website is implementation of a CSS sticky footer.
+    The sticky footer is a common design pattern that keeps the footer
+    at the bottom of the page, even when the content is not tall enough
+    to fill the viewport.
+
+    Additionally, the README.md file, and comments in the HTML, CSS and
+    Javascript file on this page provide a detailed explanation what
+    of the various elements in a website are are, and how they work.">
+
+  <!--
+    Should contain the canonical URL of the page.
+    This is the URL that you want search engines to index.
+    It should be the same as the URL of the page when it is
+    accessed from the open Internet.
+
+    Note that IntelliJ IDEA will complain about http URLs (suggesting
+    that you use https URLs instead), but this is just a prototype
+    and the URL is not reachable from the open Internet, so it
+    doesn't really matter. In a production website, you should
+    use https URLs for the canonical URL.
+
+    To supress the warning in IntelliJ IDEA, you can add
+    suppress comment below.
+   -->
+  <!--suppress HttpUrlsUsage -->
+  <meta property="og:url" content="http://darkness2.milestone42.com:5000/">
+  <!--
+    The image that will be used when the page is shared on social media. I
+    usually use 16:9 aspect ratio images at a resolution of 960x540 for this
+    purpose.
+  -->
+  <meta property="og:image" content="img/og-image.png">
+  <!--
+    The alt text for the image that will be used when the page is shared
+    on social media. This is important for accessibility and should
+    describe the image in a concise and relevant way.
+  -->
+  <meta property="og:image:alt"
+    content="16x9 screenshot of this website showing the sticky footer in action.">
+
+  <!--
+    The favicon is the small icon that appears in the browser's
+    address bar and in the bookmarks. It is also used by some
+    social media platforms to display an icon for the page when it
+    is shared.
+
+    The image is a Windows Icon (.ico) format file, which is can
+    contain multiple images at different sizes. The browser will
+    automatically select the appropriate size based on the context.
+
+    To create a favicon, in .ico format, first create 512x512 pixel
+    PNG image, Then use the convert command from the ImageMagick
+    package to convert the PNG image to ICO format:
+    convert icon.png -define icon:auto-resize=16,32,48,64,128,256 favicon.ico
+
+    You can install ImageMagick on RHEL, AlmaLinux, or CentOS with the
+    command:
+    sudo dnf install ImageMagick
+  -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <!--
+    The link below is used to provide a favicon in SVG format.
+    This is a modern format that is supported by most browsers.
+    It is recommended to use an SVG favicon because it is scalable
+    and can be used at any size without losing quality.
+   -->
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <!--
+    The link below is used to satisfy requests from Safari and iOS
+    devices for a touch icon. This is the icon that appears when
+    the user adds the page to their home screen on iOS devices.
+  -->
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <!--
+    The link below is used to provide a web app manifest file.
+    This file is used by browsers to provide a more app-like experience
+    when the page is added to the home screen on mobile devices.
+    It contains information about the app, such as its name, icons,
+    and theme color.
+  -->
+  <link rel="manifest" href="site.webmanifest">
+  <!--
+    The theme-color meta tag is used to set the color of the browser's
+    address bar and other UI elements. This is a modern feature that
+    is supported by most mobile browsers.
+    The color should be a valid CSS color value, such as a hex code or
+    a named color.
+  -->
+  <meta name="theme-color" content="#181818">
+
+  <!--
+    This is the main JavaScript file for this website.
+
+    The "defer" attribute tells the browser to load the script
+    asynchronously and execute it only after the HTML document
+    has been completely parsed.
+
+    The alternative to using defer is to place the script tag
+    at the end of the body element, just before the closing
+    </body> tag. I prefer to use the defer attribute because it
+    keeps all non-display related tags in the head element.
+
+    The only thing this script does is to remove the
+    "no-js" class from the html element and add a "js" class.
+  -->
+  <script src="js/js-enabled.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Boilerplate</h1>
+  </header>
+  <main>
+    <p>
+      This is a boilerplate website that can be used as the basis for new website
+      development.
+    </p>
+    <p>
+      Instructions on how to create a site like this can be found in the file
+      <a href="README.md">README.md</a> in the git repository.
+    </p>
+  </main>
+  <footer>
+    <p>
+      Copyright &copy; 2024-25. Sumanth Vepa.
+    </p>
+    <p>
+      This website is licensed under the GNU General Public License
+      v3.0 (GPL-3.0) (or any later version).
+    </p>
+  </footer>
+</body>
+</html>

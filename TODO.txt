@@ -1,4 +1,7 @@
-[DONE]issue138-make-woff: Scripts to convert TIFF font files to WOFF and WOFF2 formats
+issue139-01-stickey-footer:
+  Demonstrate the implementation of a sticky footer in CSS.
+[DONE]issue138-make-woff:
+  Scripts to convert TIFF font files to WOFF and WOFF2 formats
 issue137-web-fonts: Fonts for various web experiments
 [DONE]issue136-web-00-boilerplate: Create a basic website which just boilerplate
 [DONE]issue135-boilerplate-generator:

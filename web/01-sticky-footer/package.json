@@ -1,0 +1,20 @@
+{
+  "name": "01-sticky-footer",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Demonstration of a sticky footer copyright notice.",
+  "scripts": {
+    "start": "http-server --port=5000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "css",
+    "sticky-footer"
+  ],
+  "author": "Sumanth Vepa",
+  "license": "GPL-3.0+",
+  "devDependencies": {
+    "html5-boilerplate": "^9.0.1",
+    "http-server": "^14.1.1"
+  }
+}
