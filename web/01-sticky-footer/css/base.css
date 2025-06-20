@@ -1,0 +1,349 @@
+/* These are base styles from HTML5 Boilerplate and Main.css. */
+/* The code below is licensed under the MIT License. */
+/*! HTML5 Boilerplate v9.0.1 | MIT License | https://html5boilerplate.com/ */
+
+/* main.css 3.0.0 | MIT License | https://github.com/h5bp/main.css#readme */
+/*
+ * What follows is the result of much research on cross-browser styling.
+ * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
+ * Kroc Camen, and the H5BP dev community and team.
+ */
+
+/* ==========================================================================
+   Base styles: opinionated defaults
+   ========================================================================== */
+
+html {
+  color: #181818;
+  /*
+    em is a relative unit of measurement. It 1em is equal to font size
+    of the current element's parent element. If the parent element has
+    a font size of 16px, then 1em is equal to 16px. If the parent
+    element has a font size of 20px, then 1em is equal to 20px.
+
+    For the root element (html), that has no parent element, 1em is
+    equal to the browser's default font size, which is usually 16px.
+    */
+  font-size: 1em;
+  /*line-height: 1.4;*/
+}
+
+/*
+ * Remove text-shadow in selection highlight:
+ * https://twitter.com/miketaylr/status/12228805301
+ *
+ * Customize the background color to match your design.
+ */
+
+::-moz-selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+::selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+/*
+ * A better looking default horizontal rule
+ */
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
+}
+
+/*
+ * Remove the gap between audio, canvas, iframes,
+ * images, videos and the bottom of their containers:
+ * https://github.com/h5bp/html5-boilerplate/issues/440
+ */
+
+audio,
+canvas,
+iframe,
+img,
+svg,
+video {
+  vertical-align: middle;
+}
+
+/*
+ * Remove default fieldset styles.
+ */
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Allow only vertical resizing of textareas.
+ */
+
+textarea {
+  resize: vertical;
+}
+
+
+/*-------------------------------------------------------------------
+ * Site specific styles.
+ * These styles are specific to this website and are not part of the
+ * HTML5 Boilerplate supplied styles. These styles are licensed under
+ * the GNU General Public License v3.0 or later (at your option).
+-------------------------------------------------------------------*/
+/* -------------------------------------------------------------------
+ * Site specific styles for Boilerplate.
+ *
+ * Copyright (C) 2024-25 Sumanth Vepa.
+ *
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ -------------------------------------------------------------------*/
+/**
+  The @font-face rule allows you to show custom fonts on your website.
+
+  This example uses the Noto Sans font, which is a free and open-source
+  font family designed to cover all languages supported by Unicode.
+  It is available for download from Google Fonts.
+
+  The downloaded font files are in .tiff format. However, for web
+  usage, it is recommended to convert them to .woff and .woff2 format
+  for better performance and compatibility across different browsers.
+
+  To convert the .tiff files. Run the following two scripts in the
+  terminal to convert the font files to .woff and .woff2 format:
+  make_woff.sh  *.ttf # Will convert all .ttf files to .woff format
+  make_woff2.sh *.ttf # Will convert all .ttf files to .woff2 format
+
+  These two scripts are located in the root directory of this project.
+  Once you have converted the font files, make symbolic links to the
+  ones you need in the /css/fonts directory.
+ */
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: normal; /* This is the same as regular */
+  font-style: normal;  /* Non-italic */
+  src: url("/css/fonts/NotoSans-Regular.woff2") format("woff2"),
+       url("/css/fonts/NotoSans-Regular.woff") format("woff");
+
+  /*
+    The font-display property controls how the font is displayed while
+    it is loading. 'swap' means that the text should be displayed with
+    a fallback font until the custom font is loaded.
+
+    The default value is 'auto', which means that the browser
+    will decide how to display the font based on its own heuristics.
+
+    Stick to the default value of 'auto' unless you believe that font
+    loading will be a problem for your users. In that case, you can
+    use 'swap' to ensure that text is displayed as soon as possible,
+
+    For this example, we use 'fallback' to ensure that the text
+    is displayed with a fallback font if the custom font does
+    not load within a reasonable time. This is a good compromise
+    for low bandwidth connections or slow loading times.
+
+    For a full explanation of the font-display property, see:
+    https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display
+  */
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 500;
+  font-style: normal; /* Non-italic */
+  src: url("/css/fonts/NotoSans-Medium.woff2") format("woff2"),
+       url("/css/fonts/NotoSans-Medium.woff") format("woff");
+  font-display: fallback;
+}
+
+
+body {
+  /*
+    Set the base font size to 18px, which is a good size for
+    readability
+   */
+  /* Note the use of rem instead of px or em. rem is a relative unit
+     that is based on the root element's font size, as opposed to the
+     font size of the parent element. This makes it easier to structure
+     a CSS stylesheet.
+     Since the root element is specified as 1em, this technique
+     of using 1em for the root (html) element and rem for all the other
+     elements, allows for better scalability and accessibility,
+     as users can change the base font size in their browser settings,
+     and the rest of the page will adjust accordingly.
+  */
+  font-size: 1.125rem; /* 18px */
+  font-family: 'Noto Sans', sans-serif;
+  background-color: #181818;
+  color: #cccccc;
+  min-width: 375px; /* Minimum width for page. Roughly corresponds to
+                       the width of an iPhone SE */
+
+  margin: 24px; /* 24px margin all around the page */
+  /*
+    We set the minimum height of the body to 100dvh, but this sets
+    the content area to be 100% of the dynamic viewport height.
+    But this would cause size of page to be larger than the viewport
+    because of the 24px margin on the top and bottom. To avoid this,
+    we subtract 48px from the 100dvh value when we set min-height for
+    the content area height. This ensures that the content area
+    fits within the viewport height.
+
+    Note that we have change the min-height of the body if the margin
+    size is change for smaller screens (as is the case with the media
+    query below).
+
+    Note on vh and dvh units:
+    vh is a unit that stands for "viewport height". 1vh is equal to
+    1% of the height of the viewport. However, on mobile devices,
+    the viewport height can change when the address bar is shown or
+    hidden, which can cause the content to shift or overflow.
+    dvh is a unit that stands for "dynamic viewport height". 1dvh is
+    equal to 1% of the height of the viewport, but it takes into
+    account the dynamic changes in the viewport height, such as when
+    the address bar is shown or hidden. This makes it more reliable
+    for setting the height of elements that need to fit within the
+    viewport, especially on mobile devices.
+
+    Sticky footer Implementation
+    A sticky footer is a footer that stays at the bottom of the
+    viewport, even when there is not enough content to fill the page.
+    If the content is taller than the viewport, the footer will
+    move down to the bottom of the content, but if the content is
+    shorter than the viewport, the footer will stay at the bottom of
+    the viewport.
+
+    The min-height setting is part of the core technique for
+    implementing a sticky footer using flexbox.
+    1. Set the minimum height of the body to 100dvh - minus any
+       margins or padding that you have set on the body element.
+    2. Set the body element to be a flex container with a column
+        direction. This allows the body to stretch to fill the
+        available height of the viewport.
+    3. Set margin-top property on the footer element to auto.
+       (See layout.css for the footer style.)
+       This causes the margin on the footer to take up all availeble
+       space above the footer and below the previous elements in the
+       body container.
+       This has the effect of pushing the footer to the bottom of the
+       page, and ensures that it is at the bottom of the
+       viewport, even if there is not enough content to fill the
+       entire height
+       of the page.
+   */
+  min-height: calc(100dvh - 48px);
+
+  /*
+    We are using flexbox to layout the page.
+    display: flex; specifies that the body element is a flex container.
+
+    We're doing this so that we can use flexbox to create a sticky
+    footer. (See the comment above for more details.)
+  */
+  display: flex;
+  /*
+    flex-direction: column; specifies that the flex items (the
+    children of the body element) should be arranged in a column.
+    This means that the items will be stacked vertically, one below
+    the other, instead of being arranged in a row.
+
+    We are doing this as part of the sticky footer implementation.
+    (See the comment above for more details.)
+  */
+  flex-direction: column;
+}
+@media(max-width: 600px) {
+  body {
+    /*
+      For screens smaller than 600px, we reduce the margin
+      to 12px to make better use of the available space.
+      This is especially useful for mobile devices.
+    */
+    margin: 12px; /* 12px margin all around the page */
+
+    /*
+      We also reduce the minimum height of the body to 100dvh - 24px
+      to account for the reduced margin size.
+      This ensures that the content area fits correctly within the
+      viewport height.
+    */
+    min-height: calc(100dvh - 24px);
+  }
+}
+
+h1 {
+  font-family: 'Noto Sans', sans-serif;
+  font-weight: 500;
+  font-size: 9rem; /* 144px */
+  color: #ffd221; /* Construction Yellow */
+  margin: 96px 0 36px 0; /* 96px top margin, 0 right margin,
+                            24px bottom margin, 0 left margin */
+}
+/**
+  Define smaller heading sizes for screens with width less than 776px.
+  Why 776px? Because that is the width of the text 'Boilerplate' in
+  the h1 heading (in index.html). All the area to the right of
+  'Boilerplate' will not be used for any content. Even if the screen
+  is bigger than 776px. This design requires that the text beneath the
+  heading fits entirely underneath the heading.
+  For screens smaller than 776px, the heading will be smaller, and
+  and the text beneath it will need to fit in the narrower space,
+  and hence flow downwards.
+*/
+@media(max-width: 776px) {
+  /**
+    Less then 776 px, we make the heading smaller
+    104px is the size that causes the heading text
+    to just about fit in a 600px wide screen, with
+    margins of 24px on either side.
+   */
+  h1 {
+    font-size: 6.5rem; /* 104px */
+  }
+}
+@media(max-width: 600px) {
+  /**
+    Less then 600 px, we make the heading smaller
+    64px is the size that causes the heading text
+    to just about fit in the smallest screen that we
+    that this website supports (375px).
+   */
+  h1 {
+    font-size: 4rem; /* 80px */
+    margin: 72px 0 24px 0; /* 72px top margin, 0 right margin,
+                            24px bottom margin, 0 left margin */
+  }
+}
+
+a:link {
+  color: #d2abff;
+}
+
+a:visited {
+  color: #b39ddb;
+}
+
+a:hover {
+  color: #f0e6ff;
+  text-decoration: underline;
+}

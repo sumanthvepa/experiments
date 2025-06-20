@@ -41,8 +41,9 @@ files from the html5-boilerplate package to the project directory:
    ```bash
    boilerplate.sh
    ```
-   This script is both idempotent and fail-save. You can run it multiple 
-   times without issues, and it will not overwrite existing files.
+   This script is both idempotent and fail-save. You can run it
+   multiple times without issues, and it will not overwrite existing
+   files.
 8. Install a local web server for testing purposes:
    ```bash
    npm install http-server --save-dev
@@ -62,3 +63,11 @@ Now you're done. You can open your web browser and navigate to
 [http://localhost:5000](http://localhost:5000) (or if you are running 
 in a VM, use the name or IP address of the VM) to see your static
 website in action.
+
+## Setting Up the IntelliJ IDEA Project
+For the most part setting up an IntelliJ IDEA project should be
+identical to the process outlined in /javascript/basics/00-setup.
+
+Just remember to mark the directory 00-boilerplate as sources root.
+Other than that you're good to go.
+

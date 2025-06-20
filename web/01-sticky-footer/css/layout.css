@@ -1,0 +1,19 @@
+
+footer {
+  /*
+    This directive tells the browser to calculate the top margin of
+    the footer in such a way that it takes up all available space
+    above it, effectively pushing it to the bottom of the container.
+
+    Along with the flexbox properties of the parent container,
+    this ensures that the footer remains at the bottom of the page
+    or get pushed down if the content grows beyond the viewport.
+
+    This is the final part of sticky footer implementation.
+    (See the comment in the body selector for how the sticky footer
+    is implemented.)
+   */
+  margin-top: auto;
+  font-size: 0.875rem;
+  color: #999999;
+}
