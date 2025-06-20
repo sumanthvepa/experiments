@@ -1,3 +1,5 @@
+[DONE]issue140-javascript-basics-08-express-server:
+  Update node packages and add linting support
 [DONE]issue139-01-stickey-footer:
   Demonstrate the implementation of a sticky footer in CSS.
 [DONE]issue138-make-woff:
