@@ -1,0 +1,13 @@
+
+footer {
+  /*
+    Create a sticky footer that stays at the bottom of the page.
+    This is achieved by using flexbox on the body element
+    and setting the footer to have a margin-top of auto.
+    See 01-sticky-footer for details.
+   */
+  font-family: 'Mohave', sans-serif;
+  font-weight: 300;
+  font-size: 0.875rem;
+  margin-top: auto;
+}

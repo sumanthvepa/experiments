@@ -1,0 +1,44 @@
+/*
+  There an be only one logo on the page, so we can use an ID selector.
+  The height is set to 3rem for anything larger than 600px and
+  to 2.25rem for screens smaller than 600px.
+ */
+#logo {
+  height: 3rem; /* 48px */
+  width: auto;
+}
+@media (max-width: 600px) {
+  #logo {
+    height: 2.25rem; /* 36px */
+  }
+}
+
+/*
+  These classes are used to style the SVG elements within the logo
+  The logo-text class is used for path elements for each of the
+  letters in the logo (netfinet)
+
+  We use fill instead of color because these are SVG path elements,
+  and the color property does not apply to them.
+
+  The color entry is retained as a comment in case we want to
+  switch to using a text element in the future.
+
+  We use inline SVG for the logo, so we can style it directly
+  with CSS. This allows us to change the color of the logo
+  without needing to modify the SVG file itself.
+*/
+.logo-text {
+  /*color: #35637c; */ /* Slate blue */
+  fill: #35637c;
+}
+
+/*
+  This class, is used to style the dot above the "i" in the logo.
+  Once again, we use fill instead of color because this is an SVG
+  ellipse element and not a text element.
+ */
+.logo-dot {
+  /*color: #cc5858; */ /* Indian Red */
+  fill: #cc5858;
+}
