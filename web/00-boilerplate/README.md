@@ -14,7 +14,7 @@ This section describes the steps taken to create this project.
 1. Create a new directory for the project.
 2. Run the following command to initialize a new NPM project:
    ```bash
-   npm init -y
+   npm init
    ```
 3. Remove the "main" field from the `package.json` file, as this 
 project does not have a main Javascript entry point:
