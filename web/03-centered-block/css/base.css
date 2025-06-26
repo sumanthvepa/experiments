@@ -1,0 +1,178 @@
+/* These are base styles from HTML5 Boilerplate and Main.css. */
+/* The code below is licensed under the MIT License. */
+/*! HTML5 Boilerplate v9.0.1 | MIT License | https://html5boilerplate.com/ */
+
+/* main.css 3.0.0 | MIT License | https://github.com/h5bp/main.css#readme */
+/*
+ * What follows is the result of much research on cross-browser styling.
+ * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
+ * Kroc Camen, and the H5BP dev community and team.
+ */
+
+/* ==========================================================================
+   Base styles: opinionated defaults
+   ========================================================================== */
+
+html {
+  color: #333333;
+  /*
+    em is a relative unit of measurement. It 1em is equal to font size
+    of the current element's parent element. If the parent element has
+    a font size of 16px, then 1em is equal to 16px. If the parent
+    element has a font size of 20px, then 1em is equal to 20px.
+
+    For the root element (html), that has no parent element, 1em is
+    equal to the browser's default font size, which is usually 16px.
+    */
+  font-size: 1em;
+  /*line-height: 1.4;*/
+}
+
+/*
+ * Remove text-shadow in selection highlight:
+ * https://twitter.com/miketaylr/status/12228805301
+ *
+ * Customize the background color to match your design.
+ */
+
+::-moz-selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+::selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+/*
+ * A better looking default horizontal rule
+ */
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
+}
+
+/*
+ * Remove the gap between audio, canvas, iframes,
+ * images, videos and the bottom of their containers:
+ * https://github.com/h5bp/html5-boilerplate/issues/440
+ */
+
+audio,
+canvas,
+iframe,
+img,
+svg,
+video {
+  vertical-align: middle;
+}
+
+/*
+ * Remove default fieldset styles.
+ */
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Allow only vertical resizing of textareas.
+ */
+
+textarea {
+  resize: vertical;
+}
+
+
+/*-------------------------------------------------------------------
+ * Site specific styles.
+ * These styles are specific to this website and are not part of the
+ * HTML5 Boilerplate supplied styles. These styles are licensed under
+ * the GNU General Public License v3.0 or later (at your option).
+-------------------------------------------------------------------*/
+/* -------------------------------------------------------------------
+ * Site specific styles for 03-centered-block.
+ *
+ * Copyright (C) 2024-25 Sumanth Vepa.
+ *
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ -------------------------------------------------------------------*/
+/*
+  The default font for this website is is Jost, a Google font.
+  The logos and copyright text are in Mohave, another Google font.
+ */
+@font-face {
+  font-family: 'Jost';
+  font-weight: normal; /* This is the same as regular */
+  font-style: normal;  /* Non-italic */
+  src: url("/css/fonts/Jost-Regular.woff2") format("woff2"),
+  url("/css/fonts/Jost-Regular.woff") format("woff");
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: 'Mohave';
+  font-weight: bold;
+  font-style: normal; /* Non-italic */
+  src: url("/css/fonts/Mohave-Bold.woff2") format("woff2"),
+  url("/css/fonts/Mohave-Bold.woff") format("woff");
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: 'Mohave';
+  font-weight: 300;
+  font-style: normal; /* Non-italic */
+  src: url("/css/fonts/Mohave-Light.woff2") format("woff2"),
+  url("/css/fonts/Mohave-Light.woff") format("woff");
+  font-display: fallback;
+}
+
+
+body {
+  /*
+    Set the base font size to 18px, which is a good size for
+    readability
+   */
+  font-size: 1.125rem; /* 18px */
+  font-family: 'Jost', sans-serif;
+  background-color: #e3dcd0; /* Light beige background color */
+  color: #333333; /* Dark gray text color */
+
+  margin: 32px; /* 32px margin all around the page */
+  min-width: calc(375px - 2*32px);/* Minimum width for page. Roughly corresponds to
+                       the width of an iPhone SE */
+  /*
+     Make body element take up the full height of the viewport.
+     Enables the implementation of a sticky footer for the
+     copyright section at the bottom of the page.
+     See 01-sticky-footer for more details.
+   */
+  min-height: calc(100dvh - 2*32px);
+
+  /*
+    Make the body element a flex container to implement
+    a sticky footer. See 01-sticky-footer for more details.
+  */
+  display: flex;
+  flex-direction: column;
+}
