@@ -250,6 +250,18 @@ body {
        viewport, even if there is not enough content to fill the
        entire height
        of the page.
+
+     See Kevin Powell's video on sticky footers for more details:
+     https://www.youtube.com/watch?v=yc2olxLgKLk
+     This video describes both the flexbox and grid techniques for
+      implementing a sticky footer. We are using the flexbox technique
+      here.
+
+     See this website for a good introduction to flexbox:
+     https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+
+     Also see the MDN website on how flexbox works:
+     https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox 
    */
   min-height: calc(100dvh - 48px);
 
