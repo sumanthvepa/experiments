@@ -22,6 +22,13 @@ use of browser developer tools, and make notes on basic HTML and CSS.
 This project is setup using the same techniques use in 00-boilerplate.
 See that project for more details on how to set up a project.
 
+### Starting the Server
+See 00-boilerplate/README.md for information on how to start the
+server for this site.
+
+npm start is configured to start the server on port 5001.
+You may need to open up access to port 5001 using firewall-cmd.
+
 ## Browser Developer Tools
 ### Chrome Developer Tools
 To show the Chrome Developer Tools window(s), press Cmd-Option-I or

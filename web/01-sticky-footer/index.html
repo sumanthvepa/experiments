@@ -93,6 +93,12 @@
     This is required for responsive web design. Details on why this
     works is described in Mozilla's MDN Documentation:
     https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Viewport_meta_element
+
+    Note that @media queries involving screen sizes in CSS WILL NOT
+    WORK without this meta tag. This is because the browser,
+    by default, will render the page by scaling it down to fit the
+    screen. This meta tag tells the browser to use the device's
+    width as the viewport width, and to set the initial scale to 1.
   -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -149,16 +155,7 @@
    -->
   <meta property="og:title"
     content="01-sticky-footer: Implementation of a CSS Sticky Footer">
-  <meta property="og:type" content="
-    This website is implementation of a CSS sticky footer.
-    The sticky footer is a common design pattern that keeps the footer
-    at the bottom of the page, even when the content is not tall enough
-    to fill the viewport.
-
-    Additionally, the README.md file, and comments in the HTML, CSS and
-    Javascript file on this page provide a detailed explanation what
-    of the various elements in a website are are, and how they work.">
-
+  <meta property="og:type" content="website">
   <!--
     Should contain the canonical URL of the page.
     This is the URL that you want search engines to index.
@@ -175,7 +172,7 @@
     suppress comment below.
    -->
   <!--suppress HttpUrlsUsage -->
-  <meta property="og:url" content="http://darkness2.milestone42.com:5000/">
+  <meta property="og:url" content="http://darkness2.milestone42.com:5001/">
   <!--
     The image that will be used when the page is shared on social media. I
     usually use 16:9 aspect ratio images at a resolution of 960x540 for this

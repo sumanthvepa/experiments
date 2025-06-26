@@ -1,0 +1,67 @@
+main {
+  /*
+    This makes the main element take up the all of the available space
+    in the parent flex container (which is the body element for this
+    website.)
+
+    This is done are follows:
+    By default, all flex item have a flex-grow value of 0, which means
+    that they will be sized according to their content. We have set
+    this to one. This means that the body flex container will
+    have three flex items: the header, main, and footer with following
+    flex-grow values: 0, 1, 0. In general if you have flex grow values
+    a, b, c. The size of flex item b will b/(a+b+c) of the the total
+    container. If a = 0. The size of flex item b will be 1/(1+0+0)
+    = 1/1 = 100% of the container, minus the space of taken up by the
+    contents of the header and footer. This has the effect of taking
+    up all of the remaining space in the body element.
+
+    The flex-shrink value is by default 0. Which means that the
+    flex item will not give up any space if the container is shrunk.
+    For a three item flex container with flex-shrink values of a, b, c.
+    Each container will give up a/(a+b+c), b/(a+b+c), and c/(a+b+c)
+    of the space respectively. If a = 0, then the flex item will not
+    give up any space. So for flex-shrink values of 0, 1, 0, the
+    middle flex item will give up 1/(0+1+0) = 1/1 = 100% of the all
+    the space in the container. This means that the main element
+    will shrink to fit whatever space is available in the body
+    element after the header and footer have been rendered to their
+    fixed sizes.
+
+    flex-basis is the initial size of the flex item before flex-grow
+    and flex-shrink are applied. If flex-basis is set to 0, then the
+    flex item will take up no space initially, and will grow to fill
+    the available space in the container.
+   */
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+
+  /*
+     We want this element to be a flex container in its own
+     right. This allows us to position its child elment
+     correctly.
+
+     We do not bother with flex-direction because this container
+     will contain only one child. The block that needs to be
+     centered.
+  */
+  display: flex;
+}
+
+footer {
+  /*
+    Create a sticky footer that stays at the bottom of the page.
+    This is achieved by using flexbox on the body element
+    and setting the footer to have a margin-top of auto.
+    See 01-sticky-footer for details.
+   */
+  font-family: 'Mohave', sans-serif;
+  font-weight: 300;
+  font-size: 0.875rem;
+  margin-top: auto;
+}
+footer p {
+  margin-bottom: 0;
+}
+

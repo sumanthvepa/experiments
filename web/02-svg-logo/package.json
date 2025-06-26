@@ -1,0 +1,22 @@
+{
+  "name": "02-svg-logo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Demonstration of an SVG logo",
+  "scripts": {
+    "start": "http-server --port=5002",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "css",
+    "svg",
+    "illustrator",
+    "logo"
+  ],
+  "author": "Sumanth Vepa",
+  "license": "GPL-3.0+",
+  "devDependencies": {
+    "html5-boilerplate": "^9.0.1",
+    "http-server": "^14.1.1"
+  }
+}

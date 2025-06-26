@@ -1,0 +1,72 @@
+/*
+   Styling for the netfinet logo.
+   See 02-svg-logo for details on how this works.
+ */
+#logo {
+  height: 3rem; /* 48px */
+  width: auto;
+}
+@media (max-width: 600px) {
+  #logo {
+    height: 2.25rem; /* 36px */
+  }
+}
+.logo-text {
+  /*color: #35637c; */ /* Slate blue */
+  fill: #35637c;
+}
+.logo-dot {
+  /*color: #cc5858; */ /* Indian Red */
+  fill: #cc5858;
+}
+
+
+
+/*
+  Styling for the coming soon block.
+
+  This style is applied to the p element.
+
+  We could have also used the selector 
+  main p. But we do this to make it obvious
+  where this styling is being used.
+ */
+.coming-soon {
+  /* Style the font and color of the text */
+  font-family: Jost, sans-serif;
+  font-weight: normal;
+  font-size: 6rem /* 96px */;
+  color: #cc5858;
+  /*
+    We adjust the line height, because default is a little too large.
+
+    Because we specified the line-height in em, this will be relative
+    to the font-size of the element this is applied to. So the
+    line height will be 120px. (1.25 * 96px = 120px)
+   */
+  line-height: 1.25em; /* 120px */
+  /*
+    This aligns the text horizontally in the center of the its
+    containing element.
+    The element itself itself is not centered within its parent.
+    See below for how that is done.
+    This is the step 3 described in index.html
+   */
+  text-align: center;
+
+  /*
+     This is the magic that forces the element to the middle of
+     its parent container.
+     Specifying margin: auto causes all the available area around the
+     element to be distributed equally around it, thereby centering 
+     the p element within its parent box.
+  */
+  margin: auto;
+  padding: 0;
+}
+@media (max-width: 800px) {
+  .coming-soon {
+    /* Reduce the font size for screens smaller than 800px */
+    font-size: 4.5rem /* 72px */;
+  }
+}
