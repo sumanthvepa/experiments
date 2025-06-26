@@ -98,7 +98,7 @@ textarea {
  * the GNU General Public License v3.0 or later (at your option).
 -------------------------------------------------------------------*/
 /* -------------------------------------------------------------------
- * Site specific styles for the 02-svg-logo website.
+ * Site specific styles for 02-svg-logo.
  *
  * Copyright (C) 2024-25 Sumanth Vepa.
  *
@@ -139,10 +139,9 @@ body {
   font-family: 'Jost', sans-serif;
   background-color: #e3dcd0; /* Light beige background color */
   color: #333333; /* Dark gray text color */
-  min-width: 375px; /* Minimum width for page. Roughly corresponds to
-                       the width of an iPhone SE */
-
   margin: 32px; /* 32px margin all around the page */
+  min-width: calc(375px - 64px); /* Minimum width for page. Roughly corresponds to
+                       the width of an iPhone SE */
   /*
      Make body element take up the full height of the viewport.
      Enables the implementation of a sticky footer for the
