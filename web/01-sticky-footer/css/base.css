@@ -261,7 +261,7 @@ body {
      https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 
      Also see the MDN website on how flexbox works:
-     https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox 
+     https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox
    */
   min-height: calc(100dvh - 48px);
 
@@ -284,7 +284,17 @@ body {
   */
   flex-direction: column;
 }
-@media(max-width: 600px) {
+/*
+  Media queries are used to change the styles applied elements
+  for different media types. The most common use of media queries
+  is to change the styles applied to elements for different screen
+  sizes. This is known as responsive design, and it allows the
+  website to adapt to different screen sizes and orientations,
+
+  Note that is is VERY IMPORTANT to set the meta viewport
+  tag in the HTML file to ensure that the media queries work.
+ */
+@media (max-width: 600px) {
   body {
     /*
       For screens smaller than 600px, we reduce the margin
