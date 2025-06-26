@@ -196,10 +196,26 @@ body {
   font-family: 'Noto Sans', sans-serif;
   background-color: #181818;
   color: #cccccc;
-  min-width: 375px; /* Minimum width for page. Roughly corresponds to
-                       the width of an iPhone SE */
-
   margin: 24px; /* 24px margin all around the page */
+
+  /* To avoid weird behavior as the width gets unreasonably small,
+     we set a minimum width for the page. We want the entire body,
+     along with margins, border and padding to fit within the minimum
+      width of the page.
+      Since this body element has a margin of 12px  on either side,
+      when the viewport width is less than 600px (see the @media
+      query below), then at min-width of 375px, the body element will
+      need to be 375px - 2*12px = 351px wide.
+
+      375px is chosen as the minimum width because it is the width of
+      an iPhone SE.
+
+      We use calc() to calculate the minimum width, just for
+      exposition -- to make it clear that the minimum width is
+      being adjusted for the margins on either side.
+  */
+  min-width: calc(375px - 2*12px);
+
   /*
     We set the minimum height of the body to 100dvh, but this sets
     the content area to be 100% of the dynamic viewport height.
