@@ -1,4 +1,6 @@
 issue148-r-basics: Explore the basics of R
+[DONE]issue143-python-01-remote-idea-python:
+  Document the process of creating a remote IntelliJ IDEA project
 [DONE]issue142-03-centered-block:
   Demonstrate the creation of vertically and horizontally centered block
 [DONE]issue141-02-svg-logo:
