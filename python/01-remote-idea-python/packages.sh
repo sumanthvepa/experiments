@@ -41,7 +41,7 @@ python3 -m pip install pylint
 python3 -m pip install mypy
 
 # Testing support
-# python3 -m pip install parameterized
+python3 -m pip install parameterized
 
 # Update requirements.txt
 python3 -m pip freeze >requirements.txt
