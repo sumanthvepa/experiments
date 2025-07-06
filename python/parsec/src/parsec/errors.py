@@ -1,0 +1,149 @@
+"""
+  errors.py:  Define the ParsecError class
+"""
+# -------------------------------------------------------------------
+# errors.py:  Define the ParsecError class and subclasses.
+#
+# Copyright (C) 2023-25 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License a
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+from enum import IntEnum
+
+class ExitCode(IntEnum):
+  """
+    Enumeration for program exit codes.
+
+    Every ParsecError subclass should have a program exit code
+    associated with it. This is the program exit code that will be
+    returned when the error is raised but not caught by any
+    exception handler, except for the top level exception handler in
+    the main function (in drl.)
+
+    Each exit code here corresponds to a specific exception class.
+  """
+  SUCCESS = 0 # Success
+  INVALID_COMMAND_LINE = 1 # Associated with CommandLineError
+
+
+class ParsecError(RuntimeError):
+  """
+    Base class for all Parsec exceptions.
+
+    Any error detected by the program should be raised as
+    a subclass of ParsecError.
+
+    Any other exception is an indication of a bug in the code
+    and should not be caught. It should be fixed instead.
+  """
+  def __init__(self, message: str, exit_code: ExitCode) -> None:
+    """
+      Initialize the ParsecError with a message and an exit code.
+
+      :param message: The error message
+      :param exit_code: The program exit code that should be returned
+    """
+    super().__init__(message)
+    self._exit_code = exit_code
+
+  def __eq__(self, other: object) -> bool:
+    """
+      Check if two ParsecError instances are equal.
+
+      :param other: The other error to compare with
+      :return: True if the errors are equal, False otherwise
+    """
+    if not isinstance(other, ParsecError):
+      return NotImplemented
+    return (super().__eq__(other) and
+      self.exit_code == other.exit_code)
+
+  @property
+  def exit_code(self) -> ExitCode:
+    """
+      The exit code of the error.
+
+      :return: The exit code of the error
+    """
+    return self._exit_code
+
+
+class CommandLineError(ParsecError):
+  """
+    Exception raised for invalid command line arguments passed
+    by the user.
+
+    Unlike other exceptions, this exception is caught by code
+    that parses the command line and converted into a help command
+    that is executed. The help command when executed will print
+    the error, and then provide an appropriate help message.
+  """
+  def __init__(self, program: str, command: str | None, verbosity: int, message: str) -> None:
+    """
+      Initialize the InvalidCommandLineError with a message.
+
+      The exit code is set to ExitCode.INVALID_COMMAND_LINE.
+
+      :param program: The name of the program that caused the error
+      :param command: The name of the command that caused the error or None
+        if it is a global error
+      :param verbosity: The verbosity level to use when printing errors
+      :param message: The error message
+    """
+    super().__init__(message, exit_code=ExitCode.INVALID_COMMAND_LINE)
+    self._program = program
+    self._command = command
+    self._verbosity = verbosity
+
+  def __eq__(self, other: object) -> bool:
+    """
+      Check if two command line errors are equal.
+
+      :param other: The other command line error to compare with
+      :return: True if the command line errors are equal, False otherwise
+    """
+    if not isinstance(other, CommandLineError):
+      return NotImplemented
+    return (super().__eq__(other)
+      and self.program == other.program
+      and self.command == other.command)
+
+  @property
+  def program(self) -> str:
+    """
+      The name of the program that caused the error.
+
+      :return: The name of the program
+    """
+    return self._program
+
+  @property
+  def command(self) -> str | None:
+    """
+      The name of the command that caused the error, or None if it is a
+      global error.
+
+      :return: The name of the command or None
+    """
+    return self._command
+
+  @property
+  def verbosity(self) -> int:
+    """
+      The verbosity level to use when printing the error.
+
+      :return: The verbosity level
+    """
+    return self._verbosity

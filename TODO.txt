@@ -1,4 +1,5 @@
 issue148-r-basics: Explore the basics of R
+issue146-python-parsec: Experimental standalone command line parser library
 [DONE]issue145-python-02-testing: Move project testing to 02-testing
 [DONE]issue144-python-testing: Add notes on how to create stub files
 [DONE]issue143-python-01-remote-idea-python:
