@@ -1,4 +1,5 @@
 issue148-r-basics: Explore the basics of R
+[DONE]issue144-python-testing: Add notes on how to create stub files
 [DONE]issue143-python-01-remote-idea-python:
   Document the process of creating a remote IntelliJ IDEA project
 [DONE]issue142-03-centered-block:
