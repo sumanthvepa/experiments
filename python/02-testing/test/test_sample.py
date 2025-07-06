@@ -36,7 +36,7 @@ import platform
 # So if I'm testing a module called sample.py, I would create a
 # file called test_sample.py in the 'tests' folder.
 
-# You can run a unittest by running the following command:
+# You can run a unit test by running the following command:
 # python -m unittest test_sample.py
 # The command above will run all test cases in the test_sample.py file
 
@@ -252,6 +252,9 @@ class TestParametric(unittest.TestCase):
       with self.assertRaises(error):
         square_root(n)
     else:
+      # This 'assert' ensure that the type of expected from this point
+      # on is float.
+      assert expected is not None, "Expected value should not be None"
       difference = abs(square_root(n) - expected)
       self.assertLess(difference, 0.0000001)
 
@@ -282,19 +285,22 @@ class TestParametric(unittest.TestCase):
   # element. (Note the comma after the closing parenthesis of the
   # TestCaseData object.)
   @parameterized.expand([
-    (TestCaseData(n=4, expected=2.0, error=None),),
-    (TestCaseData(n=9, expected=3.0, error=None),),
-    (TestCaseData(n=-1, expected=None, error=ValueError),)
+    (TestCaseData(n=4.0, expected=2.0, error=None),),
+    (TestCaseData(n=9.0, expected=3.0, error=None),),
+    (TestCaseData(n=-1.0, expected=None, error=ValueError),)
   ])
   def test_square_root_data(self, case: TestCaseData) -> None:
     """ Test the square_root function with parameters """
-    n = case['n']
+    n: float = case['n']
     expected = case['expected']
     error = case['error']
     if error is not None:
       with self.assertRaises(error):
         square_root(n)
     else:
+      # This 'assert' ensure that the type of expected from this point
+      # on is float.
+      assert expected is not None, "Expected value should not be None"
       difference = abs(square_root(n) - expected)
       self.assertLess(difference, 0.0000001)
 

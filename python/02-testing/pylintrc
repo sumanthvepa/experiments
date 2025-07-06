@@ -648,4 +648,5 @@ redefining-builtins-modules=six.moves,past.builtins,future.builtins,builtins,io
 # and run pylint form the command line to debug the path calculation.
 # init-hook='import sys; sys.path.append("/absolute/path/to/your/project")'
 
-init-hook='import os, sys; sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, os.pardir, os.pardir, os.pardir)))'
+# init-hook='import os, sys; sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, os.pardir, os.pardir, os.pardir)))'
+init-hook='import sys; sys.path.append("/home/svepa/workspaces/experiments/python/02-testing")'
