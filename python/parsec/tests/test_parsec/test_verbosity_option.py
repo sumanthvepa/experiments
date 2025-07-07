@@ -26,7 +26,7 @@ from typing import Any
 
 from parameterized import parameterized
 
-from test_parsec import CaseData, CaseExecutor2
+from test_parsec import CaseData, CaseExecutor
 
 from parsec.verbosity_option import VerbosityOption
 
@@ -121,7 +121,7 @@ def make_cases() -> list[tuple[str, CaseData]]:
     ('wrong_no_option', CaseData(args=['parameter', None], expected=None, error=AssertionError))
   ]
 
-class TestVerbosityOption(unittest.TestCase, CaseExecutor2):
+class TestVerbosityOption(unittest.TestCase, CaseExecutor):
   """
     Unit tests for class VerbosityOption
   """

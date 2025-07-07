@@ -91,32 +91,7 @@ class RequiresAsserts(Protocol):
     """ Assert that an exception is raised. """
 
 
-# pylint: disable=too-few-public-methods
 class CaseExecutor(RequiresAsserts):
-  """
-    A class to execute test cases.
-  """
-  def __init__(self, function: Callable[[list[str]], Any]) -> None:
-    """
-      Initialize the CaseExecutor.
-    """
-    self.function = function
-
-  def execute(self, case: CaseData) -> None:
-    """
-      Execute a test case.
-
-      :param case: The test case to execute
-    """
-    if case.expected is not None:
-      self.assertEqual(case.expected, self.function(case.args))
-    else:
-      assert case.error is not None
-      with self.assertRaises(case.error):
-        self.function(case.args)
-
-
-class CaseExecutor2(RequiresAsserts):
   """
     A class to execute test cases.
   """

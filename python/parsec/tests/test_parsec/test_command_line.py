@@ -25,7 +25,7 @@ import unittest
 
 from parameterized import parameterized
 
-from test_parsec import CaseData, CaseExecutor2
+from test_parsec import CaseData, CaseExecutor
 
 from parsec.command_line import parse, CommandLine
 from parsec.options import Options
@@ -113,7 +113,7 @@ def parse_cases() -> list[tuple[str, CaseData]]:
   return parse_correct_cases() + parse_incorrect_cases() + parse_edge_cases()
 
 
-class TestCommandLine(unittest.TestCase, CaseExecutor2):
+class TestCommandLine(unittest.TestCase, CaseExecutor):
   """
     Unit tests for the CommandLine class and the parse function
   """
@@ -122,7 +122,7 @@ class TestCommandLine(unittest.TestCase, CaseExecutor2):
       Initialize the test case.
     """
     unittest.TestCase.__init__(self, *args, **kwargs)
-    CaseExecutor2.__init__(self)
+    CaseExecutor.__init__(self)
 
   # pylint: disable=unused-argument
   # noinspection PyUnusedLocal

@@ -26,7 +26,7 @@ from typing import override
 
 from parameterized import parameterized
 
-from test_parsec import CaseData, CaseExecutor2
+from test_parsec import CaseData, CaseExecutor
 
 from parsec.option import Option
 from parsec.option_terminator import OptionTerminator
@@ -250,7 +250,7 @@ def make_cases() -> list[tuple[str, CaseData]]:
   ]
 
 
-class TestOption(unittest.TestCase, CaseExecutor2):
+class TestOption(unittest.TestCase, CaseExecutor):
   """
     Unit tests for the Option.make() method
   """
@@ -259,7 +259,7 @@ class TestOption(unittest.TestCase, CaseExecutor2):
       Initialize the test case.
     """
     unittest.TestCase.__init__(self, *args, **kwargs)
-    CaseExecutor2.__init__(self)
+    CaseExecutor.__init__(self)
 
   # noinspection PyUnusedLocal
   # pylint: disable=unused-argument

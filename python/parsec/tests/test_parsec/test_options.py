@@ -24,7 +24,7 @@ import unittest
 
 from parameterized import parameterized
 
-from test_parsec import CaseData, CaseExecutor2
+from test_parsec import CaseData, CaseExecutor
 
 from parsec.options import Options
 
@@ -287,7 +287,7 @@ def all_cases() -> list[tuple[str, CaseData]]:
   return correct_cases() + incorrect_cases()
 
 
-class TestOptions(unittest.TestCase, CaseExecutor2):
+class TestOptions(unittest.TestCase, CaseExecutor):
   """
     Unit tests for the Options class.
   """
@@ -296,7 +296,7 @@ class TestOptions(unittest.TestCase, CaseExecutor2):
       Initialize the test case.
     """
     unittest.TestCase.__init__(self, *args, **kwargs)
-    CaseExecutor2.__init__(self)
+    CaseExecutor.__init__(self)
 
   # noinspection PyUnusedLocal
   # pylint: disable=unused-argument

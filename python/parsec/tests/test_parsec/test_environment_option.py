@@ -28,7 +28,7 @@ from parameterized import parameterized
 
 from parsec.environment_option import EnvironmentOption
 
-from test_parsec import CaseData, CaseExecutor2
+from test_parsec import CaseData, CaseExecutor
 
 
 def is_option_cases() -> list[tuple[str, CaseData]]:
@@ -139,7 +139,7 @@ def make_cases() -> list[tuple[str, CaseData]]:
   ]
 
 
-class TestEnvironmentOption(unittest.TestCase, CaseExecutor2):
+class TestEnvironmentOption(unittest.TestCase, CaseExecutor):
   """
     Unit tests for class EnvironmentOption
   """
