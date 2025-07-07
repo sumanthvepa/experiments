@@ -137,6 +137,15 @@ class Options(Mapping[str, None | bool | int | str | set[str]]):
     """
     return len(self._options)
 
+  @override
+  def __repr__(self) -> str:
+    """
+      Return a string representation of the options that can be used
+      to recreate the object.
+      :return: A string representation of the options object
+    """
+    return f"Options({self._options!r})"
+
   @property
   def end_index(self) -> int:
     """

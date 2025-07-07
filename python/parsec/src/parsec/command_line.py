@@ -20,6 +20,7 @@
 # along with this program.  If not, see
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
+from typing import override
 
 from parsec.options import Options
 from parsec.errors import CommandLineError
@@ -54,6 +55,7 @@ class CommandLine:
     self._command_options = command_options
     self._parameters = parameters
 
+  @override
   def __eq__(self, other: object) -> bool:
     """
       Check if two CommandLine objects are equal.
@@ -68,6 +70,24 @@ class CommandLine:
             self.global_options == other.global_options and
             self.command_options == other.command_options and
             self.parameters == other.parameters)
+
+  @override
+  def __repr__(self) -> str:
+    """
+      Return a string representation of the CommandLine object.
+
+      :return: A string representation of the CommandLine object
+    """
+    # The !r operator is used to tell python to use the __repr__ method
+    # of the object when converting it to a string. So
+    # self.global_options!r will call the __repr__ method of the
+    # Options class and return a string representation of the global
+    # options.
+    return (f"CommandLine(program={self.program!r}, "
+            f"command_name={self.command_name!r}, "
+            f"global_options={self.global_options!r}, "
+            f"command_options={self.command_options!r}, "
+            f"parameters={self.parameters!r})")
 
   @property
   def program(self) -> str:
