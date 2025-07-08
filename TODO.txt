@@ -1,3 +1,4 @@
+issue148-r-basics: Explore the basics of R
 [DONE]issue142-03-centered-block:
   Demonstrate the creation of vertically and horizontally centered block
 [DONE]issue141-02-svg-logo:
