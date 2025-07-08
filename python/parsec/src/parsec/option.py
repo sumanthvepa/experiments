@@ -106,11 +106,26 @@ class Option(ABC):
     """
     return len(arg) > 0 and not arg.startswith('-')
 
+  @staticmethod
+  def all_supported_short_flags() -> list[str]:
+    """
+      All short flags for all registered options subclasses of this class.
+
+      For now this is hardcoded to return the short flags we
+      currently support. This is not a good design, but it is
+      sufficient for now. In the future, we may want to
+      dynamically discover the short flags from the registered
+      subclasses of this class.
+
+      :return: A list of short flag strings
+    """
+    return ['h', 'v', 'e']
+
   @classmethod
   @abstractmethod
   def supported_short_flags(cls) -> list[str]:
     """
-      The short flag for this option.
+      Supported short flags for this option.
 
       Derived classes must implement this method to return the
       specific short flags that correspond to the class they
@@ -125,12 +140,26 @@ class Option(ABC):
     # raise NotImplementedError('Option.supported_short_flags() is an abstract method')
     return ['h', 'v', 'e']
 
+  @staticmethod
+  def all_supported_long_flags() -> list[str]:
+    """
+      All long flags for all registered options subclasses of this class.
+
+      For now this is hardcoded to return the long flags we
+      currently support. This is not a good design, but it is
+      sufficient for now. In the future, we may want to
+      dynamically discover the short flags from the registered
+      subclasses of this class.
+
+      :return: A list of short flag strings
+    """
+    return ['help', 'verbosity', 'environment']
 
   @classmethod
   @abstractmethod
   def supported_long_flags(cls) -> list[str]:
     """
-      The long flags for this option.
+      Supported long flags for this option.
 
       Derived classes must implement this method to return the
       specific long flags that correspond to the class they
@@ -308,7 +337,8 @@ class Option(ABC):
     actual_class: type[Option] | None = Option.type_of(current_arg, next_arg)
     if actual_class is None:
       flag = Option._extract_flag(current_arg)
-      if flag not in cls.supported_short_flags() and flag not in cls.supported_long_flags():
+      if flag not in Option.all_supported_short_flags() \
+          and flag not in Option.all_supported_long_flags():
         # This is an unknown option.
         raise ValueError(f'Unknown option: {current_arg}')
       # This is a valid flag, but the value is not valid for this
