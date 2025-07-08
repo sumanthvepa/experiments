@@ -122,6 +122,7 @@ class Option(ABC):
 
       :return: A list of short flag strings
     """
+    # raise NotImplementedError('Option.supported_short_flags() is an abstract method')
     return ['h', 'v', 'e']
 
 
@@ -141,6 +142,7 @@ class Option(ABC):
 
       :return: A list of long flag strings
     """
+    # raise NotImplementedError('Option.supported_long_flags() is an abstract method')
     return ['help', 'verbosity', 'environment']
 
   # @abstractmethod
