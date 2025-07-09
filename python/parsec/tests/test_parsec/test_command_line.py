@@ -27,7 +27,7 @@ from parameterized import parameterized
 
 from test_parsec import CaseData, CaseExecutor
 
-from parsec.command_line import parse, CommandLine
+from parsec.command_line import CommandLine, Parser
 from parsec.options import Options
 
 
@@ -124,6 +124,11 @@ class TestCommandLine(unittest.TestCase, CaseExecutor):
     unittest.TestCase.__init__(self, *args, **kwargs)
     CaseExecutor.__init__(self)
 
+
+class TestParser(unittest.TestCase, CaseExecutor):
+  """
+    Unit test for the Parser class
+  """
   # pylint: disable=unused-argument
   # noinspection PyUnusedLocal
   @parameterized.expand(parse_cases())
@@ -131,4 +136,4 @@ class TestCommandLine(unittest.TestCase, CaseExecutor):
     """
       Test the constructor of the CommandLine class
     """
-    self.execute(parse, case)
+    self.execute(lambda args: Parser().parse(args), case)
