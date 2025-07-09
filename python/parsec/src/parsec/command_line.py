@@ -25,7 +25,7 @@ from typing import override
 from parsec.options import Options
 from parsec.errors import CommandLineError
 
-def _make_verbosity(global_options: Options | None, command_options: Options | None) -> int:
+def _compute_verbosity(global_options: Options | None, command_options: Options | None) -> int:
   """
     Calculate the verbosity level from global and command options.
 
@@ -156,7 +156,7 @@ class CommandLine:
 
       :return: The verbosity level
     """
-    return _make_verbosity(self.global_options, self.command_options)
+    return _compute_verbosity(self.global_options, self.command_options)
 
 
 class Parser:
@@ -250,6 +250,6 @@ class Parser:
       parameters = self._parse_parameters(args, index)
       return CommandLine(program, command_name, global_options, command_options, parameters)
     except ValueError as ex:
-      verbosity = _make_verbosity(global_options, command_options)
+      verbosity = _compute_verbosity(global_options, command_options)
       raise CommandLineError(program, command_name, verbosity,
   f'Invalid command line arguments: {ex}') from ex
