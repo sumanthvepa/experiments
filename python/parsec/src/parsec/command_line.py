@@ -25,6 +25,21 @@ from typing import override
 from parsec.options import Options
 from parsec.errors import CommandLineError
 
+def _make_verbosity(global_options: Options | None, command_options: Options | None) -> int:
+  """
+    Calculate the verbosity level from global and command options.
+
+    :param global_options: The global options for the command line
+    :param command_options: The command options for the command line
+    :return: The calculated verbosity level
+    :raises: AssertionError if there is a bug in the code
+  """
+  global_verbosity = global_options.get('verbosity', 0) if global_options else 0
+  assert isinstance(global_verbosity, int)
+  command_verbosity = command_options.get('verbosity', 0) if command_options else 0
+  assert isinstance(command_verbosity, int)
+  return min(global_verbosity + command_verbosity, 3)
+
 
 class CommandLine:
   """
@@ -212,22 +227,6 @@ class Parser:
     """
     return set(args[index:]) if index < len(args) else set()
 
-  def _make_verbosity(self, global_options: Options | None, command_options: Options | None) -> int:
-    """
-      Calculate the verbosity level from global and command options.
-
-      :param global_options: The global options for the command line
-      :param command_options: The command options for the command line
-      :return: The calculated verbosity level
-      :raises: AssertionError if there is a bug in the code
-    """
-    global_verbosity = global_options.get('verbosity', 0) if global_options else 0
-    assert isinstance(global_verbosity, int)
-    command_verbosity = command_options.get('verbosity', 0) if command_options else 0
-    assert isinstance(command_verbosity, int)
-    return min(global_verbosity + command_verbosity, 3)
-
-
   def parse(self, args: list[str]) -> CommandLine:
     """
       Parse the command line arguments to create a CommandLine object.
@@ -251,6 +250,6 @@ class Parser:
       parameters = self._parse_parameters(args, index)
       return CommandLine(program, command_name, global_options, command_options, parameters)
     except ValueError as ex:
-      verbosity = self._make_verbosity(global_options, command_options)
+      verbosity = _make_verbosity(global_options, command_options)
       raise CommandLineError(program, command_name, verbosity,
   f'Invalid command line arguments: {ex}') from ex
