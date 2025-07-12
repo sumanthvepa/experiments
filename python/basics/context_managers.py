@@ -1,10 +1,10 @@
 #!/usr/bin/env python3.12
 # -*- coding: utf-8 -*-
 """
-  exceptions_and_context_managers.py: Explore exceptions
+  context_managers.py: Explore context managers
 """
 # -------------------------------------------------------------------
-# exceptions_and_context_managers.py: Explore exceptions
+# context_managers.py: Explore context managers
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
 #
@@ -22,182 +22,13 @@
 # along with this program.  If not, see
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
+from __future__ import annotations
 import copy
 import os
+import types
 
 from contextlib import contextmanager
-from typing import Any, Generator
-
-
-def explore_exceptions() -> None:
-  """
-    Explore exceptions
-    :return: None
-  """
-  # Python exceptions typically inherit from the Exception class.
-  # They are (for the most part *required* to inherit from BaseException)
-  # But most user-defined exceptions inherit from Exception.
-
-  # Strictly speaking you can raise a string as an exception,
-  # as long as you don't catch a specific exception type.
-  # So the following is valid, but not very useful or recommended:
-
-  # noinspection PyBroadException
-  try:
-    # pylint: disable=raising-bad-type
-    raise 'error'  # type: ignore
-  except:  # pylint: disable=bare-except
-    print('Caught a str exception')
-
-  # In fact, you can raise any object as an exception, say an int,
-  # but it has the same limitations as raising a string.
-  # noinspection PyBroadException
-  try:
-    # pylint: disable=raising-bad-type
-    raise 42  # type: ignore
-  except:  # pylint: disable=bare-except
-    print('Caught an int exception')
-
-  # You can even raise a list as an exception, but again, it's not
-  # recommended.
-  # noinspection PyBroadException
-  try:
-    # pylint: disable=raising-bad-type
-    raise [1, 2, 3]  # type: ignore
-  except:  # pylint: disable=bare-except
-    print('Caught a list exception')
-
-  # You can directly raise an instance of the Exception class.
-  # It is however recommended to raise an instance of a subclass of
-  # Exception. So this works although it's not recommended.
-  # It is also not recommended to catch an instance of Exception
-  # directly or a bare exception with the except: clause.
-  # Notice that you can now specify the type of the exception.
-  # pylint: disable=broad-exception-caught
-  try:
-    # pylint: disable=broad-exception-raised
-    raise Exception('This is an exception')
-  except Exception as ex:
-    print(f'Caught an exception: {ex}')
-
-  # A more common way to raise an exception is to raise an instance
-  # of a subclass of Exception. Here we raise a ValueError.
-  try:
-    raise ValueError('This is a ValueError')
-  except ValueError as ex:
-    print(f'Caught a ValueError: {ex}')
-
-  # You can define your own exceptions by subclassing Exception.
-  # Here we define a custom exception called MyException.
-  class MyException(Exception):
-    """
-      Custom exception
-    """
-
-    def __init__(self, message: str) -> None:
-      """
-        Initialize the custom exception
-        :param message: The message to display
-      """
-      super().__init__(message)
-
-  # Now we can raise an instance of MyException.
-  try:
-    raise MyException('This is my exception')
-  except MyException as ex:
-    print(f'Caught my exception: {ex}')
-
-  # You can layer exception handling to catch specific exceptions
-  # before more general exceptions.
-  try:
-    raise ValueError('This is a ValueError')
-  except ValueError as ex:
-    # This will catch a ValueError
-    print(f'Caught a ValueError: {ex}')
-  except Exception as ex:
-    # This will catch any other exception
-    # But since value error is thrown, this block will not be executed
-    print(f'Caught an Exception: {ex}')
-
-  # You can also catch multiple exceptions in a single block.
-  try:
-    raise ValueError('This is a ValueError')
-  except (ValueError, TypeError) as ex:
-    # This will catch a ValueError or a TypeError
-    print(f'Caught a ValueError or TypeError: {ex}')
-  except Exception as ex:
-    # This will catch any other exception
-    # But since value error is thrown, this block will not be executed
-    print(f'Caught an Exception: {ex}')
-
-  # The 'finally' block is always executed, whether an exception is
-  # raised or not. This is useful for cleanup code.
-  try:
-    raise ValueError('This is a ValueError')
-  except ValueError as ex:
-    print(f'Caught a ValueError: {ex}')
-  finally:
-    print('This is the finally block')
-
-
-def explore_exception_chaining() -> None:
-  """
-    Explore exception chaining.
-
-    :return: None
-  """
-  # Exception chaining is a way to raise a new exception while
-  # preserving the original exception. This is useful for debugging
-  # and logging.
-  # You can use the 'from' keyword to chain exceptions.
-
-  # Here we raise a ValueError, catch it and then raise
-  # a MyException with the original exception as the cause.
-
-  class MyException(Exception):
-    """
-      Custom exception
-    """
-    def __init__(self, message: str) -> None:
-      """
-        Initialize the custom exception
-        :param message: The message to display
-      """
-      super().__init__(message)
-
-  def raises_my_exception() -> None:
-    """
-      A function that raises a MyException
-    """
-    try:
-      raise ValueError('This is a ValueError')
-    except ValueError as my_ex:
-      raise MyException('This is a MyException') from my_ex
-
-  try:
-    raises_my_exception()
-  except MyException as an_ex:
-    print(f'Caught a MyException: {an_ex}')
-    print(f'Original exception: {an_ex.__cause__}')
-
-  # You can also use the 'raise' statement with no exception to re-raise
-  # the original exception. This is useful when you want to catch an
-  # exception do some processing and then re-raise the original exception.
-  # Here we catch a ValueError and then re-raise it.
-  def re_raises_exception() -> None:
-    """
-      A function that raises a ValueError
-    """
-    try:
-      raise ValueError('This is a ValueError')
-    except ValueError as value_ex:
-      print(f'Caught a ValueError: {value_ex}')
-      raise  # Re-raise the original exception
-
-  try:
-    re_raises_exception()
-  except ValueError as an_ex:
-    print(f'Caught a ValueError: {an_ex}')
+from typing import Generator, Self, Type
 
 
 def explore_context_managers() -> None:
@@ -240,7 +71,7 @@ def explore_context_managers() -> None:
       """
       self.name = name
 
-    def __enter__(self) -> 'CodeBlock':
+    def __enter__(self) -> Self:
       """
         Called upon entry into a code block
         :return: The code block
@@ -248,12 +79,28 @@ def explore_context_managers() -> None:
       print(f'Entering block {self.name}')
       return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+      self,
+      exc_type: Type[BaseException] | None,
+      exc_val: BaseException | None,
+      exc_tb: types.TracebackType) -> None:
       """
-        Exit code block
-        :param exc_type: The exception type
+        Handle exit from a with block.
+        The parameters indicate how the block was exited.
+        If exit was due to an exception, the parameters
+        exc_type, exc_val, and exc_tb will be set to non-None
+        values. If the block exited normally, these parameters
+        will be none.
+
+        This method can do any clean up that is needed when the
+        with block exits.
+
+        :param exc_type: The exception type or None if no exception
+        was raised.
         :param exc_val: The exception value
         :param exc_tb: The exception traceback
+        :return: None  Context manager __exit__() method return
+        values could be either a boolean or None.
       """
       print(f'Exiting block {self.name}')
 
@@ -276,7 +123,7 @@ def explore_context_managers() -> None:
 
   # There is another way of defining a context manager using the
   # contextmanager decorator from the 'contextlib' module. This is
-  # a more concise way of defining a context manager.
+  # a more concise, way of defining a context manager.
   # The contextmanager decorator is a generator-based approach
   # to defining context managers. The generator yields the resource
   # that should be managed and is responsible for cleaning up the
@@ -285,12 +132,15 @@ def explore_context_managers() -> None:
   # a context manager as a function rather than a class.
   # Here is an example of a context manager defined using the
   # contextmanager decorator.
+
+  # Note the return type of the context manager is a Generator.
+  # A Generator type indicates that the function is a generator
   @contextmanager
-  def code_block(name: str) -> Generator[None, Any, None]:
+  def code_block(name: str) -> Generator[None, None, None]:
     """
       A simple context manager defined using the contextmanager decorator
       :param name: The name of the code block
-      :return: None
+      :return: Generator[None, Any, None]
     """
     print(f'Entering block {name}')
     try:
@@ -362,7 +212,7 @@ class TodoList:
     self.tasks.append(f'{index}: {task}')
     return index
 
-  def remove(self, index: int):
+  def remove(self, index: int) -> None:
     """
     Remove a task from the TODO list
     :param index:
@@ -370,14 +220,13 @@ class TodoList:
     """
     del self.tasks[index]
 
-  def save(self, filename: str):
+  def save(self, filename: str) -> None:
     """
       Save the TODO list to a file
     """
     with open(filename, 'w', encoding='UTF-8') as file:
       for task in self.tasks:
         file.write(f'{task}\n')
-
 
   @classmethod
   def load(cls, filename: str) -> 'TodoList':
@@ -470,6 +319,7 @@ def explore_two_phase_commit() -> None:
     Explore two-phase commit
     :return: None
   """
+  print(os.getcwd())
   original_todo = TodoList.load('todo.txt')
   try:
     committer = Committer('todo.txt', 'commit.log')
@@ -480,7 +330,5 @@ def explore_two_phase_commit() -> None:
 
 
 if __name__ == '__main__':
-  explore_exceptions()
-  explore_exception_chaining()
   explore_context_managers()
   explore_two_phase_commit()

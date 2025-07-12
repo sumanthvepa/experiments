@@ -24,12 +24,72 @@
 # python virtual environment to install the latest versions
 # of all packages required by 01-remote-idea-python
 
+# This function reads a file containing package names into an array
+# passed to it as the second argument. The first argument is the
+# name of the file to read.
+function read_packages() {
+  local filename="$1"
+  if [[ ! -f "$filename" ]]; then
+    echo "File not found: $filename"
+    exit 1
+  fi
+  # Declare that the second argument is a nameref to an array
+  # This allows the function to modify the array passed as the second
+  # argument. We use this technique to return an array from the function.
+  # Since in bash, functions cannot return arrays directly, we use
+  # nameref to modify the array in the caller's scope.
+  declare -n pkgs=$2
+
+  # mapfile reads lines from a file specifed on the command line
+  # and stores them in an array. We use process substitution to
+  # generate temporary file that is fed to mapfile. The -t option
+  # tells mapfile to strip the trailing newline from each line read.
+  # the pkgs array will contain the words from the file, with
+  # each word as a separate element in the array.
+
+  # The `<(...)` syntax is called process substitution in Bash. It
+  # runs the command inside the parentheses in a subshell and provides
+  # its output as a temporary file or named pipe. In the code above,
+  # `< <(tr -s '[:space:]' '\n' < "$1")` means the output of the
+  # `tr` command is fed to `mapfile` as if it were a file.
+  # This allows `mapfile` to read the processed words directly from
+  # the command's output.
+
+  # The `tr -s '[:space:]' '\n'` command replaces sequences of
+  # whitespace characters with a single newline character, effectively
+  # splitting the input into separate lines for each word. This is useful
+
+  # The grep -v '^$' command filters out any empty lines from the input.
+
+  mapfile -t pkgs < <(
+    sed 's/#.*//' "$filename" | # Remove comments i.e. everything after a #
+    tr -s '[:space:]' '\n' | # Replace whitespace with newlines
+    grep -v '^$') # Remove empty lines
+}
+
+install_packages() {
+  local pkgs=("$@")
+  if [ ${#pkgs[@]} -eq 0 ]; then
+    echo "No packages provided to install."
+    return 1
+  fi
+  # echo "Installing packages: ${packages[*]}"
+  python3 -m pip install "${packages[@]}"
+}
+
+
 # Get the absolute path to the real directory where
 # this script is located. This allows us to source
 # the virtual environment needed by this script from
 # that location.
-SCRIPT_PATH=$(realpath "$BASH_SOURCE")
+SCRIPT_PATH="$0"
+echo "SCRIPT_PATH=$SCRIPT_PATH"
+# Commented code below will give the actual location of the script,
+# which is not what we need when we want the location of the symbolic link.
+# SCRIPT_PATH=$(realpath "$BASH_SOURCE")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+SCRIPT_DIR=$(readlink -f "$SCRIPT_DIR")
+echo "SCRIPT_DIR=$SCRIPT_DIR"
 
 # Source the virtual environment from the correct
 # location. This will allow python to access all
@@ -62,3 +122,7 @@ python3 -m pip install parameterized
 # Update requirements.txt
 python3 -m pip freeze >requirements.txt
 
+# Install additional package specified in packages.txt
+read_packages "$SCRIPT_DIR/packages.txt" packages
+echo "Installing additional packages: ${packages[*]}"
+install_packages "${packages[@]}"

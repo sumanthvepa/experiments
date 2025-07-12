@@ -28,6 +28,7 @@ import sys
 
 import booleans
 import comments
+import context_managers
 import printing
 import constants
 import variables
@@ -48,7 +49,8 @@ import abstract_base_classes
 import data_classes
 import advanced_class_concepts
 import protocol_mixins
-import exceptions_and_context_managers
+import exception_handling
+import iterators
 import generators
 import async_await
 
@@ -61,7 +63,7 @@ print('Exploring Python')
 # This project depends on some third party packages installed with
 # pip. To recreate the environment first create the venv if it
 # does not already exist:
-# 1. python3 -m venv venv
+# 1. python3 -m venv "venv"
 
 # Then install the required packages
 # 2. python3 -m pip install -r requirements.txt
@@ -112,7 +114,7 @@ print('Exploring Python')
 # project, and to install dependencies without affecting the global
 # python installation. To create a virtual environment, use the
 # following commands:
-# $ python3 -m venv venv
+# $ python3 -m venv "venv"
 # $ source venv/bin/activate
 # This creates a virtual environment in the venv directory, and
 # activates it. You can deactivate the virtual environment by using
@@ -152,7 +154,7 @@ print('Exploring Python')
 
 # It is a modern convention to define a main function.
 # Python itself does not require it.
-def main():
+def main() -> None:
 
   # It is a modern convention to define a main function.
   # Python itself does not require it.
@@ -364,14 +366,20 @@ def main():
   protocol_mixins.explore_protocol_mixins()
 
   # Note 22: Explore exceptions
-  exceptions_and_context_managers.explore_exceptions()
-  exceptions_and_context_managers.explore_exception_chaining()
-  exceptions_and_context_managers.explore_context_managers()
+  exception_handling.explore_exceptions()
+  exception_handling.explore_exception_chaining()
 
-  # Note 23: Explore generators
+  # Note 23: Explore iterators and iterables
+  iterators.explore_iterators()
+
+  # Note 24: Explore generators
   generators.explore_generators()
 
-  # Note 24: Explore async/await and asyncio
+  # Note 25: Explore context managers
+  context_managers.explore_context_managers()
+  context_managers.explore_two_phase_commit()
+
+  # Note 26: Explore async/await and asyncio
   async_await.explore_async_await()
 
   # Future explorations

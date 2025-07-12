@@ -37,7 +37,9 @@ def explore_generators() -> None:
   # yield statement.
   # Note the return type of the fibonacci function is an iterator
   # not a list. This is because the fibonacci function is a
-  # generator function.
+  # generator function. The type of value that it yields is
+  # specified as a parameter to the Iterator type. In this case
+  # is int.
   def fibonacci(n: int) -> Iterator[int]:
     """
       Generate the first n Fibonacci numbers

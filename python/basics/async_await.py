@@ -77,7 +77,7 @@ def explore_async_await() -> None:
 
   # From within a non-async function, you can execute the coroutine
   # using the asyncio.run function. This function runs the coroutine
-  # in the asyncio event loop. 
+  # in the asyncio event loop.
   print('Starting sequential execution of coroutines')
   print(datetime.now(tz=timezone.utc))
   asyncio.run(coroutine)
@@ -152,6 +152,7 @@ def explore_async_await() -> None:
   # This will run both coroutines concurrently, and wait for them
   # to complete.
   async def all_routines_concurrently2() -> None:
+    """  Run all coroutines concurrently using asyncio.gather """
     coroutines = [delayed_message(5, 'Set 2: Concurrent message1'),
                   delayed_message(5, 'Set 2: Concurrent message2')]
     # The asyncio.gather function takes a list of coroutines
@@ -176,6 +177,7 @@ def explore_async_await() -> None:
   # run concurrently.
 
   async def all_routines_concurrently3() -> None:
+    """ Run all coroutines concurrently using asyncio.wait """
     # Here you create the tasks explicitly using asyncio.create_task
     # as was done in all_routines_concurrently1. This schedules the
     # tasks for asynchronous execution.
@@ -215,6 +217,7 @@ def explore_async_await() -> None:
   # allows you to group multiple coroutines together and run them
   # concurrently. Here is an example:
   async def all_routines_concurrently4() -> None:
+    """ Run all coroutines concurrently using TaskGroup """
     async with asyncio.TaskGroup() as group:
       # You can use the create_task method of the TaskGroup object
       # to create and schedule a task for execution.
@@ -517,6 +520,7 @@ def explore_async_await() -> None:
   # method itself or in a try/block
   # Here is an example:
   async def cancel_delayed_message() -> None:
+    """ Cancel a delayed message coroutine """
     try:
       # Create and schedule a task object for the delayed_echo coroutine
       task = asyncio.create_task(delayed_echo('This is a really delayed message', 600))
@@ -540,3 +544,7 @@ def explore_async_await() -> None:
   # TODO: Explore async for loops
   # Refer to this video from mCoding for guidance:
   # https://www.youtube.com/watch?v=dEZKySL3M9c
+
+
+if __name__ == '__main__':
+  explore_async_await()
