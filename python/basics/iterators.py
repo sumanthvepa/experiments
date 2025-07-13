@@ -29,7 +29,7 @@ from typing import Iterable, Iterator, Self, override
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-
+# pylint: disable=too-many-statements
 def explore_iterators() -> None:
   """
   Explore iterators
@@ -102,13 +102,14 @@ def explore_iterators() -> None:
   # if you are creating a class that is intended to be an iterable,
   # it is a good practice to inherit from collections.abc.Iterable.
   class PseudoRandomNumbers(collections.abc.Iterable[int]):
+    # noinspection GrazieInspection
     """
-      Represents a list of pseudo-random numbers in a range.
+          Represents a list of pseudo-random numbers in a range.
 
-      Objects of this class can be created to return numbers in a
-      specified range[begin, end). The number of elements in the
-      list can be specified by the count parameter.
-    """
+          Objects of this class can be created to return numbers in a
+          specified range[begin, end). The number of elements in the
+          list can be specified by the count parameter.
+        """
     @override
     def __init__(self, begin: int, end: int, count: int):
       self._begin = begin
@@ -117,16 +118,17 @@ def explore_iterators() -> None:
       self._sequence: dict[int, int] = {}
 
     def get_number(self, index: int) -> int:
+      # noinspection GrazieInspection
       """
-        Returns a pseudo-random number in the range [begin, end).
-        This is a placeholder for the actual random number generation logic.
+              Returns a pseudo-random number in the range [begin, end).
+              This is a placeholder for the actual random number generation logic.
 
-        This is a private method intended to be used only by
-        the iterator.
+              This is a private method intended to be used only by
+              the iterator.
 
-        :param index: The index of the number to return
-        :return: A pseudo-random number in the range [begin, end).
-      """
+              :param index: The index of the number to return
+              :return: A pseudo-random number in the range [begin, end).
+            """
       if index < 0 or index >= self._count:
         raise IndexError("Index out of range")
       # This needs to be in a critical section if multiple threads
@@ -148,9 +150,90 @@ def explore_iterators() -> None:
 
   # Now we can create an instance of the PseudoRandomNumbers class
   # and iterate over it using a for loop.
-  random_numbers = PseudoRandomNumbers(1, 100, 10)
+  random_numbers = PseudoRandomNumbers(0, 100, 10)
+  print('10 random numbers in the range [0, 100):')
   for number in random_numbers:
     print(number)
+
+  # You can also explicitly create an iterator from the iterable
+  # and use it to iterate over the elements.
+  print('Iterating over the random numbers using an iterator:')
+  iterator = iter(random_numbers)
+  while True:
+    try:
+      number = next(iterator)
+      print(number)
+    except StopIteration:
+      break
+
+  # Notice that the numbers do not change when iterating over the same
+  # iterable. That is a consequence of how we implemented the class
+  # PseudoRandomNumbers. If you want a different set of numbers
+  # create a new instance of the class.
+  print('Creating a new instance of PseudoRandomNumbers:')
+  random_numbers2 = PseudoRandomNumbers(0, 100, 10)
+  print('10 random numbers in the range [0, 100):')
+  for number in random_numbers2:
+    print(number)
+
+  # You can have multiple iterators over the same iterable.
+  print('Creating two iterators over the same iterable:')
+  iterator1 = iter(random_numbers)
+  iterator2 = iter(random_numbers)
+  iterator1_exhausted = False
+  iterator2_exhausted = False
+  while not (iterator1_exhausted and iterator2_exhausted):
+    if not iterator1_exhausted:
+      try:
+        print(f'iterator1: {next(iterator1)}')
+        print(f'iterator1: {next(iterator1)}')
+      except StopIteration:
+        iterator1_exhausted = True
+        print('iterator1 exhausted')
+    if not iterator2_exhausted:
+      try:
+        print(f'iterator2: {next(iterator2)}')
+      except StopIteration:
+        iterator2_exhausted = True
+        print('iterator2 exhausted')
+  print('Finished iterating over both iterators.')
+
+  # Note on type annotations:
+  # All iterables are of type typing.Iterable[T] where T is the type of
+  # the elements in the iterable. All iterators are of type typing.Iterator[T]
+  # where T is the type of the elements in the iterator.
+  # However, when specifically implementing an iterator, it is
+  # recommended to inherit from collections.abc.Iterable[T] and
+  # collections.abc.Iterator[T] respectively. Use the former when
+  # specifying that the 'type' of a variable is an iterable or iterator.
+  # Use the latter when implementing an iterable or iterator.
+  # The class PseudoRandomNumbers is an iterable tha returns integers,
+  # so it is derived from class collections.abc.Iterable[int]. It is
+  # of type iterator[int].
+  # For example, the function below takes an iterable of integers
+  # and not collections.abc.Iterable[int] as a parameter.
+  # This allows it to accept any iterable of integers, including
+  # classes that do not explicitly inherit from
+  # collections.abc.Iterable[int],
+  def sum_of(numbers: Iterable[int]) -> int:
+    """
+      Returns the sum of the numbers in the iterable.
+      :param numbers: An iterable of integers
+      :return: The sum of the numbers
+    """
+    # This function duplicates the functionality of the built-in
+    # sum() function, but it is implemented using an iterator.
+    s: int = 0
+    for n in numbers:
+      s += n
+    return s
+
+  # you can use the sum_of function to sum the random_numbers
+  print(f'Sum of random numbers: {sum_of(random_numbers)}')
+  # This will work with any iterable of integers, including lists,
+  # tuples, and even generators.
+  some_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  print(f'Sum of some numbers: {sum_of(some_numbers)}')
 
 
 if __name__ == '__main__':
