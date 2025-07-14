@@ -1,0 +1,388 @@
+Jul 13 00:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 00:00:16 darkness2 systemd[1]: Starting Rotate log files...
+Jul 13 00:00:16 darkness2 systemd[1]: Started Update a database for mlocate.
+Jul 13 00:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 00:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 00:00:16 darkness2 systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 923 (rsyslogd) on client request.
+Jul 13 00:00:16 darkness2 systemd[1]: logrotate.service: Deactivated successfully.
+Jul 13 00:00:16 darkness2 systemd[1]: Finished Rotate log files.
+Jul 13 00:00:16 darkness2 rsyslogd[923]: [origin software="rsyslogd" swVersion="8.2412.0-1.el9" x-pid="923" x-info="https://www.rsyslog.com"] rsyslogd was HUPed
+Jul 13 00:00:19 darkness2 systemd[1]: mlocate-updatedb.service: Deactivated successfully.
+Jul 13 00:07:22 darkness2 systemd[1]: Starting Generate a daily summary of process accounting...
+Jul 13 00:07:22 darkness2 systemd[1]: sysstat-summary.service: Deactivated successfully.
+Jul 13 00:07:22 darkness2 systemd[1]: Finished Generate a daily summary of process accounting.
+Jul 13 00:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 00:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 00:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 00:20:06 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 00:20:06 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 00:20:06 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 00:30:11 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 00:30:11 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 00:30:11 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 00:32:26 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 00:32:27 darkness2 dnf[3965504]: Metadata cache refreshed recently.
+Jul 13 00:32:27 darkness2 systemd[1]: dnf-makecache.service: Deactivated successfully.
+Jul 13 00:32:27 darkness2 systemd[1]: Finished dnf makecache.
+Jul 13 00:40:19 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 00:40:19 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 00:40:19 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 00:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 00:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 00:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 01:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 01:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 01:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 01:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 01:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 01:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 01:20:03 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 01:20:03 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 01:20:03 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 01:30:09 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 01:30:09 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 01:30:09 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 01:33:16 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 01:33:17 darkness2 dnf[4054477]: Metadata cache refreshed recently.
+Jul 13 01:33:17 darkness2 systemd[1]: dnf-makecache.service: Deactivated successfully.
+Jul 13 01:33:17 darkness2 systemd[1]: Finished dnf makecache.
+Jul 13 01:40:19 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 01:40:19 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 01:40:19 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 01:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 01:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 01:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 02:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 02:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 02:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 02:00:26 darkness2 systemd[4793]: Starting Cleanup of User's Temporary Files and Directories...
+Jul 13 02:00:26 darkness2 systemd[4793]: Finished Cleanup of User's Temporary Files and Directories.
+Jul 13 02:03:26 darkness2 systemd[1]: Starting Cleanup of Temporary Directories...
+Jul 13 02:03:26 darkness2 systemd[1]: systemd-tmpfiles-clean.service: Deactivated successfully.
+Jul 13 02:03:26 darkness2 systemd[1]: Finished Cleanup of Temporary Directories.
+Jul 13 02:03:26 darkness2 systemd[1]: run-credentials-systemd\x2dtmpfiles\x2dclean.service.mount: Deactivated successfully.
+Jul 13 02:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 02:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 02:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 02:20:03 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 02:20:03 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 02:20:03 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 02:30:13 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 02:30:13 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 02:30:13 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 02:40:18 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 02:40:18 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 02:40:18 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 02:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 02:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 02:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 03:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 03:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 03:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 03:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 03:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 03:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 03:20:01 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 03:20:01 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 03:20:01 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 03:30:09 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 03:30:09 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 03:30:09 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 03:31:07 darkness2 auditd[742]: Audit daemon rotating log files
+Jul 13 03:32:26 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 03:32:28 darkness2 dnf[35072]: AlmaLinux 9 - AppStream                         0.0  B/s |   0  B     00:01
+Jul 13 03:32:28 darkness2 dnf[35072]: Errors during downloading metadata for repository 'appstream':
+Jul 13 03:32:28 darkness2 dnf[35072]:  - Curl error (7): Couldn't connect to server for http://mirror.bharatdatacenter.com/almalinux/9.6/AppStream/aarch64/os/repodata/repomd.xml [Failed to connect to mirror.bharatdatacenter.com port 80: Connection refused]
+Jul 13 03:32:28 darkness2 dnf[35072]: Error: Failed to download metadata for repo 'appstream': Cannot download repomd.xml: Curl error (7): Couldn't connect to server for http://mirror.bharatdatacenter.com/almalinux/9.6/AppStream/aarch64/os/repodata/repomd.xml [Failed to connect to mirror.bharatdatacenter.com port 80: Connection refused]
+Jul 13 03:32:28 darkness2 systemd[1]: dnf-makecache.service: Main process exited, code=exited, status=1/FAILURE
+Jul 13 03:32:28 darkness2 systemd[1]: dnf-makecache.service: Failed with result 'exit-code'.
+Jul 13 03:32:28 darkness2 systemd[1]: Failed to start dnf makecache.
+Jul 13 03:40:15 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 03:40:15 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 03:40:15 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 03:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 03:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 03:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 04:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 04:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 04:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 04:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 04:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 04:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 04:20:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 04:20:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 04:20:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 04:30:04 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 04:30:04 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 04:30:04 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 04:40:08 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 04:40:08 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 04:40:08 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 04:50:18 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 04:50:18 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 04:50:18 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 05:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 05:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 05:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 05:05:07 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 05:05:07 darkness2 dnf[170821]: Metadata cache refreshed recently.
+Jul 13 05:05:07 darkness2 systemd[1]: dnf-makecache.service: Deactivated successfully.
+Jul 13 05:05:07 darkness2 systemd[1]: Finished dnf makecache.
+Jul 13 05:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 05:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 05:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 05:20:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 05:20:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 05:20:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 05:30:03 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 05:30:03 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 05:30:03 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 05:40:11 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 05:40:11 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 05:40:11 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 05:50:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 05:50:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 05:50:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 06:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 06:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 06:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 06:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 06:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 06:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 06:20:23 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 06:20:23 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 06:20:23 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 06:30:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 06:30:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 06:30:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 06:40:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 06:40:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 06:40:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 06:50:03 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 06:50:03 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 06:50:03 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 06:54:42 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 06:54:59 darkness2 dnf[336255]: AlmaLinux 9 - AppStream                         0.0  B/s |   0  B     00:16
+Jul 13 06:54:59 darkness2 dnf[336255]: Errors during downloading metadata for repository 'appstream':
+Jul 13 06:54:59 darkness2 dnf[336255]:  - Curl error (7): Couldn't connect to server for http://mirror.bharatdatacenter.com/almalinux/9.6/AppStream/aarch64/os/repodata/repomd.xml [Failed to connect to mirror.bharatdatacenter.com port 80: Connection refused]
+Jul 13 06:54:59 darkness2 dnf[336255]: Error: Failed to download metadata for repo 'appstream': Cannot download repomd.xml: Curl error (7): Couldn't connect to server for http://mirror.bharatdatacenter.com/almalinux/9.6/AppStream/aarch64/os/repodata/repomd.xml [Failed to connect to mirror.bharatdatacenter.com port 80: Connection refused]
+Jul 13 06:54:59 darkness2 systemd[1]: dnf-makecache.service: Main process exited, code=exited, status=1/FAILURE
+Jul 13 06:54:59 darkness2 systemd[1]: dnf-makecache.service: Failed with result 'exit-code'.
+Jul 13 06:54:59 darkness2 systemd[1]: Failed to start dnf makecache.
+Jul 13 07:00:07 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 07:00:07 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 07:00:07 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 07:10:11 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 07:10:11 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 07:10:11 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 07:20:14 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 07:20:14 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 07:20:14 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 07:30:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 07:30:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 07:30:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 07:36:26 darkness2 auditd[742]: Audit daemon rotating log files
+Jul 13 07:40:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 07:40:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 07:40:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 07:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 07:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 07:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 07:57:33 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 07:57:34 darkness2 dnf[435668]: Metadata cache refreshed recently.
+Jul 13 07:57:34 darkness2 systemd[1]: dnf-makecache.service: Deactivated successfully.
+Jul 13 07:57:34 darkness2 systemd[1]: Finished dnf makecache.
+Jul 13 08:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 08:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 08:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 08:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 08:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 08:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 08:20:10 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 08:20:10 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 08:20:10 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 08:30:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 08:30:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 08:30:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 08:40:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 08:40:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 08:40:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 08:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 08:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 08:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 09:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 09:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 09:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 09:10:00 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 09:10:00 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 09:10:00 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 09:20:03 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 09:20:03 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 09:20:03 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 09:30:07 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 09:30:07 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 09:30:07 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 09:37:07 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 09:37:08 darkness2 dnf[588713]: Metadata cache refreshed recently.
+Jul 13 09:37:08 darkness2 systemd[1]: dnf-makecache.service: Deactivated successfully.
+Jul 13 09:37:08 darkness2 systemd[1]: Finished dnf makecache.
+Jul 13 09:40:13 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 09:40:13 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 09:40:13 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 09:50:21 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 09:50:21 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 09:50:21 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 10:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 10:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 10:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 10:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 10:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 10:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 10:20:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 10:20:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 10:20:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 10:30:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 10:30:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 10:30:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 10:40:05 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 10:40:05 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 10:40:05 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 10:47:26 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 10:47:28 darkness2 dnf[691988]: AlmaLinux 9 - AppStream                         0.0  B/s |   0  B     00:01
+Jul 13 10:47:28 darkness2 dnf[691988]: Errors during downloading metadata for repository 'appstream':
+Jul 13 10:47:28 darkness2 dnf[691988]:  - Curl error (7): Couldn't connect to server for http://mirror.bharatdatacenter.com/almalinux/9.6/AppStream/aarch64/os/repodata/repomd.xml [Failed to connect to mirror.bharatdatacenter.com port 80: Connection refused]
+Jul 13 10:47:28 darkness2 dnf[691988]: Error: Failed to download metadata for repo 'appstream': Cannot download repomd.xml: Curl error (7): Couldn't connect to server for http://mirror.bharatdatacenter.com/almalinux/9.6/AppStream/aarch64/os/repodata/repomd.xml [Failed to connect to mirror.bharatdatacenter.com port 80: Connection refused]
+Jul 13 10:47:28 darkness2 systemd[1]: dnf-makecache.service: Main process exited, code=exited, status=1/FAILURE
+Jul 13 10:47:28 darkness2 systemd[1]: dnf-makecache.service: Failed with result 'exit-code'.
+Jul 13 10:47:28 darkness2 systemd[1]: Failed to start dnf makecache.
+Jul 13 10:50:10 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 10:50:10 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 10:50:10 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 11:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 11:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 11:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 11:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 11:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 11:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 11:20:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 11:20:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 11:20:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 11:30:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 11:30:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 11:30:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 11:40:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 11:40:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 11:40:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 11:41:34 darkness2 auditd[742]: Audit daemon rotating log files
+Jul 13 11:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 11:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 11:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 12:00:00 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 12:00:00 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 12:00:00 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 12:10:04 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 12:10:04 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 12:10:04 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 12:20:08 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 12:20:08 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 12:20:08 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 12:30:14 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 12:30:14 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 12:30:14 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 12:30:26 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 12:30:27 darkness2 dnf[847959]: Metadata cache refreshed recently.
+Jul 13 12:30:27 darkness2 systemd[1]: dnf-makecache.service: Deactivated successfully.
+Jul 13 12:30:27 darkness2 systemd[1]: Finished dnf makecache.
+Jul 13 12:40:19 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 12:40:19 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 12:40:19 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 12:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 12:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 12:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 13:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 13:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 13:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 13:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 13:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 13:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 13:20:03 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 13:20:03 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 13:20:03 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 13:30:08 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 13:30:08 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 13:30:08 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 13:40:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 13:40:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 13:40:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 13:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 13:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 13:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 14:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 14:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 14:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 14:10:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 14:10:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 14:10:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 14:20:02 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 14:20:02 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 14:20:02 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 14:20:02 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 14:20:20 darkness2 dnf[1008657]: AlmaLinux 9 - AppStream                         244  B/s | 4.2 kB     00:17
+Jul 13 14:20:24 darkness2 dnf[1008657]: AlmaLinux 9 - BaseOS                            843  B/s | 3.8 kB     00:04
+Jul 13 14:20:42 darkness2 dnf[1008657]: AlmaLinux 9 - CRB                               252  B/s | 4.2 kB     00:17
+Jul 13 14:20:44 darkness2 dnf[1008657]: AlmaLinux 9 - Extras                            1.7 kB/s | 3.8 kB     00:02
+Jul 13 14:20:44 darkness2 dnf[1008657]: Docker CE Stable - aarch64                       23 kB/s | 3.5 kB     00:00
+Jul 13 14:20:46 darkness2 dnf[1008657]: Extra Packages for Enterprise Linux 9 - aarch64 6.0 kB/s | 9.0 kB     00:01
+Jul 13 14:30:00 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 14:30:00 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 14:30:00 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 14:34:24 darkness2 dnf[1008657]: Extra Packages for Enterprise Linux 9 - aarch64  20 kB/s |  16 MB     13:38
+Jul 13 14:34:24 darkness2 dnf[1008657]: Errors during downloading metadata for repository 'epel':
+Jul 13 14:34:24 darkness2 dnf[1008657]:  - Curl error (28): Timeout was reached for https://repo.extreme-ix.org/epel/9/Everything/aarch64/repodata/2d064c0ded1fe8b49c6ea383707655543263830bd3ade174c6c48a78f77a1439-filelists.xml.xz [Operation too slow. Less than 1000 bytes/sec transferred the last 30 seconds]
+Jul 13 14:34:24 darkness2 dnf[1008657]: Error: Failed to download metadata for repo 'epel': Yum repo downloading error: Downloading error(s): repodata/2d064c0ded1fe8b49c6ea383707655543263830bd3ade174c6c48a78f77a1439-filelists.xml.xz - Download failed: Curl error (28): Timeout was reached for https://repo.extreme-ix.org/epel/9/Everything/aarch64/repodata/2d064c0ded1fe8b49c6ea383707655543263830bd3ade174c6c48a78f77a1439-filelists.xml.xz [Operation too slow. Less than 1000 bytes/sec transferred the last 30 seconds]
+Jul 13 14:34:24 darkness2 systemd[1]: dnf-makecache.service: Main process exited, code=exited, status=1/FAILURE
+Jul 13 14:34:24 darkness2 systemd[1]: dnf-makecache.service: Failed with result 'exit-code'.
+Jul 13 14:34:24 darkness2 systemd[1]: Failed to start dnf makecache.
+Jul 13 14:34:24 darkness2 systemd[1]: dnf-makecache.service: Consumed 3.313s CPU time.
+Jul 13 14:40:08 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 14:40:08 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 14:40:08 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 14:50:12 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 14:50:12 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 14:50:12 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 15:00:14 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 15:00:14 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 15:00:14 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 15:08:42 darkness2 su[1090106]: (to root) svepa on pts/1
+Jul 13 15:10:18 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 15:10:18 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 15:10:18 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 15:20:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 15:20:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 15:20:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 15:30:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 15:30:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 15:30:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 15:39:45 darkness2 systemd[1]: Starting dnf makecache...
+Jul 13 15:39:45 darkness2 dnf[1135729]: Metadata cache refreshed recently.
+Jul 13 15:39:45 darkness2 systemd[1]: dnf-makecache.service: Deactivated successfully.
+Jul 13 15:39:45 darkness2 systemd[1]: Finished dnf makecache.
+Jul 13 15:40:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 15:40:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 15:40:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 15:46:28 darkness2 auditd[742]: Audit daemon rotating log files
+Jul 13 15:50:22 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 15:50:22 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 15:50:22 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 16:00:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 16:00:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 16:00:16 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 16:10:03 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 16:10:03 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 16:10:03 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 16:20:10 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 16:20:10 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 16:20:10 darkness2 systemd[1]: Finished system activity accounting tool.
+Jul 13 16:30:16 darkness2 systemd[1]: Starting system activity accounting tool...
+Jul 13 16:30:16 darkness2 systemd[1]: sysstat-collect.service: Deactivated successfully.
+Jul 13 16:30:16 darkness2 systemd[1]: Finished system activity accounting tool.
