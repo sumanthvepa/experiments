@@ -6,7 +6,7 @@
   This is the top-level driver code for my exploration of python.
 """
 # -------------------------------------------------------------------
-# language.py: Explore strings in Javascript
+# language.py: Explore Python
 #
 # Copyright (C) 2024-25 Sumanth Vepa.
 #
@@ -48,6 +48,7 @@ import metaclasses
 import abstract_base_classes
 import data_classes
 import advanced_class_concepts
+import protocols
 import protocol_mixins
 import exception_handling
 import iterators
@@ -362,24 +363,27 @@ def main() -> None:
   # Note 20: Explore advanced class concepts
   advanced_class_concepts.explore_slots()
 
-  # Note 21: Explore protocol mixins
+  # Note 21: Explore protocols
+  protocols.explore_protocols()
+
+  # Note 22: Explore protocol mixins
   protocol_mixins.explore_protocol_mixins()
 
-  # Note 22: Explore exceptions
+  # Note 23: Explore exceptions
   exception_handling.explore_exceptions()
   exception_handling.explore_exception_chaining()
 
-  # Note 23: Explore iterators and iterables
+  # Note 24: Explore iterators and iterables
   iterators.explore_iterators()
 
-  # Note 24: Explore generators
+  # Note 25: Explore generators
   generators.explore_generators()
 
-  # Note 25: Explore context managers
+  # Note 26: Explore context managers
   context_managers.explore_context_managers()
   context_managers.explore_two_phase_commit()
 
-  # Note 26: Explore async/await and asyncio
+  # Note 27: Explore async/await and asyncio
   async_await.explore_async_await()
 
   # Future explorations

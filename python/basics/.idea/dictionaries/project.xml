@@ -2,6 +2,7 @@
   <dictionary name="project">
     <words>
       <w>contextlib</w>
+      <w>savables</w>
       <w>vepa</w>
     </words>
   </dictionary>
