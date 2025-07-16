@@ -25,7 +25,7 @@
 from typing import Iterator, Generator
 
 
-# pylint: disable=too-many-statements
+# pylint: disable=too-many-statements, too-many-locals
 def explore_generators() -> None:
   """
     Explore generators
@@ -244,7 +244,7 @@ def explore_generators() -> None:
   except StopIteration as ex:
     print(f'Caught StopIteration exception: {ex}')
 
-  # It could of course have been written to reamin in an infinite loop
+  # It could of course have been written to remain in an infinite loop
   # as shown below, in which case we would need to call close() on it.
   # I prefer this style, because it does not use exceptions for
   # control flow.
