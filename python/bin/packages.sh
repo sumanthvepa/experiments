@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # -------------------------------------------------------------------
 # packages.sh: Script to create/upgrade all python package
 # dependencies for a project.
@@ -23,6 +23,13 @@
 # Packages.sh is a shell script that should be run in a fresh
 # python virtual environment to install the latest versions
 # of all packages required by 01-remote-idea-python
+
+
+# Note the use of the env trampoline #!/usr/bin/env bash
+# instead of a simple /bin/bash. This is to ensure that the
+# version of bash used is taken from from the user's environment.
+# This is to avoid picking up an ancient version bash that
+# is the default bash environment on macOS.
 
 # This function reads a file containing package names into an array
 # passed to it as the second argument. The first argument is the
@@ -119,10 +126,10 @@ python3 -m pip install mypy
 # Testing support
 python3 -m pip install parameterized
 
-# Update requirements.txt
-python3 -m pip freeze >requirements.txt
-
 # Install additional package specified in packages.txt
 read_packages "$SCRIPT_DIR/packages.txt" packages
 echo "Installing additional packages: ${packages[*]}"
 install_packages "${packages[@]}"
+
+# Update requirements.txt
+python3 -m pip freeze >requirements.txt

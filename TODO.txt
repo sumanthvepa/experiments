@@ -1,3 +1,4 @@
+[DONE]issue149-python-packages.sh: Use an env trampoline to use the default bash
 issue148-r-basics: Explore the basics of R
 issue147-python-standard-package-script:
   Standardize the initial pacakge installation script
