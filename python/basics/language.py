@@ -28,7 +28,6 @@ import sys
 
 import booleans
 import comments
-import context_managers
 import printing
 import constants
 import variables
@@ -52,8 +51,10 @@ import protocols
 import protocol_mixins
 import exception_handling
 import iterators
+import coroutines
 import generators
 import async_await
+import context_managers
 
 print('Exploring Python')
 
@@ -373,18 +374,23 @@ def main() -> None:
   exception_handling.explore_exceptions()
   exception_handling.explore_exception_chaining()
 
+  # Note 24-27 explore asynchronous programming in Python
+
   # Note 24: Explore iterators and iterables
   iterators.explore_iterators()
 
-  # Note 25: Explore generators
-  generators.explore_generators()
+  # Note 25: Explore coroutines
+  coroutines.explore_coroutines()
 
-  # Note 26: Explore context managers
-  context_managers.explore_context_managers()
-  context_managers.explore_two_phase_commit()
+  # Note 26: Explore generators
+  generators.explore_generators()
 
   # Note 27: Explore async/await and asyncio
   async_await.explore_async_await()
+
+  # Note 28: Explore context managers
+  context_managers.explore_context_managers()
+  context_managers.explore_two_phase_commit()
 
   # Future explorations
   # Note: Explore MRO and multiple inheritance
