@@ -39,10 +39,11 @@ def explore_async_await() -> None:
   # asynchronous code in a synchronous style. This makes it easier
   # to write and understand asynchronous code, which can be
   # complex and error-prone.
-  # Async/await is built on top of the asyncio module, which provides
-  # support for asynchronous programming in Python.
+  # Async/await is built on top of the asyncio module, (is it?)
+  # which provides support for asynchronous programming in Python.
   # To use async/await, you define functions that are marked with
-  # the async keyword. These functions can contain the await keyword,
+  # the async keyword. These functions are called coroutines.
+  # These functions can contain the await keyword,
   # which is used to call other async functions.
   # When you call an async function with await, the function is
   # executed asynchronously, and the calling function is suspended
@@ -493,8 +494,8 @@ def explore_async_await() -> None:
              asyncio.create_task(limited_delayed_message('Raises an exception', 10))]
     done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
     # Iterate over the done set to get the return values of the coroutines.
-    # If a coroutine raised an exception, the exception will be returned as
-    # a return value.
+    # If a coroutine raised an exception, we can catch it and append it to
+    # the messages list.
     messages = []
     for task in list(done) + list(pending):
       try:
