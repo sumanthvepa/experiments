@@ -136,7 +136,7 @@ def explore_coroutines() -> None:
   # consumer coroutine.
 
   def random_numbers() -> Iterator[int]:
-    """ A simple producer coroutine that 5 random integers in the range [0, 100). """
+    """ A simple producer coroutine that generates 5 random integers in the range [0, 100). """
     for _ in range(5):
       v = random.randrange(0, 100)
       print(f'Producer generated number: {v}')
