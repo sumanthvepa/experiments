@@ -42,12 +42,12 @@ def explore_generators() -> None:
   # In Python however, the terms coroutine and generator are often
   # used interchangeably, because all coroutines that use yield, will
   # return an object of type Generator, which is a subtype (but not a
-  # subclass) of Iterator.
+  # subclass -- see structural subtyping) of Iterator.
 
-  # However, python also has async coroutines (discussed in async/await),
+  # However, Python also has async coroutines (discussed in async/await),
   # which are defined to return an object of type Coroutine, which is
   # a subtype (but not a subclass) of Awaitable. These are not
-  # Generator types.
+  # Generator types. These are discussed in async_await.py.
 
   # In this file we wil explore functions that return the type
   # Generator. We've already seen coroutines that return type
@@ -114,6 +114,11 @@ def explore_generators() -> None:
   while (f := next(fbg2, None)) is not None:  # type: ignore[arg-type]
     print(f, end=' ')
   print()
+
+  # The most elegant way to iterate over the values of a generator
+  # is to use 'listification', which is a Pythonic way to convert an
+  # iterable to a list. This is done using the list() function.
+  print(list(fibonacci(10)))
 
   # The same function could have been written to return
   # Generator[int, None, None] if we wanted to. It's the same thing
@@ -269,6 +274,43 @@ def explore_generators() -> None:
   # The generator will catch the exception and print it, but will
   # not exit. We can call close() on it to stop it.
   err_rec2.close()  # Stop the generator, because it is in an infinite loop
+
+  # In some situations, you may want to usa a generator to add to
+  # the output of another generator. One way to do this as follows:
+  def fibonacci_repeated(n: int) -> Generator[int, None, None]:
+    """
+      Generate the same sequence fibonacci numbers twice
+      :param n: The length of sequence to generate
+      :yield: The first n Fibonacci numbers squared
+      :return: A generator that yields the first n Fibonacci numbers squared
+    """
+    # The yield from statement is used to yield values from
+    # another generator until it is exhausted, without the need for
+    # a loop.
+    yield from fibonacci(n)  # Will keep yield the output of fibonacci(n) until it is exhausted
+    yield from fibonacci(n)  # Will do the same again, yielding the same values
+
+  # Now we can use the generator to get the first 10 Fibonacci numbers
+  # twice
+  print('Fibonacci numbers repeated twice using yield from:')
+  print(list(fibonacci_repeated(10)))
+
+  # Now consider a more complex example where we want to manipulate
+  # the values yielded by a generator inside another generator.
+  # Since we are not really using the SendType or ReturnType, we can
+  # use Iterator[YieldType] as the return type.
+  def square(generator: Iterator[int]) -> Iterator[int]:
+    """
+      A generator that squares the values yielded by another generator
+      :param generator: The generator to square the values of
+      :yield: The squared values of the input generator
+      :return: An iterator that yields the squared values of the input generator
+    """
+    yield from (n * n for n in generator)  # Use a generator expression to square the values
+
+  # Now we can use the square generator to square the first 10 Fibonacci numbers
+  print('Squaring the first 10 Fibonacci numbers using a generator that squares the values:')
+  print(list(square(fibonacci(10))))
 
 
 if __name__ == '__main__':
