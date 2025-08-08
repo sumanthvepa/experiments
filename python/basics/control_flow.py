@@ -6,7 +6,7 @@
 # -------------------------------------------------------------------
 # control_flow.py: Explore control flow in Python
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a
@@ -160,6 +160,6 @@ def explore_control_flow() -> None:  # pylint: disable='too-many-statements, too
   # In the following code, the open() function returns a file object
   # that is used to write data to a file. The with statement ensures
   # that the file is properly closed when the block of code is exited.
-  # With statements are explored in more detail in  exceptions_and_context_managers.py
+  # With statements are explored in more detail in  exception_handling.py
   with open('data.txt', 'w', encoding='utf-8') as file:
     file.write('Hello, world!')

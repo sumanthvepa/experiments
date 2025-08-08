@@ -1,3 +1,13 @@
+[DONE]issue150-python-starlette-00-hellows: A hello world web service using starlette
+[DONE]issue149-python-packages.sh: Use an env trampoline to use the default bash
+issue148-r-basics: Explore the basics of R
+issue147-python-standard-package-script:
+  Standardize the initial pacakge installation script
+issue146-python-parsec: Experimental standalone command line parser library
+[DONE]issue145-python-02-testing: Move project testing to 02-testing
+[DONE]issue144-python-testing: Add notes on how to create stub files
+[DONE]issue143-python-01-remote-idea-python:
+  Document the process of creating a remote IntelliJ IDEA project
 [DONE]issue142-03-centered-block:
   Demonstrate the creation of vertically and horizontally centered block
 [DONE]issue141-02-svg-logo:

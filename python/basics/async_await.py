@@ -6,7 +6,7 @@
 # -------------------------------------------------------------------
 # async_await.py: Explore async/await
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a
@@ -23,9 +23,9 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# Python's async/await features are built on top of the asyncio module,
 import asyncio
-from typing import List
+import time
+from typing import Any, Coroutine, Generator, Tuple, cast
 from datetime import datetime, timezone
 
 
@@ -35,508 +35,655 @@ def explore_async_await() -> None:
     Explore async/await in Python
     :return: None
   """
-  # Async/await is a feature in Python that allows you to write
-  # asynchronous code in a synchronous style. This makes it easier
-  # to write and understand asynchronous code, which can be
-  # complex and error-prone.
-  # Async/await is built on top of the asyncio module, which provides
-  # support for asynchronous programming in Python.
-  # To use async/await, you define functions that are marked with
-  # the async keyword. These functions can contain the await keyword,
-  # which is used to call other async functions.
-  # When you call an async function with await, the function is
-  # executed asynchronously, and the calling function is suspended
-  # until the async function completes.
-  # Here is an example of an async function:
+  # To motivate the need for async/await, consider the following ways
+  # of printing a message after a delay of 5 seconds. This can represent
+  # some long-running I/O bound operation like disk read or a network
+  # request. (NOT a CPU bound operation, which is not suitable for
+  # async/await)
 
-  # The function below is an async function. It is marked with the
-  # async keyword. The effect of the async keyword is that the
-  # function returns a coroutine object, which can be awaited.
-  async def delayed_message(delay: int, message: str) -> None:
+  # The first way is to use a blocking function that sleeps for 5 seconds
+  # and then prints the message. This is a synchronous function.
+  # The downside of this approach is that it blocks the entire Python
+  # process until the sleep is over. This means that no other code can
+  # run while the sleep is in progress.
+  def delayed_message_sync(delay: int, message: str) -> None:
     """
       Print a message after a delay
       :param delay: int The delay in seconds
       :param message: str
       :return: None
     """
-    # We do not use the time.sleep function here because it is blocking.
-    # The entire python process will be blocked until the sleep is over.
-    # Instead, we use the asyncio.sleep function, which is non-blocking.
-    # This allows other parts of the python interpreter to run while
-    # the await blocks on the sleep.
-    # Note that this is how you call an async function from another
-    # async function. Using the await keyword.
-    await asyncio.sleep(delay)
+    # This is a blocking function. It will block the entire python
+    # process until the sleep is over.
+    time.sleep(delay)
     print(message)
 
-  # Simply calling the async function will result in a coroutine object
-  # being returned. The actual code in the function is not executed.
-  # The code is scheduled for execution in the asyncio event loop
-  # only when the coroutine is awaited.
-  coroutine = delayed_message(5, 'First message')
+  delayed_message_sync(5, 'First message (sync)')
 
-  # From within a non-async function, you can execute the coroutine
-  # using the asyncio.run function. This function runs the coroutine
-  # in the asyncio event loop. 
-  print('Starting sequential execution of coroutines')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(coroutine)
+  # The next way is to use a coroutine that checks if the delay is over
+  # in a loop and yields control back to the caller until the delay is
+  # over. This is a non-blocking function.
 
-  # You can directly call the async function from within the parameter
-  # list passed to the asyncio.run function. This is a shorthand for
-  # the above code. Delayed message will return a coroutine object
-  # which will be executed by the asyncio.run function.
-  asyncio.run(delayed_message(5, 'Second message'))
+  # To use this approach, we need to call coroutine using a loop
+  # until a StopIteration exception is raised. However, we can do
+  # other work when the coroutine is yielding control to the calling
+  # while loop. In this case we call do_something_else().
+
+  # While this is an improvement over the blocking function, it is
+  # quite cumbersome to use. You have to call the coroutine in a loop
+  # and handle the StopIteration exception to know when the coroutine
+  # is done. It is also potentially inefficient, since it runs the CPU
+  # in a tight loop.
+  def delayed_message_coroutine(
+        delay: int, message: str) -> Generator[None, None, None]:
+    """
+      Print a message after a delay
+      :param delay: int The delay in seconds
+      :param message: str
+      :return: None
+    """
+    current = time.perf_counter()
+    end = current + delay
+    while current < end:
+      yield
+      current = time.perf_counter()
+    print(message)
+
+  def do_something_else() -> None:
+    """
+      Do something else while waiting for the coroutine to complete
+      :return: None
+    """
+    print('Doing something else while waiting for the coroutine to complete')
+
+  # prime the generator to be used as a coroutine
+  coroutine = delayed_message_coroutine(5, 'Second message (coroutine)')
+  next(coroutine)  # This will start the coroutine and run it until the first yield
+  # Now we can run the coroutine in a loop until it is done
+  while True:
+    try:
+      next(coroutine)  # This will run the coroutine until the next yield
+      do_something_else()
+    except StopIteration:
+      break  # The coroutine is done, so we can exit the loop
+
+  # While this is an improvement over the blocking function, it is
+  # still quite cumbersome to use. You have to call the coroutine in
+  # a loop and handle the StopIteration exception to know when the
+  # coroutine is done.
+
+  # Both of the methods above are essentially synchronous in nature,
+  # even though the second one uses a coroutine that yields control to
+  # an event loop.
+
+  # Python 3.5 introduced the async/await syntax, which makes it
+  # possible to write truly asynchronous code that is easy to read
+  # and write. The async/await syntax allows you to define true
+  # asynchronous functions (coroutines). These methods are dispatched
+  # by an event loop. Although technically one does not need to use
+  # asyncio for the event loop, and one can write their own event
+  # loop, using the asyncio module is the recommended way to write
+  # asynchronous code in Python.
+
+  # Asynchronous functions are defined using the `async def`
+  # syntax. They can use the `await` keyword to call other asynchronous
+  # functions. Note that async function CANNOT use the `yield` keyword.
+
+  # This the asynchronous version of the delayed_message_...() functions
+
+  # Notice that the return type of the async function in its
+  # definition is just the normal return type of the function.
+  # Not a generator or Iterator like it is for coroutines.  But,
+  # when called, the async function returns a coroutine object, not
+  # the result of executing the function. We will explore this
+  # further below.
+
+  # The function `asyncio.sleep()`, which is a non-blocking
+  # function async function itself. The await keyword in front of
+  # `the asyncio.sleep()` call causes control to be yielded back to the
+  # event loop, which will only schedule continued execution of this
+  # function when the asyncio.sleep() function is done sleeping.
+  async def delayed_message_async(
+        delay: int, message: str) -> None:
+    """
+      Print a message after a delay
+      :param delay: int The delay in seconds
+      :param message: str
+      :return: None
+    """
+    await asyncio.sleep(delay)  # This is a non-blocking sleep
+    print(message)
+
+  # Just like synchronous coroutines, when the async function is
+  # called, it does not execute immediately. Instead, it returns
+  # a coroutine object that can be scheduled to run by an event loop.
+  # Just like the Generator type is used to represent a synchronous
+  # coroutine, an asynchronous coroutine is represented by the
+  # Coroutine type. The Coroutine type is a generic type that takes
+  # three type parameters: the Yield type, the Send type, and the
+  # Return type. The yield type is the type of the value that the
+  # coroutine yields (via async yield), the send type is the
+  # type of the value that can be sent to the coroutine (via async
+  # send),
+  # For most normal async functions, the yield type and send type
+  # are always Any. This is because most async functions do not
+  # yield or send any values and Python does not enforce any type
+  # checking on the values that are yielded or sent to Any. In
+  # practice, the first two generic type parameters are always Any,
+  # and the third type parameter is the return type of the async
+  # function. In this case, the return type is None,
+  delayed_async_coroutine: Coroutine[Any, Any, None] = delayed_message_async(
+    5, 'Third message (async)')
+
+  # To actually run the async function, we need to create an event
+  # loop and run the async function using the loop. The asyncio.run()
+  # function creates an event loop, and schedule the coroutine to
+  # run within the loop.
+
+  # Note that the asyncio.run() itself is a blocking function,
+  # which means that it will block the entire Python process until
+  # all coroutines scheduled in the event loop are done running.
+
+  # For the sake of exposition, this code has multiple calls to
+  # asyncio.run(). This is done to show various uses of async/await.
+  # In practice, you would typically have only one call to
+  # asyncio.run() in your program, and schedule all the coroutines
+  # that you want to run within that event loop.
+  asyncio.run(delayed_async_coroutine)
 
   # This message is printed only after asyncio.run has completed
-  # Asyncio.run itself is a blocking function. It will block until
-  # the coroutine is complete.
-  print('Completed sequential execution of coroutines')
+  print('Completed first run of asyncio.run()')
   print(datetime.now(tz=timezone.utc))
 
-  # Notice that the second message is printed after a delay of ~10
-  # seconds. This is because asyncio.run is blocking. The first
-  # call asyncio.run(coroutine) will block until the coroutine is
-  # complete. Only then will the second call to asyncio.run be
-  # executed.
+  # Of course, the thw two lines above can be combined into a single
+  # line as follows:
+  asyncio.run(delayed_message_async(
+    5, 'Fourth message (async)'))
+  print('Completed second run of asyncio.run()')
+  print(datetime.now(tz=timezone.utc))
 
-  # If you want to run multiple coroutines concurrently, you can
-  # create a task object for each coroutine and schedule those
-  # tasks to run concurrently and then await the completion of
-  # those tasks. Here is an example:
-  async def all_routines_concurrently1() -> None:
+  # If you want to run more than one async function in the same loop,
+  # define a master async function that calls the other async
+  # functions.
+
+  # Here is one way to do this:
+  async def master_coroutine1() -> None:
     """
-      Run all coroutines concurrently
+      Master coroutine that runs multiple async functions
       :return: None
     """
-    # Create a task object for each coroutine. The task is scheduled
-    # for execution right away. The current function continues to
-    # execute without waiting for the task to complete.
-    task1 = asyncio.create_task(delayed_message(5, 'Set 1: Concurrent message1'))
-    task2 = asyncio.create_task(delayed_message(5, 'Set 1: Concurrent message2'))
+    # This will run the delayed_message_async() function and wait for it to complete
+    await delayed_message_async(5, 'Fifth message')
+    # This will run the delayed_message_async() function and wait for it to complete
+    await delayed_message_async(5, 'Sixth message')
 
-    # Await the completion of the tasks. This will suspend the current
-    # function until task1 is complete.
-    print(f'Before await task1 {datetime.now(tz=timezone.utc)}')
-    await task1  # Suspends the current function until task1 is complete
-    print(f'Between await task1 and task 2 {datetime.now(tz=timezone.utc)}')
-    # Await completion of the second task. This will suspend the
-    # current function until task2 is complete.
-    await task2  # Suspends the current function until task2 is complete
-    print(f'After await task2 {datetime.now(tz=timezone.utc)}')
-    print('Exiting all_routines_concurrently1')
+  # Now we can run the master coroutine using asyncio.run()
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine1())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed third run of asyncio.run() [master_coroutine1]: {delta:.2f}s')
 
-  # Now we can run the all_routines_concurrently1 function using
-  # asyncio.run. This will run both coroutines concurrently.
-  print('Starting concurrent execution of coroutine set 1')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(all_routines_concurrently1())
-  print('Completed concurrent execution of coroutine set 1')
-  print(datetime.now(tz=timezone.utc))
+  # The problem with master_coroutine1() is that it runs the async
+  # functions sequentially, one after the other. This might be what
+  # you want if the second async function depends on the first one
+  # running to completion.
 
-  # Notice that the total time taken to run both coroutines is
-  # now ~5 seconds. This is because the coroutines are running
-  # concurrently.
-
-  # Also notice that the code above will wait for task1 to finish
-  # before checking on the completion of task2. So if task2
-  # finishes early then we won't know about it until task1 finishes.
-
-  # This is another way to run multiple coroutines concurrently.
-  # You can use the asyncio.gather function. This function takes a
-  # list of coroutines and returns a single task object that
-  # will run all the coroutines concurrently. You can then call
-  # asyncio.await on the task object to schedule the coroutines.
-  # Finally, you can wait for all the coroutines to complete by
-  # calling the all_routines_concurrently2 function using asyncio.run.
-  # This will run both coroutines concurrently, and wait for them
-  # to complete.
-  async def all_routines_concurrently2() -> None:
-    coroutines = [delayed_message(5, 'Set 2: Concurrent message1'),
-                  delayed_message(5, 'Set 2: Concurrent message2')]
-    # The asyncio.gather function takes a list of coroutines
-    # and returns a single task object that represents all the tasks
-    # It will create and schedule all tasks for execution concurrently
-    tasks = asyncio.gather(*coroutines)
-    print(f'type(tasks) = {type(tasks)}')
-    # The awaitable object returned by asyncio.gather can be awaited
-    # to wait for all the coroutines to complete.
-    await tasks  # Suspends the current function until all tasks are complete
-    print('All concurrent messages printed')
-
-  # Now you can run the all_routines_concurrently2 function using
-  print('Starting concurrent execution of coroutine set 2')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(all_routines_concurrently2())
-  print('Completed concurrent execution of coroutine set 2')
-  print(datetime.now(tz=timezone.utc))
-
-  # Notice that this time too, the total time taken to run both
-  # coroutines is ~5 seconds. This is because the coroutines are
-  # run concurrently.
-
-  async def all_routines_concurrently3() -> None:
-    # Here you create the tasks explicitly using asyncio.create_task
-    # as was done in all_routines_concurrently1. This schedules the
-    # tasks for asynchronous execution.
-    tasks = [asyncio.create_task(delayed_message(5, 'Set 3: Concurrent message1')),
-             asyncio.create_task(delayed_message(5, 'Set 3: Concurrent message2'))]
-    # You can await the completion of all tasks using asyncio.wait.
-    # Unlike asyncio.gather which will wait for all tasks to complete,
-    # asyncio.wait allows you to control when the waiting will stop.
-    # You have three options for the return_when parameter:
-    # asyncio.FIRST_COMPLETED: Return when any task completes.
-    # asyncio.FIRST_EXCEPTION: Return when any task raises an exception.
-    # asyncio.ALL_COMPLETED: Return when all tasks are done.
-    # To simulate the behavior of asyncio.gather, you can use
-    # asyncio.wait with the return_when parameter set to
-    # asyncio.ALL_COMPLETED.
-    # The return value of asyncio.wait is a tuple of two sets:
-    # the first set contains the tasks that are done,
-    # and the second set contains the tasks that are pending.
-    # For this example the pending set will be empty, since
-    # we are waiting for all tasks to complete. In any case,
-    # we will ignore the returned tuple for this example,
-    # since we are only interested in waiting for all tasks to
-    # complete.
-    await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
-    print('All concurrent messages printed')
-
-  # As usual, you can run the all_routines_concurrently3 function using
-  # asyncio.run. This will run both coroutines concurrently.
-  print('Starting concurrent execution of coroutine set 3')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(all_routines_concurrently3())
-  print('Completed concurrent execution of coroutine set 3')
-  print(datetime.now(tz=timezone.utc))
-
-  # One more way to run multiple coroutines concurrently is to
-  # use the TaskGroup class from the asyncio module. This class
-  # allows you to group multiple coroutines together and run them
-  # concurrently. Here is an example:
-  async def all_routines_concurrently4() -> None:
-    async with asyncio.TaskGroup() as group:
-      # You can use the create_task method of the TaskGroup object
-      # to create and schedule a task for execution.
-      group.create_task(delayed_message(5, 'Set 4: Concurrent message1'))
-      group.create_task(delayed_message(5, 'Set 4: Concurrent message2'))
-      # The wait is implicit. The TaskGroup object will wait for
-      # all tasks to complete before exiting the async with
-      # block.
-    print('All concurrent messages printed')
-
-  # Once again, you can run the all_routines_concurrently4 function
-  # using asyncio.run.
-  print('Starting concurrent execution of coroutine set 4')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(all_routines_concurrently4())
-  print('Completed concurrent execution of coroutine set 4')
-  print(datetime.now(tz=timezone.utc))
-
-  # All these ways of running coroutines concurrently are equivalent.
-  # The choice of which method to use depends on your preference.
-  # If you don't have a strong preference, you should go with
-  # TaskGroup, as it is easy to reason about.
-
-  # An async function can return a value using the return statement.
-  # The return value is wrapped in a coroutine object. You can await
-  # the coroutine object to get the return value. Here is an example:
-  async def delayed_echo(message: str, delay: int) -> str:
+  # There are a few ways to run multiple async functions concurrently.
+  # The simplest way is to use the asyncio.create_task() function to
+  # create a task for each async function, and then await the tasks
+  # to complete. This will run the async functions concurrently.
+  async def master_coroutine2() -> None:
     """
-      Returns the message passed to it after a delay
-      :param message: str The message to return
+      Master coroutine that runs multiple async functions concurrently
+      using asyncio.wait()
+      :return: None
+    """
+    # Create a task for each async function using asyncio.create_task()
+    task1: asyncio.Task[None] = asyncio.create_task(
+      delayed_message_async(5, 'Seventh message'))
+    task2: asyncio.Task[None] = asyncio.create_task(
+      delayed_message_async(5, 'Eighth message'))
+    tasks = (task1, task2)
+    await asyncio.wait(tasks)
+
+  # Now we can run the master coroutine using asyncio.run()
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine2())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed fourth run of asyncio.run() [master_coroutine2]: {delta:.2f}s')
+
+  # Another way to run multiple async functions concurrently is to
+  # use the asyncio.gather() function. This function takes multiple
+  # async functions and returns a Future that will be done when all
+  # the async functions are done running. The Future will contain a
+  # tuple of the return values of the async functions, in the same
+  async def master_coroutine3() -> None:
+    """
+      Master coroutine that runs multiple async functions concurrently
+      :return: Coroutine object
+    """
+    # Create a Future object that will run the two async functions
+    # concurrently. The tasks object is a Future that is parameterized
+    # by a tuple containing the return values of the two coroutines.
+    # In this case, both coroutines return None, so the type of the
+    # tasks object is asyncio.Future[Tuple[None, None]].
+
+    # Note that type Future is defined in the asyncio module, and
+    # not the built-in 'typing' module. So we need to import it from
+    # asyncio. Hence, the module name asyncio.Future.
+
+    # asyncio.gather() is a function that takes multiple coroutines
+    # and returns a Future that will be done when all the coroutines
+    # are done. The Future will contain a tuple of the return values
+    # of the coroutines, in the same order as the coroutines were
+    # passed to the gather() function.
+    tasks: asyncio.Future[Tuple[None, None]] = asyncio.gather(
+      delayed_message_async(5, 'Ninth message'),
+      delayed_message_async(5, 'Tenth message'))
+
+    # Now wait for the tasks to complete. This will block until all
+    # the coroutines in the tasks Future are done running.
+    await tasks
+
+  # Finally, we can schedule the master coroutine to run within an
+  # event loop using asyncio.run().
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine3())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed fifth run of asyncio.run() [master_coroutine3]: {delta:.2f}s')
+
+  # The last way to run multiple async functions concurrently is to
+  # use Task groups. A Task group is a context manager that allows you
+  # to create multiple tasks and wait for them to complete. The Task
+  # group will automatically cancel all the tasks if any of the tasks
+  # raises an exception. This is useful for error handling and
+  # cleanup. The Task group is created using the asyncio.TaskGroup()
+  # function.
+  async def master_coroutine4() -> None:
+    """
+      Master coroutine that runs multiple async functions concurrently
+      using Task groups
+      :return: None
+    """
+    # Create a Task group using the asyncio.TaskGroup() function.
+    # This will create a context manager that will automatically
+    # cancel all the tasks if any of the tasks raises an exception.
+    async with asyncio.TaskGroup() as tg:
+      # Create a task for each async function using tg.create_task()
+      tg.create_task(delayed_message_async(5, 'Eleventh message'))
+      tg.create_task(delayed_message_async(5, 'Twelfth message'))
+
+  # As usual, we schedule the master coroutine using asyncio.run().
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine4())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed sixth run of asyncio.run() [master_coroutine4]: {delta:.2f}s')
+
+  # Often you want to an asynchronous function to return a value
+  # instead of just None. You can do this by simply returning a value
+  # from the async function. The return type of the async function
+  # will be the type of the value that is returned. The return type
+  # will be wrapped in a Future object when the async function is
+  # called. The Future object will contain the return value of the
+  # async function when it is done running. The Future object can be
+  # awaited to get the return value of the async function.
+  async def delayed_message_async_with_return(
+        delay: int, message: str) -> str:
+    """
+      Print a message after a delay and return the message
       :param delay: int The delay in seconds
-      :return: str The message passed to the function
+      :param message: str The message to return
+      :return: str The message
     """
-    await asyncio.sleep(delay)
+    await asyncio.sleep(delay)  # This is a non-blocking sleep
     return message
 
-  # You can call the delayed_echo function using asyncio.run and
-  # await the return value to get the message.
-  result = asyncio.run(delayed_echo('Hello', 5))
-  print(f'The message is: {result}')
+  # If you want to get the result of an async function from the non-async
+  # part of your code, you can use the asyncio.run() function's return
+  # value.
+  start_time = time.perf_counter()
+  output: str = asyncio.run(
+    delayed_message_async_with_return(5, 'Thirteenth message'))
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Result from delayed_message_async_with_return() = {output}')
+  print(f'Completed seventh run of asyncio.run() [delayed_message_async_with_return]: {delta:.2f}s')
 
-  # You can wait for the value of the coroutine to be available
-  # using the await keyword from within an async function.
-  async def print_delayed_echo1() -> None:
+  # From within another async function, you can just await the
+  # async function to get the return value. This is similar to how
+  # you would await a coroutine to get the value that it yields.
+  async def master_coroutine5() -> None:
     """
-      Print the message returned by delayed_echo
+      Master coroutine that runs an async function that returns a value
       :return: None
     """
-    message = await delayed_echo('Hello', 5)
-    print(f'The message is: {message}')
+    # Call the async function and get a Future object that contains
+    # the return value of the async function.
+    task: asyncio.Future[str] = asyncio.create_task(
+      delayed_message_async_with_return(5, 'Fourteenth message'))
 
-  # As usual, you have to run the print_delayed_echo function
-  # using asyncio.run.
-  asyncio.run(print_delayed_echo1())
+    # Wait for the Future to complete and get the return value of the
+    # async function.
+    result: str = await task
+    print(f'Result from async function: {result}')
 
-  # You can also get the return value of a coroutine using the
-  # asyncio.create_task function. This function creates a task
-  # object that represents the coroutine. You can then await the
-  # task object to get the return value of the coroutine.
-  async def print_delayed_echo2() -> None:
+  # As usual, we schedule the master coroutine using asyncio.run().
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine5())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed eighth run of asyncio.run() [master_coroutine5]: {delta:.2f}s')
+
+  # If you are running multiple async functions that return values,
+  # And you want to get the return values of all the async functions,
+  # there is no way to do it directly outside the event loop. However,
+  # you can use a single master_coroutine that runs all the async
+  # functions concurrently and returns a tuple of the return values.
+  async def master_coroutine6() -> Tuple[str, str]:
     """
-      Get the message returned by delayed_echo
-      :return: None
+      Run multiple async functions concurrently and return a tuple
+      of their return values
+      :return: A tuple of strings containing the return values of the
+      async functions called.
     """
-    task = asyncio.create_task(delayed_echo('Hello', 5))
-    message = await task
-    print(f'The message is: {message}')
+    tasks: asyncio.Future[Tuple[str, str]] = asyncio.gather(
+      delayed_message_async_with_return(5, 'Fifteenth message'),
+      delayed_message_async_with_return(5, 'Sixteenth message'))
+    # Wait for the tasks to complete and get the return values of the
+    # async functions.
+    return await tasks
 
-  # As usual, you have to run the print_delayed_echo2 function
-  # using asyncio.run.
-  asyncio.run(print_delayed_echo2())
+  # Schedule the master coroutine using asyncio.run(). The return
+  # value of the asyncio.run() function will be a tuple of the return
+  # values of the async functions that were called in the master
+  # coroutine.
+  start_time = time.perf_counter()
+  output_tuple: Tuple[str, str] = asyncio.run(master_coroutine6())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Result from asyncio.gather() = {output_tuple}')
+  print(f'Completed ninth run of asyncio.run() [asyncio.gather()]: {delta:.2f}s')
 
-  # You can run multiple coroutines concurrently and get the return
-  # values of all the coroutines using the asyncio.gather function.
-  # For example, you can run the delayed_echo function twice
-  # concurrently and get the return values of both coroutines.
-  async def get_all_messages() -> None:
+  # If you prefer using Task groups, you can get the return values
+  # from multiple async functions as follows:
+  async def master_coroutine7() -> Tuple[str, str]:
     """
-      Get the messages returned by delayed_echo
-      :return: None
+      Run multiple async functions concurrently and return a tuple
+      of their return values using Task groups
+      :return: A tuple of strings containing the return values of the
+      async functions called.
     """
-    # You can use the asyncio.gather function to run multiple
-    # coroutines concurrently and get the return values of all
-    # the coroutines.
-    messages = await asyncio.gather(delayed_echo('Hello', 5),
-                                    delayed_echo('World', 5))
-    print(f'The messages are: {messages}')
+    async with asyncio.TaskGroup() as tg:
+      # Create a task for each async function using tg.create_task()
+      tasks = [
+        tg.create_task(delayed_message_async_with_return(5, 'Seventeenth message')),
+        tg.create_task(delayed_message_async_with_return(5, 'Eighteenth message'))]
+      results: Tuple[str, str] = (await tasks[0], await tasks[1])
+      return results
 
-  # As usual, you have to run the get_all_messages function
-  # using asyncio.run.
-  asyncio.run(get_all_messages())
+  # Schedule the master coroutine as usual using asyncio.run().
+  start_time = time.perf_counter()
+  output_tuple = asyncio.run(master_coroutine7())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Result from asyncio.gather() = {output_tuple}')
+  print(f'Completed tenth run of asyncio.run() [asyncio.gather()]: {delta:.2f}s')
 
-  # You can also run multiple coroutines concurrently and get the
-  # return values of all the coroutines using the TaskGroup class.
-  # For example, you can run the delayed_echo function twice
-  # concurrently and get the return values of both coroutines.
-  async def get_all_messages2() -> None:
+  # There is a slight problem with master_coroutine7() above.
+  # The results are awaited in the order that the tasks were created,
+  # This is not usually a problem if you need all the results, since
+  # the time it will take to get all the results will be determined
+  # by the slowest task.
+
+  # However, if you want to get the results as soon as they are
+  # available, you can use the asyncio.as_completed() function. This
+  # function takes an iterable of async functions and returns an
+  # iterable of Future objects that will be done when the async
+  # functions are done running. The Future objects will be
+  # yielded in the order that the async functions are done running,
+  # not in the order that they were passed to the as_completed()
+  # function. This is useful if you want to get the results as soon
+  # as they are available, and not wait for all the async functions
+  # to complete.
+  async def master_coroutine8() -> None:
     """
-      Get the messages returned by delayed_echo
-      :return: None
+      Run multiple async functions concurrently and return a tuple
+      of their return values using asyncio.as_completed()
+      :return: A tuple of strings containing the return values of the
+      async functions called.
     """
-    async with asyncio.TaskGroup() as group:
-      # You can use the create_task method of the TaskGroup object
-      # to create and schedule a task for execution.
-      # Store the task objects in a list so that you can await them
-      tasks = [group.create_task(delayed_echo('Hello', 5)),
-               group.create_task(delayed_echo('World', 5))]
-
-      # Now use await to get the return values of all the coroutines.
-      messages = [await task for task in tasks]
-      print(f'The messages are: {messages}')
-
-  # As usual, you have to run the get_all_messages2 function
-  # using asyncio.run.
-  asyncio.run(get_all_messages2())
-
-  # You can also run multiple coroutines concurrently and get the
-  # return values of all the coroutines using the asyncio.wait function.
-  # For example, you can run the delayed_echo function twice
-  # concurrently and get the return values of both coroutines.
-  # For example:
-  async def get_all_messages3() -> None:
-    """
-      Get the messages returned by delayed_echo
-      :return: None
-    """
-    tasks = [asyncio.create_task(delayed_echo('Hello', 5)),
-             asyncio.create_task(delayed_echo('World', 5))]
-    # You can use asyncio.wait to wait for all tasks to complete.
-    # The return_when parameter is set to asyncio.ALL_COMPLETED,
-    # which means that the function will wait for all tasks to
-    # complete.
-    # Note the use _ to ignore the second set of tasks that are
-    # pending. We are only interested in the tasks that are done.
-    done, _ = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
-    # You can get the return values of all the coroutines by
-    # iterating over the done set.
-    messages = [task.result() for task in done]
-    print(f'The messages are: {messages}')
-
-  # As usual, you have to run the get_all_messages2 function
-  # using asyncio.run.
-  asyncio.run(get_all_messages3())
-
-  # If your function raises an exception, the exception will be
-  # propagated to the caller. You can catch the exception using
-  # a try-except block. Here is an example:
-  async def limited_delayed_message(message: str, delay: int) -> str:
-    """
-      Raise an exception
-      :return: None
-    """
-    if delay > 5:
-      raise ValueError('Delay too long')
-    await asyncio.sleep(delay)
-    return message
-
-  try:
-    asyncio.run(limited_delayed_message('Hello', 10))
-  except ValueError as ex:
-    print(f'Caught exception: {ex}')
-
-  # If you are using asyncio.gather to run multiple coroutines
-  # concurrently, and one of the coroutines raises an exception,
-  # the exception will be propagated to the caller. You can catch
-  # the exception using a try-except block. The other coroutines
-  # are not affected by the exception and will continue to run.
-  # However, the return value of those coroutines will be lost.
-  async def multiple_coroutines_with_exception1() -> None:
-    """
-      Run multiple coroutines concurrently and handle exceptions
-      raised by them.
-      :return: None
-    """
-    try:
-      coroutines = [limited_delayed_message('Does not raise an exception', 5),
-                    limited_delayed_message('Raises an exception', 10)]
-      messages = await asyncio.gather(*coroutines)
-      # This will never be reached since coroutine2 raises an exception
-      print(f'The messages are: {messages}')
-    except ValueError as e:
-      print(f'Caught exception: {e}')
-
-  # As usual, you have to run the multiple_coroutines_with_exception1
-  # function using asyncio.run.
-  print('Starting concurrent execution of error prone coroutines using technique 1')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(multiple_coroutines_with_exception1())
-  print('Finished concurrent execution of error prone coroutines using technique 1')
-  print(datetime.now(tz=timezone.utc))
-
-  # If you want to get the return values of all the coroutines
-  # even if one of them raises an exception, you can do it with
-  # by creating a task object for each coroutine and awaiting
-  # the task object. Here is an example:
-  async def multiple_coroutines_with_exception2() -> None:
-    """
-      Run multiple coroutines concurrently and handle exceptions
-      raised by them.
-      :return: None
-    """
-    # First start the tasks using create_task. The mypy type
-    # annotation is optional, but is included here to make it clear
-    # that tasks is a list of
     tasks = [
-      asyncio.create_task(limited_delayed_message('Does not raise an exception', 5)),
-      asyncio.create_task(limited_delayed_message('Raises an exception', 10))
-    ]  # type: List[asyncio.Task[str]]
+      delayed_message_async_with_return(5, 'Nineteenth message'),
+      delayed_message_async_with_return(1, 'Twentieth message')]
+    # Use asyncio.as_completed() to get the results as soon as they are available
+    for future in asyncio.as_completed(tasks):
+      result: str = await future
+      print(f'Result from asyncio.gather() = {result}')
 
-    # Then iterate over the task list awaiting the completion of each task to
-    # get the return value, or catch an exception.
-    messages = []  # type: List[str]
-    for task in tasks:  # type: asyncio.Task[str]
-      try:
-        messages.append(await task)
-      except ValueError as e:
-        print(f'Caught exception: {e}')
-    # Finally print the received messages
-    print(f'The messages are: {messages}')
+  # Schedule the master coroutine as usual using asyncio.run().
+  # Notice that Twentieth message is printed before Nineteenth.
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine8())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed eleventh run of asyncio.run() [asyncio.gather()]: {delta:.2f}s')
 
-  # As usual, you have to run the multiple_coroutines_with_exception2
-  # function using asyncio.run.
-  print('Starting concurrent execution of error prone coroutines using technique 2')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(multiple_coroutines_with_exception2())
-  print('Finished concurrent execution of error prone coroutines using technique 2')
-  print(datetime.now(tz=timezone.utc))
-
-  # You can do the same thing with asyncio.gather, if you use the
-  # return_exceptions parameter. If this parameter is set to True,
-  # the gather function will return the exceptions raised by the
-  # coroutines as return values. Here is an example:
-  async def multiple_coroutines_with_exception3() -> None:
+  # Finally, if you want to run an async function in the background
+  # and not wait for it to complete, you can use the asyncio.create_task()
+  # function to create a task for the async function. The task will
+  # run in the background and, you can continue to do other work in
+  # your program. The task will be scheduled to run by the event loop
+  # and will run concurrently with the rest of your program. You can
+  # use the asyncio.Task.cancel() method to cancel the task if you
+  # want to stop it from running. Note that cancelling a task does
+  # not guarantee that the task will stop immediately. The task may
+  # still run for a short time after it is cancelled, depending on
+  # what it is doing. If the task is waiting for an I/O operation to
+  # complete, it will not stop until the I/O operation is done.
+  async def background_task() -> None:
     """
-      Run multiple coroutines concurrently and handle exceptions
-      raised by them.
+      A background task that runs in the background and prints a message
       :return: None
     """
-    # Use asyncio.gather with the return_exceptions parameter set to True.
-    # This will cause the gather function to return the exceptions raised
-    # by the coroutines as return values.
-    messages = await asyncio.gather(
-      limited_delayed_message('Does not raise an exception', 5),
-      limited_delayed_message('Raises an exception', 10),
-      return_exceptions=True
-    )
-    # Print the return values of the coroutines. If a coroutine raised an
-    # exception, the exception will be returned as a return value.
-    print(f'The messages are: {messages}')
+    count = 0
+    while True:
+      await asyncio.sleep(5)  # This is a non-blocking sleep
+      print(f'Background message count {count}')
+      count += 1
 
-  # As usual, you have to run the multiple_coroutines_with_exception3
-  # function using asyncio.run.
-  print('Starting concurrent execution of error prone coroutines using technique 3')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(multiple_coroutines_with_exception3())
-  print('Finished concurrent execution of error prone coroutines using technique 3')
-  print(datetime.now(tz=timezone.utc))
-
-  # You can also use asyncio.wait to run multiple coroutines concurrently
-  # and handle exceptions raised by them. The return_when parameter is
-  # set to asyncio.FIRST_EXCEPTION, which means that the function will
-  # return when the first coroutine raises an exception. Here is an example:
-  async def multiple_coroutines_with_exception4() -> None:
+  async def master_coroutine9() -> None:
     """
-      Run multiple coroutines concurrently and handle exceptions
-      raised by them.
+      Master coroutine that runs a background task
       :return: None
     """
-    # Use asyncio.wait with the return_when parameter set to
-    # asyncio.FIRST_EXCEPTION. This will cause the function to
-    # return when the first coroutine raises an exception.
-    tasks = [asyncio.create_task(limited_delayed_message('Does not raise an exception', 5)),
-             asyncio.create_task(limited_delayed_message('Raises an exception', 10))]
-    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
-    # Iterate over the done set to get the return values of the coroutines.
-    # If a coroutine raised an exception, the exception will be returned as
-    # a return value.
-    messages = []
-    for task in list(done) + list(pending):
-      try:
-        messages.append(await task)
-      except ValueError as e:
-        messages.append(str(e))
-    print(f'The messages are: {messages}')
-
-  # As usual, you have to run the multiple_coroutines_with_exception4
-  # function using asyncio.run.
-  print('Starting concurrent execution of error prone coroutines using technique 4')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(multiple_coroutines_with_exception4())
-  print('Finished concurrent execution of error prone coroutines using technique 4')
-  print(datetime.now(tz=timezone.utc))
-
-  # If you want to pick a technique, you should go with the asyncio.gather
-  # method with return_exceptions set to True. This is the most concise.
-
-  # Tasks can be cancelled while they are running. You can cancel a task
-  # by calling the cancel method on the task object. An
-  # asyncio.CancelledError is raised and can be caught by the async
-  # method itself or in a try/block
-  # Here is an example:
-  async def cancel_delayed_message() -> None:
+    # Create a task for the background task using asyncio.create_task()
+    # This starts the background task
+    task: asyncio.Task[None] = asyncio.create_task(background_task())
+    # Wait for a few seconds to let the background task run
+    await asyncio.sleep(30)
+    # Cancel the background task
+    task.cancel()
+    # Now await the task in a try/except block to handle the
+    # asyncio.CancelledError exception that will be raised when the
+    # task is cancelled. This is important to avoid leaving the
+    # task in a cancelled state and to ensure that the task is cleaned
+    # up properly.
     try:
-      # Create and schedule a task object for the delayed_echo coroutine
-      task = asyncio.create_task(delayed_echo('This is a really delayed message', 600))
-      # Wait for 10 seconds
-      await asyncio.sleep(10)
-      # Cancel the task
-      task.cancel()
-      # Await the task to cause the asyncio.CancelledError to be raised
-      await task
+      await task  # Wait for the task to be cancelled
     except asyncio.CancelledError:
-      print('Task was cancelled')
+      print('Background task was cancelled')
 
-  # As usual, you have to run the cancel_delayed_message function
-  # using asyncio.run.
-  print('Starting task cancellation')
-  print(datetime.now(tz=timezone.utc))
-  asyncio.run(cancel_delayed_message())
-  print('Finished task cancellation')
-  print(datetime.now(tz=timezone.utc))
+  # Schedule the master coroutine as usual using asyncio.run().
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine9())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed twelfth run of asyncio.run() [master_coroutine9()]: {delta:.2f}s')
 
-  # TODO: Explore async for loops
-  # Refer to this video from mCoding for guidance:
-  # https://www.youtube.com/watch?v=dEZKySL3M9c
+  # Sometimes, async functions need to raise exceptions to signal
+  # errors. You can raise exceptions in async functions just like
+  # you would in normal functions. The exception will be raised
+  # when the async function is awaited. If the exception is not
+  # handled, it will propagate up the call stack and cause the
+  # program to terminate. If you want to handle the exception, you
+  # can use a try/except block around the await statement that
+  # calls the async function. This is similar to how you would
+  # handle exceptions in normal functions.
+  async def delayed_message_async_with_exception(
+        delay: int, message: str) -> str:
+    """
+      Print a message after a delay and return the message
+      :param delay: int The delay in seconds
+      :param message: str The message to return
+      :return: str The message
+    """
+    await asyncio.sleep(delay)  # This is a non-blocking sleep
+    if delay > 3:
+      raise ValueError('Delay is too long')
+    return message
+
+  async def master_coroutine10() -> None:
+    """
+      Master coroutine that runs an async function that raises an exception
+      :return: None
+    """
+    try:
+      # Call the async function and get a Future object that contains
+      # the return value of the async function.
+      result: str = await delayed_message_async_with_exception(5, 'Twenty-first message')
+      print(f'Result from async function: {result}')
+    except ValueError as error:
+      print(f'Caught exception: {error}')
+
+  # Schedule the master coroutine as usual using asyncio.run().
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine10())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed thirteenth run of asyncio.run() [master_coroutine10()]: {delta:.2f}s')
+
+  # If the exception is not handled within asynchronous code, it will
+  # propagate up to the event loop and can be caught by a try/except
+  # block around the asyncio.run() call.
+  # Schedule the master coroutine as usual using asyncio.run().
+  start_time = time.perf_counter()
+  try:
+    asyncio.run(delayed_message_async_with_exception(5, 'Twenty-second message'))
+  except ValueError as ex:
+    print(f'Caught exception from asyncio.run(): {ex}')
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed fourteenth run of asyncio.run() [master_coroutine10()]: {delta:.2f}s')
+
+  # Often, you want to run multiple async functions, some of which
+  # might fail with an exception, and you want the return values of
+  # the ones that succeed, and the exceptions raised by the ones that
+  # fail. You can do this using the asyncio.gather() function with the
+  # return_exceptions=True argument. This will return a list of the
+  # return values of the async functions that succeeded, and the
+  # exceptions raised by the async functions that failed. The
+  # exceptions will be wrapped in a Future object, so you can check
+  # if the Future is done and if it is, you can check if it contains
+  # an exception.
+  async def master_coroutine11() -> None:
+    """
+      Master coroutine that runs multiple async functions and returns
+      the results and exceptions
+      :return: None
+    """
+    tasks: list[Coroutine[Any, Any, str]] = [
+      delayed_message_async_with_exception(5, 'Twenty-third message'),
+      delayed_message_async_with_exception(2, 'Twenty-fourth message')]
+    # Use asyncio.gather() to get the results and exceptions
+    future: asyncio.Future[list[str | BaseException]] \
+        = asyncio.gather(*tasks, return_exceptions=True)
+    results: list[str | ValueError] = cast(list[str | ValueError], await future)
+    for result in results:
+      if isinstance(result, ValueError):
+        print(f'Caught exception: {result}')
+      else:
+        print(f'Result from async function: {result}')
+
+  # Schedule the master coroutine as usual using asyncio.run().
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine11())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed fifteenth run of asyncio.run() [master_coroutine11()]: {delta:.2f}s')
+
+  # You can also use asyncio.wait() to wait for multiple async
+  # functions to complete and get the results and exceptions.
+  async def master_coroutine12() -> None:
+    """
+      Master coroutine that runs multiple async functions and returns
+      the results and exceptions using asyncio.wait()
+      :return: None
+    """
+    tasks: list[asyncio.Task[str]] = [
+      asyncio.create_task(delayed_message_async_with_exception(5, 'Twenty-fifth message')),
+      asyncio.create_task(delayed_message_async_with_exception(2, 'Twenty-sixth message'))]
+    # Use asyncio.wait() to get the results and exceptions
+    # pylint: disable=unused-variable
+    done, pending = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+    for future in done:
+      if future.exception() is not None:
+        print(f'Caught exception: {future.exception()}')
+      else:
+        print(f'Result from async function: {future.result()}')
+
+  # Schedule the master coroutine as usual using asyncio.run().
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine12())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed sixteenth run of asyncio.run() [master_coroutine11()]: {delta:.2f}s')
+
+  # Asyncio.wait() is more flexible than asyncio.gather(), because
+  # you can specify when you want the wait to end. In the previous
+  # example, we used asyncio.ALL_COMPLETED to wait for all the tasks
+  # to complete. You can also use asyncio.FIRST_COMPLETED to wait for
+  # the first task to complete, or asyncio.FIRST_EXCEPTION to wait for
+  # the first task to raise an exception. This can be useful if you
+  # want to run multiple async functions concurrently and get the
+  # results as soon as they are available, or if you want to stop
+  # waiting for the tasks to complete as soon as one of them raises
+  # an exception.
+  # In the code below, we use asyncio.FIRST_EXCEPTION to wait for the
+  # first task to raise an exception, and then we print the results
+  async def master_coroutine13() -> None:
+    """
+      Master coroutine that runs multiple async functions and returns
+      the results and exceptions using asyncio.wait()
+      :return: None
+    """
+    tasks: list[asyncio.Task[str]] = [
+      asyncio.create_task(delayed_message_async_with_exception(5, 'Twenty-seventh message')),
+      asyncio.create_task(delayed_message_async_with_exception(2, 'Twenty-eighth message'))]
+    # Use asyncio.wait() to get the results and exceptions
+    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+    for future in done:
+      if future.exception() is not None:
+        print(f'Caught exception: {future.exception()}')
+      else:
+        print(f'Result from async function: {future.result()}')
+
+    print(f'Pending tasks: {len(pending)}')
+    # You can then cancel the pending tasks if you want to:
+    for future in pending:
+      future.cancel()
+      print(f'Cancelled pending task: {future}')
+
+  # Schedule the master coroutine as usual using asyncio.run().
+  start_time = time.perf_counter()
+  asyncio.run(master_coroutine13())
+  end_time = time.perf_counter()
+  delta = end_time - start_time
+  print(f'Completed seventeenth run of asyncio.run() [master_coroutine11()]: {delta:.2f}s')
+
+
+if __name__ == '__main__':
+  explore_async_await()

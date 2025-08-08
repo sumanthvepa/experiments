@@ -6,7 +6,7 @@
 # -------------------------------------------------------------------
 # class_basics.py: Exploring basics of classes in Python
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a
@@ -25,6 +25,11 @@
 
 # Allow forward references in type hints.
 from __future__ import annotations
+
+# Import the ABC class and abstractmethod decorator from the abc module.
+# This allows us to define abstract base classes and methods.
+from abc import ABC, abstractmethod
+
 
 # Mark an attribute as a class attribute in type hints.
 # This causes mypy to warn if you try to access this attribute
@@ -465,13 +470,13 @@ def explore_inheritance() -> None:
     """
       A representation of a person.
     """
-    def __init__(self, first_name, last_name, age, email) -> None:
+    def __init__(self, first_name: str, last_name: str, age: int, email: str) -> None:
       """
         Constructor of the base class.
-        :param str first_name: First name of the person.
-        :param str last_name: Last name of the person.
-        :param int age: Age of the person.
-        :param str email: Email of the person.
+        :param first_name: First name of the person.
+        :param last_name: Last name of the person.
+        :param age: Age of the person.
+        :param email: Email of the person.
         :return: None
       """
       self.first_name = first_name
@@ -499,7 +504,8 @@ def explore_inheritance() -> None:
     """
       A representation of an employee.
     """
-    def __init__(  # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
+    def __init__(
       self,
       first_name: str,
       last_name: str,
@@ -532,6 +538,28 @@ def explore_inheritance() -> None:
   # Create an instance of the Employee class
   employee1 = Employee('Alice', 'Smith', 30, 'alice@example.com', 'Software Engineer')
   print(employee1.greet())
+
+
+def explore_abstract_base_classes() -> None:
+  """
+    Explore abstract base classes in Python
+    :return: None
+  """
+  # Abstract base classes are classes that cannot be instantiated.
+  # They are used to define a common interface for a group of
+  # related classes. Abstract base classes are defined using the
+  # abc module.
+  class Shape(ABC):
+    """
+      An abstract base class for shapes.
+    """
+    @abstractmethod
+    def area(self) -> float:
+      """
+        Calculate the area of the shape.
+        :return: The area of the shape.
+      """
+      pass
 
 
 if __name__ == '__main__':

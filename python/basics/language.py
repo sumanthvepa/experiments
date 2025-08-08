@@ -6,9 +6,9 @@
   This is the top-level driver code for my exploration of python.
 """
 # -------------------------------------------------------------------
-# language.py: Explore strings in Javascript
+# language.py: Explore Python
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License a
@@ -47,10 +47,14 @@ import metaclasses
 import abstract_base_classes
 import data_classes
 import advanced_class_concepts
+import protocols
 import protocol_mixins
-import exceptions_and_context_managers
+import exception_handling
+import iterators
+import coroutines
 import generators
 import async_await
+import context_managers
 
 print('Exploring Python')
 
@@ -61,7 +65,7 @@ print('Exploring Python')
 # This project depends on some third party packages installed with
 # pip. To recreate the environment first create the venv if it
 # does not already exist:
-# 1. python3 -m venv venv
+# 1. python3 -m venv "venv"
 
 # Then install the required packages
 # 2. python3 -m pip install -r requirements.txt
@@ -112,7 +116,7 @@ print('Exploring Python')
 # project, and to install dependencies without affecting the global
 # python installation. To create a virtual environment, use the
 # following commands:
-# $ python3 -m venv venv
+# $ python3 -m venv "venv"
 # $ source venv/bin/activate
 # This creates a virtual environment in the venv directory, and
 # activates it. You can deactivate the virtual environment by using
@@ -152,7 +156,7 @@ print('Exploring Python')
 
 # It is a modern convention to define a main function.
 # Python itself does not require it.
-def main():
+def main() -> None:
 
   # It is a modern convention to define a main function.
   # Python itself does not require it.
@@ -360,19 +364,33 @@ def main():
   # Note 20: Explore advanced class concepts
   advanced_class_concepts.explore_slots()
 
-  # Note 21: Explore protocol mixins
+  # Note 21: Explore protocols
+  protocols.explore_protocols()
+
+  # Note 22: Explore protocol mixins
   protocol_mixins.explore_protocol_mixins()
 
-  # Note 22: Explore exceptions
-  exceptions_and_context_managers.explore_exceptions()
-  exceptions_and_context_managers.explore_exception_chaining()
-  exceptions_and_context_managers.explore_context_managers()
+  # Note 23: Explore exceptions
+  exception_handling.explore_exceptions()
+  exception_handling.explore_exception_chaining()
 
-  # Note 23: Explore generators
+  # Note 24-27 explore asynchronous programming in Python
+
+  # Note 24: Explore iterators and iterables
+  iterators.explore_iterators()
+
+  # Note 25: Explore coroutines
+  coroutines.explore_coroutines()
+
+  # Note 26: Explore generators
   generators.explore_generators()
 
-  # Note 24: Explore async/await and asyncio
+  # Note 27: Explore async/await and asyncio
   async_await.explore_async_await()
+
+  # Note 28: Explore context managers
+  context_managers.explore_context_managers()
+  context_managers.explore_two_phase_commit()
 
   # Future explorations
   # Note: Explore MRO and multiple inheritance

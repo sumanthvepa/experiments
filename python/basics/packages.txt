@@ -1,0 +1,4 @@
+# Additional packages required for basics
+unidecode # Used in strings_and_bytes.py
+
+

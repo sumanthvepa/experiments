@@ -1,0 +1,20 @@
+This is a simple web service that returns a hello greeting
+as a JSON object.
+
+It is implemented using starlette.
+Project setup is pretty much the same as the standard python
+project in 01-remote-idea-python.
+
+Only additional things to note are:
+1. Add starlette and uvcorn as packages to be installed
+2. The webservice runs by default on port 5100.
+
+Start the webservice this way:
+# Source the environment
+source venv/bin/acivate
+
+python3 src/application.py 
+
+You can also use the more standard invocation method:
+
+python3 -m uvcorn --host:0.0.0.0 --port=5100 src/application
