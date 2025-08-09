@@ -647,6 +647,6 @@ redefining-builtins-modules=six.moves,past.builtins,future.builtins,builtins,io
 # to add the actual path directly. You can add print statements in the init hook
 # and run pylint form the command line to debug the path calculation.
 # init-hook='import sys; sys.path.append("/absolute/path/to/your/project")'
+# This relative hook seems to work on macOS. Not tested fully on Linux.
+init-hook='import os, sys; sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, os.pardir, os.pardir, os.pardir, "src"))); sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, os.pardir, os.pardir, os.pardir, "test"))); print(sys.path)'
 
-# init-hook='import os, sys; sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, os.pardir, os.pardir, os.pardir)))'
-init-hook='import sys; sys.path.append("/home/svepa/workspaces/experiments/python/01-remote-idea-python/src")'
