@@ -1,3 +1,7 @@
+issue151-python-starlette-01-class-based-routing:
+  A hello world web service that uses class based routing and fully
+  implements a JSON web service including handling forbidden methods
+  and unknown URLs
 [DONE]issue150-python-starlette-00-hellows: A hello world web service using starlette
 [DONE]issue149-python-packages.sh: Use an env trampoline to use the default bash
 issue148-r-basics: Explore the basics of R
