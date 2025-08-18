@@ -1,6 +1,6 @@
 """
-  test_root_endpoint.py: Unit tests for the root endpoint(/) of the
-  colophon webservice.
+  test_api_endpoint.py: Unit tests for the /api endpoint of the
+  cbrws webservice.
 """
 import unittest
 
@@ -12,33 +12,121 @@ from cbrws.application import app
 from test_cbrws.link_header import Link, parse
 
 
-class TestRootEndpoint(unittest.TestCase):
+class TestAPIEndpoint(unittest.TestCase):
   """
     Unit tests for the / route of the cbrws webservice
   """
   def test_get(self) -> None:
     """
-      Test that get / returns a 308 Permanent Redirect response to the
-      /api endpoint.
+      Test that get /api returns a hal+json response with the
+      correct headers and links.
       :return: None
     """
-    client = TestClient(app)
-    # If follow_redirects is not set to False, the test client will
-    # automatically follow the redirect, and the response will not be a
-    # 308 Permanent Redirect. This will cause the test to fail.
-    # Setting follow_redirects to False ensures that we get the 308
-    response: Response = client.get('/', follow_redirects=False)
-    self.assertEqual(status.HTTP_308_PERMANENT_REDIRECT, response.status_code)
+    base_url = 'http://localhost:5101'
+    client = TestClient(app, base_url=base_url)
+    response: Response = client.get('/api', follow_redirects=False)
+    self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+    profile_url = f'{base_url}/profiles/cbrws/v1'
+    schema_url = f'{profile_url}/api.schema'
+
+    self.assertIn('Content-Type', response.headers)
+    self.assertEqual(f'application/hal+json; profile="{profile_url}"', response.headers['Content-Type'])
+
+    self.assertIn('Link', response.headers)
+    link_header = response.headers['Link']
+    actual_links: dict[str, Link] = parse(link_header)
+    expected_links: dict[str, Link] = {
+      'profile': Link(
+        url=profile_url,
+        rel='profile',
+        media_type='application/ld+json',
+        title='API version identifier(URI) for the cbrws web service'),
+      'describedBy': Link(
+        url=schema_url,
+        rel='describedBy',
+        media_type='application/schema+json',
+        title='JSON schema of the response'),
+      'documentation': Link(
+        url=schema_url,
+        rel='documentation',
+        media_type='text/html',
+        title='Documentation for the cbrws web service API')
+    }
+    for rel, link in expected_links.items():
+      self.assertIn(rel, actual_links)
+      self.assertEqual(expected_links[rel], actual_links[rel])
+
+    actual_data = response.json()
+    expected_data = {
+      'title': 'CBRWS API',
+      'version': '1.0',
+      'description': 'This is the API endpoint for the cbrws web service.',
+      '_links': {
+        'self': {
+          'href': base_url + '/api',
+          'type': 'application/hal+json',
+          'profile': profile_url
+        },
+        'curies': [
+          {
+            'name': 'cbrws',
+            'href': base_url + '/profiles/cbrws/v1/rels/{rel}',
+            'templated': True,
+            'media_type': 'application/schema+json',
+            'profile': profile_url
+          }
+        ],
+        'cbrws:greeting': {
+          'href': base_url + '/api/greeting',
+          'rel': 'greeting',
+          'media_type': 'application/hal+json',
+          'profile': profile_url
+        }
+      }
+    }
+    self.assertDictEqual(actual_data, expected_data)
 
   def test_head(self) -> None:
     """
-      Test that head / returns a 308 Permanent Redirect response to the
-      /api endpoint.
+      Test that head /api returns a
       :return: None
     """
-    client = TestClient(app)
-    response: Response = client.head('/', follow_redirects=False)
-    self.assertEqual(status.HTTP_308_PERMANENT_REDIRECT, response.status_code)
+    base_url = 'http://localhost:5101'
+    client = TestClient(app, base_url=base_url)
+    response: Response = client.head('/api', follow_redirects=False)
+    self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+    profile_url = f'{base_url}/profiles/cbrws/v1'
+    schema_url = f'{profile_url}/api.schema'
+
+    headers = response.headers
+    content_type = response.headers['Content-Type']
+    self.assertEqual(f'application/hal+json; profile="{profile_url}"', content_type)
+
+    self.assertIn('Link', response.headers)
+    link_header = response.headers['Link']
+    actual_links: dict[str, Link] = parse(link_header)
+    expected_links: dict[str, Link] = {
+      'profile': Link(
+        url=profile_url,
+        rel='profile',
+        media_type='application/ld+json',
+        title='API version identifier(URI) for the cbrws web service'),
+      'describedBy': Link(
+        url=schema_url,
+        rel='describedBy',
+        media_type='application/schema+json',
+        title='JSON schema of the response'),
+      'documentation': Link(
+        url=schema_url,
+        rel='documentation',
+        media_type='text/html',
+        title='Documentation for the cbrws web service API')
+    }
+    for rel, link in expected_links.items():
+      self.assertIn(rel, actual_links)
+      self.assertEqual(expected_links[rel], actual_links[rel])
 
   def test_options(self) -> None:
     """

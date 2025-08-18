@@ -6,10 +6,14 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 
 from cbrws.root_endpoint import RootEndpoint
+from cbrws.api_endpoint import APIEndpoint
 from cbrws.not_found import not_found
 
 
-routes = [Route('/', endpoint=RootEndpoint)]
+routes = [
+  Route('/', endpoint=RootEndpoint, name='root_endpoint'),
+  Route('/api', endpoint=APIEndpoint, name='api_endpoint')
+]
 exception_handlers = {404: not_found}
 app = Starlette(
   debug=True,
