@@ -28,7 +28,40 @@ class HTTPEndpointTestHelper(RequireAsserts):
     Mixin for testing HTTP endpoints.
     Provides methods to make requests and check responses.
   """
-  base_url = 'http://localhost:8000'
+  @staticmethod
+  def base_url() -> str:
+    """ The base url for testing endpoints. """
+    return 'http://localhost:5101'
+
+  @staticmethod
+  def profile_url() -> str:
+    """ Expected profile URL for the cbrws web service API. """
+    return f'{HTTPEndpointTestHelper.base_url()}/profiles/cbrws/v1'
+
+  @staticmethod
+  def schema_url() -> str:
+    """ Expected schema URL for the cbrws web service API. """
+    return f'{HTTPEndpointTestHelper.profile_url()}/api.schema'
+
+  @staticmethod
+  def response_media_type() -> str:
+    """ Expected media type for the cbrws web service API response. """
+    return f'application/hal+json; profile="{HTTPEndpointTestHelper.profile_url()}"'
+
+  @staticmethod
+  def profile_media_type() -> str:
+    """ Expected media type for the cbrws web service profile. """
+    return 'application/ld+json'
+
+  @staticmethod
+  def schema_media_type() -> str:
+    """ Expected media type for the cbrws web service schema. """
+    return 'application/schema+json'
+
+  @staticmethod
+  def problem_media_type() -> str:
+    """ Expected media type for problem responses. """
+    return 'application/problem+json'
 
   @staticmethod
   def make_request(method: str, url: str) -> Response:
@@ -38,7 +71,7 @@ class HTTPEndpointTestHelper(RequireAsserts):
       :param url: The URL to request
       :return: The response object
     """
-    client = TestClient(app, base_url=HTTPEndpointTestHelper.base_url)
+    client = TestClient(app, base_url=HTTPEndpointTestHelper.base_url())
     return client.request(method, url=url, follow_redirects=False)
 
   def check_allow(self, response: Response) -> None:
@@ -61,21 +94,19 @@ class HTTPEndpointTestHelper(RequireAsserts):
     self.assertIn('Link', response.headers)
     link_header = response.headers['Link']
     actual_links: dict[str, Link] = parse(link_header)
-    profile_url = f'{self.base_url}/profiles/cbrws/v1'
-    schema_url = f'{profile_url}/api.schema'
     expected_links: dict[str, Link] = {
       'profile': Link(
-        url=profile_url,
+        url=HTTPEndpointTestHelper.profile_url(),
         rel='profile',
         media_type='application/ld+json',
         title='API version identifier(URI) for the cbrws web service'),
       'describedBy': Link(
-        url=schema_url,
+        url=HTTPEndpointTestHelper.schema_url(),
         rel='describedBy',
         media_type='application/schema+json',
         title='JSON schema of the response'),
       'documentation': Link(
-        url=schema_url,
+        url=HTTPEndpointTestHelper.schema_url(),
         rel='documentation',
         media_type='text/html',
         title='Documentation for the cbrws web service API')
@@ -123,7 +154,7 @@ class HTTPEndpointTestHelper(RequireAsserts):
       """ Make assertions on the response for disallowed methods."""
       self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, r.status_code)
       self.check_allow(r)
-      self.check_content_type(r, 'application/problem+json')
+      self.check_content_type(r, HTTPEndpointTestHelper.problem_media_type())
       data = r.json()
       self.assertIn('type', data)
       self.assertIn('title', data)
