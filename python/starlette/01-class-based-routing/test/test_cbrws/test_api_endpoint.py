@@ -22,7 +22,7 @@ class TestAPIEndpoint(unittest.TestCase, HTTPEndpointTestHelper):
     self.maxDiff = 2048
     response = self.make_request('GET', '/api')
     self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, TestAPIEndpoint.response_media_type())
+    self.check_content_type(response, self.response_media_type)
     self.check_link(response)
     actual_data = response.json()
     expected_data = {
@@ -31,24 +31,24 @@ class TestAPIEndpoint(unittest.TestCase, HTTPEndpointTestHelper):
       'description': 'This is the API endpoint for the cbrws web service.',
       '_links': {
         'self': {
-          'href': TestAPIEndpoint.base_url() + '/api',
-          'type': TestAPIEndpoint.response_media_type(),
-          'profile': TestAPIEndpoint.profile_url()
+          'href': self.base_url + '/api',
+          'type': self.response_media_type,
+          'profile': self.profile_url
         },
         'curies': [
           {
             'name': 'cbrws',
-            'href': TestAPIEndpoint.base_url() + '/profiles/cbrws/v1/rels/{rel}',
+            'href': self.base_url + '/profiles/cbrws/v1/rels/{rel}',
             'templated': True,
-            'media_type': TestAPIEndpoint.schema_media_type(),
-            'profile': TestAPIEndpoint.profile_url()
+            'media_type': self.schema_media_type,
+            'profile': self.profile_url
           }
         ],
         'cbrws:greeting': {
-          'href': TestAPIEndpoint.base_url() + '/api/greeting',
+          'href': self.base_url + '/api/greeting',
           'rel': 'greeting',
-          'media_type': TestAPIEndpoint.response_media_type(),
-          'profile': TestAPIEndpoint.profile_url(),
+          'media_type': self.response_media_type,
+          'profile': self.profile_url,
         }
       }
     }
@@ -61,5 +61,5 @@ class TestAPIEndpoint(unittest.TestCase, HTTPEndpointTestHelper):
     """
     response = self.make_request('GET', '/api')
     self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, TestAPIEndpoint.response_media_type())
+    self.check_content_type(response, self.response_media_type)
     self.check_link(response)
