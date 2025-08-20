@@ -40,13 +40,29 @@ class APIBaseEndpoint(HTTPEndpoint):
     return APIBaseEndpoint.profile_url(request) + '/api.schema'
 
   @staticmethod
-  def media_type(request: Request) -> str:
+  def response_media_type(request: Request) -> str:
     """
       Generate the media type for the cbrws web service.
       :param request: The HTTP request
       :return: A string representing the media type
     """
     return f'application/hal+json; profile="{APIBaseEndpoint.profile_url(request)}"'
+
+  @staticmethod
+  def schema_media_type() -> str:
+    """
+      Generate the media type for the schema of the cbrws web service.
+      :return: A string representing the schema media type
+    """
+    return f'application/schema+json'
+
+  @staticmethod
+  def problem_media_type() -> str:
+    """
+      Generate the media type for problem details in the cbrws web service.
+      :return: A string representing the problem media type
+    """
+    return 'application/problem+json'
 
   @staticmethod
   def headers(request: Request) -> dict[str, str]:

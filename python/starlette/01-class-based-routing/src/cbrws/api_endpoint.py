@@ -52,7 +52,7 @@ class APIEndpoint(APIBaseEndpoint):
       '_links': {
         'self': {
           'href': make_url(request, 'api'),
-          'type': 'application/hal+json',
+          'type': APIBaseEndpoint.response_media_type(request),
           'profile': APIBaseEndpoint.profile_url(request)
         },
         'curies': [
@@ -60,14 +60,14 @@ class APIEndpoint(APIBaseEndpoint):
             'name': 'cbrws',
             'href': make_url(request, 'profiles/cbrws/v1/rels/{rel}'),
             'templated': True,
-            'media_type': 'application/schema+json',
+            'media_type': APIBaseEndpoint.schema_media_type(),
             'profile': APIBaseEndpoint.profile_url(request)
           }
         ],
         'cbrws:greeting': {
           'href': make_url(request, 'api/greeting'),
           'rel': 'greeting',
-          'media_type': 'application/hal+json',
+          'media_type': APIBaseEndpoint.response_media_type(request),
           'profile': APIBaseEndpoint.profile_url(request)
         }
       }
@@ -75,5 +75,5 @@ class APIEndpoint(APIBaseEndpoint):
     return JSONResponse(
       content=message,
       status_code=status.HTTP_200_OK,
-      media_type=APIBaseEndpoint.media_type(request),
+      media_type=APIBaseEndpoint.response_media_type(request),
       headers=APIBaseEndpoint.headers(request))
