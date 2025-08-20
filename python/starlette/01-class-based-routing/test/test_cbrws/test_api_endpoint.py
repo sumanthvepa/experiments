@@ -192,7 +192,7 @@ class TestAPIEndpoint(unittest.TestCase):
       self.assertIn('HEAD', r.headers['Allow'])
       self.assertIn('OPTIONS', r.headers['Allow'])
       self.assertIn('Content-Type', r.headers)
-      self.assertEqual('application/json', r.headers['Content-Type'])
+      self.assertEqual('application/problem+json', r.headers['Content-Type'])
       data = r.json()
       self.assertIn('type', data)
       self.assertIn('title', data)
