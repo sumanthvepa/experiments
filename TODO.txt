@@ -1,3 +1,4 @@
+[DONE]issue-152-python-packages2.sh: Remove the need to create a symbolic link to the packages script in a project directory
 issue151-python-starlette-01-class-based-routing:
   A hello world web service that uses class based routing and fully
   implements a JSON web service including handling forbidden methods
