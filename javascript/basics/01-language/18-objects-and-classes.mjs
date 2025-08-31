@@ -231,7 +231,7 @@ export function exploreObjects() {
   };
   console.log(object1.city); // New York
 
-  // It is often common to create object form variables whose names
+  // It is often common to create an object from variables whose names
   // are the same as the property names. In such cases, you can use
   // the shorthand notation. The shorthand notation allows you to
   // omit the property name if the property name is the same as the
@@ -306,6 +306,12 @@ export function exploreObjects() {
     email: 'john@example.com'
   };
 
+  // This explanation of object comparison has some errors in it.
+  //  Clearly comparing two objects with the same properties with
+  // == returns false. So the explanation of the difference between
+  // == and === is flawed.
+  // TODO: Correct the following explanation.
+  // WRONG:
   // Two objects are equal only if they refer to the same object.
   // In general, even though == does compare references in the case
   // of objects, it is better to use === to compare objects. This is
@@ -889,10 +895,10 @@ export function exploreObjectInheritance() {
   console.log(`Person's name is: ${person1.name}`); // Jane Doe
   console.log(`Employee's name is: ${employee1.name}`); // Jane Doe
 
-  // Even using super in changeName2 will not work because super is only
-  // super will call the method of the same name in the prototype chain
-  // but the 'this' reference will still be bound to the employee object.
-  // So setting the name property will still create a new property on the
+  // Even using super in changeName2 will not work because super will
+  // call the method of the same name in the prototype chain but the
+  // 'this' reference will still be bound to the employee object. So
+  // setting the name property will still create a new property on the
   // employee object.
   employee1.changeName2('Marty McFly');
   console.log(`Person's name is: ${person1.name}`); // Jane Doe
@@ -976,18 +982,23 @@ export function exploreObjectInheritance() {
 
   // Change the name of the employee
   employee2.changeName('Jane', 'Doe');
-  person2.greet(); // Hello, my name is Jane Doe. I am 30 years old. You can reach me at john@example.com
+  person2.greet(); // Hello, my name is undefined undefined. I am undefined years old. You can reach me at undefined
   employee2.greet(); // Hello, my name is Jane Doe. I am 30 years old. You can reach me at john@example.com
 
 
   // The __proto__ property is a non-standard way to set the prototype of an object.
   // It is not recommended to use __proto__ in production code. It is better to use
-  // Object.create() to set the prototype of an object. The Object.create() method
-  // creates a new object with the specified prototype object. There are some
-  // subtle differences between __proto__ and Object.create(). The __proto__ property
-  // sets the prototype of the object itself. The Object.create() method creates a
-  // new object with the specified prototype object. The object itself is not modified.
-  // The Object.create() method is the recommended way to set the prototype of an object.
+  // Object.create() to set the prototype of an object. There are differences
+  // between assigning to __proto__ and calling Object.create() The Object.create()
+  // method creates a new object with the specified prototype object. Setting __proto__
+  // changes the prototype of an object after it has been created. Object.create()
+  // creates the new object the specified prototype. The latter is more efficient and
+  // more performant.
+  // The Object.create() method is the recommended way create an object that
+  // inherits from another object.
+
+  // E.g.:
+  // Create the employee3 object that inherits from person
   let employee3 = Object.create(person);
   employee3.job = 'Software Engineer';
   console.log(`Employee's name is: ${employee3.name}`); // John Doe
@@ -1021,7 +1032,7 @@ export function exploreConstructorFunctionBasedClasses() {
 
   // First we need to note that every function in Javascript has a prototype
   // property. It does not have to be a constructor function. The
-  // designation of a function as a constructor only comes when it
+  // designation of a function as a constructor only happens when it
   // is called with the 'new' operator.
   // So the following normal function has a prototype property.:
   function foo() {
@@ -1031,7 +1042,7 @@ export function exploreConstructorFunctionBasedClasses() {
   console.log(`foo.prototype: ${foo.prototype}`); // [object Object]
 
   // By default, the prototype property of a function is the root
-  // Object prototype. This is the prototype of all objects in
+  // Object prototype. This is the root prototype of all objects in
   // Javascript.
 
   // Now let's define a base object using object literal notation.
@@ -1090,7 +1101,7 @@ export function exploreConstructorFunctionBasedClasses() {
   // one instance of person. If you want to create multiple distinct
   // employee (not one person who has multiple jobs), you will have
   // to create a new object for each employee.
-  // The second limitation is that the base object defines methods
+  // The second limitation is that the Employee constructor defines methods
   // as part of the object. So every object created from the constructor
   // function will have its own copy of the method. This is not
   // efficient in terms of memory usage.
