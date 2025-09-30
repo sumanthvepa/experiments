@@ -2,19 +2,23 @@
   application.py: Entry point to the cbrws web service.
   cbrws stands for Class Based Routing Web Service.
 """
+from starlette.types import ExceptionHandler
 from starlette.applications import Starlette
 from starlette.routing import Route
 
+from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
+from cbrws.profile_endpoint import ProfileEndpoint
 from cbrws.not_found import not_found
 
 
-routes = [
+routes: list[Route] = [
   Route('/', endpoint=RootEndpoint, name='root_endpoint'),
-  Route('/api', endpoint=APIEndpoint, name='api_endpoint')
+  Route('/api', endpoint=APIEndpoint, name='api_endpoint'),
+  Route( CBRWSBaseEndpoint.PROFILE_PATH, endpoint=ProfileEndpoint, name='profile_endpoint')
 ]
-exception_handlers = {404: not_found}
+exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
 app = Starlette(
   debug=True,
   routes=routes,

@@ -9,8 +9,8 @@ from starlette import status
 
 # noinspection PyUnusedLocal
 async def not_found(
-      request: Request,  # pylint: disable=unused-argument
-      ex: Exception) -> JSONResponse:  # pylint: disable=unused-argument
+  request: Request,  # pylint: disable=unused-argument
+  ex: Exception) -> JSONResponse:  # pylint: disable=unused-argument
   """
     Handle 404 Not Found errors.
     :param request: The HTTP request

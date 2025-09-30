@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CBRWS API Profile v1",
+  "description": "JSON Schema for the CBRWS API Profile version 1",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "example": "CBRWS API"
+    },
+    "version": {
+      "type": "string",
+      "example": "1.0"
+    },
+    "description": {
+      "type": "string",
+      "example": "This is the API endpoint for the cbrws web service."
+    },
+    "_links": {
+      "type": "object",
+      "properties": {
+        "self": {
+          "type": "object",
+          "properties": {
+            "href": { "type": "string", "format": "uri" },
+            "type": { "type": "string" },
+            "profile": { "type": "string", "format": "uri" }
+          },
+          "required": ["href", "type", "profile"]
+        },
+        "curies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "href": { "type": "string", "format": "uri-template" },
+              "templated": { "type": "boolean" },
+              "media_type": { "type": "string" },
+              "profile": { "type": "string", "format": "uri" }
+            },
+            "required": ["name", "href", "templated"]
+          }
+        },
+        "cbrws:greet": {
+          "type": "object",
+          "properties": {
+            "href": { "type": "string", "format": "uri" },
+            "rel": { "type": "string", "enum": ["greet"] },
+            "media_type": { "type": "string" },
+            "profile": { "type": "string", "format": "uri" }
+          },
+          "required": ["href", "rel", "media_type", "profile"]
+        }
+      },
+      "required": ["self", "curies", "cbrws:greet"]
+    }
+  },
+  "required": ["title", "version", "_links"]
+}

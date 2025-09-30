@@ -6,10 +6,10 @@ import unittest
 
 from starlette import status
 
-from test_cbrws.http_endpoint_test_helper import HTTPEndpointTestHelper
+from test_cbrws.test_helper import TestHelper
 
 
-class TestAPIEndpoint(unittest.TestCase, HTTPEndpointTestHelper):
+class TestAPIEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the / route of the cbrws webservice
   """

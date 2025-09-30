@@ -1,5 +1,5 @@
 """
-  http_endpoint_test_helper.py: Mixin for testing HTTP endpoints.
+  test_helper.py: Mixin for testing HTTP endpoints.
   Provides methods to make requests and check responses.
 """
 from typing import Any, Container, Iterable, Protocol
@@ -23,7 +23,7 @@ class RequireAsserts(Protocol):
   def assertEqual(self, first: Any, second: Any, msg: Any | None = None) -> None: ...
 
 
-class HTTPEndpointTestHelper(RequireAsserts):
+class TestHelper(RequireAsserts):
   """
     Mixin for testing HTTP endpoints.
     Provides methods to make requests and check responses.

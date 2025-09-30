@@ -2,15 +2,14 @@
   root_endpoint.py: URL handler for the root URL of the cbrws
   web service.
 """
-from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
-from starlette.responses import JSONResponse, RedirectResponse, Response
+from starlette.responses import RedirectResponse
 from starlette import status
 
-from cbrws.api_base_endpoint import APIBaseEndpoint
+from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 
 
-class RootEndpoint(APIBaseEndpoint):
+class RootEndpoint(CBRWSBaseEndpoint):
   """
     A URL handler for the root URL of the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
@@ -32,4 +31,3 @@ class RootEndpoint(APIBaseEndpoint):
     """
     return RedirectResponse(
       url='/api', status_code=status.HTTP_308_PERMANENT_REDIRECT)
-

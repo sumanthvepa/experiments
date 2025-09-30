@@ -1,5 +1,5 @@
 """
-  api_base_endpoint.py: Base class for API endpoints in the cbrws
+  cbrws_base_endpoint.py: Base class for API endpoints in the cbrws
   web service.
 """
 from starlette.endpoints import HTTPEndpoint
@@ -10,7 +10,7 @@ from starlette import status
 from cbrws.url_util import make_url
 
 
-class APIBaseEndpoint(HTTPEndpoint):
+class CBRWSBaseEndpoint(HTTPEndpoint):
   """
   A base class for the API endpoints (/ and /api) in the cbrws
   web service.
@@ -21,6 +21,9 @@ class APIBaseEndpoint(HTTPEndpoint):
   directly, but rather as a base class for RootEndpoint and
   APIEndpoint classes.
   """
+
+  PROFILE_PATH = '/profiles/cbrws/v1'
+
   @staticmethod
   def profile_url(request: Request) -> str:
     """
@@ -28,7 +31,7 @@ class APIBaseEndpoint(HTTPEndpoint):
       :param request: The HTTP request
       :return: A string representing the profile URL
     """
-    return make_url(request, 'profiles/cbrws/v1')
+    return make_url(request, CBRWSBaseEndpoint.PROFILE_PATH)
 
   @staticmethod
   def schema_url(request: Request) -> str:
@@ -37,7 +40,7 @@ class APIBaseEndpoint(HTTPEndpoint):
       :param request: The HTTP request
       :return: A string representing the schema URL
     """
-    return APIBaseEndpoint.profile_url(request) + '/api.schema'
+    return CBRWSBaseEndpoint.profile_url(request) + '/api.schema'
 
   @staticmethod
   def response_media_type(request: Request) -> str:
@@ -46,7 +49,7 @@ class APIBaseEndpoint(HTTPEndpoint):
       :param request: The HTTP request
       :return: A string representing the media type
     """
-    return f'application/hal+json; profile="{APIBaseEndpoint.profile_url(request)}"'
+    return f'application/hal+json; profile="{CBRWSBaseEndpoint.profile_url(request)}"'
 
   @staticmethod
   def schema_media_type() -> str:
@@ -73,16 +76,38 @@ class APIBaseEndpoint(HTTPEndpoint):
     """
     return {
       'Allow': 'GET, HEAD, OPTIONS',
-      'Link': f'<{APIBaseEndpoint.profile_url(request)}>; rel="profile"; ' +
+      'Link': f'<{CBRWSBaseEndpoint.profile_url(request)}>; rel="profile"; ' +
               'type="application/ld+json"; ' +
               'title="API version identifier(URI) for the cbrws web service", ' +
-              f'{APIBaseEndpoint.schema_url(request)}>; rel="describedBy"; ' +
+              f'{CBRWSBaseEndpoint.schema_url(request)}>; rel="describedBy"; ' +
               'type="application/schema+json"; ' +
               'title="JSON schema of the response", ' +
-              f'<{APIBaseEndpoint.schema_url(request)}>; rel="documentation"; ' +
+              f'<{CBRWSBaseEndpoint.schema_url(request)}>; rel="documentation"; ' +
               'type="text/html"; ' +
               'title="Documentation for the cbrws web service API"'
     }
+
+  @staticmethod
+  def not_acceptable(request: Request, supported_media_types: list[str]) -> JSONResponse:
+    """
+      Generate a 415 Unsupported Media Type response.
+      :param request: The HTTP request
+      :param supported_media_types: A list of supported media types
+      :return: A JSONResponse with problem details
+    """
+    error = {
+      'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
+      'title': 'Not Acceptable',
+      'status': status.HTTP_406_NOT_ACCEPTABLE,
+      'detail': 'The requested media type is not supported by this endpoint. ' +
+                'Supported media types are: ' + ', '.join(supported_media_types),
+      'supportedMediaTypes': supported_media_types
+    }
+    return JSONResponse(
+      error,
+      status_code=status.HTTP_406_NOT_ACCEPTABLE,
+      media_type=CBRWSBaseEndpoint.problem_media_type(),
+      headers=CBRWSBaseEndpoint.headers(request))
 
   # noinspection PyMethodMayBeStatic, PyUnusedLocal
   async def options(self, request: Request) -> Response:
@@ -93,7 +118,7 @@ class APIBaseEndpoint(HTTPEndpoint):
     """
     return Response(
       status_code=status.HTTP_204_NO_CONTENT,
-      headers=APIBaseEndpoint.headers(request))
+      headers=CBRWSBaseEndpoint.headers(request))
 
   async def method_not_allowed(self, request: Request) -> JSONResponse:
     """
@@ -122,4 +147,4 @@ class APIBaseEndpoint(HTTPEndpoint):
       error,
       status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
       media_type='application/problem+json',
-      headers=APIBaseEndpoint.headers(request))
+      headers=CBRWSBaseEndpoint.headers(request))

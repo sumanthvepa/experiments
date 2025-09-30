@@ -11,6 +11,6 @@ def make_url(request: Request, path: str) -> str:
     This is used to construct URLs for schema and media type links.
     :param request: The HTTP request
     :param path: The path to append to the base URL
-    :return: A URL for th
+    :return: A URL for the given path
   """
   return f'{request.url.scheme}://{request.url.netloc}/{path}'

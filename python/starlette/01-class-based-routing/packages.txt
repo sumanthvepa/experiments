@@ -1,3 +1,6 @@
+jinja2
+aiofiles
+types-aiofiles
 starlette
 uvicorn
 httpx
