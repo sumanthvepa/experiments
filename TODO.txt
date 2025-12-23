@@ -1,4 +1,5 @@
-issue156-python-jupyter-01-r-lab-setup: Create a basic jupyter lab r lab server
+issue157-python-jupyter-01-r-lab-setup: Create a basic jupyter lab r lab server
+[DONE]issue156-web-00-boilerplate-start-server: Add an npm start command to package.json
 issue-155-python-packages3.sh: Add support for installing local packages
 issue154-python-starlette-01-class-based-routing:
   A Python Starlette based web service that uses class based routing

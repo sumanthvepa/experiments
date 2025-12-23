@@ -1,18 +1,20 @@
 {
   "name": "00-boilerplate",
-  "private": true,
   "version": "1.0.0",
   "description": "A static website that contains all the boilerplate needed for a fully functional website.",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "boilerplate"
-  ],
+  "type": "module",
+  "private": true,
   "author": "Sumanth Vepa",
   "license": "GPL-3.0+",
   "devDependencies": {
     "html5-boilerplate": "^9.0.1",
     "http-server": "^14.1.1"
-  }
+  },
+  "scripts": {
+    "start": "http-server -p 5001",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "boilerplate"
+  ]
 }
