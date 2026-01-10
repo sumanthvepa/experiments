@@ -1,3 +1,4 @@
+issue158-math-probability-feller-chapter1: Notes on Feller Chapter 1
 issue157-python-jupyter-01-r-lab-setup: Create a basic jupyter lab r lab server
 [DONE]issue156-web-00-boilerplate-start-server: Add an npm start command to package.json
 issue-155-python-packages3.sh: Add support for installing local packages
