@@ -1,3 +1,4 @@
+[DONE]issue159-python-01-remote-idea-python: Fix bug in pylintrc path
 issue158-math-probability-feller-chapter1: Notes on Feller Chapter 1
 issue157-python-jupyter-01-r-lab-setup: Create a basic jupyter lab r lab server
 [DONE]issue156-web-00-boilerplate-start-server: Add an npm start command to package.json
