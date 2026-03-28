@@ -1,3 +1,4 @@
+[DONE]issue167-commit-blender-directory: Commit changes made to the blender directory
 [DONE]issue166-commit-algorithms-directory: Commit changes made to the algorithms directory
 [DONE]issue165-commit-swift-directory: Commit changes made to the swift directory
 [DONE]issue164-commit-r-directory: Commit changes made to the r directory
