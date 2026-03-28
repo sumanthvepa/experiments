@@ -27,6 +27,15 @@
   they are imported. It will not load them in parallel, unlike
   <link rel="stylesheet"> tags in the HTML which will be loaded in
   parallel.
+
+  The structure of CSS stylesheets used here is called SMACSS (
+  Scalable and Modular Architecture for CSS).
+  The idea is to separate styles into different categories
+  based on their purpose, making it easier to maintain and
+  scale the CSS codebase.
+  Each specific component should be placed in its own file,
+  following the SMACSS guidelines. (i.e. module.css is just
+  a placeholder.)
  */
 
 @import "base.css";

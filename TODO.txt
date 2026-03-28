@@ -1,3 +1,27 @@
+[DONE]issue170-docker-01-install-docker-fedora: Add script for Fedora install
+issue169-haykin-neuralnetworks-ch1: Notes and explorations for Haykin Neural Networks Chapter 1
+[DONE]issue168-commit-java-directory: Commit changes made to the java directory
+[DONE]issue167-commit-blender-directory: Commit changes made to the blender directory
+[DONE]issue166-commit-algorithms-directory: Commit changes made to the algorithms directory
+[DONE]issue165-commit-swift-directory: Commit changes made to the swift directory
+[DONE]issue164-commit-r-directory: Commit changes made to the r directory
+[DONE]issue163-commit-web-directory-changes: Commit changes made to the web directory
+[DONE]issue162-move-aiml-into-math-cs: Move aiml into the mathematics/computer-science/folder
+[DONE]issue161-cleanup-math-folder: Clean up the math folder
+[DONE]issue160-python-01-remote-idea-python: Remove obsolete suggestion-mode option from pylintrc
+[DONE]issue159-python-01-remote-idea-python: Fix bug in pylintrc path
+issue158-math-probability-feller-chapter1: Notes on Feller Chapter 1
+issue157-python-jupyter-01-r-lab-setup: Create a basic jupyter lab r lab server
+[DONE]issue156-web-00-boilerplate-start-server: Add an npm start command to package.json
+issue-155-python-packages3.sh: Add support for installing local packages
+issue154-python-starlette-01-class-based-routing:
+  A Python Starlette based web service that uses class based routing
+[DONE]issue153-python-jupyter-00-lab-setup: Create a basic jupyter lab server
+[DONE]issue-152-python-packages2.sh: Remove the need to create a symbolic link to the packages script in a project directory
+issue151-python-starlette-01-class-based-routing:
+  A hello world web service that uses class based routing and fully
+  implements a JSON web service including handling forbidden methods
+  and unknown URLs
 [DONE]issue150-python-starlette-00-hellows: A hello world web service using starlette
 [DONE]issue149-python-packages.sh: Use an env trampoline to use the default bash
 issue148-r-basics: Explore the basics of R

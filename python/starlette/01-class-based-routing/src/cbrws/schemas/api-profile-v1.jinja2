@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CBRWS API Profile v1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<header>
+  <h1>CBRWS API Profile <span>(v1)</span></h1>
+  <p>
+    Semantic profile and contract for clients consuming the CBRWS HAL
+    API.
+  </p>
+  <div>
+    <span>profile URI: <code>{{ profile_url }}</code></span>
+    <span>media: <code>application/hal+json; profile="{{ profile_url }}"</code></span>
+    <span>relations base: <code>/profiles/cbrws/v1/rels/{rel}</code></span>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2>Overview</h2>
+    <p>
+      This document describes the structure and semantics of the API’s
+      discovery document (<code>/api</code>) and its link relations,
+      using HAL  (Hypertext Application Language) with CURIEs for
+      custom relations.
+    </p>
+
+    <p>
+      The CBRWS API is a simple web service that provides an endpoint
+      (i.e. URL) to serve a greeting message to the user. This
+      webservice is used as full production-quality example of how
+      to implement a RESTful API using Python's Starlette framework.
+    </p>
+    <p>
+      One important part of being REST-ful, is for the API to be
+      discoverable, meaning that clients can find out what resources
+      (i.e. endpoints) are available and how to interact with them.
+      This is typically done using a discovery document, which is a
+      machine-readable representation of the API's structure and
+      semantics.
+    </p>
+    <p>
+      For this web service that discovery document is available at
+      <code>/api</code> and is formatted using HAL with CURIEs for
+      custom relations. This means that the document includes links to
+      other resources in the API, as well as metadata about those
+      resources. (A CURIE is a Compact URI, which is a way to
+      abbreviate long URIs using a prefix and a suffix.)
+    </p>
+    <p>
+      This profile URL (<code>{{ profile_url }}</code>) is both
+      an identifier for the profile (as per RFC 6906) and a
+      documentation page describing the structure and semantics of
+      the response from <code>/api</code>.
+    </p>
+    <p>
+      This document exists in two forms: a human-readable HTML
+      document (what you’re reading now) and a machine-readable JSON
+      Schema. Clients can request the JSON Schema by sending an
+      <code>Accept: application/schema+json</code> header to this URL.
+      The JSON Schema can be used to validate that the response from
+      <code>/api</code> conforms to the expected structure.
+    </p>
+
+    <p>
+      That is, this document (and it's machine-readable JSON counterpart)
+      describes what /api should return.
+    </p>
+
+    <p>
+      Clients should treat HAL payloads that include
+      <code>profile="{{ profile_url }}"</code> as conforming to
+      the contract below.
+    </p>
+
+    <p>For machine-readable validation, request this URL with
+      <code>Accept: application/schema+json</code> to receive a JSON
+      Schema. With <code>Accept: text/html</code> (or a browser),
+      you’re viewing this human-readable documentation.
+    </p>
+  </section>
+  <section>
+    <h2>Discovery Document Contract (<code>/api</code>)</h2>
+    <p>The discovery resource MUST be a JSON object with the following top-level members:</p>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+      <tbody>
+      <tr><td><code>title</code></td><td>string</td><td>Yes</td><td>Display name of the API (e.g., “CBRWS API”).</td></tr>
+      <tr><td><code>version</code></td><td>string</td><td>Yes</td><td>API version string (e.g., “1.0”).</td></tr>
+      <tr><td><code>description</code></td><td>string</td><td>No</td><td>Optional human-readable description.</td></tr>
+      <tr><td><code>_links</code></td><td>object</td><td>Yes</td><td>HAL link collection (see below).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>_links (HAL &mdash; Hypertext Application Language)</h3>
+    <p>The <code>_links</code> object MUST include these members:</p>
+
+    <div>
+      <div>
+        <h4><code>self</code></h4>
+        <table>
+          <thead><tr><th>Member</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+          <tr><td><code>href</code></td><td>URI</td><td>Yes</td><td>Absolute URL of the discovery doc (e.g., <code>…/api</code>).</td></tr>
+          <tr><td><code>type</code></td><td>string</td><td>Yes</td><td>Media type, e.g. <code>application/hal+json; profile="{{  profile_url }}"</code>.</td></tr>
+          <tr><td><code>profile</code></td><td>URI</td><td>Yes</td><td>Profile identifier <code>{{ profile_url }}</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h4><code>curies</code></h4>
+        <p>An array of CURIE (Custom URI) definitions used to compact custom relation names.</p>
+        <table>
+          <thead><tr><th>Member</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+          <tr><td><code>name</code></td><td>string</td><td>Yes</td><td>Prefix used in link relations (e.g., <code>cbrws</code>).</td></tr>
+          <tr><td><code>href</code></td><td>URI template</td><td>Yes</td><td>Template for expanding relations (e.g., <code>…/rels/{rel}</code>).</td></tr>
+          <tr><td><code>templated</code></td><td>boolean</td><td>Yes</td><td>Must be <code>true</code> when <code>{rel}</code> appears in <code>href</code>.</td></tr>
+          <tr><td><code>media_type</code></td><td>string</td><td>No</td><td>Hint of representation returned when dereferenced (e.g., <code>application/schema+json</code>).</td></tr>
+          <tr><td><code>profile</code></td><td>URI</td><td>No</td><td>Profile URI for the doc returned by the CURIE.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Expansion:</strong> <code>cbrws:greet</code> → <code>{{ profile_url }}/rels/greet</code></p>
+      </div>
+    </div>
+
+    <div>
+      <h4><code>cbrws:greet</code></h4>
+      <table>
+        <thead><tr><th>Member</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+        <tr><td><code>href</code></td><td>URI</td><td>Yes</td><td>Absolute URL of the greet endpoint (e.g., <code>…/api/greet</code>).</td></tr>
+        <tr><td><code>rel</code></td><td>string</td><td>Yes</td><td>Literal relation name; MUST be <code>"name"</code>.</td></tr>
+        <tr><td><code>media_type</code></td><td>string</td><td>Yes</td><td>Expected response media type (HAL+JSON with this profile).</td></tr>
+        <tr><td><code>profile</code></td><td>URI</td><td>Yes</td><td>Profile identifier <code>{{ profile_url }}</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Example Discovery Response</h2>
+    <pre><code>{
+  "title": "CBRWS API",
+  "version": "1.0",
+  "description": "This is the API endpoint for the cbrws web service.",
+  "_links": {
+    "self": {
+      "href": "http://localhost:8000/api",
+      "type": "application/hal+json; profile=\"{{ profile_url }}\"",
+      "profile": "{{ profile_url }}"
+    },
+    "curies": [
+      {
+        "name": "cbrws",
+        "href": "{{ profile_url}}/rels/{rel}",
+        "templated": true,
+        "media_type": "application/schema+json",
+        "profile": "{{ profile_url }}"
+      }
+    ],
+    "cbrws:greet": {
+      "href": "{{ profile_url }}",
+      "rel": "greet",
+      "media_type": "application/hal+json; profile=\"{{ profile_url }}\"",
+      "profile": "{{ profile_url }}"
+    }
+  }
+}</code></pre>
+    <p>Tip: clients can validate this against the JSON Schema returned by this same URL when requesting <code>Accept: application/schema+json</code>.</p>
+  </section>
+
+  <section>
+    <div>
+      <h2>Relation Docs (CURIE expansion)</h2>
+      <p>Custom relations are documented at <code>/profiles/cbrws/v1/rels/{rel}</code>.</p>
+      <ul>
+        <li><code>cbrws:greet</code> → <code>/profiles/greet/v1/rels/greet</code></li>
+      </ul>
+      <p>Each relation supports content negotiation: HTML for humans, JSON Schema for machines.</p>
+    </div>
+
+    <div>
+      <h2>Content Negotiation</h2>
+      <p>Supported on this document:</p>
+      <ul>
+        <li><code>text/html</code> → this page</li>
+        <li><code>application/schema+json</code> → JSON Schema</li>
+      </ul>
+      <pre><code># HTML
+curl -H "Accept: text/html" http://localhost:8000/profiles/cbrws/v1
+
+# JSON Schema
+curl -H "Accept: application/schema+json" http://localhost:8000/profiles/cbrws/v1</code></pre>
+    </div>
+  </section>
+
+  <section>
+    <h2>Compliance Checklist</h2>
+    <ul>
+      <li><code>/api</code> includes <code>title</code>, <code>version</code>, <code>_links</code>.</li>
+      <li><code>_links.self</code> has <code>href</code>, <code>type</code>, <code>profile</code>.</li>
+      <li><code>_links.curies[0]</code> sets <code>name</code>, <code>href</code> with <code>{rel}</code>, and <code>templated=true</code>.</li>
+      <li><code>_links["cbrws:greet"]</code> has <code>href</code>, <code>rel="greet"</code>, <code>media_type</code>, <code>profile</code>.</li>
+      <li>Dereferencing CURIEs returns docs/schema via content negotiation.</li>
+    </ul>
+  </section>
+
+  <p>© Sumanth Vepa. 2025. Licensed under the GNU GPL v3.0 or later</p>
+</main>
+</body>
+</html>

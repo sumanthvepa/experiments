@@ -60,6 +60,12 @@ elif [[ $ID == 'almalinux' ]]; then
     docker-compose-plugin
 elif [[ $ID == 'fedora' ]]; then
   echo "Installing docker for Fedora"
+  dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+  dnf -y install \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    docker-buildx-plugin
 elif [[ $ID == 'debian' ]]; then
   echo "Installing docker for Debian"
 else

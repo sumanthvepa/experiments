@@ -36,7 +36,7 @@ def explore_printing() -> None:
   # This prints 'Hello, World!' to the console with a trailing newline.
   print('Hello, World!')
 
-  # You can print pass multiple arguments to the print function.
+  # You can pass multiple arguments to the print function.
   # By default, arguments are separated by a space.
   print('first', 1, 1.0, 'second', 2, 2.0)
 

@@ -131,5 +131,7 @@ read_packages "$SCRIPT_DIR/packages.txt" packages
 echo "Installing additional packages: ${packages[*]}"
 install_packages "${packages[@]}"
 
+# Install local packages
+
 # Update requirements.txt
 python3 -m pip freeze >requirements.txt

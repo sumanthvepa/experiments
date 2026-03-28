@@ -1,0 +1,13 @@
+astroid==3.3.11
+dill==0.4.0
+isort==6.1.0
+mccabe==0.7.0
+mypy==1.18.2
+mypy_extensions==1.1.0
+parameterized==0.9.0
+pathspec==0.12.1
+platformdirs==4.4.0
+pylint==3.3.8
+RapidFuzz==3.14.1
+tomlkit==0.13.3
+typing_extensions==4.15.0
