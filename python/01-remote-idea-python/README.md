@@ -71,7 +71,7 @@ python3.12 -m venv venv
 
 ### Phase 2: Step 3: Install pylint and mypy into the venv
 I use a script call packages.sh that reliably installs the packages
-I need. It needs to be run after sourcing the venv environment. It
+I needjk. It needs to be run after sourcing the venv environment. It
 updates pip to the latest version and install pylint, mypy and 
 parameterized (a unit testing library that I use frequently)
 
@@ -102,6 +102,17 @@ with pip. Even if you don't intend to package the project pip, it's
 a good idea to go with this structure
 
 mkdir src tests
+
+
+### Phase 2: Step 5: Setup package dependencies
+I use the internal packages3 system for python projects. Create pacakges.txt and
+local-packages.txt. The former should contain third party packages. The latter should contain packages that are within the same package
+
+Run the packages3 command in the project root directory. This will create a requirements.txt. 
+
+packages3.sh
+
+
 
 ## Phase 3: Create the IntelliJ IDEA project
 

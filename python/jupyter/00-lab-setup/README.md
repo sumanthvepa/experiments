@@ -11,6 +11,7 @@ python/01-remote-idea-python
 6. Set the environment variable JUPYTER_CONFIG_DIR=/path/to/src/npnjupy
 7. Create a Jupyter configuration using the following command:
    JUPYTER_CONFIG_DIR=./src/nfnjupyter/config.py lab --generate-config
+8. Rename the file lab_config.py
 8. Edit the following entries in the file:
    c.ServerApp.ip = '0.0.0.0'
    c.ServerApp.open_browser = False # Don't attempt to open a browser

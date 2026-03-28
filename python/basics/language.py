@@ -400,10 +400,8 @@ def main() -> None:
   # Note: Explore arrays
   # Note: Explore sets
   # Note: Explore decorators
-  # Note: Explore context managers
   # Note: Explore descriptors
-  # Note: Explore generators, yield, coroutines, and async/await
-  # Note: Explore __getattr_,  __setattr__ and __delattr__ and the attrs module
+  # Note: Explore __getattr__,  __setattr__ and __delattr__ and the attrs module
   # Note: Explore functools module
   # Note: Explore weak references
 
