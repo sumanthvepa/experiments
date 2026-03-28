@@ -1,5 +1,6 @@
-*[DONE]issue163-commit-web-directory-changes: Commit changes made to the web directory
-*[DONE]issue162-move-aiml-into-math-cs: Move aiml into the mathematics/computer-science/folder
+[DONE]issue164-commit-r-directory: Commit changes made to the r directory
+[DONE]issue163-commit-web-directory-changes: Commit changes made to the web directory
+[DONE]issue162-move-aiml-into-math-cs: Move aiml into the mathematics/computer-science/folder
 issue161-cleanup-math-folder: Clean up the math folder
 [DONE]issue160-python-01-remote-idea-python: Remove obsolete suggestion-mode option from pylintrc
 [DONE]issue159-python-01-remote-idea-python: Fix bug in pylintrc path
