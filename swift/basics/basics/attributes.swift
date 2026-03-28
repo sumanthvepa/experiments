@@ -47,6 +47,3 @@ func exploreAttributes() {
     // Result of call to 'addNonDiscarable(a:b:) is unused.
     addNonDiscarable(a: 1, b: 2)
 }
-
-
-

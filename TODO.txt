@@ -1,3 +1,4 @@
+[DONE]issue165-commit-swift-directory: Commit changes made to the swift directory
 [DONE]issue164-commit-r-directory: Commit changes made to the r directory
 [DONE]issue163-commit-web-directory-changes: Commit changes made to the web directory
 [DONE]issue162-move-aiml-into-math-cs: Move aiml into the mathematics/computer-science/folder
