@@ -1,3 +1,5 @@
+*issue161-cleanup-math-folder: Clean up the math folder
+[DONE]issue160-python-01-remote-idea-python: Remove obsolete suggestion-mode option from pylintrc
 [DONE]issue159-python-01-remote-idea-python: Fix bug in pylintrc path
 issue158-math-probability-feller-chapter1: Notes on Feller Chapter 1
 issue157-python-jupyter-01-r-lab-setup: Create a basic jupyter lab r lab server
