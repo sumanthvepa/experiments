@@ -1,3 +1,4 @@
+*issue162-move-aiml-into-math-cs: Move aiml into the mathematics/computer-science/folder
 *issue161-cleanup-math-folder: Clean up the math folder
 [DONE]issue160-python-01-remote-idea-python: Remove obsolete suggestion-mode option from pylintrc
 [DONE]issue159-python-01-remote-idea-python: Fix bug in pylintrc path
