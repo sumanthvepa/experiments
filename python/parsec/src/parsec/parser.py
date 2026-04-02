@@ -31,6 +31,23 @@ class Parser:
     """
       Initialize the Parser object.
     """
+    class ParserState:
+      """ Internal state of the parser """
+      def __init__(self, args: list[str]) -> None:
+        """ Initialize parser state """
+        self._args = args
+        self._index = 0
+
+      @property
+      def index(self) -> int:
+        """ Current index in the argument list """
+        return self._index
+
+      @property.setter
+      def index(self, value: int) -> None:
+        """ Set the current index in the argument list """
+        assert value >= 0, "Index must be non-negative"
+        self._index = value
 
   def _parse_program(self, args: list[str]) -> tuple[str, int]:
     """
