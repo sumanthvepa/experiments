@@ -1,3 +1,4 @@
+[DONE]issue171-git-worktree-notes: Notes on how to use git worktrees
 [DONE]issue170-docker-01-install-docker-fedora: Add script for Fedora install
 issue169-haykin-neuralnetworks-ch1: Notes and explorations for Haykin Neural Networks Chapter 1
 [DONE]issue168-commit-java-directory: Commit changes made to the java directory
