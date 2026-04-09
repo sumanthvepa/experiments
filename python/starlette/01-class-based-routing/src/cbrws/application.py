@@ -9,6 +9,7 @@ from starlette.routing import Route
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
+from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.profile_endpoint import ProfileEndpoint
 from cbrws.not_found import not_found
 
@@ -16,6 +17,7 @@ from cbrws.not_found import not_found
 routes: list[Route] = [
   Route('/', endpoint=RootEndpoint, name='root_endpoint'),
   Route('/api', endpoint=APIEndpoint, name='api_endpoint'),
+  Route('/api/greeting', endpoint=GreetingEndpoint, name='greeting_endpoint'),
   Route( CBRWSBaseEndpoint.PROFILE_PATH, endpoint=ProfileEndpoint, name='profile_endpoint')
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
