@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CBRWS Greeting Relation Schema",
+  "title": "CBRWS V1 Greeting Relation Schema",
   "description": "JSON Schema for the /api/greeting response",
   "type": "object",
   "properties": {
