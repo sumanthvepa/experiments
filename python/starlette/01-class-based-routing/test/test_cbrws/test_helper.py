@@ -63,15 +63,16 @@ class TestHelper(RequireAsserts):
     """ Expected media type for problem responses. """
     return 'application/problem+json'
 
-  def make_request(self, method: str, url: str) -> Response:
+  def make_request(self, method: str, url: str, headers: dict[str, str] | None = None) -> Response:
     """
       Helper function to make a request to the root endpoint.
       :param method: The HTTP method to use (e.g., 'get', 'head')
       :param url: The URL to request
+      :param headers: Optional request headers
       :return: The response object
     """
     client = TestClient(app, self.base_url)
-    return client.request(method, url=url, follow_redirects=False)
+    return client.request(method, url=url, headers=headers, follow_redirects=False)
 
   def check_allow(self, response: Response) -> None:
     """

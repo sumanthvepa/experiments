@@ -1,4 +1,6 @@
-*[DONE]issue176-python-starlette-01-cbrws-unittest-prompt: Add instructions for agents to run unittests
+*issue178-python-starlette-01-cbrws-greeting-relation: Implement the greeting relation documentation URL
+issue177-python-starlette-01-update-readme: Update README
+[DONE]issue176-python-starlette-01-cbrws-unittest-prompt: Add instructions for agents to run unittests
 [DONE]issue175-python-starlette-01-cbrws-greeting-api: Add support for /api/greeting.
 [DONE]issue174-python-starlette-01-cbrws-ai-agent-supoort: Add AI agent support for this project
 [DONE]issue173-ai-agent-support: Add prompts and files needed for an AI agent to to work.

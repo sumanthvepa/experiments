@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CBRWS Greeting Relation Schema",
+  "description": "JSON Schema for the /api/greeting response",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "string",
+      "example": "Hello, world!"
+    },
+    "_links": {
+      "type": "object",
+      "properties": {
+        "self": {
+          "type": "object",
+          "properties": {
+            "href": { "type": "string", "format": "uri" },
+            "type": { "type": "string" },
+            "profile": { "type": "string", "format": "uri" }
+          },
+          "required": ["href", "type", "profile"]
+        },
+        "up": {
+          "type": "object",
+          "properties": {
+            "href": { "type": "string", "format": "uri" },
+            "type": { "type": "string" },
+            "profile": { "type": "string", "format": "uri" }
+          },
+          "required": ["href", "type", "profile"]
+        }
+      },
+      "required": ["self", "up"]
+    }
+  },
+  "required": ["message", "_links"]
+}

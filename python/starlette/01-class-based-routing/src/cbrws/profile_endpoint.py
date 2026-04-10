@@ -51,7 +51,6 @@ class ProfileEndpoint(CBRWSBaseEndpoint):
     data = json.loads(content)
     assert isinstance(data, dict)
     assert all(isinstance(k, str) for k in data.keys())
-    assert all(isinstance(v, (str, dict)) for v in data.values())
     return data
 
   async def html_response(self, request: Request) -> HTMLResponse:
