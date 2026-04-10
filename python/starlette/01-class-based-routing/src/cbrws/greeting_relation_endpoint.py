@@ -27,6 +27,15 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
 
   @staticmethod
+  def relations_url(request: Request) -> str:
+    """
+      Generate the URL for the relations index.
+      :param request: The HTTP request
+      :return: The absolute relations index URL
+    """
+    return make_url(request, '/profiles/cbrws/v1/rels/')
+
+  @staticmethod
   def relation_url(request: Request) -> str:
     """
       Generate the URL for the greeting relation documentation.
@@ -43,6 +52,7 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
     """
     context = {
       'profile_url': CBRWSBaseEndpoint.profile_url(request),
+      'relations_url': GreetingRelationEndpoint.relations_url(request),
       'relation_url': GreetingRelationEndpoint.relation_url(request),
       'resource_url': make_url(request, GreetingRelationEndpoint.TARGET_PATH),
       'resource_media_type': CBRWSBaseEndpoint.response_media_type(request),
@@ -63,6 +73,7 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
     """
     context = {
       'profile_url': CBRWSBaseEndpoint.profile_url(request),
+      'relations_url': GreetingRelationEndpoint.relations_url(request),
       'relation_url': GreetingRelationEndpoint.relation_url(request),
       'resource_url': make_url(request, GreetingRelationEndpoint.TARGET_PATH),
       'resource_media_type': CBRWSBaseEndpoint.response_media_type(request)

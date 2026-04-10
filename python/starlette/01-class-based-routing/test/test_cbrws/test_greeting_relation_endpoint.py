@@ -62,6 +62,7 @@ class TestGreetingRelationEndpoint(unittest.TestCase, TestHelper):
       f'<h1>{expected_title}: <code>cbrws:greeting</code></h1>',
       response.text)
     self.assertIn(self.profile_url, response.text)
+    self.assertIn(self.profile_url + '/rels/', response.text)
     self.assertIn(self.profile_url + '/rels/greeting', response.text)
     self.assertIn(self.base_url + '/api/greeting', response.text)
     self.assertIn(self.response_media_type, response.text)
@@ -80,6 +81,7 @@ class TestGreetingRelationEndpoint(unittest.TestCase, TestHelper):
       str(CBRWSV1ProfileEndpoint.SCHEMA_DIR / 'greeting-rel-v1.json'),
       {
         'profile_url': self.profile_url,
+        'relations_url': self.profile_url + '/rels/',
         'relation_url': self.profile_url + '/rels/greeting',
         'resource_url': self.base_url + '/api/greeting',
         'resource_media_type': self.response_media_type
