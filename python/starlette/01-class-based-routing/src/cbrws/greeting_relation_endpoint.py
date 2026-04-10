@@ -45,7 +45,8 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
       'profile_url': CBRWSBaseEndpoint.profile_url(request),
       'relation_url': GreetingRelationEndpoint.relation_url(request),
       'resource_url': make_url(request, GreetingRelationEndpoint.TARGET_PATH),
-      'resource_media_type': CBRWSBaseEndpoint.response_media_type(request)
+      'resource_media_type': CBRWSBaseEndpoint.response_media_type(request),
+      'title': 'CBRWS V1 Greeting Relation'
     }
     html = await CBRWSV1ProfileEndpoint.load_file(str(self.SCHEMA_DIR / 'greeting-rel-v1.jinja2'), context)
     return HTMLResponse(
