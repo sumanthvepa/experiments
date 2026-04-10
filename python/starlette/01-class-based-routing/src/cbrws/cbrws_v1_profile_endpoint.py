@@ -2,6 +2,7 @@
   cbrws_v1_profile_endpoint.py: URL handler for the /profiles/cbrws/v1 URL of the cbrws
   web service.
 """
+from pathlib import Path
 from typing import Any
 import json
 
@@ -25,6 +26,8 @@ class CBRWSV1ProfileEndpoint(CBRWSBaseEndpoint):
   """
   schema: dict[str, str] | None = None
   html: str | None = None
+  SUPPORTED_MEDIA_TYPES = ['text/html', 'application/schema+json', '*/*']
+  SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
 
   @staticmethod
   async def load_file(filename: str, context: dict[str, str]) -> str:
@@ -64,9 +67,10 @@ class CBRWSV1ProfileEndpoint(CBRWSBaseEndpoint):
         'profile_url': CBRWSBaseEndpoint.profile_url(request),
         'schema_url': CBRWSBaseEndpoint.schema_url(request),
         'version': '1.0',
-        'title': 'CBRWS API Profile'
+        'title': 'CBRWS v1 API Profile'
       }
-      self.html = await CBRWSV1ProfileEndpoint.load_file('schemas/api-profile-v1.jinja2', context)
+      self.html = await CBRWSV1ProfileEndpoint.load_file(
+        str(self.SCHEMA_DIR / 'api-profile-v1.jinja2'), context)
 
     return HTMLResponse(
       self.html,
@@ -87,7 +91,8 @@ class CBRWSV1ProfileEndpoint(CBRWSBaseEndpoint):
         'version': '1.0',
         'title': 'CBRWS API Profile'
       }
-    self.schema = await CBRWSV1ProfileEndpoint.load_schema('schemas/api-profile-v1.json', context)
+      self.schema = await CBRWSV1ProfileEndpoint.load_schema(
+        str(self.SCHEMA_DIR / 'api-profile-v1.json'), context)
 
     return JSONResponse(
       self.schema,
