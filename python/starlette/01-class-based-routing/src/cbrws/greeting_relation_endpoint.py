@@ -9,7 +9,7 @@ from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette import status
 
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
-from cbrws.profile_endpoint import ProfileEndpoint
+from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.url_util import make_url
 
 
@@ -47,7 +47,7 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
       'resource_url': make_url(request, GreetingRelationEndpoint.TARGET_PATH),
       'resource_media_type': CBRWSBaseEndpoint.response_media_type(request)
     }
-    html = await ProfileEndpoint.load_file(str(self.SCHEMA_DIR / 'greeting-rel-v1.jinja2'), context)
+    html = await CBRWSV1ProfileEndpoint.load_file(str(self.SCHEMA_DIR / 'greeting-rel-v1.jinja2'), context)
     return HTMLResponse(
       html,
       status_code=status.HTTP_200_OK,
@@ -66,7 +66,7 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
       'resource_url': make_url(request, GreetingRelationEndpoint.TARGET_PATH),
       'resource_media_type': CBRWSBaseEndpoint.response_media_type(request)
     }
-    schema = await ProfileEndpoint.load_schema(str(self.SCHEMA_DIR / 'greeting-rel-v1.json'), context)
+    schema = await CBRWSV1ProfileEndpoint.load_schema(str(self.SCHEMA_DIR / 'greeting-rel-v1.json'), context)
     return JSONResponse(
       schema,
       status_code=status.HTTP_200_OK,

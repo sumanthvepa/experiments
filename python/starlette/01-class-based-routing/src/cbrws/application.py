@@ -11,7 +11,7 @@ from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
 from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.greeting_relation_endpoint import GreetingRelationEndpoint
-from cbrws.profile_endpoint import ProfileEndpoint
+from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.not_found import not_found
 
 
@@ -22,7 +22,7 @@ routes: list[Route] = [
   Route('/profiles/cbrws/v1/rels/greeting',
         endpoint=GreetingRelationEndpoint,
         name='greeting_relation_endpoint'),
-  Route(CBRWSBaseEndpoint.PROFILE_PATH, endpoint=ProfileEndpoint, name='profile_endpoint')
+  Route(CBRWSBaseEndpoint.PROFILE_PATH, endpoint=CBRWSV1ProfileEndpoint, name='profile_endpoint')
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
 app = Starlette(

@@ -1,5 +1,5 @@
 """
-  profile_endpoint.py: URL handler for the /profiles/cbrws/v1 URL of the cbrws
+  cbrws_v1_profile_endpoint.py: URL handler for the /profiles/cbrws/v1 URL of the cbrws
   web service.
 """
 from typing import Any
@@ -14,7 +14,7 @@ from starlette import status
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 
 
-class ProfileEndpoint(CBRWSBaseEndpoint):
+class CBRWSV1ProfileEndpoint(CBRWSBaseEndpoint):
   """
     A URL handler for the /profiles/cbrws/v1 URL of the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests. The latter two are handled
@@ -47,7 +47,7 @@ class ProfileEndpoint(CBRWSBaseEndpoint):
       :param context: The context to render the template with
       :return: A dictionary representing the JSON schema
     """
-    content = await ProfileEndpoint.load_file(filename, context)
+    content = await CBRWSV1ProfileEndpoint.load_file(filename, context)
     data = json.loads(content)
     assert isinstance(data, dict)
     assert all(isinstance(k, str) for k in data.keys())
@@ -66,7 +66,7 @@ class ProfileEndpoint(CBRWSBaseEndpoint):
         'version': '1.0',
         'title': 'CBRWS API Profile'
       }
-      self.html = await ProfileEndpoint.load_file('schemas/api-profile-v1.jinja2', context)
+      self.html = await CBRWSV1ProfileEndpoint.load_file('schemas/api-profile-v1.jinja2', context)
 
     return HTMLResponse(
       self.html,
@@ -87,7 +87,7 @@ class ProfileEndpoint(CBRWSBaseEndpoint):
         'version': '1.0',
         'title': 'CBRWS API Profile'
       }
-    self.schema = await ProfileEndpoint.load_schema('schemas/api-profile-v1.json', context)
+    self.schema = await CBRWSV1ProfileEndpoint.load_schema('schemas/api-profile-v1.json', context)
 
     return JSONResponse(
       self.schema,
