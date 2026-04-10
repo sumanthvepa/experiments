@@ -60,6 +60,7 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(expected_title, parser.title)
     self.assertIn(f'<h1>{expected_title}</h1>', response.text)
     self.assertIn(self.profile_url, response.text)
+    self.assertIn(f'href="{self.profile_url}"', response.text)
     self.assertIn(self.profile_url + '/rels/', response.text)
     self.assertIn(self.profile_url + '/rels/greeting', response.text)
     self.assertIn('application/schema+json', response.text)

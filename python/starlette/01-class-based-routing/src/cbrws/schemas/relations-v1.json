@@ -2,6 +2,11 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "{{ title }}",
   "description": "JSON Schema for the CBRWS v1 relations index",
+  "_links": {
+    "up": {
+      "href": "{{ profile_url }}"
+    }
+  },
   "type": "object",
   "properties": {
     "title": {
