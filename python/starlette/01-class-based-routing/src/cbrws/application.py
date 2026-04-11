@@ -12,6 +12,8 @@ from cbrws.api_endpoint import APIEndpoint
 from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.greeting_relation_endpoint import GreetingRelationEndpoint
 from cbrws.relations_endpoint import RelationsEndpoint
+from cbrws.profiles_endpoint import ProfilesEndpoint
+from cbrws.cbrws_profile_endpoint import CBRWSProfileEndpoint
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.not_found import not_found
 
@@ -20,6 +22,7 @@ routes: list[Route] = [
   Route('/', endpoint=RootEndpoint, name='root_endpoint'),
   Route('/api', endpoint=APIEndpoint, name='api_endpoint'),
   Route('/api/greeting', endpoint=GreetingEndpoint, name='greeting_endpoint'),
+  Route('/profiles/', endpoint=ProfilesEndpoint, name='profiles_endpoint'),
   Route('/profiles/cbrws/v1/rels/', endpoint=RelationsEndpoint,
         name='relations_endpoint'),
   Route('/profiles/cbrws/v1/rels/greeting',
