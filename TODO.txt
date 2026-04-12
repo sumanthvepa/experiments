@@ -1,5 +1,6 @@
-*issue190-python-starlette-01-cbrws-profile-schema: Implement a base class for profile schemas and use it for the /profiles/cbrws/v1 and /profiles/cnrws/rels/greeting endpoints
-[DONE]issue1880-python-starlette-01-cbrws-readme-update: Add development notes to the README
+*[DONE]issue191-python-starlette-01-cbrws-profile-base-class: Implement a base class for profile endpoints to reduce code duplication
+[DONE]issue190-python-starlette-01-cbrws-profile-schema: Implement a base class for profile schemas and use it for the /profiles/cbrws/v1 and /profiles/cnrws/rels/greeting endpoints
+[DONE]issue188-python-starlette-01-cbrws-readme-update: Add development notes to the README
 [DONE]issue187-python-starlette-01-cbrws-cbrws-profile-endpoint-tests: Add tests for the /profiles/cbrws endpoint
 [DONE]issue186-python-starlette-01-cbrws-profile-endpoint-tests: Add tests for the /profiles/ endpoint
 [DONE]issue185-python-starlette-01-cbrws-cbrws-profile-endpoint: Implement the /profiles/cbrws/ endpoint as a directory of profile families
