@@ -12,8 +12,8 @@ class CBRWSProfilesEndpoint(ProfileDirectoryEndpoint):
     This endpoint lists the versions of the CBRWS profile supported by
     the service.
   """
-  HTML_FILENAME = 'cbrws_profile.jinja2'
-  JSON_FILENAME = 'cbrws_profile.json'
+  HTML_FILENAME = 'cbrws-profiles.jinja2'
+  JSON_FILENAME = 'cbrws-profiles.json'
   URL_CONTEXT = {
     'cbrws_profile_url': 'profiles/cbrws',
     'cbrws_v1_profile_url': 'profiles/cbrws/v1'
