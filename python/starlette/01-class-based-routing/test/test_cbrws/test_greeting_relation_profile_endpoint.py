@@ -1,5 +1,5 @@
 """
-  test_greeting_relation_endpoint.py: Unit tests for the
+  test_greeting_relation_profile_endpoint.py: Unit tests for the
   /profiles/cbrws/v1/rels/greeting endpoint of the cbrws webservice.
 """
 import asyncio
@@ -38,7 +38,7 @@ class HTMLTitleParser(HTMLParser):
     return ''.join(self.title_parts).strip()
 
 
-class TestGreetingRelationEndpoint(unittest.TestCase, TestHelper):
+class TestGreetingRelationProfileEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the greeting relation documentation route.
   """

@@ -1,5 +1,5 @@
 """
-  greeting_relation_endpoint.py: URL handler for the
+  greeting_relation_profile_endpoint.py: URL handler for the
   /profiles/cbrws/v1/rels/greeting URL of the cbrws web service.
 """
 from pathlib import Path
@@ -13,7 +13,7 @@ from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.url_util import make_url
 
 
-class GreetingRelationEndpoint(CBRWSBaseEndpoint):
+class GreetingRelationProfileEndpoint(CBRWSBaseEndpoint):
   """
     A URL handler for the /profiles/cbrws/v1/rels/greeting URL of the
     cbrws web service.
@@ -42,7 +42,7 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: The absolute relation documentation URL
     """
-    return make_url(request, GreetingRelationEndpoint.RELATION_PATH)
+    return make_url(request, GreetingRelationProfileEndpoint.RELATION_PATH)
 
   async def html_response(self, request: Request) -> HTMLResponse:
     """
@@ -52,9 +52,9 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
     """
     context = {
       'profile_url': CBRWSBaseEndpoint.profile_url(request),
-      'relations_url': GreetingRelationEndpoint.relations_url(request),
-      'relation_url': GreetingRelationEndpoint.relation_url(request),
-      'resource_url': make_url(request, GreetingRelationEndpoint.TARGET_PATH),
+      'relations_url': GreetingRelationProfileEndpoint.relations_url(request),
+      'relation_url': GreetingRelationProfileEndpoint.relation_url(request),
+      'resource_url': make_url(request, GreetingRelationProfileEndpoint.TARGET_PATH),
       'resource_media_type': CBRWSBaseEndpoint.response_media_type(request),
       'title': 'CBRWS V1 Greeting Relation'
     }
@@ -73,9 +73,9 @@ class GreetingRelationEndpoint(CBRWSBaseEndpoint):
     """
     context = {
       'profile_url': CBRWSBaseEndpoint.profile_url(request),
-      'relations_url': GreetingRelationEndpoint.relations_url(request),
-      'relation_url': GreetingRelationEndpoint.relation_url(request),
-      'resource_url': make_url(request, GreetingRelationEndpoint.TARGET_PATH),
+      'relations_url': GreetingRelationProfileEndpoint.relations_url(request),
+      'relation_url': GreetingRelationProfileEndpoint.relation_url(request),
+      'resource_url': make_url(request, GreetingRelationProfileEndpoint.TARGET_PATH),
       'resource_media_type': CBRWSBaseEndpoint.response_media_type(request)
     }
     schema = await CBRWSV1ProfileEndpoint.load_schema(str(self.SCHEMA_DIR / 'greeting-rel-v1.json'), context)
