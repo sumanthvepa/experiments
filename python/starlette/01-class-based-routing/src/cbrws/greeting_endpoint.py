@@ -34,7 +34,7 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
         'self': {
           'href': make_url(request, 'api/greeting'),
           'type': CBRWSBaseEndpoint.response_media_type(request),
-          'profile': CBRWSBaseEndpoint.profile_url(request)
+          'profile': make_url(request, 'profiles/cbrws/v1/rels/greeting')
         },
         'up': {
           'href': make_url(request, 'api'),

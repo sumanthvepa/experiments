@@ -138,7 +138,7 @@
         <tr><td><code>href</code></td><td>URI</td><td>Yes</td><td>Absolute URL of the greeting endpoint (e.g., <code>…/api/greeting</code>).</td></tr>
         <tr><td><code>rel</code></td><td>string</td><td>Yes</td><td>Literal relation name; MUST be <code>"greeting"</code>.</td></tr>
         <tr><td><code>media_type</code></td><td>string</td><td>Yes</td><td>Expected response media type, e.g. <code>application/hal+json</code>.</td></tr>
-        <tr><td><code>profile</code></td><td>URI</td><td>Yes</td><td>Profile identifier <code>{{ profile_url }}</code>.</td></tr>
+        <tr><td><code>profile</code></td><td>URI</td><td>Yes</td><td>Relation profile identifier <code>{{ profile_url }}/rels/greeting</code>.</td></tr>
         </tbody>
       </table>
     </div>
@@ -166,10 +166,10 @@
       }
     ],
     "cbrws:greeting": {
-      "href": "{{ profile_url }}",
+      "href": "http://localhost:8000/api/greeting",
       "rel": "greeting",
       "media_type": "application/hal+json",
-      "profile": "{{ profile_url }}"
+      "profile": "{{ profile_url }}/rels/greeting"
     }
   }
 }</code></pre>

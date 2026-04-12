@@ -54,7 +54,7 @@ class APIEndpoint(CBRWSBaseEndpoint):
           'href': make_url(request, 'api/greeting'),
           'rel': 'greeting',
           'media_type': CBRWSBaseEndpoint.response_media_type(request),
-          'profile': CBRWSBaseEndpoint.profile_url(request)
+          'profile': make_url(request, 'profiles/cbrws/v1/rels/greeting')
         }
       }
     }

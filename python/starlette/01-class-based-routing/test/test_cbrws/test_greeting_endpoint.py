@@ -31,7 +31,7 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
         'self': {
           'href': self.base_url + '/api/greeting',
           'type': self.response_media_type,
-          'profile': self.profile_url
+          'profile': self.profile_url + '/rels/greeting'
         },
         'up': {
           'href': self.base_url + '/api',

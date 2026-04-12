@@ -48,7 +48,7 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
           'href': self.base_url + '/api/greeting',
           'rel': 'greeting',
           'media_type': self.response_media_type,
-          'profile': self.profile_url,
+          'profile': self.profile_url + '/rels/greeting',
         }
       }
     }
