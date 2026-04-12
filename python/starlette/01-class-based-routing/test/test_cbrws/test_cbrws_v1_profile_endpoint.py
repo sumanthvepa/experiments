@@ -56,8 +56,8 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
     self.check_link(response)
     parser = HTMLTitleParser()
     parser.feed(response.text)
-    self.assertEqual('CBRWS v1 API Profile', parser.title)
-    self.assertIn('<h1>CBRWS v1 API Profile</h1>', response.text)
+    self.assertEqual('CBRWS V1 API Profile', parser.title)
+    self.assertIn('<h1>CBRWS V1 API Profile</h1>', response.text)
     self.assertIn(self.profile_url, response.text)
     self.assertIn(self.schema_url, response.text)
     self.assertIn('/api', response.text)
@@ -79,7 +79,7 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
         'profile_url': self.profile_url,
         'schema_url': self.schema_url,
         'version': '1.0',
-        'title': 'CBRWS API Profile'
+        'title': 'CBRWS V1 API Profile'
       }))
     self.assertDictEqual(response.json(), expected_data)
 
