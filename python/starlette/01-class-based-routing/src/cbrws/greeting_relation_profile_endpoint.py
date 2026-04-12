@@ -2,98 +2,59 @@
   greeting_relation_profile_endpoint.py: URL handler for the
   /profiles/cbrws/v1/rels/greeting URL of the cbrws web service.
 """
-from pathlib import Path
-
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse, Response
-from starlette import status
 
-from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
-from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.profile_schema_endpoint import ProfileSchemaEndpoint
 from cbrws.url_util import make_url
 
 
-class GreetingRelationProfileEndpoint(CBRWSBaseEndpoint):
+class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
   """
     A URL handler for the /profiles/cbrws/v1/rels/greeting URL of the
     cbrws web service.
 
-    For the GET request it returns either text/html or
-    application/schema+json depending on the Accept header.
+    This endpoint describes the cbrws:greeting relation.
   """
-  RELATION_PATH = '/profiles/cbrws/v1/rels/greeting'
-  TARGET_PATH = 'api/greeting'
-  SUPPORTED_MEDIA_TYPES = ['text/html', 'application/schema+json', '*/*']
-  SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
-
-  @staticmethod
-  def relations_url(request: Request) -> str:
-    """
-      Generate the URL for the relations index.
-      :param request: The HTTP request
-      :return: The absolute relations index URL
-    """
-    return make_url(request, '/profiles/cbrws/v1/rels/')
-
-  @staticmethod
-  def relation_url(request: Request) -> str:
-    """
-      Generate the URL for the greeting relation documentation.
-      :param request: The HTTP request
-      :return: The absolute relation documentation URL
-    """
-    return make_url(request, GreetingRelationProfileEndpoint.RELATION_PATH)
-
-  async def html_response(self, request: Request) -> HTMLResponse:
-    """
-      Generate an HTML response for the greeting relation endpoint.
-      :param request: The HTTP request
-      :return: A response with HTML content
-    """
-    context = {
-      'profile_url': CBRWSBaseEndpoint.profile_url(request),
-      'relations_url': GreetingRelationProfileEndpoint.relations_url(request),
-      'relation_url': GreetingRelationProfileEndpoint.relation_url(request),
-      'resource_url': make_url(request, GreetingRelationProfileEndpoint.TARGET_PATH),
-      'resource_media_type': CBRWSBaseEndpoint.response_media_type(request),
-      'title': 'CBRWS V1 Greeting Relation'
+  HTML_FILENAME = 'greeting-rel-v1.jinja2'
+  SCHEMA_FILENAME = 'greeting-rel-v1.json'
+  URL_CONTEXT = {
+    'profile_url': 'profiles/cbrws/v1',
+    'relations_url': 'profiles/cbrws/v1/rels/',
+    'relation_url': 'profiles/cbrws/v1/rels/greeting',
+    'resource_url': 'api/greeting'
+  }
+  LITERAL_CONTEXT = {
+    'title': 'CBRWS V1 Greeting Relation'
+  }
+  LINK_HEADER_ITEMS = (
+    {
+      'path': 'profiles/cbrws/v1',
+      'rel': 'profile',
+      'type': 'application/ld+json',
+      'title': 'API version identifier(URI) for the cbrws web service'
+    },
+    {
+      'path': 'profiles/cbrws/v1/api.schema',
+      'rel': 'describedBy',
+      'type': ProfileSchemaEndpoint.response_media_type(),
+      'title': 'JSON schema of the response'
+    },
+    {
+      'path': 'profiles/cbrws/v1/api.schema',
+      'rel': 'documentation',
+      'type': 'text/html',
+      'title': 'Documentation for the cbrws web service API'
     }
-    html = await CBRWSV1ProfileEndpoint.load_file(str(self.SCHEMA_DIR / 'greeting-rel-v1.jinja2'), context)
-    return HTMLResponse(
-      html,
-      status_code=status.HTTP_200_OK,
-      media_type='text/html',
-      headers=CBRWSBaseEndpoint.headers(request))
+  )
 
-  async def json_response(self, request: Request) -> JSONResponse:
+  @classmethod
+  def context(cls, request: Request) -> dict[str, str]:
     """
-      Generate a JSON Schema response for the greeting relation endpoint.
+      Generate the template context for the greeting relation profile.
       :param request: The HTTP request
-      :return: A JSONResponse with JSON Schema content
+      :return: A dictionary of template variables
     """
-    context = {
-      'profile_url': CBRWSBaseEndpoint.profile_url(request),
-      'relations_url': GreetingRelationProfileEndpoint.relations_url(request),
-      'relation_url': GreetingRelationProfileEndpoint.relation_url(request),
-      'resource_url': make_url(request, GreetingRelationProfileEndpoint.TARGET_PATH),
-      'resource_media_type': CBRWSBaseEndpoint.response_media_type(request)
-    }
-    schema = await CBRWSV1ProfileEndpoint.load_schema(str(self.SCHEMA_DIR / 'greeting-rel-v1.json'), context)
-    return JSONResponse(
-      schema,
-      status_code=status.HTTP_200_OK,
-      media_type=CBRWSBaseEndpoint.schema_media_type(),
-      headers=CBRWSBaseEndpoint.headers(request))
-
-  async def get(self, request: Request) -> Response:
-    """
-      Handle GET requests to the /profiles/cbrws/v1/rels/greeting endpoint.
-      :param request: The HTTP request
-      :return: A Response with either HTML or JSON Schema content
-    """
-    accept = request.headers.get('accept', '*/*')
-    if 'text/html' in accept:
-      return await self.html_response(request)
-    if 'application/schema+json' in accept or '*/*' in accept:
-      return await self.json_response(request)
-    return CBRWSBaseEndpoint.not_acceptable(request, self.SUPPORTED_MEDIA_TYPES)
+    context = super().context(request)
+    profile_url = make_url(request, 'profiles/cbrws/v1')
+    context['resource_media_type'] = f'application/hal+json; profile="{profile_url}"'
+    return context
