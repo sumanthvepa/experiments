@@ -55,6 +55,5 @@ class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
       :return: A dictionary of template variables
     """
     context = super().context(request)
-    profile_url = make_url(request, 'profiles/cbrws/v1')
-    context['resource_media_type'] = f'application/hal+json; profile="{profile_url}"'
+    context['resource_media_type'] = 'application/hal+json'
     return context

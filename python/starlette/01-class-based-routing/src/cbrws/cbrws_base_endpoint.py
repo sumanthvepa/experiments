@@ -49,7 +49,7 @@ class CBRWSBaseEndpoint(HTTPEndpoint):
       :param request: The HTTP request
       :return: A string representing the media type
     """
-    return f'application/hal+json; profile="{CBRWSBaseEndpoint.profile_url(request)}"'
+    return 'application/hal+json'
 
   @staticmethod
   def schema_media_type() -> str:

@@ -46,7 +46,7 @@ class TestHelper(RequireAsserts):
   @property
   def response_media_type(self) -> str:
     """ Expected media type for the cbrws web service API response. """
-    return f'application/hal+json; profile="{self.profile_url}"'
+    return 'application/hal+json'
 
   @property
   def profile_media_type(self) -> str:
