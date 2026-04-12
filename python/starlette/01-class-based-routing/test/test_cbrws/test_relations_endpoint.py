@@ -7,7 +7,9 @@ from html.parser import HTMLParser
 import unittest
 
 from starlette import status
+from starlette.testclient import TestClient
 
+from cbrws.application import app
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from test_cbrws.test_helper import TestHelper
 
@@ -83,6 +85,48 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
         'title': 'CBRWS v1 Relations'
       }))
     self.assertDictEqual(response.json(), expected_data)
+
+  def test_get_schema_uses_current_request_urls(self) -> None:
+    """
+      Test that the JSON response uses URLs from the current request.
+      :return: None
+    """
+    first_client = TestClient(app, 'http://first.example')
+    second_client = TestClient(app, 'http://second.example')
+
+    first_response = first_client.get('/profiles/cbrws/v1/rels/')
+    second_response = second_client.get('/profiles/cbrws/v1/rels/')
+
+    self.assertEqual(status.HTTP_200_OK, first_response.status_code)
+    self.assertEqual(status.HTTP_200_OK, second_response.status_code)
+    self.assertIn('http://first.example/profiles/cbrws/v1/rels/greeting',
+                  first_response.text)
+    self.assertIn('http://second.example/profiles/cbrws/v1/rels/greeting',
+                  second_response.text)
+    self.assertNotIn('http://first.example', second_response.text)
+
+  def test_get_html_uses_current_request_urls(self) -> None:
+    """
+      Test that the HTML response uses URLs from the current request.
+      :return: None
+    """
+    first_client = TestClient(app, 'http://first.example')
+    second_client = TestClient(app, 'http://second.example')
+
+    first_response = first_client.get(
+      '/profiles/cbrws/v1/rels/',
+      headers={'Accept': 'text/html'})
+    second_response = second_client.get(
+      '/profiles/cbrws/v1/rels/',
+      headers={'Accept': 'text/html'})
+
+    self.assertEqual(status.HTTP_200_OK, first_response.status_code)
+    self.assertEqual(status.HTTP_200_OK, second_response.status_code)
+    self.assertIn('http://first.example/profiles/cbrws/v1/rels/greeting',
+                  first_response.text)
+    self.assertIn('http://second.example/profiles/cbrws/v1/rels/greeting',
+                  second_response.text)
+    self.assertNotIn('http://first.example', second_response.text)
 
   def test_get_unsupported_media_type(self) -> None:
     """

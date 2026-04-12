@@ -25,8 +25,6 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
   RELATIONS_PATH = '/profiles/cbrws/v1/rels/'
   SUPPORTED_MEDIA_TYPES = ['text/html', 'application/schema+json', '*/*']
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
-  schema: dict[str, str] | None = None
-  html: str | None = None
 
   @staticmethod
   def relations_url(request: Request) -> str:
@@ -46,24 +44,32 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
     """
     return make_url(request, 'profiles/cbrws/v1/rels/greeting')
 
+  @staticmethod
+  def context(request: Request) -> dict[str, str]:
+    """
+      Generate the template context for the relations index.
+      :param request: The HTTP request
+      :return: A dictionary of template variables
+    """
+    return {
+      'profile_url': CBRWSBaseEndpoint.profile_url(request),
+      'relations_url': RelationsEndpoint.relations_url(request),
+      'greeting_relation_url': RelationsEndpoint.greeting_relation_url(request),
+      'title': 'CBRWS v1 Relations'
+    }
+
   async def html_response(self, request: Request) -> HTMLResponse:
     """
       Generate an HTML response for the relations endpoint.
       :param request: The HTTP request
       :return: A Response with HTML content
     """
-    if self.html is None:
-      context = {
-        'profile_url': CBRWSBaseEndpoint.profile_url(request),
-        'relations_url': RelationsEndpoint.relations_url(request),
-        'greeting_relation_url': RelationsEndpoint.greeting_relation_url(request),
-        'title': 'CBRWS v1 Relations'
-      }
-      self.html = await CBRWSV1ProfileEndpoint.load_file(
-        str(self.SCHEMA_DIR / 'relations-v1.jinja2'), context)
+    html = await CBRWSV1ProfileEndpoint.load_file(
+      str(self.SCHEMA_DIR / 'relations-v1.jinja2'),
+      RelationsEndpoint.context(request))
 
     return HTMLResponse(
-      self.html,
+      html,
       status_code=status.HTTP_200_OK,
       media_type='text/html',
       headers=CBRWSBaseEndpoint.headers(request))
@@ -74,18 +80,12 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: A JSONResponse with JSON Schema content
     """
-    if self.schema is None:
-      context = {
-        'profile_url': CBRWSBaseEndpoint.profile_url(request),
-        'relations_url': RelationsEndpoint.relations_url(request),
-        'greeting_relation_url': RelationsEndpoint.greeting_relation_url(request),
-        'title': 'CBRWS v1 Relations'
-      }
-      self.schema = await CBRWSV1ProfileEndpoint.load_schema(
-        str(self.SCHEMA_DIR / 'relations-v1.json'), context)
+    schema = await CBRWSV1ProfileEndpoint.load_schema(
+      str(self.SCHEMA_DIR / 'relations-v1.json'),
+      RelationsEndpoint.context(request))
 
     return JSONResponse(
-      self.schema,
+      schema,
       status_code=status.HTTP_200_OK,
       media_type=CBRWSBaseEndpoint.schema_media_type(),
       headers=CBRWSBaseEndpoint.headers(request))
