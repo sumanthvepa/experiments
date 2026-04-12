@@ -143,6 +143,18 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual('Not Acceptable', data['title'])
     self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, data['status'])
 
+  def test_get_partial_html_media_type_is_unsupported(self) -> None:
+    """
+      Test that media types are not matched by substring.
+      :return: None
+    """
+    response = self.make_request(
+      'GET',
+      '/profiles/',
+      headers={'Accept': 'text/html-fragment'})
+    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
+    self.check_content_type(response, self.problem_media_type)
+
   def test_head_hal_json(self) -> None:
     """
       Test that HEAD /profiles/ returns HAL JSON headers.

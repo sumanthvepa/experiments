@@ -4,3 +4,4 @@ types-aiofiles
 starlette
 uvicorn
 httpx
+werkzeug

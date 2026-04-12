@@ -8,6 +8,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette import status
 
+from cbrws.accept_util import select_media_type
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.url_util import make_url
@@ -96,9 +97,11 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       :return: A Response with relations information in either HTML or
       JSON Schema format
     """
-    accept = request.headers.get('accept', '*/*')
-    if 'text/html' in accept:
+    media_type = select_media_type(
+      request.headers.get('accept'),
+      [CBRWSBaseEndpoint.schema_media_type(), 'text/html'])
+    if media_type == 'text/html':
       return await self.html_response(request)
-    if 'application/schema+json' in accept or '*/*' in accept:
+    if media_type == CBRWSBaseEndpoint.schema_media_type():
       return await self.json_response(request)
     return CBRWSBaseEndpoint.not_acceptable(request, self.SUPPORTED_MEDIA_TYPES)

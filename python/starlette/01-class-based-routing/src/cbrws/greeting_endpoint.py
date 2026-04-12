@@ -6,6 +6,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette import status
 
+from cbrws.accept_util import select_media_type
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 from cbrws.url_util import make_url
 
@@ -24,8 +25,10 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: A JSON response with the greeting resource
     """
-    accept = request.headers.get('accept', '*/*')
-    if not any(media_type in accept for media_type in self.SUPPORTED_MEDIA_TYPES):
+    media_type = select_media_type(
+      request.headers.get('accept'),
+      self.SUPPORTED_MEDIA_TYPES)
+    if media_type is None:
       return CBRWSBaseEndpoint.not_acceptable(request, self.SUPPORTED_MEDIA_TYPES)
 
     message = {
