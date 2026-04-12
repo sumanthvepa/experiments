@@ -19,12 +19,9 @@ async def not_found(
   """
   # The error response conforms to RFC 7807 (Problem Details for HTTP APIs)
   # https://datatracker.ietf.org/doc/html/rfc7807
-  # The MDN documentation link for Method Not Allowed used as a URI
-  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/405
+  # The MDN documentation link for Not Found used as a URI
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/404
   # to uniquely identify the error type.
-  # The list of allowed methods is provided in the Allow header.
-  # This is a common practice to inform the client about the allowed methods
-  # for the resource.
   error = {
     'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/404',
     'title': 'Not Found',
