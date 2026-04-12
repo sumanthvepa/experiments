@@ -79,7 +79,7 @@ class CBRWSBaseEndpoint(HTTPEndpoint):
       'Link': f'<{CBRWSBaseEndpoint.profile_url(request)}>; rel="profile"; ' +
               'type="application/ld+json"; ' +
               'title="API version identifier(URI) for the cbrws web service", ' +
-              f'{CBRWSBaseEndpoint.schema_url(request)}>; rel="describedBy"; ' +
+              f'<{CBRWSBaseEndpoint.schema_url(request)}>; rel="describedBy"; ' +
               'type="application/schema+json"; ' +
               'title="JSON schema of the response", ' +
               f'<{CBRWSBaseEndpoint.schema_url(request)}>; rel="documentation"; ' +

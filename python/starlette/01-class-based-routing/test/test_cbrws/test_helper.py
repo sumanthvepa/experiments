@@ -93,6 +93,7 @@ class TestHelper(RequireAsserts):
     """
     self.assertIn('Link', response.headers)
     link_header = response.headers['Link']
+    self.assertIn(f'<{self.schema_url}>; rel="describedBy"', link_header)
     actual_links: dict[str, Link] = parse(link_header)
     expected_links: dict[str, Link] = {
       'profile': Link(
