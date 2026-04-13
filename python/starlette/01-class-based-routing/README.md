@@ -27,6 +27,8 @@ port, and debug mode can be configured with environment variables:
 - `CBRWS_HOST`: defaults to `0.0.0.0`
 - `CBRWS_PORT`: defaults to `5101`
 - `CBRWS_DEBUG`: defaults to `false`
+- `CBRWS_LOG_LEVEL`: defaults to `INFO`
+- `CBRWS_ACCESS_LOG`: defaults to `true`
 
 To enable debug mode during local development, set `CBRWS_DEBUG` to
 `true`:
@@ -67,6 +69,14 @@ CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 
 When starting the app with uvicorn directly, the host and port are
 configured by uvicorn's `--host` and `--port` options.
+
+To change logging, set `CBRWS_LOG_LEVEL` to a standard Python logging
+level such as `DEBUG`, `INFO`, `WARNING`, or `ERROR`. To disable
+request access logs, set `CBRWS_ACCESS_LOG` to `false`:
+
+```bash
+CBRWS_LOG_LEVEL=DEBUG CBRWS_ACCESS_LOG=false python -m cbrws.application
+```
 
 As an alternate workflow, you can run the app without installing it by
 setting `PYTHONPATH=src`:

@@ -1,6 +1,7 @@
 """
   http_endpoint_base.py: Common base class for cbrws HTTP endpoints.
 """
+import logging
 from typing import override
 
 from starlette import status
@@ -9,6 +10,9 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from cbrws.url_util import make_url
+
+
+logger = logging.getLogger('cbrws.http')
 
 
 class HTTPEndpointBase(HTTPEndpoint):
@@ -81,6 +85,12 @@ class HTTPEndpointBase(HTTPEndpoint):
       :param request: The HTTP request
       :return: A JSONResponse with problem details
     """
+    logger.info(
+      'not acceptable method=%s path=%s accept=%s supported=%s',
+      request.method,
+      request.url.path,
+      request.headers.get('accept', ''),
+      ','.join(cls.SUPPORTED_MEDIA_TYPES))
     error = {
       'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
       'title': 'Not Acceptable',
@@ -113,6 +123,11 @@ class HTTPEndpointBase(HTTPEndpoint):
       :return: A JSONResponse with problem details
     """
     cls = type(self)
+    logger.warning(
+      'method not allowed method=%s path=%s allowed=%s',
+      request.method,
+      request.url.path,
+      cls.allow_header())
     error = {
       'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/405',
       'title': 'Method Not Allowed',

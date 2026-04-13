@@ -4,10 +4,12 @@
 """
 from starlette.types import ExceptionHandler
 from starlette.applications import Starlette
+from starlette.middleware import Middleware
 from starlette.routing import Route
 
 from cbrws.config import settings_from_env
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
+from cbrws.logging_config import AccessLogMiddleware, configure_logging
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
 from cbrws.greeting_endpoint import GreetingEndpoint
@@ -35,10 +37,12 @@ routes: list[Route] = [
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
 settings = settings_from_env()
+configure_logging(settings)
 app = Starlette(
   debug=settings.debug,
   routes=routes,
-  exception_handlers=exception_handlers)
+  exception_handlers=exception_handlers,
+  middleware=[Middleware(AccessLogMiddleware, settings=settings)])
 
 
 if __name__ == '__main__':
