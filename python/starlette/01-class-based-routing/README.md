@@ -78,6 +78,11 @@ request access logs, set `CBRWS_ACCESS_LOG` to `false`:
 CBRWS_LOG_LEVEL=DEBUG CBRWS_ACCESS_LOG=false python -m cbrws.application
 ```
 
+This project does not include a Dockerfile yet. The service is intended
+to run in a container when deployed, but the container build needs to
+follow project-specific conventions that will be added in a separate
+task.
+
 As an alternate workflow, you can run the app without installing it by
 setting `PYTHONPATH=src`:
 

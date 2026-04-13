@@ -1,3 +1,4 @@
+issue207-python-starlette-01-cbrws-container-deployment: Add container build and deployment support
 *[DONE]issue206-python-starlette-01-cbrws-logging: Add configurable request and problem response logging
 [DONE]issue205-python-starlette-01-cbrws-configuration-management: Add environment-based application configuration
 [DONE]issue204-python-starlette-01-cbrws-pyproject-editable-install: Add pyproject metadata and document editable install workflow
