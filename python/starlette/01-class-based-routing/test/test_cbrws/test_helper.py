@@ -2,6 +2,7 @@
   test_helper.py: Mixin for testing HTTP endpoints.
   Provides methods to make requests and check responses.
 """
+from html.parser import HTMLParser
 from typing import Any, Container, Iterable, Protocol
 
 from httpx import Response
@@ -10,6 +11,33 @@ from starlette.testclient import TestClient
 
 from cbrws.application import app
 from test_cbrws.link_header import Link, parse
+
+
+class HTMLTitleParser(HTMLParser):
+  """
+    Minimal HTML parser that extracts the document title.
+  """
+  def __init__(self) -> None:
+    super().__init__()
+    self.in_title = False
+    self.title_parts: list[str] = []
+
+  def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+    if tag == 'title':
+      self.in_title = True
+
+  def handle_endtag(self, tag: str) -> None:
+    if tag == 'title':
+      self.in_title = False
+
+  def handle_data(self, data: str) -> None:
+    if self.in_title:
+      self.title_parts.append(data)
+
+  @property
+  def title(self) -> str:
+    """ The parsed document title. """
+    return ''.join(self.title_parts).strip()
 
 
 # noinspection PyPep8Naming
