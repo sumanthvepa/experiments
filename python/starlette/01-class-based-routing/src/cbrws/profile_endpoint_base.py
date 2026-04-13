@@ -56,8 +56,8 @@ class ProfileEndpointBase(HTTPEndpointBase):
     """
     content = await cls.load_file(filename, context)
     data = json.loads(content)
-    assert isinstance(data, dict)
-    assert all(isinstance(k, str) for k in data.keys())
+    if not isinstance(data, dict):
+      raise ValueError(f'JSON document must be an object: {filename}')
     return data
 
   @classmethod
