@@ -72,7 +72,7 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       html,
       status_code=status.HTTP_200_OK,
       media_type='text/html',
-      headers=CBRWSBaseEndpoint.headers(request))
+      headers=type(self).headers(request))
 
   async def json_response(self, request: Request) -> JSONResponse:
     """
@@ -88,7 +88,7 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       schema,
       status_code=status.HTTP_200_OK,
       media_type=CBRWSBaseEndpoint.schema_media_type(),
-      headers=CBRWSBaseEndpoint.headers(request))
+      headers=type(self).headers(request))
 
   async def get(self, request: Request) -> Response:
     """
@@ -104,4 +104,4 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       return await self.html_response(request)
     if media_type == CBRWSBaseEndpoint.schema_media_type():
       return await self.json_response(request)
-    return CBRWSBaseEndpoint.not_acceptable(request, self.SUPPORTED_MEDIA_TYPES)
+    return type(self).not_acceptable(request)

@@ -29,7 +29,7 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
       request.headers.get('accept'),
       self.SUPPORTED_MEDIA_TYPES)
     if media_type is None:
-      return CBRWSBaseEndpoint.not_acceptable(request, self.SUPPORTED_MEDIA_TYPES)
+      return type(self).not_acceptable(request)
 
     message = {
       'message': 'Hello, world!',
@@ -50,4 +50,4 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
       content=message,
       status_code=status.HTTP_200_OK,
       media_type=CBRWSBaseEndpoint.response_media_type(request),
-      headers=CBRWSBaseEndpoint.headers(request))
+      headers=type(self).headers(request))

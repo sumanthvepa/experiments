@@ -1,4 +1,5 @@
-*[DONE]issue195-python-starlette-01-cbrws-relations-cache-bug: Stop caching request-specific rendered relation endpoint responses
+*[DONE]issue196-python-starlette-01-cbrws-unify-endpoint-bases: Consolidate duplicated common behavior in CBRWSBaseEndpoint and ProfileEndpointBase
+[DONE]issue195-python-starlette-01-cbrws-relations-cache-bug: Stop caching request-specific rendered relation endpoint responses
 [DONE]issue194-python-starlette-01-cbrws-content-negotiation-bug: Replace substring Accept header checks with proper media type negotiation
 [DONE]issue193-python-starlette-01-cbrws-not-found-comment-bug: Correct the 404 Not Found handler comment
 [DONE]issue192-python-starlette-01-cbrws-link-header-bug: Fix the malformed describedBy Link header in CBRWSBaseEndpoint

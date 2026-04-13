@@ -3,21 +3,21 @@
   web service.
 """
 from pathlib import Path
-from typing import Any, override
+from typing import Any
 import json
 
 import aiofiles
 from jinja2 import Template
 from starlette import status
-from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 
 from cbrws.accept_util import select_media_type
+from cbrws.http_endpoint_base import HTTPEndpointBase
 from cbrws.url_util import make_url
 
 
-class ProfileEndpointBase(HTTPEndpoint):
+class ProfileEndpointBase(HTTPEndpointBase):
   """
     A base class for profile URLs in the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
@@ -76,14 +76,6 @@ class ProfileEndpointBase(HTTPEndpoint):
     """
     return cls.RESPONSE_MEDIA_TYPE
 
-  @staticmethod
-  def problem_media_type() -> str:
-    """
-      Generate the media type for problem details.
-      :return: A string representing the problem media type
-    """
-    return 'application/problem+json'
-
   @classmethod
   def context(cls, request: Request) -> dict[str, str]:
     """
@@ -95,57 +87,6 @@ class ProfileEndpointBase(HTTPEndpoint):
       key: make_url(request, path)
       for key, path in cls.URL_CONTEXT.items()
     }
-
-  @classmethod
-  def link_header(cls, request: Request) -> str:
-    """
-      Generate the Link header value for profile responses.
-      :param request: The HTTP request
-      :return: The Link header value
-    """
-    links: list[str] = []
-    for item in cls.LINK_HEADER_ITEMS:
-      link = f'<{make_url(request, item["path"])}>; rel="{item["rel"]}"'
-      if 'type' in item:
-        link += f'; type="{item["type"]}"'
-      if 'title' in item:
-        link += f'; title="{item["title"]}"'
-      links.append(link)
-    return ', '.join(links)
-
-  @classmethod
-  def headers(cls, request: Request) -> dict[str, str]:
-    """
-      Generate common headers for profile responses.
-      :param request: The HTTP request
-      :return: A dictionary of headers
-    """
-    headers = {'Allow': 'GET, HEAD, OPTIONS'}
-    link_header = cls.link_header(request)
-    if link_header:
-      headers['Link'] = link_header
-    return headers
-
-  @classmethod
-  def not_acceptable(cls, request: Request) -> JSONResponse:
-    """
-      Generate a 406 Not Acceptable response.
-      :param request: The HTTP request
-      :return: A JSONResponse with problem details
-    """
-    error = {
-      'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
-      'title': 'Not Acceptable',
-      'status': status.HTTP_406_NOT_ACCEPTABLE,
-      'detail': 'The requested media type is not supported by this endpoint. ' +
-                'Supported media types are: ' + ', '.join(cls.SUPPORTED_MEDIA_TYPES),
-      'supportedMediaTypes': cls.SUPPORTED_MEDIA_TYPES
-    }
-    return JSONResponse(
-      error,
-      status_code=status.HTTP_406_NOT_ACCEPTABLE,
-      media_type=cls.problem_media_type(),
-      headers=cls.headers(request))
 
   async def html_response(self, request: Request) -> HTMLResponse:
     """
@@ -216,35 +157,3 @@ class ProfileEndpointBase(HTTPEndpoint):
         media_type=cls.response_media_type(),
         headers=cls.headers(request))
     return cls.not_acceptable(request)
-
-  async def options(self, request: Request) -> Response:
-    """
-      Handle OPTIONS requests for the profile endpoint.
-      :param request: The HTTP request
-      :return: A 204 No Content response with appropriate headers
-    """
-    return Response(
-      status_code=status.HTTP_204_NO_CONTENT,
-      headers=type(self).headers(request))
-
-  @override
-  async def method_not_allowed(self, request: Request) -> JSONResponse:
-    """
-      Handle methods that are not allowed for the profile endpoint.
-      :param request: The HTTP request
-      :return: A JSONResponse with problem details
-    """
-    cls = type(self)
-    error = {
-      'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/405',
-      'title': 'Method Not Allowed',
-      'status': status.HTTP_405_METHOD_NOT_ALLOWED,
-      'detail': 'The requested method is not allowed for this resource. ' +
-                'See the Allow header for allowed methods.',
-      'allowedMethods': ['GET', 'HEAD', 'OPTIONS']
-    }
-    return JSONResponse(
-      error,
-      status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-      media_type=cls.problem_media_type(),
-      headers=cls.headers(request))
