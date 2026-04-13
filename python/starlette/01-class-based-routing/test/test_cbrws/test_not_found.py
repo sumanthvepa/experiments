@@ -26,7 +26,9 @@ class TestNotFound(unittest.TestCase):
     response: Response = client.get('/unknown')
     self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
     self.assertIn('Content-Type', response.headers)
-    self.assertEqual('application/json', response.headers['Content-Type'])
+    self.assertEqual(
+      'application/problem+json',
+      response.headers['Content-Type'])
     data = response.json()
     self.assertIn('type', data)
     self.assertIn('title', data)

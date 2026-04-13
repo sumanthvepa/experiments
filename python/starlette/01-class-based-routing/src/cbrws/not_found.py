@@ -41,4 +41,5 @@ async def not_found(
   }
   return JSONResponse(
     error,
-    status_code=status.HTTP_404_NOT_FOUND)
+    status_code=status.HTTP_404_NOT_FOUND,
+    media_type='application/problem+json')
