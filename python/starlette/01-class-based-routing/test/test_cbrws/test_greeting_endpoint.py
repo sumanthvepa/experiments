@@ -13,6 +13,14 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the /api/greeting route of the cbrws webservice
   """
+  @property
+  def endpoint_url(self) -> str:
+    """
+      The URL used by shared endpoint behavior tests.
+      :return: The greeting endpoint URL
+    """
+    return '/api/greeting'
+
   def test_get(self) -> None:
     """
       Test that get /api/greeting returns a hal+json response with the

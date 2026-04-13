@@ -1,4 +1,5 @@
-*[DONE]issue201-python-starlette-01-cbrws-api-head-test-bug: Fix the /api HEAD test so it sends a HEAD request
+*[DONE]issue202-python-starlette-01-cbrws-test-helper-endpoint-url: Let shared endpoint tests use each test class URL
+[DONE]issue201-python-starlette-01-cbrws-api-head-test-bug: Fix the /api HEAD test so it sends a HEAD request
 [DONE]issue200-python-starlette-01-cbrws-html-title-parser-test-helper: Move duplicated HTMLTitleParser test code into a shared helper
 [DONE]issue199-python-starlette-01-cbrws-debug-mode-config: Stop hardcoding debug mode in the Starlette application
 [DONE]issue198-python-starlette-01-cbrws-response-media-type-request: Remove the unused request parameter from response_media_type or use it for negotiation

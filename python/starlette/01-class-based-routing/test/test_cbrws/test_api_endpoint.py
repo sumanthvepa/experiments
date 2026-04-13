@@ -13,6 +13,14 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the / route of the cbrws webservice
   """
+  @property
+  def endpoint_url(self) -> str:
+    """
+      The URL used by shared endpoint behavior tests.
+      :return: The API endpoint URL
+    """
+    return '/api'
+
   def test_get(self) -> None:
     """
       Test that get /api returns a hal+json response with the

@@ -18,6 +18,14 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     Unit tests for the profiles directory route.
   """
   @property
+  def endpoint_url(self) -> str:
+    """
+      The URL used by shared endpoint behavior tests.
+      :return: The profiles directory URL
+    """
+    return '/profiles/'
+
+  @property
   def profiles_url(self) -> str:
     """
       Expected URL for the 'profiles' directory.
@@ -74,6 +82,14 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     for rel, link in expected_links.items():
       self.assertIn(rel, actual_links)
       self.assertEqual(link, actual_links[rel])
+
+  def check_endpoint_link(self, response: Response) -> None:
+    """
+      Check that the response has the profiles directory Link header.
+      :param response: The response object
+      :return: None
+    """
+    self.check_profiles_link(response)
 
   def test_get_hal_json_by_default(self) -> None:
     """

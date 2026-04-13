@@ -15,6 +15,14 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the profile documentation route.
   """
+  @property
+  def endpoint_url(self) -> str:
+    """
+      The URL used by shared endpoint behavior tests.
+      :return: The CBRWS v1 profile endpoint URL
+    """
+    return '/profiles/cbrws/v1'
+
   def test_get_html(self) -> None:
     """
       Test that the profile endpoint returns HTML documentation.

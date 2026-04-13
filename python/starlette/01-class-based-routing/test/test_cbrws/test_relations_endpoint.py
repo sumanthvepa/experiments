@@ -17,6 +17,14 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the relations index route.
   """
+  @property
+  def endpoint_url(self) -> str:
+    """
+      The URL used by shared endpoint behavior tests.
+      :return: The relations index endpoint URL
+    """
+    return '/profiles/cbrws/v1/rels/'
+
   def test_get_html(self) -> None:
     """
       Test that the relations endpoint returns HTML documentation.

@@ -62,6 +62,11 @@ class TestHelper(RequireAsserts):
     return 'http://localhost:5101'
 
   @property
+  def endpoint_url(self) -> str:
+    """ The URL used by shared endpoint behavior tests. """
+    return '/'
+
+  @property
   def profile_url(self) -> str:
     """ Expected profile URL for the cbrws web service API. """
     return f'{self.base_url}/profiles/cbrws/v1'
@@ -154,9 +159,17 @@ class TestHelper(RequireAsserts):
     self.assertIn('Content-Type', response.headers)
     self.assertEqual(media_type, response.headers['Content-Type'])
 
+  def check_endpoint_link(self, response: Response) -> None:
+    """
+      Check that the response has the correct endpoint Link header.
+      :param response: The response object
+      :return: None
+    """
+    self.check_link(response)
+
   def test_options(self) -> None:
     """
-      Test that options / returns a 200 OK response with the correct headers
+      Test that OPTIONS returns allowed methods and links.
       :param self:
       :return: None
     """
@@ -169,9 +182,9 @@ class TestHelper(RequireAsserts):
     # used when accessing the webservice from the local host on which
     # the webservice is running. Although this is not strictly
     # necessary. It's just for consistency.
-    response = self.make_request('OPTIONS', '/')
+    response = self.make_request('OPTIONS', self.endpoint_url)
     self.check_allow(response)
-    self.check_link(response)
+    self.check_endpoint_link(response)
 
   def test_disallowed_methods(self) -> None:
     """
@@ -201,6 +214,6 @@ class TestHelper(RequireAsserts):
 
     for method in ['POST', 'PUT', 'DELETE', 'PATCH']:
       # Use the make_request helper to send the request
-      # to the root endpoint with the specified method.
-      response = self.make_request(method, '/')
+      # to the endpoint under test with the specified method.
+      response = self.make_request(method, self.endpoint_url)
       make_assertions(response)
