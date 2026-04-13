@@ -83,6 +83,11 @@ to run in a container when deployed, but the container build needs to
 follow project-specific conventions that will be added in a separate
 task.
 
+CORS handling is also planned as a future optional feature. Internal
+web services do not need to enable it by default, but Internet-facing
+web services that serve browser clients must treat explicit CORS
+configuration as a required capability.
+
 As an alternate workflow, you can run the app without installing it by
 setting `PYTHONPATH=src`:
 
