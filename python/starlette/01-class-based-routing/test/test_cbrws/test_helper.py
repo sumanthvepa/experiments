@@ -2,6 +2,7 @@
   test_helper.py: Mixin for testing HTTP endpoints.
   Provides methods to make requests and check responses.
 """
+import asyncio
 from html.parser import HTMLParser
 from typing import Any, Container, Iterable, Protocol
 
@@ -106,6 +107,48 @@ class TestHelper(RequireAsserts):
     """
     client = TestClient(app, self.base_url)
     return client.request(method, url=url, headers=headers, follow_redirects=False)
+
+  def load_file(
+        self,
+        endpoint_class: Any,
+        filename: str,
+        context: dict[str, str]) -> str:
+    """
+      Synchronously load a rendered file through an endpoint helper.
+      :param endpoint_class: The endpoint class that provides load_file
+      :param filename: The name of the file to load
+      :param context: The context to render the template with
+      :return: The rendered file contents
+    """
+    return asyncio.run(endpoint_class.load_file(filename, context))
+
+  def load_json(
+        self,
+        endpoint_class: Any,
+        filename: str,
+        context: dict[str, str]) -> dict[str, Any]:
+    """
+      Synchronously load JSON through an endpoint helper.
+      :param endpoint_class: The endpoint class that provides load_json
+      :param filename: The name of the file to load
+      :param context: The context to render the template with
+      :return: A dictionary representing the JSON document
+    """
+    return asyncio.run(endpoint_class.load_json(filename, context))
+
+  def load_schema(
+        self,
+        endpoint_class: Any,
+        filename: str,
+        context: dict[str, str]) -> dict[str, Any]:
+    """
+      Synchronously load a JSON Schema through an endpoint helper.
+      :param endpoint_class: The endpoint class that provides load_schema
+      :param filename: The name of the file to load
+      :param context: The context to render the template with
+      :return: A dictionary representing the JSON Schema document
+    """
+    return asyncio.run(endpoint_class.load_schema(filename, context))
 
   def check_allow(self, response: Response) -> None:
     """

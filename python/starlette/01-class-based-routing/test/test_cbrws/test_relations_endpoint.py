@@ -2,7 +2,6 @@
   test_relations_endpoint.py: Unit tests for the
   /profiles/cbrws/v1/rels/ endpoint of the cbrws webservice.
 """
-import asyncio
 import unittest
 
 from starlette import status
@@ -57,14 +56,15 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.schema_media_type)
     self.check_link(response)
-    expected_data = asyncio.run(CBRWSV1ProfileEndpoint.load_schema(
+    expected_data = self.load_schema(
+      CBRWSV1ProfileEndpoint,
       str(CBRWSV1ProfileEndpoint.SCHEMA_DIR / 'relations-v1.json'),
       {
         'profile_url': self.profile_url,
         'relations_url': self.profile_url + '/rels/',
         'greeting_relation_url': self.profile_url + '/rels/greeting',
         'title': 'CBRWS v1 Relations'
-      }))
+      })
     self.assertDictEqual(response.json(), expected_data)
 
   def test_get_schema_uses_current_request_urls(self) -> None:

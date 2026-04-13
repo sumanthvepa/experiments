@@ -2,7 +2,6 @@
   test_greeting_relation_profile_endpoint.py: Unit tests for the
   /profiles/cbrws/v1/rels/greeting endpoint of the cbrws webservice.
 """
-import asyncio
 import unittest
 
 from starlette import status
@@ -58,7 +57,8 @@ class TestGreetingRelationProfileEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.schema_media_type)
     self.check_link(response)
-    expected_data = asyncio.run(CBRWSV1ProfileEndpoint.load_schema(
+    expected_data = self.load_schema(
+      CBRWSV1ProfileEndpoint,
       str(CBRWSV1ProfileEndpoint.SCHEMA_DIR / 'greeting-rel-v1.json'),
       {
         'profile_url': self.profile_url,
@@ -66,5 +66,5 @@ class TestGreetingRelationProfileEndpoint(unittest.TestCase, TestHelper):
         'relation_url': self.profile_url + '/rels/greeting',
         'resource_url': self.base_url + '/api/greeting',
         'resource_media_type': self.response_media_type
-      }))
+      })
     self.assertDictEqual(response.json(), expected_data)

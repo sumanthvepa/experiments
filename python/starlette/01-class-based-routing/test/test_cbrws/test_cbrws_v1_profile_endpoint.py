@@ -2,7 +2,6 @@
   test_cbrws_v1_profile_endpoint.py: Unit tests for the
   /profiles/cbrws/v1 endpoint of the cbrws webservice.
 """
-import asyncio
 import unittest
 
 from starlette import status
@@ -54,14 +53,15 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.schema_media_type)
     self.check_link(response)
-    expected_data = asyncio.run(CBRWSV1ProfileEndpoint.load_schema(
+    expected_data = self.load_schema(
+      CBRWSV1ProfileEndpoint,
       str(CBRWSV1ProfileEndpoint.SCHEMA_DIR / 'api-profile-v1.json'),
       {
         'profile_url': self.profile_url,
         'schema_url': self.schema_url,
         'version': '1.0',
         'title': 'CBRWS V1 API Profile'
-      }))
+      })
     self.assertDictEqual(response.json(), expected_data)
 
   def test_get_unsupported_media_type(self) -> None:

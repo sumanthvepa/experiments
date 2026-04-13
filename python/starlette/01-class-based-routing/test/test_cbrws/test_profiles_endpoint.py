@@ -2,7 +2,6 @@
   test_profiles_endpoint.py: Unit tests for the /profiles/ endpoint of
   the cbrws webservice.
 """
-import asyncio
 import unittest
 
 from httpx import Response
@@ -101,9 +100,10 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_content_type(response, self.hal_media_type)
     self.check_allow(response)
     self.check_profiles_link(response)
-    expected_data = asyncio.run(ProfilesEndpoint.load_json(
+    expected_data = self.load_json(
+      ProfilesEndpoint,
       str(ProfilesEndpoint.SCHEMA_DIR / 'profiles.json'),
-      self.template_context))
+      self.template_context)
     self.assertDictEqual(response.json(), expected_data)
 
   def test_get_hal_json_with_accept_header(self) -> None:
@@ -119,9 +119,10 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_content_type(response, self.hal_media_type)
     self.check_allow(response)
     self.check_profiles_link(response)
-    expected_data = asyncio.run(ProfilesEndpoint.load_json(
+    expected_data = self.load_json(
+      ProfilesEndpoint,
       str(ProfilesEndpoint.SCHEMA_DIR / 'profiles.json'),
-      self.template_context))
+      self.template_context)
     self.assertDictEqual(response.json(), expected_data)
 
   def test_get_html(self) -> None:
@@ -137,9 +138,10 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_content_type(response, 'text/html; charset=utf-8')
     self.check_allow(response)
     self.check_profiles_link(response)
-    expected_html = asyncio.run(ProfilesEndpoint.load_file(
+    expected_html = self.load_file(
+      ProfilesEndpoint,
       str(ProfilesEndpoint.SCHEMA_DIR / 'profiles.jinja2'),
-      self.template_context))
+      self.template_context)
     self.assertEqual(expected_html, response.text)
 
   def test_get_unsupported_media_type(self) -> None:
