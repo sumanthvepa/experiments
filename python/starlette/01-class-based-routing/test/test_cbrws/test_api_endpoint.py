@@ -56,10 +56,11 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
 
   def test_head(self) -> None:
     """
-      Test that head /api returns a
+      Test that HEAD /api returns response headers without a body.
       :return: None
     """
-    response = self.make_request('GET', '/api')
+    response = self.make_request('HEAD', '/api')
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.response_media_type)
     self.check_link(response)
+    self.assertEqual(b'', response.content)
