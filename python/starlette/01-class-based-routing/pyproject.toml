@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cbrws"
+version = "0.1.0"
+description = "A Starlette web service using class based routing"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aiofiles>=25.1,<26",
+  "jinja2>=3.1,<4",
+  "starlette>=1.0,<2",
+  "uvicorn>=0.44,<1",
+  "werkzeug>=3.1,<4",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<1",
+  "isort>=8.0,<9",
+  "mypy>=1.20,<2",
+  "pylint>=4.0,<5",
+  "types-aiofiles>=25.1,<26",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cbrws*"]
+
+[tool.setuptools.package-data]
+cbrws = [
+  "schemas/*.jinja2",
+  "schemas/*.json",
+]

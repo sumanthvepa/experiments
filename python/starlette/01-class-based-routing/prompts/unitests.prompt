@@ -1,13 +1,18 @@
 Run this project's unit tests with Python's built-in unittest
-discovery. The cbrws package lives under src and the test modules
-import helpers from test, so set PYTHONPATH=src:test when running
-tests.
+discovery. The cbrws package should be installed in editable mode
+from the project root before running tests:
+
+pip install -e .
+
+After editable install, the cbrws package is importable from the
+active Python environment. The test modules still import helpers from
+test, so set PYTHONPATH=test when running tests.
 
 To run all unit tests, use:
-PYTHONPATH=src:test python -m unittest discover -s test/test_cbrws
+PYTHONPATH=test python -m unittest discover -s test/test_cbrws
 
 To run a single test module, use:
-PYTHONPATH=src:test python -m unittest discover -s test/test_cbrws \
+PYTHONPATH=test python -m unittest discover -s test/test_cbrws \
   -p 'test_name.py' -v
 
 Use -v when you want individual test names in the output.
@@ -18,4 +23,5 @@ for it. The repository is structured around unittest.TestCase.
 Before running tests, make sure the correct Python environment is
 active. If imports fail for project packages or dependencies, report
 that the environment is not set up correctly instead of changing the
-test command.
+test command. Do not fall back to PYTHONPATH=src unless the user
+explicitly asks to use the alternate non-installed workflow.
