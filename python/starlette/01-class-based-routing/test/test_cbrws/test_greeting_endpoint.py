@@ -4,8 +4,12 @@
 """
 import unittest
 
+from starlette.applications import Starlette
+from starlette.routing import Route
 from starlette import status
+from starlette.testclient import TestClient
 
+from cbrws.greeting_endpoint import GreetingEndpoint
 from test_cbrws.test_helper import TestHelper
 
 
@@ -59,3 +63,29 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.response_media_type)
     self.check_link(response)
+
+  def test_get_uses_subclass_response_media_type(self) -> None:
+    """
+      Test that GET /api/greeting uses a subclass response media type.
+      :return: None
+    """
+    class CustomGreetingEndpoint(GreetingEndpoint):
+      """ Greeting endpoint with a custom response media type. """
+      RESPONSE_MEDIA_TYPE = 'application/vnd.example.greeting+json'
+      SUPPORTED_MEDIA_TYPES = [
+        'application/vnd.example.greeting+json',
+        '*/*']
+
+    app = Starlette(routes=[Route('/api/greeting', CustomGreetingEndpoint)])
+    client = TestClient(app, self.base_url)
+    response = client.get('/api/greeting')
+    data = response.json()
+    self.check_content_type(
+      response,
+      CustomGreetingEndpoint.RESPONSE_MEDIA_TYPE)
+    self.assertEqual(
+      CustomGreetingEndpoint.RESPONSE_MEDIA_TYPE,
+      data['_links']['self']['type'])
+    self.assertEqual(
+      CustomGreetingEndpoint.RESPONSE_MEDIA_TYPE,
+      data['_links']['up']['type'])

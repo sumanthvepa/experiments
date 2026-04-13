@@ -30,18 +30,19 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
       self.SUPPORTED_MEDIA_TYPES)
     if media_type is None:
       return type(self).not_acceptable(request)
+    cls = type(self)
 
     message = {
       'message': 'Hello, world!',
       '_links': {
         'self': {
           'href': make_url(request, 'api/greeting'),
-          'type': CBRWSBaseEndpoint.response_media_type(),
+          'type': cls.response_media_type(),
           'profile': make_url(request, 'profiles/cbrws/v1/rels/greeting')
         },
         'up': {
           'href': make_url(request, 'api'),
-          'type': CBRWSBaseEndpoint.response_media_type(),
+          'type': cls.response_media_type(),
           'profile': CBRWSBaseEndpoint.profile_url(request)
         }
       }
@@ -49,5 +50,5 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
     return JSONResponse(
       content=message,
       status_code=status.HTTP_200_OK,
-      media_type=CBRWSBaseEndpoint.response_media_type(),
-      headers=type(self).headers(request))
+      media_type=cls.response_media_type(),
+      headers=cls.headers(request))
