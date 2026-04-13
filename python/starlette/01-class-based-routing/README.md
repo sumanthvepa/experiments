@@ -21,9 +21,15 @@ Start the web service with:
 python -m cbrws.application
 ```
 
-This starts the Starlette app on `http://localhost:5101`.
-Debug mode is disabled by default. To enable debug mode during local
-development, set `CBRWS_DEBUG` to `true`:
+This starts the Starlette app on `http://localhost:5101`. The host,
+port, and debug mode can be configured with environment variables:
+
+- `CBRWS_HOST`: defaults to `0.0.0.0`
+- `CBRWS_PORT`: defaults to `5101`
+- `CBRWS_DEBUG`: defaults to `false`
+
+To enable debug mode during local development, set `CBRWS_DEBUG` to
+`true`:
 
 ```bash
 CBRWS_DEBUG=true python -m cbrws.application
@@ -58,6 +64,9 @@ environment variable:
 ```bash
 CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 ```
+
+When starting the app with uvicorn directly, the host and port are
+configured by uvicorn's `--host` and `--port` options.
 
 As an alternate workflow, you can run the app without installing it by
 setting `PYTHONPATH=src`:

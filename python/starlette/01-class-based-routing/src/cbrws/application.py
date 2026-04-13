@@ -2,12 +2,11 @@
   application.py: Entry point to the cbrws web service.
   cbrws stands for Class Based Routing Web Service.
 """
-import os
-
 from starlette.types import ExceptionHandler
 from starlette.applications import Starlette
 from starlette.routing import Route
 
+from cbrws.config import settings_from_env
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
@@ -18,19 +17,6 @@ from cbrws.profiles_endpoint import ProfilesEndpoint
 from cbrws.cbrws_profiles_endpoint import CBRWSProfilesEndpoint
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.not_found import not_found
-
-
-def bool_from_env(name: str, default: bool = False) -> bool:
-  """
-    Read a boolean value from an environment variable.
-    :param name: The name of the environment variable
-    :param default: The value to use when the variable is not set
-    :return: True when the variable contains an enabled value
-  """
-  value = os.environ.get(name)
-  if value is None:
-    return default
-  return value.strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
 routes: list[Route] = [
@@ -48,8 +34,9 @@ routes: list[Route] = [
   Route(CBRWSBaseEndpoint.PROFILE_PATH, endpoint=CBRWSV1ProfileEndpoint, name='profile_endpoint')
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
+settings = settings_from_env()
 app = Starlette(
-  debug=bool_from_env('CBRWS_DEBUG'),
+  debug=settings.debug,
   routes=routes,
   exception_handlers=exception_handlers)
 
@@ -64,4 +51,4 @@ if __name__ == '__main__':
   # --profile-directory="<Profile Directory Name>"
   # The profile directory name can be "Default" or One of the profile
   # directories listed at ~/Library/Application Support/Google/Chrome/
-  uvicorn.run(app, host='0.0.0.0', port=5101)
+  uvicorn.run(app, host=settings.host, port=settings.port)

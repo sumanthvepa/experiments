@@ -1,4 +1,5 @@
-*issue204-python-starlette-01-cbrws-pyproject-editable-install: Add pyproject metadata and document editable install workflow
+*[DONE]issue205-python-starlette-01-cbrws-configuration-management: Add environment-based application configuration
+[DONE]issue204-python-starlette-01-cbrws-pyproject-editable-install: Add pyproject metadata and document editable install workflow
 [DONE]issue203-python-starlette-01-cbrws-sync-test-load-helpers: Replace asyncio.run calls in tests with synchronous helper wrappers
 [DONE]issue202-python-starlette-01-cbrws-test-helper-endpoint-url: Let shared endpoint tests use each test class URL
 [DONE]issue201-python-starlette-01-cbrws-api-head-test-bug: Fix the /api HEAD test so it sends a HEAD request
