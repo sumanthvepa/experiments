@@ -21,6 +21,7 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
   """
 
   PROFILE_PATH = '/profiles/cbrws/v1'
+  RESPONSE_MEDIA_TYPE = 'application/hal+json'
   SUPPORTED_MEDIA_TYPES = ['application/hal+json', '*/*']
 
   @staticmethod
@@ -41,14 +42,13 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
     """
     return CBRWSBaseEndpoint.profile_url(request) + '/api.schema'
 
-  @staticmethod
-  def response_media_type(request: Request) -> str:
+  @classmethod
+  def response_media_type(cls) -> str:
     """
-      Generate the media type for the cbrws web service.
-      :param request: The HTTP request
-      :return: A string representing the media type
+      Return the media type for cbrws API responses.
+      :return: A string representing the response media type
     """
-    return 'application/hal+json'
+    return cls.RESPONSE_MEDIA_TYPE
 
   @staticmethod
   def schema_media_type() -> str:
@@ -56,7 +56,7 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
       Generate the media type for the schema of the cbrws web service.
       :return: A string representing the schema media type
     """
-    return f'application/schema+json'
+    return 'application/schema+json'
 
   @classmethod
   def link_header_items(cls, request: Request) -> tuple[dict[str, str], ...]:

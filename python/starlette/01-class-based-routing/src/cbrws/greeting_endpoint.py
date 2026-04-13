@@ -36,12 +36,12 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
       '_links': {
         'self': {
           'href': make_url(request, 'api/greeting'),
-          'type': CBRWSBaseEndpoint.response_media_type(request),
+          'type': CBRWSBaseEndpoint.response_media_type(),
           'profile': make_url(request, 'profiles/cbrws/v1/rels/greeting')
         },
         'up': {
           'href': make_url(request, 'api'),
-          'type': CBRWSBaseEndpoint.response_media_type(request),
+          'type': CBRWSBaseEndpoint.response_media_type(),
           'profile': CBRWSBaseEndpoint.profile_url(request)
         }
       }
@@ -49,5 +49,5 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
     return JSONResponse(
       content=message,
       status_code=status.HTTP_200_OK,
-      media_type=CBRWSBaseEndpoint.response_media_type(request),
+      media_type=CBRWSBaseEndpoint.response_media_type(),
       headers=type(self).headers(request))
