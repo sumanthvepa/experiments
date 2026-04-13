@@ -4,25 +4,45 @@
 """
 from starlette.types import ExceptionHandler
 from starlette.applications import Starlette
+from starlette.middleware import Middleware
 from starlette.routing import Route
 
+from cbrws.config import settings_from_env
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
+from cbrws.logging_config import AccessLogMiddleware, configure_logging
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
-from cbrws.profile_endpoint import ProfileEndpoint
+from cbrws.greeting_endpoint import GreetingEndpoint
+from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
+from cbrws.relations_endpoint import RelationsEndpoint
+from cbrws.profiles_endpoint import ProfilesEndpoint
+from cbrws.cbrws_profiles_endpoint import CBRWSProfilesEndpoint
+from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.not_found import not_found
 
 
 routes: list[Route] = [
   Route('/', endpoint=RootEndpoint, name='root_endpoint'),
   Route('/api', endpoint=APIEndpoint, name='api_endpoint'),
-  Route( CBRWSBaseEndpoint.PROFILE_PATH, endpoint=ProfileEndpoint, name='profile_endpoint')
+  Route('/api/greeting', endpoint=GreetingEndpoint, name='greeting_endpoint'),
+  Route('/profiles/', endpoint=ProfilesEndpoint, name='profiles_endpoint'),
+  Route('/profiles/cbrws/v1/rels/', endpoint=RelationsEndpoint,
+        name='relations_endpoint'),
+  Route('/profiles/cbrws/v1/rels/greeting',
+        endpoint=GreetingRelationProfileEndpoint,
+        name='greeting_relation_endpoint'),
+  Route('/profiles/cbrws', endpoint=CBRWSProfilesEndpoint,
+        name='cbrws_profiles_endpoint'),
+  Route(CBRWSBaseEndpoint.PROFILE_PATH, endpoint=CBRWSV1ProfileEndpoint, name='profile_endpoint')
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
+settings = settings_from_env()
+configure_logging(settings)
 app = Starlette(
-  debug=True,
+  debug=settings.debug,
   routes=routes,
-  exception_handlers=exception_handlers)
+  exception_handlers=exception_handlers,
+  middleware=[Middleware(AccessLogMiddleware, settings=settings)])
 
 
 if __name__ == '__main__':
@@ -35,4 +55,4 @@ if __name__ == '__main__':
   # --profile-directory="<Profile Directory Name>"
   # The profile directory name can be "Default" or One of the profile
   # directories listed at ~/Library/Application Support/Google/Chrome/
-  uvicorn.run(app, host='0.0.0.0', port=5101)
+  uvicorn.run(app, host=settings.host, port=settings.port)

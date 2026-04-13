@@ -6,6 +6,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette import status
 
+from cbrws.accept_util import select_media_type
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 from cbrws.url_util import make_url
 
@@ -24,12 +25,12 @@ class APIEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: A JSON response with API information
     """
-    # Content negotiation
-    # Check if the request's Accept header includes a supported media type
-    # If not, return a 406 Not Acceptable response
-    accept = request.headers.get('accept', '*/*')
-    if not any(media_type in accept for media_type in self.SUPPORTED_MEDIA_TYPES):
-      return CBRWSBaseEndpoint.not_acceptable(request, self.SUPPORTED_MEDIA_TYPES)
+    media_type = select_media_type(
+      request.headers.get('accept'),
+      self.SUPPORTED_MEDIA_TYPES)
+    if media_type is None:
+      return type(self).not_acceptable(request)
+    cls = type(self)
 
     message = {
       'title': 'CBRWS API',
@@ -38,7 +39,7 @@ class APIEndpoint(CBRWSBaseEndpoint):
       '_links': {
         'self': {
           'href': make_url(request, 'api'),
-          'type': CBRWSBaseEndpoint.response_media_type(request),
+          'type': cls.response_media_type(),
           'profile': CBRWSBaseEndpoint.profile_url(request)
         },
         'curies': [
@@ -53,13 +54,13 @@ class APIEndpoint(CBRWSBaseEndpoint):
         'cbrws:greeting': {
           'href': make_url(request, 'api/greeting'),
           'rel': 'greeting',
-          'media_type': CBRWSBaseEndpoint.response_media_type(request),
-          'profile': CBRWSBaseEndpoint.profile_url(request)
+          'media_type': cls.response_media_type(),
+          'profile': make_url(request, 'profiles/cbrws/v1/rels/greeting')
         }
       }
     }
     return JSONResponse(
       content=message,
       status_code=status.HTTP_200_OK,
-      media_type=CBRWSBaseEndpoint.response_media_type(request),
-      headers=CBRWSBaseEndpoint.headers(request))
+      media_type=cls.response_media_type(),
+      headers=cls.headers(request))

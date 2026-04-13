@@ -4,8 +4,12 @@
 """
 import unittest
 
+from starlette.applications import Starlette
+from starlette.routing import Route
 from starlette import status
+from starlette.testclient import TestClient
 
+from cbrws.api_endpoint import APIEndpoint
 from test_cbrws.test_helper import TestHelper
 
 
@@ -13,6 +17,14 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the / route of the cbrws webservice
   """
+  @property
+  def endpoint_url(self) -> str:
+    """
+      The URL used by shared endpoint behavior tests.
+      :return: The API endpoint URL
+    """
+    return '/api'
+
   def test_get(self) -> None:
     """
       Test that get /api returns a hal+json response with the
@@ -48,7 +60,7 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
           'href': self.base_url + '/api/greeting',
           'rel': 'greeting',
           'media_type': self.response_media_type,
-          'profile': self.profile_url,
+          'profile': self.profile_url + '/rels/greeting',
         }
       }
     }
@@ -56,10 +68,33 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
 
   def test_head(self) -> None:
     """
-      Test that head /api returns a
+      Test that HEAD /api returns response headers without a body.
       :return: None
     """
-    response = self.make_request('GET', '/api')
+    response = self.make_request('HEAD', '/api')
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.response_media_type)
     self.check_link(response)
+    self.assertEqual(b'', response.content)
+
+  def test_get_uses_subclass_response_media_type(self) -> None:
+    """
+      Test that GET /api uses a subclass response media type.
+      :return: None
+    """
+    class CustomAPIEndpoint(APIEndpoint):
+      """ API endpoint with a custom response media type. """
+      RESPONSE_MEDIA_TYPE = 'application/vnd.example.api+json'
+      SUPPORTED_MEDIA_TYPES = ['application/vnd.example.api+json', '*/*']
+
+    app = Starlette(routes=[Route('/api', CustomAPIEndpoint)])
+    client = TestClient(app, self.base_url)
+    response = client.get('/api')
+    data = response.json()
+    self.check_content_type(response, CustomAPIEndpoint.RESPONSE_MEDIA_TYPE)
+    self.assertEqual(
+      CustomAPIEndpoint.RESPONSE_MEDIA_TYPE,
+      data['_links']['self']['type'])
+    self.assertEqual(
+      CustomAPIEndpoint.RESPONSE_MEDIA_TYPE,
+      data['_links']['cbrws:greeting']['media_type'])

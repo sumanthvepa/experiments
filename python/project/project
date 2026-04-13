@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Get the absolute path to the real directory where
+# this script is located. This allows us to source
+# the virtual environment needed by this script from
+# that location.
+SCRIPT_PATH=$(realpath "$BASH_SOURCE")
+SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+
+# Source the virtual environment from the correct
+# location. This will allow python to access all
+# the dependencies needed for this project
+if [[ ! -v VIRTUAL_ENV ]]; then
+  source "$SCRIPT_DIR"/venv/bin/activate
+else
+  if [[ $VIRTUAL_ENV != "$SCRIPT_DIR/venv" ]]; then
+    echo "Incorrect virtual environment. Deactivate this environment before running this script."
+    exit 1
+  fi
+  # No need to do anything. The correct virtual environment has
+  # already been activated.
+fi
+
+export PYTHONPATH=$SCRIPT_DIR/libs
+# Run the create project python program
+python3.12 "$SCRIPT_DIR"/src/project.py

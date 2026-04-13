@@ -13,4 +13,5 @@ def make_url(request: Request, path: str) -> str:
     :param path: The path to append to the base URL
     :return: A URL for the given path
   """
-  return f'{request.url.scheme}://{request.url.netloc}/{path}'
+  normalized_path = path.lstrip('/')
+  return f'{request.url.scheme}://{request.url.netloc}/{normalized_path}'

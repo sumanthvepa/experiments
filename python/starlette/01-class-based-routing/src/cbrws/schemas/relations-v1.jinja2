@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<header>
+  <h1>{{ title }}</h1>
+  <p>
+    This document lists the custom relation documents provided by the
+    CBRWS v1 profile.
+  </p>
+</header>
+
+<main>
+  <section>
+    <h2>Overview</h2>
+    <p>
+      Profile URL: <code>{{ profile_url }}</code><br />
+      Relations URL: <code>{{ relations_url }}</code>
+    </p>
+    <p>
+      Back to profile:
+      <a href="{{ profile_url }}"><code>{{ profile_url }}</code></a>
+    </p>
+    <p>
+      The relations index is the parent resource for the custom
+      relation documentation pages advertised through the CURIE
+      template in the API profile.
+    </p>
+  </section>
+
+  <section>
+    <h2>Available Relations</h2>
+    <ul>
+      <li><code>cbrws:greeting</code>:
+        <code>{{ greeting_relation_url }}</code></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Content Negotiation</h2>
+    <p>This relations index supports:</p>
+    <ul>
+      <li><code>text/html</code> for this documentation page</li>
+      <li><code>application/schema+json</code> for a JSON Schema of the relations index</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

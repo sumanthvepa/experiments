@@ -42,18 +42,18 @@
             "required": ["name", "href", "templated"]
           }
         },
-        "cbrws:greet": {
+        "cbrws:greeting": {
           "type": "object",
           "properties": {
             "href": { "type": "string", "format": "uri" },
-            "rel": { "type": "string", "enum": ["greet"] },
+            "rel": { "type": "string", "enum": ["greeting"] },
             "media_type": { "type": "string" },
             "profile": { "type": "string", "format": "uri" }
           },
           "required": ["href", "rel", "media_type", "profile"]
         }
       },
-      "required": ["self", "curies", "cbrws:greet"]
+      "required": ["self", "curies", "cbrws:greeting"]
     }
   },
   "required": ["title", "version", "_links"]

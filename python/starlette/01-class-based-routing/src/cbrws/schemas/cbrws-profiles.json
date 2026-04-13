@@ -1,0 +1,17 @@
+{
+  "title": "CBRWS Profile Versions",
+  "description": "Versions of the CBRWS profile supported by this web service.",
+  "_links": {
+    "self": {
+      "href": "{{ cbrws_profile_url }}",
+      "type": "application/hal+json"
+    },
+    "item": [
+      {
+        "href": "{{ cbrws_v1_profile_url }}",
+        "title": "CBRWS v1 API profile",
+        "type": "application/schema+json"
+      }
+    ]
+  }
+}

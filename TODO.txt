@@ -1,3 +1,44 @@
+*[DONE]issue211-python-starlette-01-cbrws-polymorphic-response-media-type: Use endpoint response media type polymorphically
+[DONE]issue210-python-starlette-01-cbrws-profile-schema-validation: Replace runtime asserts with explicit validation errors
+[DONE]issue209-python-starlette-01-cbrws-not-found-problem-media-type: Return problem+json for 404 responses
+issue208-python-starlette-01-cbrws-optional-cors: Add optional CORS handling for public web services
+issue207-python-starlette-01-cbrws-container-deployment: Add container build and deployment support
+[DONE]issue206-python-starlette-01-cbrws-logging: Add configurable request and problem response logging
+[DONE]issue205-python-starlette-01-cbrws-configuration-management: Add environment-based application configuration
+[DONE]issue204-python-starlette-01-cbrws-pyproject-editable-install: Add pyproject metadata and document editable install workflow
+[DONE]issue203-python-starlette-01-cbrws-sync-test-load-helpers: Replace asyncio.run calls in tests with synchronous helper wrappers
+[DONE]issue202-python-starlette-01-cbrws-test-helper-endpoint-url: Let shared endpoint tests use each test class URL
+[DONE]issue201-python-starlette-01-cbrws-api-head-test-bug: Fix the /api HEAD test so it sends a HEAD request
+[DONE]issue200-python-starlette-01-cbrws-html-title-parser-test-helper: Move duplicated HTMLTitleParser test code into a shared helper
+[DONE]issue199-python-starlette-01-cbrws-debug-mode-config: Stop hardcoding debug mode in the Starlette application
+[DONE]issue198-python-starlette-01-cbrws-response-media-type-request: Remove the unused request parameter from response_media_type or use it for negotiation
+[DONE]issue197-python-starlette-01-cbrws-session-prompt: Create a session prompt with standing instructions for the agent in a session
+[DONE]issue196-python-starlette-01-cbrws-unify-endpoint-bases: Consolidate duplicated common behavior in CBRWSBaseEndpoint and ProfileEndpointBase
+[DONE]issue195-python-starlette-01-cbrws-relations-cache-bug: Stop caching request-specific rendered relation endpoint responses
+[DONE]issue194-python-starlette-01-cbrws-content-negotiation-bug: Replace substring Accept header checks with proper media type negotiation
+[DONE]issue193-python-starlette-01-cbrws-not-found-comment-bug: Correct the 404 Not Found handler comment
+[DONE]issue192-python-starlette-01-cbrws-link-header-bug: Fix the malformed describedBy Link header in CBRWSBaseEndpoint
+[DONE]issue191-python-starlette-01-cbrws-profile-base-class: Implement a base class for profile endpoints to reduce code duplication
+[DONE]issue190-python-starlette-01-cbrws-profile-schema: Implement a base class for profile schemas and use it for the /profiles/cbrws/v1 and /profiles/cnrws/rels/greeting endpoints
+[DONE]issue188-python-starlette-01-cbrws-readme-update: Add development notes to the README
+[DONE]issue187-python-starlette-01-cbrws-cbrws-profile-endpoint-tests: Add tests for the /profiles/cbrws endpoint
+[DONE]issue186-python-starlette-01-cbrws-profile-endpoint-tests: Add tests for the /profiles/ endpoint
+[DONE]issue185-python-starlette-01-cbrws-cbrws-profile-endpoint: Implement the /profiles/cbrws/ endpoint as a directory of profile families
+[DONE]issue18-python-starlette-01-cbrws-profile-endpoint: Implement the /profiles/ endpoint as a directory of profile families
+[DONE]issue183-python-starlette-01-cbrws-make-profile-endpoint-tests-robust: Check the actual content of the JSON and HTML responses
+[DONE]issue182-python-starlette-01-cbrws-use-title-in-templates: Wire template titles through the HTML context
+[DONE]issue181-python-starlette-01-cbrws-intellij-idea-workspace-remove: Reverse previous commit. workspace.xml should not be in git
+[DONE]issue180-python-starlette-01-cbrws-intellij-idea-workspace: Commit the changed workspace.xml file
+[DONE]issue179-python-starlette-01-cbrws-rename-profile-endpoint: Rename ProfileEndpoint to CBRWSV1ProfileEndpoint
+[DONE]issue179-python-starlette-01-cbrws-intellij-idea-project: Recreate the IntelliJ IDEA project to pickup update venv
+[DONE]issue178-python-starlette-01-cbrws-greeting-relation: Implement the greeting relation documentation URL
+issue177-python-starlette-01-update-readme: Update README
+[DONE]issue176-python-starlette-01-cbrws-unittest-prompt: Add instructions for agents to run unittests
+[DONE]issue175-python-starlette-01-cbrws-greeting-api: Add support for /api/greeting.
+[DONE]issue174-python-starlette-01-cbrws-ai-agent-supoort: Add AI agent support for this project
+[DONE]issue173-ai-agent-support: Add prompts and files needed for an AI agent to to work.
+[DONE]issue172-python-starlette-01-cbrws: Fix bug in url_utils.py
+[DONE]issue171-checkin-code-from-darkness2: Check in code from darkness2
 [DONE]issue170-docker-01-install-docker-fedora: Add script for Fedora install
 issue169-haykin-neuralnetworks-ch1: Notes and explorations for Haykin Neural Networks Chapter 1
 [DONE]issue168-commit-java-directory: Commit changes made to the java directory

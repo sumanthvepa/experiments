@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<header>
+  <h1>{{ title }}: <code>cbrws:greeting</code></h1>
+  <p>
+    This document describes the custom <code>cbrws:greeting</code>
+    relation used by the CBRWS v1 API.
+  </p>
+</header>
+
+<main>
+  <section>
+    <h2>Meaning</h2>
+    <p>
+      The <code>cbrws:greeting</code> relation identifies a resource
+      that returns the API's greeting representation.
+    </p>
+    <p>
+      Parent relations URL: <code>{{ relations_url }}</code><br />
+      Relation document URL: <code>{{ relation_url }}</code><br />
+      Target resource URL: <code>{{ resource_url }}</code>
+    </p>
+    <p>
+      Back to relations index:
+      <a href="{{ relations_url }}"><code>{{ relations_url }}</code></a>
+    </p>
+  </section>
+
+  <section>
+    <h2>Target Resource</h2>
+    <p>
+      Dereferencing this relation reaches <code>{{ resource_url }}</code>.
+      That resource supports <code>GET</code>, <code>HEAD</code>, and
+      <code>OPTIONS</code>.
+    </p>
+    <p>
+      Successful responses use
+      <code>{{ resource_media_type }}</code> and conform to the profile
+      <code>{{ relation_url }}</code>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Representation Contract</h2>
+    <p>The <code>/api/greeting</code> resource returns a JSON object with:</p>
+    <ul>
+      <li><code>message</code>: a greeting string</li>
+      <li><code>_links.self</code>: a link to the greeting resource</li>
+      <li><code>_links.up</code>: a link back to <code>/api</code></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Content Negotiation</h2>
+    <p>This relation document supports:</p>
+    <ul>
+      <li><code>text/html</code> for this documentation page</li>
+      <li><code>application/schema+json</code> for a JSON Schema of the target resource</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
