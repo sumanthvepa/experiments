@@ -14,8 +14,8 @@ class CBRWSV1ProfileEndpoint(ProfileSchemaEndpoint):
   HTML_FILENAME = 'api-profile-v1.jinja2'
   SCHEMA_FILENAME = 'api-profile-v1.json'
   URL_CONTEXT = {
-    'profile_url': 'profiles/cbrws/v1',
-    'schema_url': 'profiles/cbrws/v1/api.schema'
+    'profile_url': 'profile_endpoint',
+    'schema_url': 'profile_endpoint'
   }
   LITERAL_CONTEXT = {
     'version': '1.0',
@@ -23,19 +23,19 @@ class CBRWSV1ProfileEndpoint(ProfileSchemaEndpoint):
   }
   LINK_HEADER_ITEMS = (
     {
-      'path': 'profiles/cbrws/v1',
+      'route_name': 'profile_endpoint',
       'rel': 'profile',
       'type': 'application/ld+json',
       'title': 'API version identifier(URI) for the cbrws web service'
     },
     {
-      'path': 'profiles/cbrws/v1/api.schema',
+      'route_name': 'profile_endpoint',
       'rel': 'describedBy',
       'type': ProfileSchemaEndpoint.response_media_type(),
       'title': 'JSON schema of the response'
     },
     {
-      'path': 'profiles/cbrws/v1/api.schema',
+      'route_name': 'profile_endpoint',
       'rel': 'documentation',
       'type': 'text/html',
       'title': 'Documentation for the cbrws web service API'

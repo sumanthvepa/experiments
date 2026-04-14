@@ -5,7 +5,6 @@
 from starlette.requests import Request
 
 from cbrws.http_endpoint_base import HTTPEndpointBase
-from cbrws.url_util import make_url
 
 
 class CBRWSBaseEndpoint(HTTPEndpointBase):
@@ -20,7 +19,6 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
   APIEndpoint classes.
   """
 
-  PROFILE_PATH = '/profiles/cbrws/v1'
   RESPONSE_MEDIA_TYPE = 'application/hal+json'
   SUPPORTED_MEDIA_TYPES = ['application/hal+json', '*/*']
 
@@ -31,7 +29,7 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
       :param request: The HTTP request
       :return: A string representing the profile URL
     """
-    return make_url(request, CBRWSBaseEndpoint.PROFILE_PATH)
+    return str(request.url_for('profile_endpoint'))
 
   @staticmethod
   def schema_url(request: Request) -> str:
@@ -40,7 +38,7 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
       :param request: The HTTP request
       :return: A string representing the schema URL
     """
-    return CBRWSBaseEndpoint.profile_url(request) + '/api.schema'
+    return CBRWSBaseEndpoint.profile_url(request)
 
   @classmethod
   def response_media_type(cls) -> str:
@@ -67,19 +65,19 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
     """
     return (
       {
-        'path': cls.PROFILE_PATH,
+        'route_name': 'profile_endpoint',
         'rel': 'profile',
         'type': 'application/ld+json',
         'title': 'API version identifier(URI) for the cbrws web service'
       },
       {
-        'path': cls.PROFILE_PATH + '/api.schema',
+        'route_name': 'profile_endpoint',
         'rel': 'describedBy',
         'type': cls.schema_media_type(),
         'title': 'JSON schema of the response'
       },
       {
-        'path': cls.PROFILE_PATH + '/api.schema',
+        'route_name': 'profile_endpoint',
         'rel': 'documentation',
         'type': 'text/html',
         'title': 'Documentation for the cbrws web service API'

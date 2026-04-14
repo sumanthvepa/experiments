@@ -10,6 +10,10 @@ from starlette import status
 from starlette.testclient import TestClient
 
 from cbrws.api_endpoint import APIEndpoint
+from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.greeting_endpoint import GreetingEndpoint
+from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
+from cbrws.relations_endpoint import RelationsEndpoint
 from test_cbrws.test_helper import TestHelper
 
 
@@ -87,7 +91,15 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
       RESPONSE_MEDIA_TYPE = 'application/vnd.example.api+json'
       SUPPORTED_MEDIA_TYPES = ['application/vnd.example.api+json', '*/*']
 
-    app = Starlette(routes=[Route('/api', CustomAPIEndpoint)])
+    app = Starlette(routes=[
+      Route('/api', CustomAPIEndpoint, name='api_endpoint'),
+      Route('/api/greeting', GreetingEndpoint, name='greeting_endpoint'),
+      Route('/profiles/cbrws/v1', CBRWSV1ProfileEndpoint, name='profile_endpoint'),
+      Route('/profiles/cbrws/v1/rels/', RelationsEndpoint, name='relations_endpoint'),
+      Route('/profiles/cbrws/v1/rels/greeting',
+            GreetingRelationProfileEndpoint,
+            name='greeting_relation_endpoint')
+    ])
     client = TestClient(app, self.base_url)
     response = client.get('/api')
     data = response.json()

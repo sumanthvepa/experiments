@@ -14,7 +14,6 @@ from starlette.responses import HTMLResponse, JSONResponse, Response
 
 from cbrws.accept_util import select_media_type
 from cbrws.http_endpoint_base import HTTPEndpointBase
-from cbrws.url_util import make_url
 
 
 class ProfileEndpointBase(HTTPEndpointBase):
@@ -84,8 +83,8 @@ class ProfileEndpointBase(HTTPEndpointBase):
       :return: A dictionary of template variables
     """
     return {
-      key: make_url(request, path)
-      for key, path in cls.URL_CONTEXT.items()
+      key: str(request.url_for(route_name))
+      for key, route_name in cls.URL_CONTEXT.items()
     }
 
   async def html_response(self, request: Request) -> HTMLResponse:

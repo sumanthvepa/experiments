@@ -15,17 +15,17 @@ class CBRWSProfilesEndpoint(ProfileDirectoryEndpoint):
   HTML_FILENAME = 'cbrws-profiles.jinja2'
   JSON_FILENAME = 'cbrws-profiles.json'
   URL_CONTEXT = {
-    'cbrws_profile_url': 'profiles/cbrws',
-    'cbrws_v1_profile_url': 'profiles/cbrws/v1'
+    'cbrws_profile_url': 'cbrws_profiles_endpoint',
+    'cbrws_v1_profile_url': 'profile_endpoint'
   }
   LINK_HEADER_ITEMS = (
     {
-      'path': 'profiles/cbrws',
+      'route_name': 'cbrws_profiles_endpoint',
       'rel': 'self',
       'type': ProfileDirectoryEndpoint.response_media_type()
     },
     {
-      'path': 'profiles/cbrws/v1',
+      'route_name': 'profile_endpoint',
       'rel': 'item',
       'type': 'application/schema+json',
       'title': 'CBRWS v1 API profile'

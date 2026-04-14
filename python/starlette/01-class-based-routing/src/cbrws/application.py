@@ -8,7 +8,6 @@ from starlette.middleware import Middleware
 from starlette.routing import Route
 
 from cbrws.config import settings_from_env
-from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 from cbrws.logging_config import AccessLogMiddleware, configure_logging
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
@@ -22,18 +21,29 @@ from cbrws.not_found import not_found
 
 
 routes: list[Route] = [
-  Route('/', endpoint=RootEndpoint, name='root_endpoint'),
-  Route('/api', endpoint=APIEndpoint, name='api_endpoint'),
-  Route('/api/greeting', endpoint=GreetingEndpoint, name='greeting_endpoint'),
-  Route('/profiles/', endpoint=ProfilesEndpoint, name='profiles_endpoint'),
-  Route('/profiles/cbrws/v1/rels/', endpoint=RelationsEndpoint,
+  Route('/',
+        endpoint=RootEndpoint,
+        name='root_endpoint'),
+  Route('/api',
+        endpoint=APIEndpoint,
+        name='api_endpoint'),
+  Route('/api/greeting',
+        endpoint=GreetingEndpoint,
+        name='greeting_endpoint'),
+  Route('/profiles/',
+        endpoint=ProfilesEndpoint,
+        name='profiles_endpoint'),
+  Route('/profiles/cbrws/v1/rels/',
+        endpoint=RelationsEndpoint,
         name='relations_endpoint'),
   Route('/profiles/cbrws/v1/rels/greeting',
         endpoint=GreetingRelationProfileEndpoint,
         name='greeting_relation_endpoint'),
   Route('/profiles/cbrws', endpoint=CBRWSProfilesEndpoint,
         name='cbrws_profiles_endpoint'),
-  Route(CBRWSBaseEndpoint.PROFILE_PATH, endpoint=CBRWSV1ProfileEndpoint, name='profile_endpoint')
+  Route('/profiles/cbrws/v1',
+        endpoint=CBRWSV1ProfileEndpoint,
+        name='profile_endpoint')
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
 settings = settings_from_env()

@@ -75,7 +75,7 @@ class TestHelper(RequireAsserts):
   @property
   def schema_url(self) -> str:
     """ Expected schema URL for the cbrws web service API. """
-    return f'{self.profile_url}/api.schema'
+    return self.profile_url
 
   @property
   def response_media_type(self) -> str:

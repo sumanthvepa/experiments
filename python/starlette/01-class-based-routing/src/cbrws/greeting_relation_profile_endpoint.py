@@ -5,7 +5,6 @@
 from starlette.requests import Request
 
 from cbrws.profile_schema_endpoint import ProfileSchemaEndpoint
-from cbrws.url_util import make_url
 
 
 class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
@@ -18,29 +17,29 @@ class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
   HTML_FILENAME = 'greeting-rel-v1.jinja2'
   SCHEMA_FILENAME = 'greeting-rel-v1.json'
   URL_CONTEXT = {
-    'profile_url': 'profiles/cbrws/v1',
-    'relations_url': 'profiles/cbrws/v1/rels/',
-    'relation_url': 'profiles/cbrws/v1/rels/greeting',
-    'resource_url': 'api/greeting'
+    'profile_url': 'profile_endpoint',
+    'relations_url': 'relations_endpoint',
+    'relation_url': 'greeting_relation_endpoint',
+    'resource_url': 'greeting_endpoint'
   }
   LITERAL_CONTEXT = {
     'title': 'CBRWS V1 Greeting Relation'
   }
   LINK_HEADER_ITEMS = (
     {
-      'path': 'profiles/cbrws/v1',
+      'route_name': 'profile_endpoint',
       'rel': 'profile',
       'type': 'application/ld+json',
       'title': 'API version identifier(URI) for the cbrws web service'
     },
     {
-      'path': 'profiles/cbrws/v1/api.schema',
+      'route_name': 'profile_endpoint',
       'rel': 'describedBy',
       'type': ProfileSchemaEndpoint.response_media_type(),
       'title': 'JSON schema of the response'
     },
     {
-      'path': 'profiles/cbrws/v1/api.schema',
+      'route_name': 'profile_endpoint',
       'rel': 'documentation',
       'type': 'text/html',
       'title': 'Documentation for the cbrws web service API'
