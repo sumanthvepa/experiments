@@ -55,6 +55,11 @@ def application_middleware(settings: Settings) -> list[Middleware]:
     :param settings: The application settings
     :return: The configured middleware list
   """
+  # TrustedHostMiddleware rejects requests whose Host header is not in
+  # the configured allow list. The service builds absolute URLs from
+  # request data, so validating Host prevents clients from smuggling an
+  # unexpected public host through a reverse proxy and into generated
+  # links.
   return [
     Middleware(
       TrustedHostMiddleware,
