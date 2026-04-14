@@ -1,4 +1,5 @@
-*[DONE]issue213-python-starlette-01-cbrws-add-todo-prompt: Add a prompt for creating TODO items for the project
+*[DONE]issue213-python-starlette-01-cbrws-fix-session-prompt: Fix typo in referring to unittest.prompt.
+[DONE]issue213-python-starlette-01-cbrws-add-todo-prompt: Add a prompt for creating TODO items for the project
 [DONE]issue212-python-starlette-01-cbrws-move-test-directory: Move the test directory to tests
 [DONE]issue211-python-starlette-01-cbrws-fix-pylintc: Fix incorrect paths in pylintrc
 [DONE]issue211-python-starlette-01-cbrws-polymorphic-response-media-type: Use endpoint response media type polymorphically
