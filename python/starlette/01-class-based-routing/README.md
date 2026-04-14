@@ -40,11 +40,11 @@ CBRWS_DEBUG=true python -m cbrws.application
 Run the unit tests with:
 
 ```bash
-PYTHONPATH=test python -m unittest discover -s test/test_cbrws
+PYTHONPATH=tests python -m unittest discover -s tests/test_cbrws
 ```
 
-The `PYTHONPATH=test` setting lets the tests import shared test helpers
-from the `test` directory.
+The `PYTHONPATH=tests` setting lets the tests import shared test helpers
+from the `tests` directory.
 
 Useful URLs during development:
 
@@ -95,8 +95,8 @@ setting `PYTHONPATH=src`:
 PYTHONPATH=src python -m cbrws.application
 ```
 
-For tests in the alternate workflow, include both `src` and `test`:
+For tests in the alternate workflow, include both `src` and `tests`:
 
 ```bash
-PYTHONPATH=src:test python -m unittest discover -s test/test_cbrws
+PYTHONPATH=src:tests python -m unittest discover -s tests/test_cbrws
 ```
