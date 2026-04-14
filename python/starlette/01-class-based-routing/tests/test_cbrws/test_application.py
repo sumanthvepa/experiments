@@ -4,12 +4,15 @@
 import unittest
 from unittest.mock import patch
 
+from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
-from cbrws.application import app
+from cbrws.application import app, application_middleware, routes
 from cbrws.config import (
+  Settings,
   bool_from_env,
   int_from_env,
+  list_from_env,
   log_level_from_env,
   settings_from_env)
 
@@ -90,6 +93,7 @@ class TestApplication(unittest.TestCase):
       self.assertEqual(5101, settings.port)
       self.assertEqual('INFO', settings.log_level)
       self.assertTrue(settings.access_log)
+      self.assertEqual(('*',), settings.allowed_hosts)
 
   def test_settings_from_env_reads_config_values(self) -> None:
     """
@@ -103,7 +107,8 @@ class TestApplication(unittest.TestCase):
             'CBRWS_HOST': '127.0.0.1',
             'CBRWS_PORT': '8000',
             'CBRWS_LOG_LEVEL': 'debug',
-            'CBRWS_ACCESS_LOG': 'false'
+            'CBRWS_ACCESS_LOG': 'false',
+            'CBRWS_ALLOWED_HOSTS': 'localhost, api.example.com'
           }):
       settings = settings_from_env()
       self.assertTrue(settings.debug)
@@ -111,6 +116,67 @@ class TestApplication(unittest.TestCase):
       self.assertEqual(8000, settings.port)
       self.assertEqual('DEBUG', settings.log_level)
       self.assertFalse(settings.access_log)
+      self.assertEqual(
+        ('localhost', 'api.example.com'),
+        settings.allowed_hosts)
+
+  def test_list_from_env_returns_default_when_unset(self) -> None:
+    """
+      Test that list_from_env returns the default for unset variables.
+      :return: None
+    """
+    with patch.dict('os.environ', {}, clear=True):
+      self.assertEqual(('*',), list_from_env('CBRWS_ALLOWED_HOSTS', ('*',)))
+
+  def test_list_from_env_parses_comma_separated_values(self) -> None:
+    """
+      Test that list_from_env parses comma-separated values.
+      :return: None
+    """
+    with patch.dict(
+          'os.environ',
+          {'CBRWS_ALLOWED_HOSTS': 'localhost, api.example.com,, '}):
+      self.assertEqual(
+        ('localhost', 'api.example.com'),
+        list_from_env('CBRWS_ALLOWED_HOSTS', ('*',)))
+
+  def test_trusted_host_middleware_allows_configured_hosts(self) -> None:
+    """
+      Test that configured Host headers are accepted.
+      :return: None
+    """
+    settings = Settings(
+      debug=False,
+      host='0.0.0.0',
+      port=5101,
+      log_level='INFO',
+      access_log=True,
+      allowed_hosts=('api.example.com',))
+    test_app = Starlette(
+      routes=routes,
+      middleware=application_middleware(settings))
+    client = TestClient(test_app, 'http://api.example.com')
+    response = client.get('/api')
+    self.assertEqual(200, response.status_code)
+
+  def test_trusted_host_middleware_rejects_other_hosts(self) -> None:
+    """
+      Test that unexpected Host headers are rejected.
+      :return: None
+    """
+    settings = Settings(
+      debug=False,
+      host='0.0.0.0',
+      port=5101,
+      log_level='INFO',
+      access_log=True,
+      allowed_hosts=('api.example.com',))
+    test_app = Starlette(
+      routes=routes,
+      middleware=application_middleware(settings))
+    client = TestClient(test_app, 'http://attacker.example')
+    response = client.get('/api')
+    self.assertEqual(400, response.status_code)
 
   def test_log_level_from_env_returns_default_when_unset(self) -> None:
     """

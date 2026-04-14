@@ -29,6 +29,7 @@ port, and debug mode can be configured with environment variables:
 - `CBRWS_DEBUG`: defaults to `false`
 - `CBRWS_LOG_LEVEL`: defaults to `INFO`
 - `CBRWS_ACCESS_LOG`: defaults to `true`
+- `CBRWS_ALLOWED_HOSTS`: defaults to `*`
 
 To enable debug mode during local development, set `CBRWS_DEBUG` to
 `true`:
@@ -76,6 +77,14 @@ request access logs, set `CBRWS_ACCESS_LOG` to `false`:
 
 ```bash
 CBRWS_LOG_LEVEL=DEBUG CBRWS_ACCESS_LOG=false python -m cbrws.application
+```
+
+To restrict accepted HTTP Host headers, set `CBRWS_ALLOWED_HOSTS` to a
+comma-separated list of trusted host names:
+
+```bash
+CBRWS_ALLOWED_HOSTS=localhost,127.0.0.1,api.example.com \
+  python -m cbrws.application
 ```
 
 This project does not include a Dockerfile yet. The service is intended

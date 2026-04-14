@@ -5,9 +5,10 @@
 from starlette.types import ExceptionHandler
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.routing import Route
 
-from cbrws.config import settings_from_env
+from cbrws.config import Settings, settings_from_env
 from cbrws.logging_config import AccessLogMiddleware, configure_logging
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
@@ -46,13 +47,29 @@ routes: list[Route] = [
         name='profile_endpoint')
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
+
+
+def application_middleware(settings: Settings) -> list[Middleware]:
+  """
+    Build the application middleware stack.
+    :param settings: The application settings
+    :return: The configured middleware list
+  """
+  return [
+    Middleware(
+      TrustedHostMiddleware,
+      allowed_hosts=list(settings.allowed_hosts)),
+    Middleware(AccessLogMiddleware, settings=settings)
+  ]
+
+
 settings = settings_from_env()
 configure_logging(settings)
 app = Starlette(
   debug=settings.debug,
   routes=routes,
   exception_handlers=exception_handlers,
-  middleware=[Middleware(AccessLogMiddleware, settings=settings)])
+  middleware=application_middleware(settings))
 
 
 if __name__ == '__main__':
