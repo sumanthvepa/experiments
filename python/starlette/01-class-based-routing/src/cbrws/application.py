@@ -2,7 +2,9 @@
   application.py: Entry point to the cbrws web service.
   cbrws stands for Class Based Routing Web Service.
 """
-from starlette.types import ExceptionHandler
+from collections.abc import Sequence
+
+from starlette.types import ASGIApp, ExceptionHandler
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
@@ -49,10 +51,52 @@ routes: list[Route] = [
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
 
 
-def application_middleware(settings: Settings) -> list[Middleware]:
+def trusted_host_middleware(
+    asgi_app: ASGIApp,
+    allowed_hosts: Sequence[str]
+) -> ASGIApp:
+  """
+    Build the trusted host middleware.
+
+    Starlette's Middleware helper expects a factory function that takes
+    an ASGI application and returns an ASGI application. Passing the
+    TrustedHostMiddleware class directly works at runtime because
+    calling the class creates an ASGI application, but IntelliJ IDEA
+    does not detect that this satisfies the factory type. This wrapper
+    gives the type checker the factory shape it expects.
+
+    :param asgi_app: The ASGI application to wrap
+    :param allowed_hosts: The accepted Host header values
+    :return: The wrapped ASGI application
+  """
+  return TrustedHostMiddleware(asgi_app, allowed_hosts=allowed_hosts)
+
+
+def access_log_middleware(
+    asgi_app: ASGIApp,
+    app_settings: Settings
+) -> ASGIApp:
+  """
+    Build the access log middleware.
+
+    Starlette's Middleware helper expects a factory function that takes
+    an ASGI application and returns an ASGI application. Passing the
+    AccessLogMiddleware class directly works at runtime because calling
+    the class creates an ASGI application, but IntelliJ IDEA does not
+    detect that this satisfies the factory type. This wrapper gives the
+    type checker the factory shape it expects.
+
+    :param asgi_app: The ASGI application to wrap
+    :param app_settings: The application settings
+    :return: The wrapped ASGI application
+  """
+  return AccessLogMiddleware(asgi_app, settings=app_settings)
+
+
+def application_middleware(app_settings: Settings) -> list[Middleware]:
   """
     Build the application middleware stack.
-    :param settings: The application settings
+    :param app_settings: The application settings
     :return: The configured middleware list
   """
   # TrustedHostMiddleware rejects requests whose Host header is not in
@@ -62,9 +106,9 @@ def application_middleware(settings: Settings) -> list[Middleware]:
   # links.
   return [
     Middleware(
-      TrustedHostMiddleware,
-      allowed_hosts=list(settings.allowed_hosts)),
-    Middleware(AccessLogMiddleware, settings=settings)
+      trusted_host_middleware,
+      allowed_hosts=list(app_settings.allowed_hosts)),
+    Middleware(access_log_middleware, app_settings=app_settings)
   ]
 
 
