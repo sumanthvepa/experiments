@@ -1,4 +1,4 @@
-*issue212-python-starlette-01-cbrws-move-test-directory: Move the test directory to tests
+[DONE]issue212-python-starlette-01-cbrws-move-test-directory: Move the test directory to tests
 [DONE]issue211-python-starlette-01-cbrws-fix-pylintc: Fix incorrect paths in pylintrc
 [DONE]issue211-python-starlette-01-cbrws-polymorphic-response-media-type: Use endpoint response media type polymorphically
 [DONE]issue210-python-starlette-01-cbrws-profile-schema-validation: Replace runtime asserts with explicit validation errors
