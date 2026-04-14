@@ -1,4 +1,5 @@
-*[DONE]issue211-python-starlette-01-cbrws-polymorphic-response-media-type: Use endpoint response media type polymorphically
+*[DONE]issue211-python-starlette-01-cbrws-fix-pylintc: Fix incorrect paths in pylintrc
+[DONE]issue211-python-starlette-01-cbrws-polymorphic-response-media-type: Use endpoint response media type polymorphically
 [DONE]issue210-python-starlette-01-cbrws-profile-schema-validation: Replace runtime asserts with explicit validation errors
 [DONE]issue209-python-starlette-01-cbrws-not-found-problem-media-type: Return problem+json for 404 responses
 issue208-python-starlette-01-cbrws-optional-cors: Add optional CORS handling for public web services
