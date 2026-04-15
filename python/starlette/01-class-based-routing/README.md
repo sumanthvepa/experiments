@@ -40,7 +40,7 @@ CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 If you want hot reload during development, add the `--reload` option.
 This is not recommended for production use because it adds overhead
 and can cause unexpected behavior if the app reloads while processing
-a request. The command given below is should be ideal for local development:
+a request. The command given below should be ideal for local development:
 
 ```bash
 CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101 --reload
