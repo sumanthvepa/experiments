@@ -81,6 +81,40 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
     self.check_link(response)
     self.assertEqual(b'', response.content)
 
+  def test_get_uses_proxy_adjusted_request_origin_for_links(self) -> None:
+    """
+      Test that generated links use the request scheme and host.
+      :return: None
+    """
+    app = Starlette(routes=[
+      Route('/api', APIEndpoint, name='api_endpoint'),
+      Route('/api/greeting', GreetingEndpoint, name='greeting_endpoint'),
+      Route('/profiles/cbrws/v1', CBRWSV1ProfileEndpoint, name='profile_endpoint'),
+      Route('/profiles/cbrws/v1/rels/', RelationsEndpoint, name='relations_endpoint'),
+      Route('/profiles/cbrws/v1/rels/greeting',
+            GreetingRelationProfileEndpoint,
+            name='greeting_relation_endpoint')
+    ])
+    client = TestClient(app, 'https://api.example.com')
+    response = client.get('/api')
+    self.assertEqual(status.HTTP_200_OK, response.status_code)
+    data = response.json()
+    self.assertEqual(
+      'https://api.example.com/api',
+      data['_links']['self']['href'])
+    self.assertEqual(
+      'https://api.example.com/profiles/cbrws/v1',
+      data['_links']['self']['profile'])
+    self.assertEqual(
+      'https://api.example.com/profiles/cbrws/v1/rels/{rel}',
+      data['_links']['curies'][0]['href'])
+    self.assertEqual(
+      'https://api.example.com/api/greeting',
+      data['_links']['cbrws:greeting']['href'])
+    self.assertEqual(
+      'https://api.example.com/profiles/cbrws/v1/rels/greeting',
+      data['_links']['cbrws:greeting']['profile'])
+
   def test_get_uses_subclass_response_media_type(self) -> None:
     """
       Test that GET /api uses a subclass response media type.
