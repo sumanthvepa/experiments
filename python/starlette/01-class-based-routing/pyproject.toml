@@ -9,20 +9,19 @@ description = "A Starlette web service using class based routing"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "aiofiles>=25.1,<26",
-  "jinja2>=3.1,<4",
-  "starlette>=1.0,<2",
-  "uvicorn>=0.44,<1",
-  "werkzeug>=3.1,<4",
+  "aiofiles",
+  "jinja2",
+  "starlette",
+  "uvicorn",
+  "werkzeug",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "httpx>=0.28,<1",
-  "isort>=8.0,<9",
-  "mypy>=1.20,<2",
-  "pylint>=4.0,<5",
-  "types-aiofiles>=25.1,<26",
+  "httpx",
+  "mypy",
+  "pylint",
+  "types-aiofiles",
 ]
 
 [tool.setuptools.packages.find]

@@ -6,6 +6,30 @@ and unknown URLs.
 
 ## Development
 
+### Create the virtual environment and install dependencies
+Create a Python virtual environment and install dependencies from the project root:
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+You can either install exact dependencies from requirements.txt:
+
+Install the latest version of the packages from packages.txt
+```bash
+packages3.sh
+````
+This should be done if you have just checked out a new branch and want
+to create a venv with the latest versions of the dependencies.
+
+Sometimes this is not desirable, for example if you want to create
+a project the dependencies in requirements.txt. In that case, install
+from requirements.txt:
+
+```bash
+pip install -r requirements.txt
+```
+
 ### Install the project in editable mode
 Install the project in editable mode from the project root:
 
@@ -16,6 +40,65 @@ After editable install, the cbrws package is importable from the
 active Python environment while still using the source files in
 this working tree. The test modules still import helpers from
 tests, so set PYTHONPATH=tests when running tests.
+
+Now you can start doing development work. (See the section
+on testing and running the web service below for how to run the app
+and tests)
+
+### pyproject.toml vs requirements.txt vs packages.txt
+For milestone42 projects, packages.txt is the source of truth for top
+level dependencies. The way we work at Milestone42 is that there is an
+expectation that the project will work with the latest versions of the
+its dependencies, so packages.txt does not specify versions. The
+project should be tested with the latest versions of dependencies
+before merging to main.
+
+Requirements.txt is a generated file that pins the exact versions of
+dependencies that are known to work together. When you are ready to
+deploy the project to production, regenerate requirements.txt
+in the development environment first:
+
+Pyproject.toml is used to specify the project metadata and dependencies
+in a standardized way. It is used by pip to install the project and
+its dependencies. Currently you are required to manually keep
+pyproject.toml in sync with packages.txt, but in the future we may
+add a script to automate this.
+  
+```bash
+rm -r venv
+python -m venv venv
+source venv/bin/activate
+packages3.sh
+pip install -e .
+```
+
+### Deploying to production
+
+#### Building a wheel for production deployment
+Assuming you have a clean venv and everything work in the development
+environment. Check out a clean version of the project in production
+location (on a different machine or location) and do the following:
+
+```bash
+python -m venv venv
+source venv/bin/activate
+python -m pip install  build
+python -m build
+```
+
+The `build` step creates a wheel file in the `dist` directory that can
+be copied into a production environment and installed into a
+production virtual environment with
+
+#### Installing the wheel in production
+Copy the wheel file from the `dist` directory in the build environment
+to the production environment (the container) and then run:
+```bash
+pip install dist/cbrws-0.1.0-py3-none-any.whl
+```
+
+Now follow the instructions in the next section to run the web service
+in production.
 
 # Running the web service
 Start the web service with:
@@ -46,6 +129,17 @@ a request. The command given below should be ideal for local development:
 
 ```bash
 CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101 --reload
+```
+
+In production CBRWS_DEBUG should be `false` and `--reload` should not be used.
+Also CBRWS_ACCESS_LOG should be `true` in production to log all requests, and
+CBRWS_ALLOWED_HOSTS should be set to a comma-separated list of trusted host
+ips or hostnames that clients will use to connect to the service.
+```bash
+CBRWS_DEBUG=false \
+  CBRWS_ACCESS_LOG=true \
+  CBRWS_ALLOWED_HOSTS="localhost, crystal.milestone42.com, darkness2.milestone42.com, dustbin2.milestone42.com, pitts.milestone42.com" \
+  uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 ```
 
 ### Testing
