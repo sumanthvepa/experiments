@@ -6,15 +6,18 @@ and unknown URLs.
 
 ## Development
 
+### Install the project in editable mode
 Install the project in editable mode from the project root:
 
 ```bash
 pip install -e .
 ```
+After editable install, the cbrws package is importable from the
+active Python environment while still using the source files in
+this working tree. The test modules still import helpers from
+tests, so set PYTHONPATH=tests when running tests.
 
-This makes the `cbrws` package importable from the active Python
-environment while still using the source files in this working tree.
-
+# Running the web service
 Start the web service with:
 
 ```bash
@@ -46,6 +49,7 @@ a request. The command given below should be ideal for local development:
 CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101 --reload
 ```
 
+### Testing
 Run the unit tests with:
 
 ```bash

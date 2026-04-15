@@ -1,19 +1,18 @@
 Run this project's unit tests with Python's built-in unittest
-discovery. The cbrws package should be installed in editable mode
-from the project root before running tests:
-
-pip install -e .
-
-After editable install, the cbrws package is importable from the
-active Python environment. The test modules still import helpers from
-tests, so set PYTHONPATH=tests when running tests.
+discovery.
 
 To run all unit tests, use:
+
+```bash
 PYTHONPATH=tests python -m unittest discover -s tests/test_cbrws
+```
 
 To run a single test module, use:
+
+```bash
 PYTHONPATH=tests python -m unittest discover -s tests/test_cbrws \
   -p 'test_name.py' -v
+```
 
 Use -v when you want individual test names in the output.
 

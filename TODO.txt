@@ -1,4 +1,5 @@
-*[DONE]issue217-python-starlette-01-cbrws-hal-link-member-names: Use standard HAL link member names in the API response
+*[DONE]issue218-python-starlette-01-cbrws-test-docs: Clarify unittest and editable install documentation
+[DONE]issue217-python-starlette-01-cbrws-hal-link-member-names: Use standard HAL link member names in the API response
 [DONE]issue216-python-starlette-01-cbrws-remove-wildcard-supported-media-type: Remove wildcard media type from 406 responses
 [DONE]issue215-python-starlette-01-cbrws-supported-media-types-negotiation: Use supported media types for response negotiation
 [DONE]issue214-python-starlette-01-cbrws-proxy-aware-urls: Make generated URLs proxy-aware
