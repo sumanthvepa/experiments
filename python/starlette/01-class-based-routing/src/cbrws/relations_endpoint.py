@@ -22,7 +22,7 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
     application/schema+json depending on the Accept header.
   """
   RELATIONS_PATH = '/profiles/cbrws/v1/rels/'
-  SUPPORTED_MEDIA_TYPES = ['text/html', 'application/schema+json', '*/*']
+  SUPPORTED_MEDIA_TYPES = ['application/schema+json', 'text/html', '*/*']
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
 
   @staticmethod
@@ -96,11 +96,12 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       :return: A Response with relations information in either HTML or
       JSON Schema format
     """
+    cls = type(self)
     media_type = select_media_type(
       request.headers.get('accept'),
-      [CBRWSBaseEndpoint.schema_media_type(), 'text/html'])
+      cls.SUPPORTED_MEDIA_TYPES)
     if media_type == 'text/html':
       return await self.html_response(request)
     if media_type == CBRWSBaseEndpoint.schema_media_type():
       return await self.json_response(request)
-    return type(self).not_acceptable(request)
+    return cls.not_acceptable(request)

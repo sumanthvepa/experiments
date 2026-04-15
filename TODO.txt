@@ -1,4 +1,5 @@
-*[DONE]issue214-python-starlette-01-cbrws-proxy-aware-urls: Make generated URLs proxy-aware
+*[DONE]issue215-python-starlette-01-cbrws-supported-media-types-negotiation: Use supported media types for response negotiation
+[DONE]issue214-python-starlette-01-cbrws-proxy-aware-urls: Make generated URLs proxy-aware
 [DONE]issue213-python-starlette-01-cbrws-fix-session-prompt: Fix typo in referring to unittest.prompt.
 [DONE]issue213-python-starlette-01-cbrws-add-todo-prompt: Add a prompt for creating TODO items for the project
 [DONE]issue212-python-starlette-01-cbrws-move-test-directory: Move the test directory to tests

@@ -5,10 +5,13 @@
 import unittest
 
 from starlette import status
+from starlette.applications import Starlette
+from starlette.routing import Route
 from starlette.testclient import TestClient
 
 from cbrws.application import app
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.relations_endpoint import RelationsEndpoint
 from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
 
@@ -118,5 +121,33 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
       'GET',
       '/profiles/cbrws/v1/rels/',
       headers={'Accept': 'application/xml'})
+    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
+    self.check_content_type(response, self.problem_media_type)
+
+  def test_get_negotiates_with_supported_media_types(self) -> None:
+    """
+      Test that response negotiation uses SUPPORTED_MEDIA_TYPES.
+      :return: None
+    """
+    class CustomRelationsEndpoint(RelationsEndpoint):
+      """
+        A relations endpoint with a deliberately restricted media type list.
+      """
+      SUPPORTED_MEDIA_TYPES = ['text/html', '*/*']
+
+    test_app = Starlette(routes=[
+      Route('/profiles/cbrws/v1/rels/',
+            CustomRelationsEndpoint,
+            name='relations_endpoint'),
+      Route('/profiles/cbrws/v1',
+            CBRWSV1ProfileEndpoint,
+            name='profile_endpoint')
+    ])
+    client = TestClient(test_app, self.base_url)
+
+    response = client.get(
+      '/profiles/cbrws/v1/rels/',
+      headers={'Accept': self.schema_media_type})
+
     self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
     self.check_content_type(response, self.problem_media_type)

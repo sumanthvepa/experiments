@@ -128,7 +128,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
     cls = type(self)
     media_type = select_media_type(
       request.headers.get('accept'),
-      [cls.response_media_type(), 'text/html'])
+      cls.SUPPORTED_MEDIA_TYPES)
     if media_type == 'text/html':
       return await self.html_response(request)
     if media_type == cls.response_media_type():
@@ -144,7 +144,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
     cls = type(self)
     media_type = select_media_type(
       request.headers.get('accept'),
-      [cls.response_media_type(), 'text/html'])
+      cls.SUPPORTED_MEDIA_TYPES)
     if media_type == 'text/html':
       return Response(
         status_code=status.HTTP_200_OK,
