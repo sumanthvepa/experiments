@@ -12,7 +12,6 @@ from cbrws.config import (
   Settings,
   bool_from_env,
   list_from_env,
-  log_level_from_env,
   settings_from_env)
 
 
@@ -64,7 +63,6 @@ class TestApplication(unittest.TestCase):
     with patch.dict('os.environ', {}, clear=True):
       settings = settings_from_env()
       self.assertFalse(settings.debug)
-      self.assertEqual('INFO', settings.log_level)
       self.assertTrue(settings.access_log)
       self.assertEqual(('*',), settings.allowed_hosts)
 
@@ -77,13 +75,11 @@ class TestApplication(unittest.TestCase):
           'os.environ',
           {
             'CBRWS_DEBUG': 'true',
-            'CBRWS_LOG_LEVEL': 'debug',
             'CBRWS_ACCESS_LOG': 'false',
             'CBRWS_ALLOWED_HOSTS': 'localhost, api.example.com'
           }):
       settings = settings_from_env()
       self.assertTrue(settings.debug)
-      self.assertEqual('DEBUG', settings.log_level)
       self.assertFalse(settings.access_log)
       self.assertEqual(
         ('localhost', 'api.example.com'),
@@ -116,7 +112,6 @@ class TestApplication(unittest.TestCase):
     """
     settings = Settings(
       debug=False,
-      log_level='INFO',
       access_log=True,
       allowed_hosts=('api.example.com',))
     test_app = Starlette(
@@ -133,7 +128,6 @@ class TestApplication(unittest.TestCase):
     """
     settings = Settings(
       debug=False,
-      log_level='INFO',
       access_log=True,
       allowed_hosts=('api.example.com',))
     test_app = Starlette(
@@ -142,30 +136,6 @@ class TestApplication(unittest.TestCase):
     client = TestClient(test_app, 'http://attacker.example')
     response = client.get('/api')
     self.assertEqual(400, response.status_code)
-
-  def test_log_level_from_env_returns_default_when_unset(self) -> None:
-    """
-      Test that log_level_from_env returns the default for unset values.
-      :return: None
-    """
-    with patch.dict('os.environ', {}, clear=True):
-      self.assertEqual('INFO', log_level_from_env('CBRWS_LOG_LEVEL'))
-
-  def test_log_level_from_env_normalizes_valid_values(self) -> None:
-    """
-      Test that log_level_from_env normalizes valid logging levels.
-      :return: None
-    """
-    with patch.dict('os.environ', {'CBRWS_LOG_LEVEL': 'debug'}):
-      self.assertEqual('DEBUG', log_level_from_env('CBRWS_LOG_LEVEL'))
-
-  def test_log_level_from_env_returns_default_for_invalid_values(self) -> None:
-    """
-      Test that log_level_from_env returns the default for invalid values.
-      :return: None
-    """
-    with patch.dict('os.environ', {'CBRWS_LOG_LEVEL': 'verbose'}):
-      self.assertEqual('INFO', log_level_from_env('CBRWS_LOG_LEVEL'))
 
   def test_access_log_records_completed_requests(self) -> None:
     """

@@ -49,13 +49,3 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
         client)
     return response
 
-
-def configure_logging(settings: Settings) -> None:
-  """
-    Configure process logging for the cbrws web service.
-    :param settings: The application settings
-    :return: None
-  """
-  logging.basicConfig(
-    level=getattr(logging, settings.log_level),
-    format='%(asctime)s %(levelname)s %(name)s %(message)s')

@@ -11,7 +11,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.routing import Route
 
 from cbrws.config import Settings, settings_from_env
-from cbrws.logging_config import AccessLogMiddleware, configure_logging
+from cbrws.logging_config import AccessLogMiddleware
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
 from cbrws.greeting_endpoint import GreetingEndpoint
@@ -111,7 +111,6 @@ def application_middleware(app_settings: Settings) -> list[Middleware]:
 
 
 settings = settings_from_env()
-configure_logging(settings)
 app = Starlette(
   debug=settings.debug,
   routes=routes,

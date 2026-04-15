@@ -29,7 +29,6 @@ port are uvicorn options. Application behavior can be configured with
 environment variables:
 
 - `CBRWS_DEBUG`: defaults to `false`
-- `CBRWS_LOG_LEVEL`: defaults to `INFO`
 - `CBRWS_ACCESS_LOG`: defaults to `true`
 - `CBRWS_ALLOWED_HOSTS`: defaults to `*`
 
@@ -67,13 +66,14 @@ Useful URLs during development:
 - `/profiles/cbrws/v1`
 - `/profiles/cbrws/v1/rels/greeting`
 
-To change logging, set `CBRWS_LOG_LEVEL` to a standard Python logging
-level such as `DEBUG`, `INFO`, `WARNING`, or `ERROR`. To disable
-request access logs, set `CBRWS_ACCESS_LOG` to `false`:
+The app emits logs through Python loggers and leaves logging levels,
+formatting, and destinations to uvicorn. Use uvicorn's logging options
+to change what is logged. To disable the app's request access logs, set
+`CBRWS_ACCESS_LOG` to `false`:
 
 ```bash
-CBRWS_LOG_LEVEL=DEBUG CBRWS_ACCESS_LOG=false \
-  uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
+CBRWS_ACCESS_LOG=false \
+  uvicorn cbrws.application:app --host 0.0.0.0 --port 5101 --log-level debug
 ```
 
 To restrict accepted HTTP Host headers, set `CBRWS_ALLOWED_HOSTS` to a
