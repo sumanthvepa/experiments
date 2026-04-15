@@ -36,7 +36,7 @@
               "name": { "type": "string" },
               "href": { "type": "string", "format": "uri-template" },
               "templated": { "type": "boolean" },
-              "media_type": { "type": "string" },
+              "type": { "type": "string" },
               "profile": { "type": "string", "format": "uri" }
             },
             "required": ["name", "href", "templated"]
@@ -46,11 +46,10 @@
           "type": "object",
           "properties": {
             "href": { "type": "string", "format": "uri" },
-            "rel": { "type": "string", "enum": ["greeting"] },
-            "media_type": { "type": "string" },
+            "type": { "type": "string" },
             "profile": { "type": "string", "format": "uri" }
           },
-          "required": ["href", "rel", "media_type", "profile"]
+          "required": ["href", "type", "profile"]
         }
       },
       "required": ["self", "curies", "cbrws:greeting"]

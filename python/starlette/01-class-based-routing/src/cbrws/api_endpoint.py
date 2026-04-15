@@ -46,14 +46,13 @@ class APIEndpoint(CBRWSBaseEndpoint):
             'name': 'cbrws',
             'href': str(request.url_for('relations_endpoint')) + '{rel}',
             'templated': True,
-            'media_type': CBRWSBaseEndpoint.schema_media_type(),
+            'type': CBRWSBaseEndpoint.schema_media_type(),
             'profile': CBRWSBaseEndpoint.profile_url(request)
           }
         ],
         'cbrws:greeting': {
           'href': str(request.url_for('greeting_endpoint')),
-          'rel': 'greeting',
-          'media_type': cls.response_media_type(),
+          'type': cls.response_media_type(),
           'profile': str(request.url_for('greeting_relation_endpoint'))
         }
       }

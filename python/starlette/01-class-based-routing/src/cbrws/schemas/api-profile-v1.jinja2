@@ -122,7 +122,7 @@
           <tr><td><code>name</code></td><td>string</td><td>Yes</td><td>Prefix used in link relations (e.g., <code>cbrws</code>).</td></tr>
           <tr><td><code>href</code></td><td>URI template</td><td>Yes</td><td>Template for expanding relations (e.g., <code>…/rels/{rel}</code>).</td></tr>
           <tr><td><code>templated</code></td><td>boolean</td><td>Yes</td><td>Must be <code>true</code> when <code>{rel}</code> appears in <code>href</code>.</td></tr>
-          <tr><td><code>media_type</code></td><td>string</td><td>No</td><td>Hint of representation returned when dereferenced (e.g., <code>application/schema+json</code>).</td></tr>
+          <tr><td><code>type</code></td><td>string</td><td>No</td><td>Hint of representation returned when dereferenced (e.g., <code>application/schema+json</code>).</td></tr>
           <tr><td><code>profile</code></td><td>URI</td><td>No</td><td>Profile URI for the doc returned by the CURIE.</td></tr>
           </tbody>
         </table>
@@ -136,8 +136,7 @@
         <thead><tr><th>Member</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
         <tbody>
         <tr><td><code>href</code></td><td>URI</td><td>Yes</td><td>Absolute URL of the greeting endpoint (e.g., <code>…/api/greeting</code>).</td></tr>
-        <tr><td><code>rel</code></td><td>string</td><td>Yes</td><td>Literal relation name; MUST be <code>"greeting"</code>.</td></tr>
-        <tr><td><code>media_type</code></td><td>string</td><td>Yes</td><td>Expected response media type, e.g. <code>application/hal+json</code>.</td></tr>
+        <tr><td><code>type</code></td><td>string</td><td>Yes</td><td>Expected response media type, e.g. <code>application/hal+json</code>.</td></tr>
         <tr><td><code>profile</code></td><td>URI</td><td>Yes</td><td>Relation profile identifier <code>{{ profile_url }}/rels/greeting</code>.</td></tr>
         </tbody>
       </table>
@@ -161,14 +160,13 @@
         "name": "cbrws",
         "href": "{{ profile_url}}/rels/{rel}",
         "templated": true,
-        "media_type": "application/schema+json",
+        "type": "application/schema+json",
         "profile": "{{ profile_url }}"
       }
     ],
     "cbrws:greeting": {
       "href": "http://localhost:8000/api/greeting",
-      "rel": "greeting",
-      "media_type": "application/hal+json",
+      "type": "application/hal+json",
       "profile": "{{ profile_url }}/rels/greeting"
     }
   }
@@ -207,7 +205,7 @@ curl -H "Accept: application/schema+json" http://localhost:8000/profiles/cbrws/v
       <li><code>/api</code> includes <code>title</code>, <code>version</code>, <code>_links</code>.</li>
       <li><code>_links.self</code> has <code>href</code>, <code>type</code>, <code>profile</code>.</li>
       <li><code>_links.curies[0]</code> sets <code>name</code>, <code>href</code> with <code>{rel}</code>, and <code>templated=true</code>.</li>
-      <li><code>_links["cbrws:greeting"]</code> has <code>href</code>, <code>rel="greeting"</code>, <code>media_type</code>, <code>profile</code>.</li>
+      <li><code>_links["cbrws:greeting"]</code> has <code>href</code>, <code>type</code>, <code>profile</code>.</li>
       <li>Dereferencing CURIEs returns docs/schema via content negotiation.</li>
     </ul>
   </section>

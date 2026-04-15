@@ -56,14 +56,13 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
             'name': 'cbrws',
             'href': self.base_url + '/profiles/cbrws/v1/rels/{rel}',
             'templated': True,
-            'media_type': self.schema_media_type,
+            'type': self.schema_media_type,
             'profile': self.profile_url
           }
         ],
         'cbrws:greeting': {
           'href': self.base_url + '/api/greeting',
-          'rel': 'greeting',
-          'media_type': self.response_media_type,
+          'type': self.response_media_type,
           'profile': self.profile_url + '/rels/greeting',
         }
       }
@@ -143,4 +142,4 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
       data['_links']['self']['type'])
     self.assertEqual(
       CustomAPIEndpoint.RESPONSE_MEDIA_TYPE,
-      data['_links']['cbrws:greeting']['media_type'])
+      data['_links']['cbrws:greeting']['type'])
