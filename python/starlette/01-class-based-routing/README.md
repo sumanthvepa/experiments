@@ -18,14 +18,13 @@ environment while still using the source files in this working tree.
 Start the web service with:
 
 ```bash
-python -m cbrws.application
+uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 ```
 
-This starts the Starlette app on `http://localhost:5101`. The host,
-port, and debug mode can be configured with environment variables:
+This starts the Starlette app on `http://localhost:5101`. The host and
+port are uvicorn options. Application behavior can be configured with
+environment variables:
 
-- `CBRWS_HOST`: defaults to `0.0.0.0`
-- `CBRWS_PORT`: defaults to `5101`
 - `CBRWS_DEBUG`: defaults to `false`
 - `CBRWS_LOG_LEVEL`: defaults to `INFO`
 - `CBRWS_ACCESS_LOG`: defaults to `true`
@@ -35,7 +34,16 @@ To enable debug mode during local development, set `CBRWS_DEBUG` to
 `true`:
 
 ```bash
-CBRWS_DEBUG=true python -m cbrws.application
+CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
+```
+
+If you want hot reload during development, add the `--reload` option.
+This is not recommended for production use because it adds overhead
+and can cause unexpected behavior if the app reloads while processing
+a request. The command given below is should be ideal for local development:
+
+```bash
+CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101 --reload
 ```
 
 Run the unit tests with:
@@ -55,28 +63,13 @@ Useful URLs during development:
 - `/profiles/cbrws/v1`
 - `/profiles/cbrws/v1/rels/greeting`
 
-You can also start the app directly with uvicorn:
-
-```bash
-uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
-```
-
-To enable debug mode when starting the app with uvicorn, set the same
-environment variable:
-
-```bash
-CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
-```
-
-When starting the app with uvicorn directly, the host and port are
-configured by uvicorn's `--host` and `--port` options.
-
 To change logging, set `CBRWS_LOG_LEVEL` to a standard Python logging
 level such as `DEBUG`, `INFO`, `WARNING`, or `ERROR`. To disable
 request access logs, set `CBRWS_ACCESS_LOG` to `false`:
 
 ```bash
-CBRWS_LOG_LEVEL=DEBUG CBRWS_ACCESS_LOG=false python -m cbrws.application
+CBRWS_LOG_LEVEL=DEBUG CBRWS_ACCESS_LOG=false \
+  uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 ```
 
 To restrict accepted HTTP Host headers, set `CBRWS_ALLOWED_HOSTS` to a
@@ -84,8 +77,20 @@ comma-separated list of trusted host names:
 
 ```bash
 CBRWS_ALLOWED_HOSTS=localhost,127.0.0.1,api.example.com \
-  python -m cbrws.application
+  uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 ```
+
+Chrome blocks some ports, including port 6000, for HTTP requests. If
+you choose one of those ports for local development, use a different
+browser or launch Chrome with an explicit port allow list. On macOS:
+
+```bash
+open -na "Google Chrome" --args --explicitly-allowed-ports=6000 \
+  --profile-directory="Default"
+```
+
+Chrome profile directory names include `Default` and the profile
+directories under `~/Library/Application Support/Google/Chrome/`.
 
 ## Reverse Proxy Deployment
 
@@ -183,7 +188,7 @@ As an alternate workflow, you can run the app without installing it by
 setting `PYTHONPATH=src`:
 
 ```bash
-PYTHONPATH=src python -m cbrws.application
+PYTHONPATH=src uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 ```
 
 For tests in the alternate workflow, include both `src` and `tests`:
