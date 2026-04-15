@@ -15,7 +15,7 @@ class APIEndpoint(CBRWSBaseEndpoint):
     A URL handler for the /api URL of the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
   """
-  SUPPORTED_MEDIA_TYPES = ['application/hal+json', '*/*']
+  SUPPORTED_MEDIA_TYPES = ['application/hal+json']
 
   # noinspection PyMethodMayBeStatic
   async def get(self, request: Request) -> JSONResponse:

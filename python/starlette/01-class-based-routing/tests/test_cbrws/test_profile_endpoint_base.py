@@ -62,7 +62,7 @@ class TestProfileEndpointBase(unittest.TestCase):
         HTML_FILENAME = 'custom.jinja2'
         JSON_FILENAME = 'custom.json'
         RESPONSE_MEDIA_TYPE = 'application/hal+json'
-        SUPPORTED_MEDIA_TYPES = ['text/html', '*/*']
+        SUPPORTED_MEDIA_TYPES = ['text/html']
 
       app = Starlette(routes=[
         Route('/custom', CustomProfileEndpoint, name='custom_endpoint')

@@ -76,8 +76,7 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
       """ Greeting endpoint with a custom response media type. """
       RESPONSE_MEDIA_TYPE = 'application/vnd.example.greeting+json'
       SUPPORTED_MEDIA_TYPES = [
-        'application/vnd.example.greeting+json',
-        '*/*']
+        'application/vnd.example.greeting+json']
 
     app = Starlette(routes=[
       Route('/api', APIEndpoint, name='api_endpoint'),

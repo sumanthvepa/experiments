@@ -21,7 +21,7 @@ class ProfileSchemaEndpoint(ProfileEndpointBase):
   HTML_FILENAME = ''
   SCHEMA_FILENAME = ''
   RESPONSE_MEDIA_TYPE = 'application/schema+json'
-  SUPPORTED_MEDIA_TYPES = ['application/schema+json', 'text/html', '*/*']
+  SUPPORTED_MEDIA_TYPES = ['application/schema+json', 'text/html']
   LITERAL_CONTEXT: dict[str, str] = {}
 
   @classmethod

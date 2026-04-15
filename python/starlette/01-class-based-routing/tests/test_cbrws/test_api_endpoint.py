@@ -123,7 +123,7 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
     class CustomAPIEndpoint(APIEndpoint):
       """ API endpoint with a custom response media type. """
       RESPONSE_MEDIA_TYPE = 'application/vnd.example.api+json'
-      SUPPORTED_MEDIA_TYPES = ['application/vnd.example.api+json', '*/*']
+      SUPPORTED_MEDIA_TYPES = ['application/vnd.example.api+json']
 
     app = Starlette(routes=[
       Route('/api', CustomAPIEndpoint, name='api_endpoint'),

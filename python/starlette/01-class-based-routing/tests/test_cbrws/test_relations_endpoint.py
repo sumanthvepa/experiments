@@ -133,7 +133,7 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
       """
         A relations endpoint with a deliberately restricted media type list.
       """
-      SUPPORTED_MEDIA_TYPES = ['text/html', '*/*']
+      SUPPORTED_MEDIA_TYPES = ['text/html']
 
     test_app = Starlette(routes=[
       Route('/profiles/cbrws/v1/rels/',

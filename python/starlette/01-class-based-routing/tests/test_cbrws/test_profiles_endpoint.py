@@ -160,6 +160,10 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     data = response.json()
     self.assertEqual('Not Acceptable', data['title'])
     self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, data['status'])
+    self.assertEqual(
+      ['application/hal+json', 'text/html'],
+      data['supportedMediaTypes'])
+    self.assertNotIn('*/*', data['detail'])
 
   def test_get_partial_html_media_type_is_unsupported(self) -> None:
     """

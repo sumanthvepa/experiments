@@ -27,7 +27,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
   HTML_FILENAME = ''
   JSON_FILENAME = ''
   RESPONSE_MEDIA_TYPE = ''
-  SUPPORTED_MEDIA_TYPES = ['text/html', '*/*']
+  SUPPORTED_MEDIA_TYPES = ['text/html']
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
   URL_CONTEXT: dict[str, str] = {}
   LINK_HEADER_ITEMS: tuple[dict[str, str], ...] = ()

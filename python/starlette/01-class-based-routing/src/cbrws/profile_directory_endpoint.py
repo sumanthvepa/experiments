@@ -17,4 +17,4 @@ class ProfileDirectoryEndpoint(ProfileEndpointBase):
   HTML_FILENAME = ''
   JSON_FILENAME = ''
   RESPONSE_MEDIA_TYPE = 'application/hal+json'
-  SUPPORTED_MEDIA_TYPES = ['application/hal+json', 'text/html', '*/*']
+  SUPPORTED_MEDIA_TYPES = ['application/hal+json', 'text/html']

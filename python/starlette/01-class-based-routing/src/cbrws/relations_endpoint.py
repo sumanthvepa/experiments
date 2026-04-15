@@ -22,7 +22,7 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
     application/schema+json depending on the Accept header.
   """
   RELATIONS_PATH = '/profiles/cbrws/v1/rels/'
-  SUPPORTED_MEDIA_TYPES = ['application/schema+json', 'text/html', '*/*']
+  SUPPORTED_MEDIA_TYPES = ['application/schema+json', 'text/html']
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
 
   @staticmethod

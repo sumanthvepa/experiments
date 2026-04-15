@@ -18,7 +18,7 @@ class HTTPEndpointBase(HTTPEndpoint):
     A base class for common HTTP endpoint behavior in the cbrws web service.
   """
   ALLOWED_METHODS = ['GET', 'HEAD', 'OPTIONS']
-  SUPPORTED_MEDIA_TYPES = ['*/*']
+  SUPPORTED_MEDIA_TYPES: list[str] = []
   LINK_HEADER_ITEMS: tuple[dict[str, str], ...] = ()
 
   @staticmethod

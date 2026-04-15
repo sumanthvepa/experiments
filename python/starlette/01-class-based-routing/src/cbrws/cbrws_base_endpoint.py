@@ -20,7 +20,7 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
   """
 
   RESPONSE_MEDIA_TYPE = 'application/hal+json'
-  SUPPORTED_MEDIA_TYPES = ['application/hal+json', '*/*']
+  SUPPORTED_MEDIA_TYPES = ['application/hal+json']
 
   @staticmethod
   def profile_url(request: Request) -> str:
