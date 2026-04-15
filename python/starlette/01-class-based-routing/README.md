@@ -87,6 +87,88 @@ CBRWS_ALLOWED_HOSTS=localhost,127.0.0.1,api.example.com \
   python -m cbrws.application
 ```
 
+## Reverse Proxy Deployment
+
+Generated response links use request information supplied by Starlette.
+For an internal service that is called directly, no proxy-specific setup
+is needed. Run uvicorn on the private interface that callers use, and
+set `CBRWS_ALLOWED_HOSTS` to the host names those callers send.
+
+For an Internet-facing service, terminate TLS at nginx and let nginx
+forward the request to uvicorn over a private interface. In that setup,
+nginx must pass the public `Host` value and the original request scheme
+to uvicorn, and uvicorn must be configured to trust those proxy headers.
+Without that contract, generated absolute URLs can use the internal
+`http://127.0.0.1:5101` origin instead of the public HTTPS origin.
+
+Run uvicorn directly for proxied deployments so proxy header handling is
+explicit:
+
+```bash
+CBRWS_ALLOWED_HOSTS=api.example.com \
+  uvicorn cbrws.application:app \
+    --host 127.0.0.1 \
+    --port 5101 \
+    --proxy-headers \
+    --forwarded-allow-ips 127.0.0.1
+```
+
+The `--proxy-headers` option lets uvicorn use trusted
+`X-Forwarded-For` and `X-Forwarded-Proto` headers when building the ASGI
+request scope. The `--forwarded-allow-ips` value must identify the proxy
+that is allowed to set those headers. If nginx and uvicorn communicate
+over a Unix domain socket, use the socket path instead. Use `*` only
+when every path to uvicorn is controlled and untrusted clients cannot
+connect directly.
+
+A minimal nginx TLS-terminating proxy looks like this:
+
+```nginx
+server {
+  listen 443 ssl;
+  server_name api.example.com;
+
+  ssl_certificate /path/to/fullchain.pem;
+  ssl_certificate_key /path/to/privkey.pem;
+
+  location / {
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_redirect off;
+    proxy_pass http://127.0.0.1:5101;
+  }
+}
+```
+
+On Debian or Ubuntu, add the server block to a site file such as
+`/etc/nginx/sites-available/cbrws` and enable it with a symbolic link:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/cbrws /etc/nginx/sites-enabled/cbrws
+```
+
+On Fedora, RHEL, or CentOS, put the server block in a file such as
+`/etc/nginx/conf.d/cbrws.conf`.
+
+After changing nginx configuration, test the configuration before
+reloading nginx:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+If `nginx -t` reports an error, fix the configuration before reloading.
+The reload command applies the new configuration without dropping
+existing connections.
+
+Do not expose the uvicorn port directly to the Internet in this
+configuration. The proxy headers are trusted only because nginx is the
+only client that can reach uvicorn. If the service is mounted below a URL
+prefix, also configure uvicorn's `--root-path` so generated route URLs
+include that prefix.
+
 This project does not include a Dockerfile yet. The service is intended
 to run in a container when deployed, but the container build needs to
 follow project-specific conventions that will be added in a separate

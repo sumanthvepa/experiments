@@ -52,9 +52,8 @@ exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
 
 
 def trusted_host_middleware(
-    asgi_app: ASGIApp,
-    allowed_hosts: Sequence[str]
-) -> ASGIApp:
+  asgi_app: ASGIApp,
+  allowed_hosts: Sequence[str]) -> ASGIApp:
   """
     Build the trusted host middleware.
 
@@ -73,9 +72,8 @@ def trusted_host_middleware(
 
 
 def access_log_middleware(
-    asgi_app: ASGIApp,
-    app_settings: Settings
-) -> ASGIApp:
+  asgi_app: ASGIApp,
+  app_settings: Settings) -> ASGIApp:
   """
     Build the access log middleware.
 
