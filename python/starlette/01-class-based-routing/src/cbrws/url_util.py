@@ -89,3 +89,25 @@ def resolve_public_origin(
         parsed_url.port)
 
   raise ValueError(f'URL host is not trusted: {request_hostname}')
+
+
+def resolve_public_url(
+  url: str,
+  trusted_hosts: Sequence[str],
+  debug: bool = False) -> str:
+  """
+    Resolve a public URL from a request-derived URL.
+
+    The returned URL uses the public origin selected from trusted_hosts
+    and the path and query string from the supplied URL.
+
+    :param url: The request-derived URL
+    :param trusted_hosts: The configured trusted host patterns
+    :param debug: True when the application is running in debug mode
+    :return: The resolved public URL
+  """
+  parsed_url = urlsplit(url)
+  public_url = f'{resolve_public_origin(url, trusted_hosts, debug)}{parsed_url.path}'
+  if parsed_url.query:
+    return f'{public_url}?{parsed_url.query}'
+  return public_url

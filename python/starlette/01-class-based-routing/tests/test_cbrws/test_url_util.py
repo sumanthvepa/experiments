@@ -3,7 +3,7 @@
 """
 import unittest
 
-from cbrws.url_util import resolve_public_origin
+from cbrws.url_util import resolve_public_origin, resolve_public_url
 
 
 class TestURLUtil(unittest.TestCase):
@@ -124,3 +124,57 @@ class TestURLUtil(unittest.TestCase):
     """
     with self.assertRaisesRegex(ValueError, 'URL must include a hostname'):
       resolve_public_origin('https:///api', ('api.example.com',))
+
+  def test_resolve_public_url_preserves_path(self) -> None:
+    """
+      Test that the URL path is preserved.
+      :return: None
+    """
+    self.assertEqual(
+      'https://api.example.com/profiles/cbrws/v1',
+      resolve_public_url(
+        'https://api.example.com/profiles/cbrws/v1',
+        ('api.example.com',)))
+
+  def test_resolve_public_url_preserves_query_string(self) -> None:
+    """
+      Test that the URL query string is preserved.
+      :return: None
+    """
+    self.assertEqual(
+      'https://api.example.com/api?format=hal',
+      resolve_public_url(
+        'https://api.example.com/api?format=hal',
+        ('api.example.com',)))
+
+  def test_resolve_public_url_uses_configured_host(self) -> None:
+    """
+      Test that the resolved URL host comes from trusted_hosts.
+      :return: None
+    """
+    self.assertEqual(
+      'https://API.example.com/api/greeting',
+      resolve_public_url(
+        'https://api.example.com/api/greeting',
+        ('API.example.com',)))
+
+  def test_resolve_public_url_uses_configured_wildcard_base(self) -> None:
+    """
+      Test that wildcard patterns do not emit the request hostname.
+      :return: None
+    """
+    self.assertEqual(
+      'https://example.com/api/greeting',
+      resolve_public_url(
+        'https://tenant.example.com/api/greeting',
+        ('*.example.com',)))
+
+  def test_resolve_public_url_rejects_untrusted_host(self) -> None:
+    """
+      Test that an untrusted URL host is rejected.
+      :return: None
+    """
+    with self.assertRaisesRegex(ValueError, 'URL host is not trusted'):
+      resolve_public_url(
+        'https://attacker.example/api',
+        ('api.example.com',))
