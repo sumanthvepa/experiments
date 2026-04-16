@@ -31,6 +31,32 @@ class TestProfileEndpointBase(unittest.TestCase):
         {'name': 'cbrws'}))
     self.assertEqual({'name': 'cbrws'}, data)
 
+  def test_load_json_does_not_html_escape_context(self) -> None:
+    """
+      Test that JSON rendering does not use HTML escaping.
+      :return: None
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+      filename = Path(temp_dir) / 'object.json'
+      filename.write_text('{"name": "{{ name }}"}', encoding='utf-8')
+      data = asyncio.run(ProfileEndpointBase.load_json(
+        str(filename),
+        {'name': '<cbrws>&'}))
+    self.assertEqual({'name': '<cbrws>&'}, data)
+
+  def test_load_html_escapes_context(self) -> None:
+    """
+      Test that HTML rendering escapes template context values.
+      :return: None
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+      filename = Path(temp_dir) / 'custom.jinja2'
+      filename.write_text('<p>{{ name }}</p>', encoding='utf-8')
+      content = asyncio.run(ProfileEndpointBase.load_html(
+        str(filename),
+        {'name': '<cbrws>&'}))
+    self.assertEqual('<p>&lt;cbrws&gt;&amp;</p>', content)
+
   def test_load_json_rejects_non_object_json(self) -> None:
     """
       Test that load_json rejects non-object JSON documents.

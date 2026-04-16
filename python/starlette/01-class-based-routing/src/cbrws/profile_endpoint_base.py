@@ -7,7 +7,7 @@ from typing import Any
 import json
 
 import aiofiles
-from jinja2 import Template
+from jinja2 import Environment, Template, select_autoescape
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
@@ -32,11 +32,13 @@ class ProfileEndpointBase(HTTPEndpointBase):
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
   URL_CONTEXT: dict[str, str] = {}
   LINK_HEADER_ITEMS: tuple[dict[str, str], ...] = ()
+  HTML_ENVIRONMENT = Environment(
+    autoescape=select_autoescape(['html', 'jinja2']))
 
   @staticmethod
   async def load_file(filename: str, context: dict[str, str]) -> str:
     """
-      Load a file from the filesystem.
+      Load and render a file from the filesystem without HTML escaping.
       :param filename: The name of the file to load
       :param context: The context to render the template with
       :return: The content of the file as a string
@@ -44,6 +46,19 @@ class ProfileEndpointBase(HTTPEndpointBase):
     async with aiofiles.open(filename, mode='r', encoding='utf-8') as file:
       template = await file.read()
       content = Template(template).render(context)
+      return content
+
+  @classmethod
+  async def load_html(cls, filename: str, context: dict[str, str]) -> str:
+    """
+      Load and render an HTML file from the filesystem.
+      :param filename: The name of the file to load
+      :param context: The context to render the template with
+      :return: The HTML content of the file as a string
+    """
+    async with aiofiles.open(filename, mode='r', encoding='utf-8') as file:
+      template = await file.read()
+      content = cls.HTML_ENVIRONMENT.from_string(template).render(context)
       return content
 
   @classmethod
@@ -95,7 +110,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
       :return: A Response with HTML content
     """
     cls = type(self)
-    content = await cls.load_file(
+    content = await cls.load_html(
       str(cls.SCHEMA_DIR / cls.HTML_FILENAME),
       cls.context(request))
     return HTMLResponse(

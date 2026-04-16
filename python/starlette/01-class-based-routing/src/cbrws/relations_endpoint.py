@@ -64,7 +64,7 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: A Response with HTML content
     """
-    html = await CBRWSV1ProfileEndpoint.load_file(
+    html = await CBRWSV1ProfileEndpoint.load_html(
       str(self.SCHEMA_DIR / 'relations-v1.jinja2'),
       RelationsEndpoint.context(request))
 
