@@ -53,7 +53,7 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.schema_media_type)
     self.check_link(response)
-    expected_data = self.load_schema(
+    expected_data = self.load_json(
       CBRWSV1ProfileEndpoint,
       str(CBRWSV1ProfileEndpoint.SCHEMA_DIR / 'api-profile-v1.json'),
       {

@@ -136,20 +136,6 @@ class TestHelper(RequireAsserts):
     """
     return asyncio.run(endpoint_class.load_json(filename, context))
 
-  def load_schema(
-        self,
-        endpoint_class: Any,
-        filename: str,
-        context: dict[str, str]) -> dict[str, Any]:
-    """
-      Synchronously load a JSON Schema through an endpoint helper.
-      :param endpoint_class: The endpoint class that provides load_schema
-      :param filename: The name of the file to load
-      :param context: The context to render the template with
-      :return: A dictionary representing the JSON Schema document
-    """
-    return asyncio.run(endpoint_class.load_schema(filename, context))
-
   def check_allow(self, response: Response) -> None:
     """
       Check that the response has the correct Allow header.

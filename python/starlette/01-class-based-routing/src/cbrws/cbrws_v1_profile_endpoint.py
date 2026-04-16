@@ -12,7 +12,7 @@ class CBRWSV1ProfileEndpoint(ProfileSchemaEndpoint):
     This endpoint describes the concrete v1 CBRWS API profile.
   """
   HTML_FILENAME = 'api-profile-v1.jinja2'
-  SCHEMA_FILENAME = 'api-profile-v1.json'
+  JSON_FILENAME = 'api-profile-v1.json'
   URL_CONTEXT = {
     'profile_url': 'profile_endpoint',
     'schema_url': 'profile_endpoint'

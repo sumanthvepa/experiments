@@ -15,7 +15,7 @@ class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
     This endpoint describes the cbrws:greeting relation.
   """
   HTML_FILENAME = 'greeting-rel-v1.jinja2'
-  SCHEMA_FILENAME = 'greeting-rel-v1.json'
+  JSON_FILENAME = 'greeting-rel-v1.json'
   URL_CONTEXT = {
     'profile_url': 'profile_endpoint',
     'relations_url': 'relations_endpoint',

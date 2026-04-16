@@ -98,14 +98,6 @@ class ProfileEndpointBase(HTTPEndpointBase):
     return data
 
   @classmethod
-  def json_filename(cls) -> str:
-    """
-      Generate the filename for the JSON response.
-      :return: The JSON filename
-    """
-    return cls.JSON_FILENAME
-
-  @classmethod
   def response_media_type(cls) -> str:
     """
       Generate the media type for the profile response.
@@ -149,7 +141,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
     """
     cls = type(self)
     content = await cls.load_json(
-      str(cls.SCHEMA_DIR / cls.json_filename()),
+      str(cls.SCHEMA_DIR / cls.JSON_FILENAME),
       cls.context(request))
     return JSONResponse(
       content,

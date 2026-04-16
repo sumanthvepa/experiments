@@ -80,7 +80,7 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: A JSONResponse with JSON Schema content
     """
-    schema = await CBRWSV1ProfileEndpoint.load_schema(
+    schema = await CBRWSV1ProfileEndpoint.load_json(
       str(self.SCHEMA_DIR / 'relations-v1.json'),
       RelationsEndpoint.context(request))
 
