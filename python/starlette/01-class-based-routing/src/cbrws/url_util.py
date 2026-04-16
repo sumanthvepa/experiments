@@ -4,6 +4,8 @@
 from collections.abc import Sequence
 from urllib.parse import urlsplit
 
+from starlette.requests import Request
+
 
 def _hostname_matches(pattern: str, hostname: str) -> bool:
   """
@@ -107,7 +109,27 @@ def resolve_public_url(
     :return: The resolved public URL
   """
   parsed_url = urlsplit(url)
-  public_url = f'{resolve_public_origin(url, trusted_hosts, debug)}{parsed_url.path}'
+  public_url = (
+    f'{resolve_public_origin(url, trusted_hosts, debug)}'
+    f'{parsed_url.path}')
   if parsed_url.query:
     return f'{public_url}?{parsed_url.query}'
   return public_url
+
+
+def public_url_for(
+  request: Request,
+  route_name: str,
+  **path_params: object) -> str:
+  """
+    Generate a public URL for a named route.
+    :param request: The HTTP request
+    :param route_name: The route name
+    :param path_params: Route path parameters
+    :return: The resolved public URL
+  """
+  app_settings = request.app.state.settings
+  return resolve_public_url(
+    str(request.url_for(route_name, **path_params)),
+    app_settings.allowed_hosts,
+    app_settings.debug)

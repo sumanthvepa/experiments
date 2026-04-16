@@ -110,12 +110,29 @@ def application_middleware(app_settings: Settings) -> list[Middleware]:
   ]
 
 
+def validate_settings(app_settings: Settings) -> None:
+  """
+    Validate settings that affect public URL generation.
+    :param app_settings: The application settings
+    :return: None
+  """
+  if not app_settings.debug and '*' in app_settings.allowed_hosts:
+    raise ValueError(
+      'CBRWS_ALLOWED_HOSTS must not contain * when CBRWS_DEBUG is false')
+
+
 settings = settings_from_env()
+validate_settings(settings)
 app = Starlette(
   debug=settings.debug,
   routes=routes,
   exception_handlers=exception_handlers,
   middleware=application_middleware(settings))
+# Endpoint modules use request.app.state.settings when converting
+# request.url_for() output into public URLs. Keeping settings on the
+# app gives request handlers the configured trusted-host policy without
+# importing this application module back into endpoint modules.
+app.state.settings = settings
 
 
 # See README.md for how to run the application with uvicorn.

@@ -113,7 +113,7 @@ environment variables:
 
 - `CBRWS_DEBUG`: defaults to `false`
 - `CBRWS_ACCESS_LOG`: defaults to `true`
-- `CBRWS_ALLOWED_HOSTS`: defaults to `*`
+- `CBRWS_ALLOWED_HOSTS`: defaults to `localhost,127.0.0.1`
 
 To enable debug mode during local development, set `CBRWS_DEBUG` to
 `true`:
@@ -135,6 +135,8 @@ In production CBRWS_DEBUG should be `false` and `--reload` should not be used.
 Also CBRWS_ACCESS_LOG should be `true` in production to log all requests, and
 CBRWS_ALLOWED_HOSTS should be set to a comma-separated list of trusted host
 ips or hostnames that clients will use to connect to the service.
+The application will not start with `CBRWS_ALLOWED_HOSTS=*` unless
+`CBRWS_DEBUG=true`.
 ```bash
 CBRWS_DEBUG=false \
   CBRWS_ACCESS_LOG=true \
@@ -192,10 +194,11 @@ directories under `~/Library/Application Support/Google/Chrome/`.
 
 ## Reverse Proxy Deployment
 
-Generated response links use request information supplied by Starlette.
-For an internal service that is called directly, no proxy-specific setup
-is needed. Run uvicorn on the private interface that callers use, and
-set `CBRWS_ALLOWED_HOSTS` to the host names those callers send.
+Generated response links use Starlette route paths with a public origin
+resolved through `CBRWS_ALLOWED_HOSTS`. For an internal service that is
+called directly, no proxy-specific setup is needed. Run uvicorn on the
+private interface that callers use, and set `CBRWS_ALLOWED_HOSTS` to the
+host names those callers send.
 
 For an Internet-facing service, terminate TLS at nginx and let nginx
 forward the request to uvicorn over a private interface. In that setup,

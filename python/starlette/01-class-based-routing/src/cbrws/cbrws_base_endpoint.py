@@ -5,6 +5,7 @@
 from starlette.requests import Request
 
 from cbrws.http_endpoint_base import HTTPEndpointBase
+from cbrws.url_util import public_url_for
 
 
 class CBRWSBaseEndpoint(HTTPEndpointBase):
@@ -29,7 +30,7 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
       :param request: The HTTP request
       :return: A string representing the profile URL
     """
-    return str(request.url_for('profile_endpoint'))
+    return public_url_for(request, 'profile_endpoint')
 
   @staticmethod
   def schema_url(request: Request) -> str:

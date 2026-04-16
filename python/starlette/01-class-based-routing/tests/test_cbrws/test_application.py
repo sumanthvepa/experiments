@@ -7,7 +7,11 @@ from unittest.mock import patch
 from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
-from cbrws.application import app, application_middleware, routes
+from cbrws.application import (
+  app,
+  application_middleware,
+  routes,
+  validate_settings)
 from cbrws.config import (
   Settings,
   bool_from_env,
@@ -64,7 +68,7 @@ class TestApplication(unittest.TestCase):
       settings = settings_from_env()
       self.assertFalse(settings.debug)
       self.assertTrue(settings.access_log)
-      self.assertEqual(('*',), settings.allowed_hosts)
+      self.assertEqual(('localhost', '127.0.0.1'), settings.allowed_hosts)
 
   def test_settings_from_env_reads_config_values(self) -> None:
     """
@@ -117,6 +121,7 @@ class TestApplication(unittest.TestCase):
     test_app = Starlette(
       routes=routes,
       middleware=application_middleware(settings))
+    test_app.state.settings = settings
     client = TestClient(test_app, 'http://api.example.com')
     response = client.get('/api')
     self.assertEqual(200, response.status_code)
@@ -133,9 +138,33 @@ class TestApplication(unittest.TestCase):
     test_app = Starlette(
       routes=routes,
       middleware=application_middleware(settings))
+    test_app.state.settings = settings
     client = TestClient(test_app, 'http://attacker.example')
     response = client.get('/api')
     self.assertEqual(400, response.status_code)
+
+  def test_validate_settings_allows_wildcard_in_debug_mode(self) -> None:
+    """
+      Test that debug mode allows wildcard trusted hosts.
+      :return: None
+    """
+    validate_settings(Settings(
+      debug=True,
+      access_log=True,
+      allowed_hosts=('*',)))
+
+  def test_validate_settings_rejects_wildcard_in_production(self) -> None:
+    """
+      Test that production mode rejects wildcard trusted hosts.
+      :return: None
+    """
+    with self.assertRaisesRegex(
+          ValueError,
+          r'CBRWS_ALLOWED_HOSTS must not contain \*'):
+      validate_settings(Settings(
+        debug=False,
+        access_log=True,
+        allowed_hosts=('*',)))
 
   def test_access_log_records_completed_requests(self) -> None:
     """

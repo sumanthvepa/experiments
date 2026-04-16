@@ -9,6 +9,8 @@ from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
+from cbrws.url_util import public_url_for
+
 
 logger = logging.getLogger('cbrws.http')
 
@@ -55,7 +57,8 @@ class HTTPEndpointBase(HTTPEndpoint):
     """
     links: list[str] = []
     for item in cls.link_header_items(request):
-      link = f'<{request.url_for(item["route_name"])}>; rel="{item["rel"]}"'
+      url = public_url_for(request, item['route_name'])
+      link = f'<{url}>; rel="{item["rel"]}"'
       if 'type' in item:
         link += f'; type="{item["type"]}"'
       if 'title' in item:

@@ -3,7 +3,26 @@
 """
 import unittest
 
-from cbrws.url_util import resolve_public_origin, resolve_public_url
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import Response
+from starlette.routing import Route
+from starlette.testclient import TestClient
+
+from cbrws.config import Settings
+from cbrws.url_util import (
+  public_url_for,
+  resolve_public_origin,
+  resolve_public_url)
+
+
+async def url_response(request: Request) -> Response:
+  """
+    Return a public URL generated from the request.
+    :param request: The HTTP request
+    :return: A response containing the public URL
+  """
+  return Response(public_url_for(request, 'url_endpoint'))
 
 
 class TestURLUtil(unittest.TestCase):
@@ -178,3 +197,21 @@ class TestURLUtil(unittest.TestCase):
       resolve_public_url(
         'https://attacker.example/api',
         ('api.example.com',))
+
+  def test_public_url_for_uses_application_settings(self) -> None:
+    """
+      Test that public_url_for uses settings stored on the application.
+      :return: None
+    """
+    test_app = Starlette(routes=[
+      Route('/url', url_response, name='url_endpoint')
+    ])
+    test_app.state.settings = Settings(
+      debug=False,
+      access_log=True,
+      allowed_hosts=('API.example.com',))
+    client = TestClient(test_app, 'https://api.example.com')
+
+    response = client.get('/url')
+
+    self.assertEqual('https://API.example.com/url', response.text)

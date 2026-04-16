@@ -11,6 +11,7 @@ from starlette import status
 from cbrws.accept_util import select_media_type
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.url_util import public_url_for
 
 
 class RelationsEndpoint(CBRWSBaseEndpoint):
@@ -32,7 +33,7 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: The absolute relations index URL
     """
-    return str(request.url_for('relations_endpoint'))
+    return public_url_for(request, 'relations_endpoint')
 
   @staticmethod
   def greeting_relation_url(request: Request) -> str:
@@ -41,7 +42,7 @@ class RelationsEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: The absolute greeting relation URL
     """
-    return str(request.url_for('greeting_relation_endpoint'))
+    return public_url_for(request, 'greeting_relation_endpoint')
 
   @staticmethod
   def context(request: Request) -> dict[str, str]:

@@ -11,6 +11,7 @@ from starlette.testclient import TestClient
 
 from cbrws.application import app
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.config import Settings
 from cbrws.relations_endpoint import RelationsEndpoint
 from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
@@ -75,27 +76,27 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
       Test that the JSON response uses URLs from the current request.
       :return: None
     """
-    first_client = TestClient(app, 'http://first.example')
-    second_client = TestClient(app, 'http://second.example')
+    first_client = TestClient(app, 'http://localhost:5101')
+    second_client = TestClient(app, 'http://127.0.0.1:5101')
 
     first_response = first_client.get('/profiles/cbrws/v1/rels/')
     second_response = second_client.get('/profiles/cbrws/v1/rels/')
 
     self.assertEqual(status.HTTP_200_OK, first_response.status_code)
     self.assertEqual(status.HTTP_200_OK, second_response.status_code)
-    self.assertIn('http://first.example/profiles/cbrws/v1/rels/greeting',
+    self.assertIn('http://localhost:5101/profiles/cbrws/v1/rels/greeting',
                   first_response.text)
-    self.assertIn('http://second.example/profiles/cbrws/v1/rels/greeting',
+    self.assertIn('http://127.0.0.1:5101/profiles/cbrws/v1/rels/greeting',
                   second_response.text)
-    self.assertNotIn('http://first.example', second_response.text)
+    self.assertNotIn('http://localhost:5101', second_response.text)
 
   def test_get_html_uses_current_request_urls(self) -> None:
     """
       Test that the HTML response uses URLs from the current request.
       :return: None
     """
-    first_client = TestClient(app, 'http://first.example')
-    second_client = TestClient(app, 'http://second.example')
+    first_client = TestClient(app, 'http://localhost:5101')
+    second_client = TestClient(app, 'http://127.0.0.1:5101')
 
     first_response = first_client.get(
       '/profiles/cbrws/v1/rels/',
@@ -106,11 +107,11 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
 
     self.assertEqual(status.HTTP_200_OK, first_response.status_code)
     self.assertEqual(status.HTTP_200_OK, second_response.status_code)
-    self.assertIn('http://first.example/profiles/cbrws/v1/rels/greeting',
+    self.assertIn('http://localhost:5101/profiles/cbrws/v1/rels/greeting',
                   first_response.text)
-    self.assertIn('http://second.example/profiles/cbrws/v1/rels/greeting',
+    self.assertIn('http://127.0.0.1:5101/profiles/cbrws/v1/rels/greeting',
                   second_response.text)
-    self.assertNotIn('http://first.example', second_response.text)
+    self.assertNotIn('http://localhost:5101', second_response.text)
 
   def test_get_unsupported_media_type(self) -> None:
     """
@@ -143,6 +144,10 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
             CBRWSV1ProfileEndpoint,
             name='profile_endpoint')
     ])
+    test_app.state.settings = Settings(
+      debug=False,
+      access_log=True,
+      allowed_hosts=('localhost',))
     client = TestClient(test_app, self.base_url)
 
     response = client.get(

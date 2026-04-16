@@ -22,7 +22,7 @@ class TestNotFound(unittest.TestCase):
       response.
       :return: None
     """
-    client = TestClient(app)
+    client = TestClient(app, 'http://localhost:5101')
     response: Response = client.get('/unknown')
     self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
     self.assertIn('Content-Type', response.headers)

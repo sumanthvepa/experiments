@@ -8,6 +8,7 @@ from starlette import status
 
 from cbrws.accept_util import select_media_type
 from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
+from cbrws.url_util import public_url_for
 
 
 class GreetingEndpoint(CBRWSBaseEndpoint):
@@ -35,12 +36,12 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
       'message': 'Hello, world!',
       '_links': {
         'self': {
-          'href': str(request.url_for('greeting_endpoint')),
+          'href': public_url_for(request, 'greeting_endpoint'),
           'type': cls.response_media_type(),
-          'profile': str(request.url_for('greeting_relation_endpoint'))
+          'profile': public_url_for(request, 'greeting_relation_endpoint')
         },
         'up': {
-          'href': str(request.url_for('api_endpoint')),
+          'href': public_url_for(request, 'api_endpoint'),
           'type': cls.response_media_type(),
           'profile': CBRWSBaseEndpoint.profile_url(request)
         }

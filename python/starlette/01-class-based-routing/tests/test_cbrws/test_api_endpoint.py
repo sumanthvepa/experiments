@@ -11,6 +11,7 @@ from starlette.testclient import TestClient
 
 from cbrws.api_endpoint import APIEndpoint
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.config import Settings
 from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
 from cbrws.relations_endpoint import RelationsEndpoint
@@ -94,6 +95,10 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
             GreetingRelationProfileEndpoint,
             name='greeting_relation_endpoint')
     ])
+    app.state.settings = Settings(
+      debug=False,
+      access_log=True,
+      allowed_hosts=('api.example.com',))
     client = TestClient(app, 'https://api.example.com')
     response = client.get('/api')
     self.assertEqual(status.HTTP_200_OK, response.status_code)
@@ -133,6 +138,10 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
             GreetingRelationProfileEndpoint,
             name='greeting_relation_endpoint')
     ])
+    app.state.settings = Settings(
+      debug=False,
+      access_log=True,
+      allowed_hosts=('localhost',))
     client = TestClient(app, self.base_url)
     response = client.get('/api')
     data = response.json()
