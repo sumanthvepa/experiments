@@ -18,6 +18,58 @@ class TestProfileEndpointBase(unittest.TestCase):
   """
     Unit tests for ProfileEndpointBase.
   """
+  def setUp(self) -> None:
+    """
+      Clear template caches before each test.
+      :return: None
+    """
+    ProfileEndpointBase.HTML_TEMPLATE_CACHE.clear()
+    ProfileEndpointBase.JSON_TEMPLATE_CACHE.clear()
+
+  def test_load_html_caches_template_not_content(self) -> None:
+    """
+      Test that HTML templates are cached while rendered content stays dynamic.
+      :return: None
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+      filename = Path(temp_dir) / 'custom.jinja2'
+      filename.write_text('<p>{{ name }}</p>', encoding='utf-8')
+
+      template = ProfileEndpointBase.load_html_template(str(filename))
+      self.assertIs(template, ProfileEndpointBase.load_html_template(str(filename)))
+
+      first_content = asyncio.run(ProfileEndpointBase.load_html(
+        str(filename),
+        {'name': 'first'}))
+      second_content = asyncio.run(ProfileEndpointBase.load_html(
+        str(filename),
+        {'name': 'second'}))
+
+    self.assertEqual('<p>first</p>', first_content)
+    self.assertEqual('<p>second</p>', second_content)
+
+  def test_load_json_caches_template_not_content(self) -> None:
+    """
+      Test that JSON templates are cached while rendered content stays dynamic.
+      :return: None
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+      filename = Path(temp_dir) / 'object.json'
+      filename.write_text('{"name": "{{ name }}"}', encoding='utf-8')
+
+      template = ProfileEndpointBase.load_json_template(str(filename))
+      self.assertIs(template, ProfileEndpointBase.load_json_template(str(filename)))
+
+      first_data = asyncio.run(ProfileEndpointBase.load_json(
+        str(filename),
+        {'name': 'first'}))
+      second_data = asyncio.run(ProfileEndpointBase.load_json(
+        str(filename),
+        {'name': 'second'}))
+
+    self.assertEqual({'name': 'first'}, first_data)
+    self.assertEqual({'name': 'second'}, second_data)
+
   def test_load_json_returns_object_json(self) -> None:
     """
       Test that load_json returns object JSON documents.

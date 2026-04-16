@@ -1,4 +1,5 @@
-*[DONE]issue224-python-starlette-01-cbrws-stop-leaking-request-data-into-url-generation: Stop leaking request-specific data into generated URLs
+*[DONE]issue225-python-starlette-01-cbrws-cache-profile-templates-and-schemas: Cache static profile templates and schemas
+[DONE]issue224-python-starlette-01-cbrws-stop-leaking-request-data-into-url-generation: Stop leaking request-specific data into generated URLs
 [DONE]issue220-python-starlette-01-cbrws-pyproject-toml-and-production-deploy: Make pyproject.toml version independent and provide production deployment instructions
 [DONE]issue219-python-starlette-01-cbrws-defer-logging-config-to-uvicorn: Let uvicorn own logging configuration
 [DONE]issue218-python-starlette-01-cbrws-test-docs: Clarify unittest and editable install documentation

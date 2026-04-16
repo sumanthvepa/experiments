@@ -3,10 +3,9 @@
   web service.
 """
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 import json
 
-import aiofiles
 from jinja2 import Environment, Template, select_autoescape
 from starlette import status
 from starlette.requests import Request
@@ -34,32 +33,55 @@ class ProfileEndpointBase(HTTPEndpointBase):
   LINK_HEADER_ITEMS: tuple[dict[str, str], ...] = ()
   HTML_ENVIRONMENT = Environment(
     autoescape=select_autoescape(['html', 'jinja2']))
+  JSON_ENVIRONMENT = Environment(autoescape=False)
+  HTML_TEMPLATE_CACHE: ClassVar[dict[Path, Template]] = {}
+  JSON_TEMPLATE_CACHE: ClassVar[dict[Path, Template]] = {}
 
-  @staticmethod
-  async def load_file(filename: str, context: dict[str, str]) -> str:
+  @classmethod
+  def load_html_template(cls, filename: str) -> Template:
     """
-      Load and render a file from the filesystem without HTML escaping.
+      Load and cache an HTML template.
+      :param filename: The name of the template file to load
+      :return: The compiled template
+    """
+    path = Path(filename).resolve()
+    if path not in cls.HTML_TEMPLATE_CACHE:
+      template = path.read_text(encoding='utf-8')
+      cls.HTML_TEMPLATE_CACHE[path] = cls.HTML_ENVIRONMENT.from_string(template)
+    return cls.HTML_TEMPLATE_CACHE[path]
+
+  @classmethod
+  def load_json_template(cls, filename: str) -> Template:
+    """
+      Load and cache a JSON template.
+      :param filename: The name of the template file to load
+      :return: The compiled template
+    """
+    path = Path(filename).resolve()
+    if path not in cls.JSON_TEMPLATE_CACHE:
+      template = path.read_text(encoding='utf-8')
+      cls.JSON_TEMPLATE_CACHE[path] = cls.JSON_ENVIRONMENT.from_string(template)
+    return cls.JSON_TEMPLATE_CACHE[path]
+
+  @classmethod
+  async def load_file(cls, filename: str, context: dict[str, str]) -> str:
+    """
+      Load and render a cached file template without HTML escaping.
       :param filename: The name of the file to load
       :param context: The context to render the template with
       :return: The content of the file as a string
     """
-    async with aiofiles.open(filename, mode='r', encoding='utf-8') as file:
-      template = await file.read()
-      content = Template(template).render(context)
-      return content
+    return cls.load_json_template(filename).render(context)
 
   @classmethod
   async def load_html(cls, filename: str, context: dict[str, str]) -> str:
     """
-      Load and render an HTML file from the filesystem.
+      Load and render a cached HTML template.
       :param filename: The name of the file to load
       :param context: The context to render the template with
       :return: The HTML content of the file as a string
     """
-    async with aiofiles.open(filename, mode='r', encoding='utf-8') as file:
-      template = await file.read()
-      content = cls.HTML_ENVIRONMENT.from_string(template).render(context)
-      return content
+    return cls.load_html_template(filename).render(context)
 
   @classmethod
   async def load_json(cls, filename: str, context: dict[str, str]) -> dict[str, Any]:
