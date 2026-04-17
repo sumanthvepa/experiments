@@ -11,7 +11,7 @@ from cbrws.profile_endpoint_base import (
   make_html_filename,
   make_json_filename
 )
-from cbrws.profile_schema_endpoint import ProfileSchemaEndpoint
+from cbrws.profile_schema_endpoint import LiteralContext, ProfileSchemaEndpoint
 
 
 class CBRWSV1ProfileEndpoint(ProfileSchemaEndpoint):
@@ -24,10 +24,17 @@ class CBRWSV1ProfileEndpoint(ProfileSchemaEndpoint):
     'profile_url': 'profile_endpoint',
     'schema_url': 'profile_endpoint'
   }
-  LITERAL_CONTEXT = {
-    'version': '1.0',
-    'title': 'CBRWS V1 API Profile'
-  }
+
+  @classmethod
+  def literal_context(cls) -> LiteralContext:
+    """
+      Return literal template context values for the endpoint.
+      :return: A dictionary of template variables
+    """
+    return {
+      'version': '1.0',
+      'title': 'CBRWS V1 API Profile'
+    }
 
   @classmethod
   def html_filename(cls) -> HTMLFilename:

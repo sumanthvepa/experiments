@@ -3,11 +3,15 @@
   cbrws web service.
 """
 from abc import ABC
+from typing import TypeAlias
 
 from starlette.requests import Request
 
 from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
 from cbrws.profile_endpoint_base import ProfileEndpointBase
+
+
+LiteralContext: TypeAlias = dict[str, str]
 
 
 class ProfileSchemaEndpoint(ProfileEndpointBase, ABC):
@@ -23,8 +27,6 @@ class ProfileSchemaEndpoint(ProfileEndpointBase, ABC):
     inherited from ProfileEndpointBase. It is included to signal that
     this class is an abstract base class and should not be instantiated.
   """
-  LITERAL_CONTEXT: dict[str, str] = {}
-
   @classmethod
   def _supported_media_types(cls) -> SupportedMediaTypes:
     """
@@ -42,6 +44,14 @@ class ProfileSchemaEndpoint(ProfileEndpointBase, ABC):
     return 'application/schema+json'
 
   @classmethod
+  def literal_context(cls) -> LiteralContext:
+    """
+      Return literal template context values for the profile schema.
+      :return: A dictionary of template variables
+    """
+    return {}
+
+  @classmethod
   def context(cls, request: Request) -> dict[str, str]:
     """
       Generate the template context for the profile schema.
@@ -49,5 +59,5 @@ class ProfileSchemaEndpoint(ProfileEndpointBase, ABC):
       :return: A dictionary of template variables
     """
     context = super().context(request)
-    context.update(cls.LITERAL_CONTEXT)
+    context.update(cls.literal_context())
     return context

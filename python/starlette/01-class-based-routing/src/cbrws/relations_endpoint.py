@@ -11,7 +11,7 @@ from cbrws.profile_endpoint_base import (
   make_html_filename,
   make_json_filename
 )
-from cbrws.profile_schema_endpoint import ProfileSchemaEndpoint
+from cbrws.profile_schema_endpoint import LiteralContext, ProfileSchemaEndpoint
 
 
 class RelationsEndpoint(ProfileSchemaEndpoint):
@@ -28,9 +28,16 @@ class RelationsEndpoint(ProfileSchemaEndpoint):
     'relations_url': 'relations_endpoint',
     'greeting_relation_url': 'greeting_relation_endpoint'
   }
-  LITERAL_CONTEXT = {
-    'title': 'CBRWS v1 Relations'
-  }
+
+  @classmethod
+  def literal_context(cls) -> LiteralContext:
+    """
+      Return literal template context values for the endpoint.
+      :return: A dictionary of template variables
+    """
+    return {
+      'title': 'CBRWS v1 Relations'
+    }
 
   @classmethod
   def html_filename(cls) -> HTMLFilename:
