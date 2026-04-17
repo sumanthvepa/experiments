@@ -20,8 +20,10 @@ from cbrws.profile_endpoint_base import ProfileEndpointBase
 from cbrws.profile_endpoint_base import (
   HTMLFilename,
   JSONFilename,
+  SchemaDir,
   make_html_filename,
-  make_json_filename
+  make_json_filename,
+  make_schema_dir
 )
 
 
@@ -210,7 +212,13 @@ class TestProfileEndpointBase(unittest.TestCase):
         """
           A profile endpoint with a deliberately restricted media type list.
         """
-        SCHEMA_DIR = schema_dir
+        @classmethod
+        def schema_dir(cls) -> SchemaDir:
+          """
+            Return the schema template directory for the endpoint.
+            :return: A schema directory path
+          """
+          return make_schema_dir(schema_dir)
 
         @classmethod
         def response_media_type(cls) -> ResponseMediaType:

@@ -1,5 +1,5 @@
-issue235-python-starlette-01-cbrws-schema-dir-contract: Replace schema directory attributes with a typed method contract
-*[DONE]issue234-python-starlette-01-cbrws-literal-context-contract: Replace literal context attributes with typed method contracts
+*[DONE]issue235-python-starlette-01-cbrws-schema-dir-contract: Replace schema directory attributes with a typed method contract
+[DONE]issue234-python-starlette-01-cbrws-literal-context-contract: Replace literal context attributes with typed method contracts
 [DONE]issue233-python-starlette-01-cbrws-profile-filename-contract: Replace profile filename attributes with typed method contracts
 [DONE]issue232-python-starlette-01-cbrws-response-media-type-contract: Replace response media type attributes with a typed method contract
 [DONE]issue231-python-starlette-01-cbrws-link-header-items-contract: Replace link header item attributes with a typed method contract

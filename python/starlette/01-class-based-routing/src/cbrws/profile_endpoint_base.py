@@ -19,6 +19,7 @@ from cbrws.url_util import public_url_for
 
 HTMLFilename = NewType('HTMLFilename', str)
 JSONFilename = NewType('JSONFilename', str)
+SchemaDir = NewType('SchemaDir', Path)
 
 
 def make_html_filename(value: str) -> HTMLFilename:
@@ -43,6 +44,17 @@ def make_json_filename(value: str) -> JSONFilename:
   return JSONFilename(value)
 
 
+def make_schema_dir(value: Path) -> SchemaDir:
+  """
+    Build a validated schema directory path.
+    :param value: The schema directory path
+    :return: A schema directory path
+  """
+  if not value.is_dir():
+    raise ValueError(f'Schema directory does not exist: {value}')
+  return SchemaDir(value)
+
+
 class ProfileEndpointBase(HTTPEndpointBase):
   """
     A base class for profile URLs in the cbrws web service.
@@ -51,7 +63,6 @@ class ProfileEndpointBase(HTTPEndpointBase):
     For the GET request it returns either text/html or the configured
     JSON media type depending on the Accept header of the request.
   """
-  SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
   URL_CONTEXT: dict[str, str] = {}
   HTML_ENVIRONMENT = Environment(
     autoescape=select_autoescape(['html', 'jinja2']))
@@ -136,6 +147,14 @@ class ProfileEndpointBase(HTTPEndpointBase):
     """
 
   @classmethod
+  def schema_dir(cls) -> SchemaDir:
+    """
+      Return the schema template directory for profile endpoints.
+      :return: A schema directory path
+    """
+    return make_schema_dir(Path(__file__).resolve().parent / 'schemas')
+
+  @classmethod
   def context(cls, request: Request) -> dict[str, str]:
     """
       Generate the template context for the profile response.
@@ -167,7 +186,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
     """
     cls = type(self)
     content = await cls.load_html(
-      str(cls.SCHEMA_DIR / str(cls.html_filename())),
+      str(Path(cls.schema_dir()) / str(cls.html_filename())),
       cls.context(request))
     return HTMLResponse(
       content,
@@ -183,7 +202,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
     """
     cls = type(self)
     content = await cls.load_json(
-      str(cls.SCHEMA_DIR / str(cls.json_filename())),
+      str(Path(cls.schema_dir()) / str(cls.json_filename())),
       cls.context(request))
     return JSONResponse(
       content,

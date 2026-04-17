@@ -3,6 +3,7 @@
   /profiles/cbrws/v1 endpoint of the cbrws webservice.
 """
 import unittest
+from pathlib import Path
 
 from starlette import status
 
@@ -55,7 +56,7 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
     self.check_link(response)
     expected_data = self.load_json(
       CBRWSV1ProfileEndpoint,
-      str(CBRWSV1ProfileEndpoint.SCHEMA_DIR / 'api-profile-v1.json'),
+      str(Path(CBRWSV1ProfileEndpoint.schema_dir()) / 'api-profile-v1.json'),
       {
         'profile_url': self.profile_url,
         'schema_url': self.schema_url,

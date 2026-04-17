@@ -3,6 +3,7 @@
   endpoint of the cbrws webservice.
 """
 import unittest
+from pathlib import Path
 
 from httpx import Response
 from starlette import status
@@ -102,7 +103,7 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_cbrws_profiles_link(response)
     expected_data = self.load_json(
       CBRWSProfilesEndpoint,
-      str(CBRWSProfilesEndpoint.SCHEMA_DIR / 'cbrws-profiles.json'),
+      str(Path(CBRWSProfilesEndpoint.schema_dir()) / 'cbrws-profiles.json'),
       self.template_context)
     self.assertDictEqual(response.json(), expected_data)
 
@@ -121,7 +122,7 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_cbrws_profiles_link(response)
     expected_data = self.load_json(
       CBRWSProfilesEndpoint,
-      str(CBRWSProfilesEndpoint.SCHEMA_DIR / 'cbrws-profiles.json'),
+      str(Path(CBRWSProfilesEndpoint.schema_dir()) / 'cbrws-profiles.json'),
       self.template_context)
     self.assertDictEqual(response.json(), expected_data)
 
@@ -140,7 +141,7 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_cbrws_profiles_link(response)
     expected_html = self.load_file(
       CBRWSProfilesEndpoint,
-      str(CBRWSProfilesEndpoint.SCHEMA_DIR / 'cbrws-profiles.jinja2'),
+      str(Path(CBRWSProfilesEndpoint.schema_dir()) / 'cbrws-profiles.jinja2'),
       self.template_context)
     self.assertEqual(expected_html, response.text)
 
