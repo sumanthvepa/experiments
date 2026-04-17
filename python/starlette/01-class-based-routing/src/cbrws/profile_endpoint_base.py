@@ -27,7 +27,6 @@ class ProfileEndpointBase(HTTPEndpointBase):
   HTML_FILENAME = ''
   JSON_FILENAME = ''
   RESPONSE_MEDIA_TYPE = ''
-  SUPPORTED_MEDIA_TYPES = ['text/html']
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
   URL_CONTEXT: dict[str, str] = {}
   LINK_HEADER_ITEMS: tuple[dict[str, str], ...] = ()
@@ -127,7 +126,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
     """
     return select_media_type(
       request.headers.get('accept'),
-      cls.SUPPORTED_MEDIA_TYPES)
+      cls.supported_media_types())
 
   async def html_response(self, request: Request) -> HTMLResponse:
     """

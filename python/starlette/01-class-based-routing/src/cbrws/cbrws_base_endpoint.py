@@ -4,7 +4,7 @@
 """
 from starlette.requests import Request
 
-from cbrws.http_endpoint_base import HTTPEndpointBase
+from cbrws.http_endpoint_base import HTTPEndpointBase, SupportedMediaTypes
 from cbrws.url_util import public_url_for
 
 
@@ -21,7 +21,14 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
   """
 
   RESPONSE_MEDIA_TYPE = 'application/hal+json'
-  SUPPORTED_MEDIA_TYPES = ['application/hal+json']
+
+  @classmethod
+  def _supported_media_types(cls) -> SupportedMediaTypes:
+    """
+      Return the response media types supported by CBRWS API endpoints.
+      :return: A non-empty tuple of concrete response media types
+    """
+    return ('application/hal+json',)
 
   @staticmethod
   def profile_url(request: Request) -> str:

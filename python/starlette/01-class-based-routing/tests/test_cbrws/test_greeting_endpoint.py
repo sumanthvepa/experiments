@@ -14,6 +14,7 @@ from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.config import Settings
 from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
+from cbrws.http_endpoint_base import SupportedMediaTypes
 from test_cbrws.test_helper import TestHelper
 
 
@@ -75,9 +76,15 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
     """
     class CustomGreetingEndpoint(GreetingEndpoint):
       """ Greeting endpoint with a custom response media type. """
-      RESPONSE_MEDIA_TYPE = 'application/vnd.example.greeting+json'
-      SUPPORTED_MEDIA_TYPES = [
-        'application/vnd.example.greeting+json']
+      RESPONSE_MEDIA_TYPE = 'application/schema+json'
+
+      @classmethod
+      def _supported_media_types(cls) -> SupportedMediaTypes:
+        """
+          Return the response media types supported by the endpoint.
+          :return: A non-empty tuple of concrete response media types
+        """
+        return ('application/schema+json',)
 
     app = Starlette(routes=[
       Route('/api', APIEndpoint, name='api_endpoint'),

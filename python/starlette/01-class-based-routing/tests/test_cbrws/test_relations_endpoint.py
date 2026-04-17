@@ -12,6 +12,7 @@ from starlette.testclient import TestClient
 from cbrws.application import app
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.config import Settings
+from cbrws.http_endpoint_base import SupportedMediaTypes
 from cbrws.relations_endpoint import RelationsEndpoint
 from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
@@ -127,14 +128,21 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
 
   def test_get_negotiates_with_supported_media_types(self) -> None:
     """
-      Test that response negotiation uses SUPPORTED_MEDIA_TYPES.
+      Test that response negotiation uses declared media types.
       :return: None
     """
     class CustomRelationsEndpoint(RelationsEndpoint):
       """
         A relations endpoint with a deliberately restricted media type list.
       """
-      SUPPORTED_MEDIA_TYPES = ['text/html']
+
+      @classmethod
+      def _supported_media_types(cls) -> SupportedMediaTypes:
+        """
+          Return the response media types supported by the endpoint.
+          :return: A non-empty tuple of concrete response media types
+        """
+        return ('text/html',)
 
     test_app = Starlette(routes=[
       Route('/profiles/cbrws/v1/rels/',

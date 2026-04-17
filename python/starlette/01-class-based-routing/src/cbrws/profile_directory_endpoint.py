@@ -2,6 +2,7 @@
   profile_directory_endpoint.py: Base class for profile directory URLs in
   the cbrws web service.
 """
+from cbrws.http_endpoint_base import SupportedMediaTypes
 from cbrws.profile_endpoint_base import ProfileEndpointBase
 
 
@@ -17,4 +18,11 @@ class ProfileDirectoryEndpoint(ProfileEndpointBase):
   HTML_FILENAME = ''
   JSON_FILENAME = ''
   RESPONSE_MEDIA_TYPE = 'application/hal+json'
-  SUPPORTED_MEDIA_TYPES = ['application/hal+json', 'text/html']
+
+  @classmethod
+  def _supported_media_types(cls) -> SupportedMediaTypes:
+    """
+      Return the response media types supported by profile directories.
+      :return: A non-empty tuple of concrete response media types
+    """
+    return 'application/hal+json', 'text/html'

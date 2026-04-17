@@ -11,6 +11,7 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
+from cbrws.http_endpoint_base import SupportedMediaTypes
 from cbrws.profile_endpoint_base import ProfileEndpointBase
 
 
@@ -124,7 +125,7 @@ class TestProfileEndpointBase(unittest.TestCase):
 
   def test_get_and_head_negotiate_with_supported_media_types(self) -> None:
     """
-      Test that response negotiation uses SUPPORTED_MEDIA_TYPES.
+      Test that response negotiation uses declared media types.
       :return: None
     """
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -140,7 +141,14 @@ class TestProfileEndpointBase(unittest.TestCase):
         HTML_FILENAME = 'custom.jinja2'
         JSON_FILENAME = 'custom.json'
         RESPONSE_MEDIA_TYPE = 'application/hal+json'
-        SUPPORTED_MEDIA_TYPES = ['text/html']
+
+        @classmethod
+        def _supported_media_types(cls) -> SupportedMediaTypes:
+          """
+            Return the response media types supported by the endpoint.
+            :return: A non-empty tuple of concrete response media types
+          """
+          return ('text/html',)
 
       app = Starlette(routes=[
         Route('/custom', CustomProfileEndpoint, name='custom_endpoint')
@@ -169,7 +177,14 @@ class TestProfileEndpointBase(unittest.TestCase):
         A profile endpoint whose render methods fail if called.
       """
       RESPONSE_MEDIA_TYPE = 'application/hal+json'
-      SUPPORTED_MEDIA_TYPES = ['application/hal+json', 'text/html']
+
+      @classmethod
+      def _supported_media_types(cls) -> SupportedMediaTypes:
+        """
+          Return the response media types supported by the endpoint.
+          :return: A non-empty tuple of concrete response media types
+        """
+        return ('application/hal+json', 'text/html')
 
       @classmethod
       async def load_html(cls, filename: str, context: dict[str, str]) -> str:
