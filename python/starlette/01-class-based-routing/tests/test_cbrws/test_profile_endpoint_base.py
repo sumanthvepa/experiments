@@ -158,3 +158,50 @@ class TestProfileEndpointBase(unittest.TestCase):
           self.assertEqual(
             'application/problem+json',
             response.headers['content-type'])
+
+  def test_head_does_not_render_response_body(self) -> None:
+    """
+      Test that HEAD negotiates headers without rendering profile content.
+      :return: None
+    """
+    class HeadOnlyProfileEndpoint(ProfileEndpointBase):
+      """
+        A profile endpoint whose render methods fail if called.
+      """
+      RESPONSE_MEDIA_TYPE = 'application/hal+json'
+      SUPPORTED_MEDIA_TYPES = ['application/hal+json', 'text/html']
+
+      @classmethod
+      async def load_html(cls, filename: str, context: dict[str, str]) -> str:
+        """
+          Fail if HEAD tries to render HTML content.
+          :param filename: The template filename
+          :param context: The template context
+          :return: Never returns
+        """
+        raise AssertionError('HEAD must not render HTML content')
+
+      @classmethod
+      async def load_file(cls, filename: str, context: dict[str, str]) -> str:
+        """
+          Fail if HEAD tries to render JSON content.
+          :param filename: The template filename
+          :param context: The template context
+          :return: Never returns
+        """
+        raise AssertionError('HEAD must not render JSON content')
+
+    app = Starlette(routes=[
+      Route('/head-only', HeadOnlyProfileEndpoint, name='head_only_endpoint')
+    ])
+    client = TestClient(app, 'http://localhost:5101')
+
+    for accept, content_type in (
+          ('text/html', 'text/html; charset=utf-8'),
+          ('application/hal+json', 'application/hal+json')):
+      with self.subTest(accept=accept):
+        response = client.head('/head-only', headers={'Accept': accept})
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(content_type, response.headers['content-type'])
+        self.assertEqual('', response.text)

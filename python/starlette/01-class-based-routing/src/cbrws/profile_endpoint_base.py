@@ -117,6 +117,18 @@ class ProfileEndpointBase(HTTPEndpointBase):
       for key, route_name in cls.URL_CONTEXT.items()
     }
 
+  @classmethod
+  def negotiate_media_type(cls, request: Request) -> str | None:
+    """
+      Select the response media type for the request.
+      :param request: The HTTP request
+      :return: The selected media type, or None if no supported media
+      type matches
+    """
+    return select_media_type(
+      request.headers.get('accept'),
+      cls.SUPPORTED_MEDIA_TYPES)
+
   async def html_response(self, request: Request) -> HTMLResponse:
     """
       Generate an HTML response for the profile endpoint.
@@ -156,9 +168,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
       :return: A Response with either HTML or JSON content
     """
     cls = type(self)
-    media_type = select_media_type(
-      request.headers.get('accept'),
-      cls.SUPPORTED_MEDIA_TYPES)
+    media_type = cls.negotiate_media_type(request)
     if media_type == 'text/html':
       return await self.html_response(request)
     if media_type == cls.response_media_type():
@@ -172,9 +182,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
       :return: A Response with headers only
     """
     cls = type(self)
-    media_type = select_media_type(
-      request.headers.get('accept'),
-      cls.SUPPORTED_MEDIA_TYPES)
+    media_type = cls.negotiate_media_type(request)
     if media_type == 'text/html':
       return Response(
         status_code=status.HTTP_200_OK,
