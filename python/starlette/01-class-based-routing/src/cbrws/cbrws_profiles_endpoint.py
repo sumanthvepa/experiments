@@ -4,7 +4,7 @@
 """
 from starlette.requests import Request
 
-from cbrws.http_endpoint_base import LinkHeaderItems
+from cbrws.http_endpoint_base import LinkHeaderItem, LinkHeaderItems
 from cbrws.profile_endpoint_base import (
   HTMLFilename,
   JSONFilename,
@@ -50,15 +50,13 @@ class CBRWSProfilesEndpoint(ProfileDirectoryEndpoint):
       :return: A tuple of Link header item definitions
     """
     return (
-      {
-        'route_name': 'cbrws_profiles_endpoint',
-        'rel': 'self',
-        'type': ProfileDirectoryEndpoint.response_media_type()
-      },
-      {
-        'route_name': 'profile_endpoint',
-        'rel': 'item',
-        'type': 'application/schema+json',
-        'title': 'CBRWS v1 API profile'
-      }
+      LinkHeaderItem(
+        route_name='cbrws_profiles_endpoint',
+        rel='self',
+        type=ProfileDirectoryEndpoint.response_media_type()),
+      LinkHeaderItem(
+        route_name='profile_endpoint',
+        rel='item',
+        type='application/schema+json',
+        title='CBRWS v1 API profile')
     )
