@@ -12,7 +12,7 @@ from starlette.testclient import TestClient
 from cbrws.application import app
 from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.config import Settings
-from cbrws.http_endpoint_base import SupportedMediaTypes
+from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
 from cbrws.relations_endpoint import RelationsEndpoint
 from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
@@ -135,6 +135,13 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
       """
         A relations endpoint with a deliberately restricted media type list.
       """
+      @classmethod
+      def response_media_type(cls) -> ResponseMediaType:
+        """
+          Return the primary response media type for the endpoint.
+          :return: A concrete response media type
+        """
+        return 'text/html'
 
       @classmethod
       def _supported_media_types(cls) -> SupportedMediaTypes:

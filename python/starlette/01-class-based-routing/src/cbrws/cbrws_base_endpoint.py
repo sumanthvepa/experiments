@@ -7,6 +7,7 @@ from starlette.requests import Request
 from cbrws.http_endpoint_base import (
   HTTPEndpointBase,
   LinkHeaderItems,
+  ResponseMediaType,
   SupportedMediaTypes
 )
 from cbrws.url_util import public_url_for
@@ -23,8 +24,6 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
   directly, but rather as a base class for RootEndpoint and
   APIEndpoint classes.
   """
-
-  RESPONSE_MEDIA_TYPE = 'application/hal+json'
 
   @classmethod
   def _supported_media_types(cls) -> SupportedMediaTypes:
@@ -53,12 +52,12 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
     return CBRWSBaseEndpoint.profile_url(request)
 
   @classmethod
-  def response_media_type(cls) -> str:
+  def response_media_type(cls) -> ResponseMediaType:
     """
       Return the media type for cbrws API responses.
       :return: A string representing the response media type
     """
-    return cls.RESPONSE_MEDIA_TYPE
+    return 'application/hal+json'
 
   @staticmethod
   def schema_media_type() -> str:

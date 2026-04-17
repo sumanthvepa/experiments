@@ -87,7 +87,18 @@ class HTTPEndpointBase(HTTPEndpoint, ABC):
     if '*/*' in media_types:
       raise ValueError(
         f'{cls.__name__} must not support */* as a response type')
+    if cls.response_media_type() not in media_types:
+      raise ValueError(
+        f'{cls.__name__} response media type must be supported')
     return media_types
+
+  @classmethod
+  @abstractmethod
+  def response_media_type(cls) -> ResponseMediaType:
+    """
+      Return the primary response media type for the endpoint.
+      :return: A concrete response media type
+    """
 
   @classmethod
   @abstractmethod

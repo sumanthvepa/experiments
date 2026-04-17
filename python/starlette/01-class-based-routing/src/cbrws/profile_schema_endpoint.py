@@ -4,7 +4,7 @@
 """
 from starlette.requests import Request
 
-from cbrws.http_endpoint_base import SupportedMediaTypes
+from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
 from cbrws.profile_endpoint_base import ProfileEndpointBase
 
 
@@ -19,7 +19,6 @@ class ProfileSchemaEndpoint(ProfileEndpointBase):
   """
   HTML_FILENAME = ''
   JSON_FILENAME = ''
-  RESPONSE_MEDIA_TYPE = 'application/schema+json'
   LITERAL_CONTEXT: dict[str, str] = {}
 
   @classmethod
@@ -29,6 +28,14 @@ class ProfileSchemaEndpoint(ProfileEndpointBase):
       :return: A non-empty tuple of concrete responses media types
     """
     return 'application/schema+json', 'text/html'
+
+  @classmethod
+  def response_media_type(cls) -> ResponseMediaType:
+    """
+      Return the primary response media type for profile schema endpoints.
+      :return: A concrete response media type
+    """
+    return 'application/schema+json'
 
   @classmethod
   def context(cls, request: Request) -> dict[str, str]:

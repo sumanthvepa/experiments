@@ -14,7 +14,7 @@ from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.config import Settings
 from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
-from cbrws.http_endpoint_base import SupportedMediaTypes
+from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
 from test_cbrws.test_helper import TestHelper
 
 
@@ -76,7 +76,14 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
     """
     class CustomGreetingEndpoint(GreetingEndpoint):
       """ Greeting endpoint with a custom response media type. """
-      RESPONSE_MEDIA_TYPE = 'application/schema+json'
+
+      @classmethod
+      def response_media_type(cls) -> ResponseMediaType:
+        """
+          Return the primary response media type for the endpoint.
+          :return: A concrete response media type
+        """
+        return 'application/schema+json'
 
       @classmethod
       def _supported_media_types(cls) -> SupportedMediaTypes:
@@ -103,10 +110,10 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
     data = response.json()
     self.check_content_type(
       response,
-      CustomGreetingEndpoint.RESPONSE_MEDIA_TYPE)
+      CustomGreetingEndpoint.response_media_type())
     self.assertEqual(
-      CustomGreetingEndpoint.RESPONSE_MEDIA_TYPE,
+      CustomGreetingEndpoint.response_media_type(),
       data['_links']['self']['type'])
     self.assertEqual(
-      CustomGreetingEndpoint.RESPONSE_MEDIA_TYPE,
+      CustomGreetingEndpoint.response_media_type(),
       data['_links']['up']['type'])

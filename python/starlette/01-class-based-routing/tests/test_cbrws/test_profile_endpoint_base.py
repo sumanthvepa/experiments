@@ -11,7 +11,11 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
-from cbrws.http_endpoint_base import HTTPMethods, SupportedMediaTypes
+from cbrws.http_endpoint_base import (
+  HTTPMethods,
+  ResponseMediaType,
+  SupportedMediaTypes
+)
 from cbrws.profile_endpoint_base import ProfileEndpointBase
 
 
@@ -58,7 +62,14 @@ class TestProfileEndpointBase(unittest.TestCase):
       """
         A profile endpoint that declares POST in addition to defaults.
       """
-      RESPONSE_MEDIA_TYPE = 'text/html'
+
+      @classmethod
+      def response_media_type(cls) -> ResponseMediaType:
+        """
+          Return the primary response media type for the endpoint.
+          :return: A concrete response media type
+        """
+        return 'text/html'
 
       @classmethod
       def _supported_media_types(cls) -> SupportedMediaTypes:
@@ -180,7 +191,14 @@ class TestProfileEndpointBase(unittest.TestCase):
         SCHEMA_DIR = schema_dir
         HTML_FILENAME = 'custom.jinja2'
         JSON_FILENAME = 'custom.json'
-        RESPONSE_MEDIA_TYPE = 'application/hal+json'
+
+        @classmethod
+        def response_media_type(cls) -> ResponseMediaType:
+          """
+            Return the primary response media type for the endpoint.
+            :return: A concrete response media type
+          """
+          return 'text/html'
 
         @classmethod
         def _supported_media_types(cls) -> SupportedMediaTypes:
@@ -216,7 +234,14 @@ class TestProfileEndpointBase(unittest.TestCase):
       """
         A profile endpoint whose render methods fail if called.
       """
-      RESPONSE_MEDIA_TYPE = 'application/hal+json'
+
+      @classmethod
+      def response_media_type(cls) -> ResponseMediaType:
+        """
+          Return the primary response media type for the endpoint.
+          :return: A concrete response media type
+        """
+        return 'application/hal+json'
 
       @classmethod
       def _supported_media_types(cls) -> SupportedMediaTypes:

@@ -14,7 +14,7 @@ from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
 from cbrws.config import Settings
 from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
-from cbrws.http_endpoint_base import SupportedMediaTypes
+from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
 from cbrws.relations_endpoint import RelationsEndpoint
 from test_cbrws.test_helper import TestHelper
 
@@ -127,7 +127,14 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
     """
     class CustomAPIEndpoint(APIEndpoint):
       """ API endpoint with a custom response media type. """
-      RESPONSE_MEDIA_TYPE = 'application/schema+json'
+
+      @classmethod
+      def response_media_type(cls) -> ResponseMediaType:
+        """
+          Return the primary response media type for the endpoint.
+          :return: A concrete response media type
+        """
+        return 'application/schema+json'
 
       @classmethod
       def _supported_media_types(cls) -> SupportedMediaTypes:
@@ -153,10 +160,10 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
     client = TestClient(app, self.base_url)
     response = client.get('/api')
     data = response.json()
-    self.check_content_type(response, CustomAPIEndpoint.RESPONSE_MEDIA_TYPE)
+    self.check_content_type(response, CustomAPIEndpoint.response_media_type())
     self.assertEqual(
-      CustomAPIEndpoint.RESPONSE_MEDIA_TYPE,
+      CustomAPIEndpoint.response_media_type(),
       data['_links']['self']['type'])
     self.assertEqual(
-      CustomAPIEndpoint.RESPONSE_MEDIA_TYPE,
+      CustomAPIEndpoint.response_media_type(),
       data['_links']['cbrws:greeting']['type'])

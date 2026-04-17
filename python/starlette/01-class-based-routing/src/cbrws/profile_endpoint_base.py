@@ -26,7 +26,6 @@ class ProfileEndpointBase(HTTPEndpointBase):
   """
   HTML_FILENAME = ''
   JSON_FILENAME = ''
-  RESPONSE_MEDIA_TYPE = ''
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
   URL_CONTEXT: dict[str, str] = {}
   HTML_ENVIRONMENT = Environment(
@@ -94,14 +93,6 @@ class ProfileEndpointBase(HTTPEndpointBase):
     if not isinstance(data, dict):
       raise ValueError(f'JSON document must be an object: {filename}')
     return data
-
-  @classmethod
-  def response_media_type(cls) -> str:
-    """
-      Generate the media type for the profile response.
-      :return: A string representing the media type
-    """
-    return cls.RESPONSE_MEDIA_TYPE
 
   @classmethod
   def context(cls, request: Request) -> dict[str, str]:
