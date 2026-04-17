@@ -2,13 +2,15 @@
   profile_schema_endpoint.py: Base class for profile schema URLs in the
   cbrws web service.
 """
+from abc import ABC
+
 from starlette.requests import Request
 
 from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
 from cbrws.profile_endpoint_base import ProfileEndpointBase
 
 
-class ProfileSchemaEndpoint(ProfileEndpointBase):
+class ProfileSchemaEndpoint(ProfileEndpointBase, ABC):
   """
     A base class for profile schema URLs in the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
@@ -16,9 +18,11 @@ class ProfileSchemaEndpoint(ProfileEndpointBase):
     For the GET request it returns either text/html or
     'application/schema+json' depending on the Accept header of the
     request.
+
+    The ABC base is not strictly needed because abstract methods are
+    inherited from ProfileEndpointBase. It is included to signal that
+    this class is an abstract base class and should not be instantiated.
   """
-  HTML_FILENAME = ''
-  JSON_FILENAME = ''
   LITERAL_CONTEXT: dict[str, str] = {}
 
   @classmethod

@@ -2,8 +2,9 @@
   profile_endpoint_base.py: Base class for profile URLs in the cbrws
   web service.
 """
+from abc import abstractmethod
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, NewType
 import json
 
 from jinja2 import Environment, Template, select_autoescape
@@ -16,6 +17,32 @@ from cbrws.http_endpoint_base import HTTPEndpointBase
 from cbrws.url_util import public_url_for
 
 
+HTMLFilename = NewType('HTMLFilename', str)
+JSONFilename = NewType('JSONFilename', str)
+
+
+def make_html_filename(value: str) -> HTMLFilename:
+  """
+    Build a validated HTML template filename.
+    :param value: The filename value
+    :return: An HTML filename
+  """
+  if not value.endswith('.jinja2'):
+    raise ValueError('HTML template filenames must end with .jinja2')
+  return HTMLFilename(value)
+
+
+def make_json_filename(value: str) -> JSONFilename:
+  """
+    Build a validated JSON template filename.
+    :param value: The filename value
+    :return: A JSON filename
+  """
+  if not value.endswith('.json'):
+    raise ValueError('JSON filenames must end with .json')
+  return JSONFilename(value)
+
+
 class ProfileEndpointBase(HTTPEndpointBase):
   """
     A base class for profile URLs in the cbrws web service.
@@ -24,8 +51,6 @@ class ProfileEndpointBase(HTTPEndpointBase):
     For the GET request it returns either text/html or the configured
     JSON media type depending on the Accept header of the request.
   """
-  HTML_FILENAME = ''
-  JSON_FILENAME = ''
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
   URL_CONTEXT: dict[str, str] = {}
   HTML_ENVIRONMENT = Environment(
@@ -95,6 +120,22 @@ class ProfileEndpointBase(HTTPEndpointBase):
     return data
 
   @classmethod
+  @abstractmethod
+  def html_filename(cls) -> HTMLFilename:
+    """
+      Return the HTML template filename for the endpoint.
+      :return: An HTML filename
+    """
+
+  @classmethod
+  @abstractmethod
+  def json_filename(cls) -> JSONFilename:
+    """
+      Return the JSON filename for the endpoint.
+      :return: A JSON filename
+    """
+
+  @classmethod
   def context(cls, request: Request) -> dict[str, str]:
     """
       Generate the template context for the profile response.
@@ -126,7 +167,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
     """
     cls = type(self)
     content = await cls.load_html(
-      str(cls.SCHEMA_DIR / cls.HTML_FILENAME),
+      str(cls.SCHEMA_DIR / str(cls.html_filename())),
       cls.context(request))
     return HTMLResponse(
       content,
@@ -142,7 +183,7 @@ class ProfileEndpointBase(HTTPEndpointBase):
     """
     cls = type(self)
     content = await cls.load_json(
-      str(cls.SCHEMA_DIR / cls.JSON_FILENAME),
+      str(cls.SCHEMA_DIR / str(cls.json_filename())),
       cls.context(request))
     return JSONResponse(
       content,

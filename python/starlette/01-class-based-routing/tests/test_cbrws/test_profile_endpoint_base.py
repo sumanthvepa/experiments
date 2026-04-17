@@ -17,6 +17,12 @@ from cbrws.http_endpoint_base import (
   SupportedMediaTypes
 )
 from cbrws.profile_endpoint_base import ProfileEndpointBase
+from cbrws.profile_endpoint_base import (
+  HTMLFilename,
+  JSONFilename,
+  make_html_filename,
+  make_json_filename
+)
 
 
 class TestProfileEndpointBase(unittest.TestCase):
@@ -78,6 +84,22 @@ class TestProfileEndpointBase(unittest.TestCase):
           :return: A non-empty tuple of concrete response media types
         """
         return ('text/html',)
+
+      @classmethod
+      def html_filename(cls) -> HTMLFilename:
+        """
+          Return the HTML template filename for the endpoint.
+          :return: An HTML filename
+        """
+        return make_html_filename('custom.jinja2')
+
+      @classmethod
+      def json_filename(cls) -> JSONFilename:
+        """
+          Return the JSON filename for the endpoint.
+          :return: A JSON filename
+        """
+        return make_json_filename('custom.json')
 
       @classmethod
       def allowed_methods(cls) -> HTTPMethods:
@@ -189,8 +211,6 @@ class TestProfileEndpointBase(unittest.TestCase):
           A profile endpoint with a deliberately restricted media type list.
         """
         SCHEMA_DIR = schema_dir
-        HTML_FILENAME = 'custom.jinja2'
-        JSON_FILENAME = 'custom.json'
 
         @classmethod
         def response_media_type(cls) -> ResponseMediaType:
@@ -207,6 +227,22 @@ class TestProfileEndpointBase(unittest.TestCase):
             :return: A non-empty tuple of concrete response media types
           """
           return ('text/html',)
+
+        @classmethod
+        def html_filename(cls) -> HTMLFilename:
+          """
+            Return the HTML template filename for the endpoint.
+            :return: An HTML filename
+          """
+          return make_html_filename('custom.jinja2')
+
+        @classmethod
+        def json_filename(cls) -> JSONFilename:
+          """
+            Return the JSON filename for the endpoint.
+            :return: A JSON filename
+          """
+          return make_json_filename('custom.json')
 
       app = Starlette(routes=[
         Route('/custom', CustomProfileEndpoint, name='custom_endpoint')
@@ -250,6 +286,22 @@ class TestProfileEndpointBase(unittest.TestCase):
           :return: A non-empty tuple of concrete response media types
         """
         return ('application/hal+json', 'text/html')
+
+      @classmethod
+      def html_filename(cls) -> HTMLFilename:
+        """
+          Return the HTML template filename for the endpoint.
+          :return: An HTML filename
+        """
+        return make_html_filename('custom.jinja2')
+
+      @classmethod
+      def json_filename(cls) -> JSONFilename:
+        """
+          Return the JSON filename for the endpoint.
+          :return: A JSON filename
+        """
+        return make_json_filename('custom.json')
 
       @classmethod
       async def load_html(cls, filename: str, context: dict[str, str]) -> str:

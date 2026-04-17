@@ -5,6 +5,12 @@
 from starlette.requests import Request
 
 from cbrws.http_endpoint_base import LinkHeaderItems
+from cbrws.profile_endpoint_base import (
+  HTMLFilename,
+  JSONFilename,
+  make_html_filename,
+  make_json_filename
+)
 from cbrws.profile_schema_endpoint import ProfileSchemaEndpoint
 
 
@@ -14,8 +20,6 @@ class CBRWSV1ProfileEndpoint(ProfileSchemaEndpoint):
 
     This endpoint describes the concrete v1 CBRWS API profile.
   """
-  HTML_FILENAME = 'api-profile-v1.jinja2'
-  JSON_FILENAME = 'api-profile-v1.json'
   URL_CONTEXT = {
     'profile_url': 'profile_endpoint',
     'schema_url': 'profile_endpoint'
@@ -24,6 +28,22 @@ class CBRWSV1ProfileEndpoint(ProfileSchemaEndpoint):
     'version': '1.0',
     'title': 'CBRWS V1 API Profile'
   }
+
+  @classmethod
+  def html_filename(cls) -> HTMLFilename:
+    """
+      Return the HTML template filename for the endpoint.
+      :return: An HTML filename
+    """
+    return make_html_filename('api-profile-v1.jinja2')
+
+  @classmethod
+  def json_filename(cls) -> JSONFilename:
+    """
+      Return the JSON filename for the endpoint.
+      :return: A JSON filename
+    """
+    return make_json_filename('api-profile-v1.json')
 
   @classmethod
   def link_header_items(cls, request: Request) -> LinkHeaderItems:

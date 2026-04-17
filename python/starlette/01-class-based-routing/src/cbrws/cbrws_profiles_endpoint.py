@@ -5,6 +5,12 @@
 from starlette.requests import Request
 
 from cbrws.http_endpoint_base import LinkHeaderItems
+from cbrws.profile_endpoint_base import (
+  HTMLFilename,
+  JSONFilename,
+  make_html_filename,
+  make_json_filename
+)
 from cbrws.profile_directory_endpoint import ProfileDirectoryEndpoint
 
 
@@ -15,12 +21,26 @@ class CBRWSProfilesEndpoint(ProfileDirectoryEndpoint):
     This endpoint lists the versions of the CBRWS profile supported by
     the service.
   """
-  HTML_FILENAME = 'cbrws-profiles.jinja2'
-  JSON_FILENAME = 'cbrws-profiles.json'
   URL_CONTEXT = {
     'cbrws_profile_url': 'cbrws_profiles_endpoint',
     'cbrws_v1_profile_url': 'profile_endpoint'
   }
+
+  @classmethod
+  def html_filename(cls) -> HTMLFilename:
+    """
+      Return the HTML template filename for the endpoint.
+      :return: An HTML filename
+    """
+    return make_html_filename('cbrws-profiles.jinja2')
+
+  @classmethod
+  def json_filename(cls) -> JSONFilename:
+    """
+      Return the JSON filename for the endpoint.
+      :return: A JSON filename
+    """
+    return make_json_filename('cbrws-profiles.json')
 
   @classmethod
   def link_header_items(cls, request: Request) -> LinkHeaderItems:

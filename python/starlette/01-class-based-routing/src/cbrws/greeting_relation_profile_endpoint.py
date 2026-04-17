@@ -5,6 +5,12 @@
 from starlette.requests import Request
 
 from cbrws.http_endpoint_base import LinkHeaderItems
+from cbrws.profile_endpoint_base import (
+  HTMLFilename,
+  JSONFilename,
+  make_html_filename,
+  make_json_filename
+)
 from cbrws.profile_schema_endpoint import ProfileSchemaEndpoint
 
 
@@ -15,8 +21,6 @@ class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
 
     This endpoint describes the cbrws:greeting relation.
   """
-  HTML_FILENAME = 'greeting-rel-v1.jinja2'
-  JSON_FILENAME = 'greeting-rel-v1.json'
   URL_CONTEXT = {
     'profile_url': 'profile_endpoint',
     'relations_url': 'relations_endpoint',
@@ -26,6 +30,22 @@ class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
   LITERAL_CONTEXT = {
     'title': 'CBRWS V1 Greeting Relation'
   }
+
+  @classmethod
+  def html_filename(cls) -> HTMLFilename:
+    """
+      Return the HTML template filename for the endpoint.
+      :return: An HTML filename
+    """
+    return make_html_filename('greeting-rel-v1.jinja2')
+
+  @classmethod
+  def json_filename(cls) -> JSONFilename:
+    """
+      Return the JSON filename for the endpoint.
+      :return: A JSON filename
+    """
+    return make_json_filename('greeting-rel-v1.json')
 
   @classmethod
   def link_header_items(cls, request: Request) -> LinkHeaderItems:

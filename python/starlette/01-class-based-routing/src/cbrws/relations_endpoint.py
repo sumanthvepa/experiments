@@ -5,6 +5,12 @@
 from starlette.requests import Request
 
 from cbrws.http_endpoint_base import LinkHeaderItems
+from cbrws.profile_endpoint_base import (
+  HTMLFilename,
+  JSONFilename,
+  make_html_filename,
+  make_json_filename
+)
 from cbrws.profile_schema_endpoint import ProfileSchemaEndpoint
 
 
@@ -17,8 +23,6 @@ class RelationsEndpoint(ProfileSchemaEndpoint):
     application/schema+json depending on the Accept header.
   """
   RELATIONS_PATH = '/profiles/cbrws/v1/rels/'
-  HTML_FILENAME = 'relations-v1.jinja2'
-  JSON_FILENAME = 'relations-v1.json'
   URL_CONTEXT = {
     'profile_url': 'profile_endpoint',
     'relations_url': 'relations_endpoint',
@@ -27,6 +31,22 @@ class RelationsEndpoint(ProfileSchemaEndpoint):
   LITERAL_CONTEXT = {
     'title': 'CBRWS v1 Relations'
   }
+
+  @classmethod
+  def html_filename(cls) -> HTMLFilename:
+    """
+      Return the HTML template filename for the endpoint.
+      :return: An HTML filename
+    """
+    return make_html_filename('relations-v1.jinja2')
+
+  @classmethod
+  def json_filename(cls) -> JSONFilename:
+    """
+      Return the JSON filename for the endpoint.
+      :return: A JSON filename
+    """
+    return make_json_filename('relations-v1.json')
 
   @classmethod
   def link_header_items(cls, request: Request) -> LinkHeaderItems:

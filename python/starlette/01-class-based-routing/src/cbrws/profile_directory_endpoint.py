@@ -2,11 +2,13 @@
   profile_directory_endpoint.py: Base class for profile directory URLs in
   the cbrws web service.
 """
+from abc import ABC
+
 from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
 from cbrws.profile_endpoint_base import ProfileEndpointBase
 
 
-class ProfileDirectoryEndpoint(ProfileEndpointBase):
+class ProfileDirectoryEndpoint(ProfileEndpointBase, ABC):
   """
     A base class for profile directory URLs in the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
@@ -14,10 +16,11 @@ class ProfileDirectoryEndpoint(ProfileEndpointBase):
     For the GET request it returns either text/html or
     'application/hal+json' depending on the Accept header of the
     request.
-  """
-  HTML_FILENAME = ''
-  JSON_FILENAME = ''
 
+    The ABC base is not strictly needed because abstract methods are
+    inherited from ProfileEndpointBase. It is included to signal that
+    this class is an abstract base class and should not be instantiated.
+  """
   @classmethod
   def _supported_media_types(cls) -> SupportedMediaTypes:
     """
