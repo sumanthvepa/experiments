@@ -1,3 +1,4 @@
+*[DONE]issue230-python-starlette-01-cbrws-allowed-methods-contract: Replace allowed methods attributes with a typed method contract
 *[DONE]issue230-python-starlette-01-cbrws-supported-media-types-contract: Replace supported media type attributes with a typed method contract
 [DONE]issue229-python-starlette-01-cbrws-profile-head-duplication: Remove duplicated HEAD handling from ProfileEndpointBase
 [DONE]issue228-python-starlette-01-cbrws-relations-profile-schema-endpoint: Rewrite RelationsEndpoint to inherit from ProfileSchemaEndpoint

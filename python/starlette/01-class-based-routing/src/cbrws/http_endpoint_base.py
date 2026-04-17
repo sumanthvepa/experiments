@@ -1,8 +1,9 @@
 """
   http_endpoint_base.py: Common base class for cbrws HTTP endpoints.
 """
+from abc import ABC, abstractmethod
 import logging
-from typing import override
+from typing import Literal, TypeAlias, override
 
 from starlette import status
 from starlette.endpoints import HTTPEndpoint
@@ -14,14 +15,78 @@ from cbrws.url_util import public_url_for
 
 logger = logging.getLogger('cbrws.http')
 
+HTTPMethod: TypeAlias = Literal[
+  'GET',
+  'HEAD',
+  'OPTIONS',
+  'POST',
+  'PUT',
+  'DELETE',
+  'PATCH'
+]
+HTTPMethods: TypeAlias = tuple[HTTPMethod, ...]
 
-class HTTPEndpointBase(HTTPEndpoint):
+ResponseMediaType: TypeAlias = Literal[
+  'application/hal+json',
+  'application/schema+json',
+  'text/html'
+]
+SupportedMediaTypes: TypeAlias = tuple[
+  ResponseMediaType,
+  *tuple[ResponseMediaType, ...]
+]
+
+
+class HTTPEndpointBase(HTTPEndpoint, ABC):
   """
     A base class for common HTTP endpoint behavior in the cbrws web service.
   """
-  ALLOWED_METHODS = ['GET', 'HEAD', 'OPTIONS']
-  SUPPORTED_MEDIA_TYPES: list[str] = []
   LINK_HEADER_ITEMS: tuple[dict[str, str], ...] = ()
+
+  @classmethod
+  def allowed_methods(cls) -> HTTPMethods:
+    """
+      Return the HTTP methods supported by the endpoint.
+
+      This returns a sensible default tuple of values. Derived classes
+      should implement this method, by calling this base class method
+      to get the default methods and then adding any additional
+      methods they support.
+
+      :return: A tuple of allowed HTTP methods
+    """
+    return ('GET', 'HEAD', 'OPTIONS')
+
+  @classmethod
+  def allow_header(cls) -> str:
+    """
+      Generate the Allow header value.
+      :return: A comma-separated list of allowed HTTP methods
+    """
+    return ', '.join(cls.allowed_methods())
+
+  @classmethod
+  def supported_media_types(cls) -> SupportedMediaTypes:
+    """
+      Return the response media types supported by the endpoint.
+      :return: A non-empty tuple of concrete response media types
+    """
+    media_types = cls._supported_media_types()
+    if '*/*' in media_types:
+      raise ValueError(
+        f'{cls.__name__} must not support */* as a response type')
+    return media_types
+
+  @classmethod
+  @abstractmethod
+  def _supported_media_types(cls) -> SupportedMediaTypes:
+    """
+      Return the concrete response media types supported by the endpoint.
+
+      Derived classes should implement this method.
+
+      :return: A non-empty tuple of concrete response media types
+    """
 
   @staticmethod
   def problem_media_type() -> str:
@@ -31,13 +96,6 @@ class HTTPEndpointBase(HTTPEndpoint):
     """
     return 'application/problem+json'
 
-  @classmethod
-  def allow_header(cls) -> str:
-    """
-      Generate the Allow header value.
-      :return: A comma-separated list of allowed HTTP methods
-    """
-    return ', '.join(cls.ALLOWED_METHODS)
 
   @classmethod
   def link_header_items(cls, request: Request) -> tuple[dict[str, str], ...]:
@@ -86,19 +144,20 @@ class HTTPEndpointBase(HTTPEndpoint):
       :param request: The HTTP request
       :return: A JSONResponse with problem details
     """
+    supported_media_types = cls.supported_media_types()
     logger.info(
       'not acceptable method=%s path=%s accept=%s supported=%s',
       request.method,
       request.url.path,
       request.headers.get('accept', ''),
-      ','.join(cls.SUPPORTED_MEDIA_TYPES))
+      ','.join(supported_media_types))
     error = {
       'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
       'title': 'Not Acceptable',
       'status': status.HTTP_406_NOT_ACCEPTABLE,
       'detail': 'The requested media type is not supported by this endpoint. ' +
-                'Supported media types are: ' + ', '.join(cls.SUPPORTED_MEDIA_TYPES),
-      'supportedMediaTypes': cls.SUPPORTED_MEDIA_TYPES
+                'Supported media types are: ' + ', '.join(supported_media_types),
+      'supportedMediaTypes': supported_media_types
     }
     return JSONResponse(
       error,
@@ -135,7 +194,7 @@ class HTTPEndpointBase(HTTPEndpoint):
       'status': status.HTTP_405_METHOD_NOT_ALLOWED,
       'detail': 'The requested method is not allowed for this resource. ' +
                 'See the Allow header for allowed methods.',
-      'allowedMethods': cls.ALLOWED_METHODS
+      'allowedMethods': cls.allowed_methods()
     }
     return JSONResponse(
       error,

@@ -11,7 +11,7 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
-from cbrws.http_endpoint_base import SupportedMediaTypes
+from cbrws.http_endpoint_base import HTTPMethods, SupportedMediaTypes
 from cbrws.profile_endpoint_base import ProfileEndpointBase
 
 
@@ -48,6 +48,46 @@ class TestProfileEndpointBase(unittest.TestCase):
 
     self.assertEqual('<p>first</p>', first_content)
     self.assertEqual('<p>second</p>', second_content)
+
+  def test_allowed_methods_can_be_extended(self) -> None:
+    """
+      Test that subclasses can extend the default allowed HTTP methods.
+      :return: None
+    """
+    class PostProfileEndpoint(ProfileEndpointBase):
+      """
+        A profile endpoint that declares POST in addition to defaults.
+      """
+      RESPONSE_MEDIA_TYPE = 'text/html'
+
+      @classmethod
+      def _supported_media_types(cls) -> SupportedMediaTypes:
+        """
+          Return the response media types supported by the endpoint.
+          :return: A non-empty tuple of concrete response media types
+        """
+        return ('text/html',)
+
+      @classmethod
+      def allowed_methods(cls) -> HTTPMethods:
+        """
+          Return the HTTP methods supported by the endpoint.
+          :return: A tuple of allowed HTTP methods
+        """
+        return (*super().allowed_methods(), 'POST')
+
+    app = Starlette(routes=[
+      Route('/post-profile', PostProfileEndpoint, name='post_profile_endpoint')
+    ])
+    client = TestClient(app, 'http://localhost:5101')
+
+    response = client.put('/post-profile')
+
+    self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, response.status_code)
+    self.assertEqual('GET, HEAD, OPTIONS, POST', response.headers['allow'])
+    self.assertEqual(
+      ['GET', 'HEAD', 'OPTIONS', 'POST'],
+      response.json()['allowedMethods'])
 
   def test_load_json_caches_template_not_content(self) -> None:
     """

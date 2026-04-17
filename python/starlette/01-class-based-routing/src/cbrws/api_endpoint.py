@@ -16,7 +16,6 @@ class APIEndpoint(CBRWSBaseEndpoint):
     A URL handler for the /api URL of the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
   """
-  SUPPORTED_MEDIA_TYPES = ['application/hal+json']
 
   # noinspection PyMethodMayBeStatic
   async def get(self, request: Request) -> JSONResponse:
@@ -25,12 +24,12 @@ class APIEndpoint(CBRWSBaseEndpoint):
       :param request: The HTTP request
       :return: A JSON response with API information
     """
+    cls = type(self)
     media_type = select_media_type(
       request.headers.get('accept'),
-      self.SUPPORTED_MEDIA_TYPES)
+      cls.supported_media_types())
     if media_type is None:
-      return type(self).not_acceptable(request)
-    cls = type(self)
+      return cls.not_acceptable(request)
 
     message = {
       'title': 'CBRWS API',
