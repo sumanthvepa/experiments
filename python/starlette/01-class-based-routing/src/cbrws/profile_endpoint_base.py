@@ -29,7 +29,6 @@ class ProfileEndpointBase(HTTPEndpointBase):
   RESPONSE_MEDIA_TYPE = ''
   SCHEMA_DIR = Path(__file__).resolve().parent / 'schemas'
   URL_CONTEXT: dict[str, str] = {}
-  LINK_HEADER_ITEMS: tuple[dict[str, str], ...] = ()
   HTML_ENVIRONMENT = Environment(
     autoescape=select_autoescape(['html', 'jinja2']))
   JSON_ENVIRONMENT = Environment(autoescape=False)

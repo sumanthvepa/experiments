@@ -3,7 +3,7 @@
 """
 from abc import ABC, abstractmethod
 import logging
-from typing import Literal, TypeAlias, override
+from typing import Literal, NotRequired, TypeAlias, TypedDict, override
 
 from starlette import status
 from starlette.endpoints import HTTPEndpoint
@@ -37,11 +37,23 @@ SupportedMediaTypes: TypeAlias = tuple[
 ]
 
 
+class LinkHeaderItem(TypedDict):
+  """
+    A Link header item definition.
+  """
+  route_name: str
+  rel: str
+  type: NotRequired[str]
+  title: NotRequired[str]
+
+
+LinkHeaderItems: TypeAlias = tuple[LinkHeaderItem, ...]
+
+
 class HTTPEndpointBase(HTTPEndpoint, ABC):
   """
     A base class for common HTTP endpoint behavior in the cbrws web service.
   """
-  LINK_HEADER_ITEMS: tuple[dict[str, str], ...] = ()
 
   @classmethod
   def allowed_methods(cls) -> HTTPMethods:
@@ -98,13 +110,13 @@ class HTTPEndpointBase(HTTPEndpoint, ABC):
 
 
   @classmethod
-  def link_header_items(cls, request: Request) -> tuple[dict[str, str], ...]:
+  def link_header_items(cls, request: Request) -> LinkHeaderItems:
     """
       Generate Link header item definitions.
       :param request: The HTTP request
       :return: A tuple of Link header item definitions
     """
-    return cls.LINK_HEADER_ITEMS
+    return ()
 
   @classmethod
   def link_header(cls, request: Request) -> str:

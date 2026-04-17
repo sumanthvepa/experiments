@@ -4,7 +4,11 @@
 """
 from starlette.requests import Request
 
-from cbrws.http_endpoint_base import HTTPEndpointBase, SupportedMediaTypes
+from cbrws.http_endpoint_base import (
+  HTTPEndpointBase,
+  LinkHeaderItems,
+  SupportedMediaTypes
+)
 from cbrws.url_util import public_url_for
 
 
@@ -65,7 +69,7 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
     return 'application/schema+json'
 
   @classmethod
-  def link_header_items(cls, request: Request) -> tuple[dict[str, str], ...]:
+  def link_header_items(cls, request: Request) -> LinkHeaderItems:
     """
       Generate Link header item definitions for API responses.
       :param request: The HTTP request
