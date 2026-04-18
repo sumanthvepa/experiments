@@ -88,6 +88,16 @@ class TestHelper(RequireAsserts):
     return 'application/ld+json'
 
   @property
+  def profile_link_title(self) -> str:
+    """ Expected title for the profile Link header item. """
+    return 'API version identifier(URI) for the cbrws web service'
+
+  @property
+  def documentation_link_title(self) -> str:
+    """ Expected title for the documentation Link header item. """
+    return 'Documentation for the cbrws web service API'
+
+  @property
   def schema_media_type(self) -> str:
     """ Expected media type for the cbrws web service schema. """
     return 'application/schema+json'
@@ -162,7 +172,7 @@ class TestHelper(RequireAsserts):
         url=self.profile_url,
         rel='profile',
         media_type='application/ld+json',
-        title='API version identifier(URI) for the cbrws web service'),
+        title=self.profile_link_title),
       'describedBy': Link(
         url=self.schema_url,
         rel='describedBy',
@@ -172,7 +182,7 @@ class TestHelper(RequireAsserts):
         url=self.schema_url,
         rel='documentation',
         media_type='text/html',
-        title='Documentation for the cbrws web service API')
+        title=self.documentation_link_title)
     }
     for rel, link in expected_links.items():
       self.assertIn(rel, actual_links)

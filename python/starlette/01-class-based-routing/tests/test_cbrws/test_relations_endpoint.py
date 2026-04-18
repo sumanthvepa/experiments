@@ -11,10 +11,10 @@ from starlette.routing import Route
 from starlette.testclient import TestClient
 
 from cbrws.application import app
-from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.api_documentation_endpoint import APIDocumentationEndpoint
 from cbrws.config import Settings
-from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
-from cbrws.relations_endpoint import RelationsEndpoint
+from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
+from cbrws.relations_schema_endpoint import RelationsSchemaEndpoint
 from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
 
@@ -63,8 +63,8 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
     self.check_content_type(response, self.schema_media_type)
     self.check_link(response)
     expected_data = self.load_json(
-      CBRWSV1ProfileEndpoint,
-      str(Path(CBRWSV1ProfileEndpoint.schema_dir()) / 'relations-v1.json'),
+      APIDocumentationEndpoint,
+      str(Path(APIDocumentationEndpoint.schema_dir()) / 'relations-v1.json'),
       {
         'profile_url': self.profile_url,
         'relations_url': self.profile_url + '/rels/',
@@ -132,7 +132,7 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
       Test that response negotiation uses declared media types.
       :return: None
     """
-    class CustomRelationsEndpoint(RelationsEndpoint):
+    class CustomRelationsEndpoint(RelationsSchemaEndpoint):
       """
         A relations endpoint with a deliberately restricted media type list.
       """
@@ -157,7 +157,7 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
             CustomRelationsEndpoint,
             name='relations_endpoint'),
       Route('/profiles/cbrws/v1',
-            CBRWSV1ProfileEndpoint,
+            APIDocumentationEndpoint,
             name='profile_endpoint')
     ])
     test_app.state.settings = Settings(

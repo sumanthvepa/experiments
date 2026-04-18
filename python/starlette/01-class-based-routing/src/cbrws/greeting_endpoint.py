@@ -7,11 +7,11 @@ from starlette.responses import JSONResponse
 from starlette import status
 
 from cbrws.accept_util import select_media_type
-from cbrws.cbrws_base_endpoint import CBRWSBaseEndpoint
+from cbrws.functional_endpoint import FunctionalEndpoint
 from cbrws.url_util import public_url_for
 
 
-class GreetingEndpoint(CBRWSBaseEndpoint):
+class GreetingEndpoint(FunctionalEndpoint):
   """
     A URL handler for the /api/greeting URL of the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
@@ -42,7 +42,7 @@ class GreetingEndpoint(CBRWSBaseEndpoint):
         'up': {
           'href': public_url_for(request, 'api_endpoint'),
           'type': cls.response_media_type(),
-          'profile': CBRWSBaseEndpoint.profile_url(request)
+          'profile': FunctionalEndpoint.profile_url(request)
         }
       }
     }

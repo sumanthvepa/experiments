@@ -10,11 +10,11 @@ from starlette import status
 from starlette.testclient import TestClient
 
 from cbrws.api_endpoint import APIEndpoint
-from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.api_documentation_endpoint import APIDocumentationEndpoint
 from cbrws.config import Settings
 from cbrws.greeting_endpoint import GreetingEndpoint
-from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
-from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
+from cbrws.greeting_documentation_endpoint import GreetingDocumentationEndpoint
+from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
 from test_cbrws.test_helper import TestHelper
 
 
@@ -96,9 +96,9 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
     app = Starlette(routes=[
       Route('/api', APIEndpoint, name='api_endpoint'),
       Route('/api/greeting', CustomGreetingEndpoint, name='greeting_endpoint'),
-      Route('/profiles/cbrws/v1', CBRWSV1ProfileEndpoint, name='profile_endpoint'),
+      Route('/profiles/cbrws/v1', APIDocumentationEndpoint, name='profile_endpoint'),
       Route('/profiles/cbrws/v1/rels/greeting',
-            GreetingRelationProfileEndpoint,
+            GreetingDocumentationEndpoint,
             name='greeting_relation_endpoint')
     ])
     app.state.settings = Settings(

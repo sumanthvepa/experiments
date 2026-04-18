@@ -7,7 +7,7 @@ from pathlib import Path
 
 from starlette import status
 
-from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.api_documentation_endpoint import APIDocumentationEndpoint
 from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
 
@@ -59,8 +59,8 @@ class TestGreetingRelationProfileEndpoint(unittest.TestCase, TestHelper):
     self.check_content_type(response, self.schema_media_type)
     self.check_link(response)
     expected_data = self.load_json(
-      CBRWSV1ProfileEndpoint,
-      str(Path(CBRWSV1ProfileEndpoint.schema_dir()) / 'greeting-rel-v1.json'),
+      APIDocumentationEndpoint,
+      str(Path(APIDocumentationEndpoint.schema_dir()) / 'greeting-rel-v1.json'),
       {
         'profile_url': self.profile_url,
         'relations_url': self.profile_url + '/rels/',

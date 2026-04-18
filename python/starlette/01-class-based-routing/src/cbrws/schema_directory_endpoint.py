@@ -1,14 +1,14 @@
 """
-  profile_directory_endpoint.py: Base class for profile directory URLs in
+  schema_directory_endpoint.py: Base class for profile directory URLs in
   the cbrws web service.
 """
 from abc import ABC
 
-from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
-from cbrws.profile_endpoint_base import ProfileEndpointBase
+from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
+from cbrws.documentation_endpoint import DocumentationEndpoint
 
 
-class ProfileDirectoryEndpoint(ProfileEndpointBase, ABC):
+class SchemaDirectoryEndpoint(DocumentationEndpoint, ABC):
   """
     A base class for profile directory URLs in the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.

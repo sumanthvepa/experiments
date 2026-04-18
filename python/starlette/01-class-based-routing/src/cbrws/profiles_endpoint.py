@@ -4,17 +4,17 @@
 """
 from starlette.requests import Request
 
-from cbrws.http_endpoint_base import LinkHeaderItem, LinkHeaderItems
-from cbrws.profile_endpoint_base import (
+from cbrws.http_endpoint import LinkHeaderItem, LinkHeaderItems
+from cbrws.documentation_endpoint import (
   HTMLFilename,
   JSONFilename,
   make_html_filename,
   make_json_filename
 )
-from cbrws.profile_directory_endpoint import ProfileDirectoryEndpoint
+from cbrws.schema_directory_endpoint import SchemaDirectoryEndpoint
 
 
-class ProfilesEndpoint(ProfileDirectoryEndpoint):
+class ProfilesEndpoint(SchemaDirectoryEndpoint):
   """
     A URL handler for the /profiles/ URL of the cbrws web service.
 
@@ -52,10 +52,10 @@ class ProfilesEndpoint(ProfileDirectoryEndpoint):
       LinkHeaderItem(
         route_name='profiles_endpoint',
         rel='self',
-        type=ProfileDirectoryEndpoint.response_media_type()),
+        type=SchemaDirectoryEndpoint.response_media_type()),
       LinkHeaderItem(
         route_name='cbrws_profiles_endpoint',
         rel='item',
-        type=ProfileDirectoryEndpoint.response_media_type(),
+        type=SchemaDirectoryEndpoint.response_media_type(),
         title='CBRWS profile family')
     )

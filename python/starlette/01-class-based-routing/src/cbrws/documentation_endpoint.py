@@ -1,5 +1,5 @@
 """
-  profile_endpoint_base.py: Base class for profile URLs in the cbrws
+  documentation_endpoint.py: Base class for profile URLs in the cbrws
   web service.
 """
 from abc import abstractmethod
@@ -13,7 +13,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 
 from cbrws.accept_util import select_media_type
-from cbrws.http_endpoint_base import HTTPEndpointBase
+from cbrws.http_endpoint import HTTPEndpoint
 from cbrws.url_util import public_url_for
 
 
@@ -55,10 +55,10 @@ def make_schema_dir(value: Path) -> SchemaDir:
   return SchemaDir(value)
 
 
-class ProfileEndpointBase(HTTPEndpointBase):
+class DocumentationEndpoint(HTTPEndpoint):
   """
-    A base class for profile URLs in the cbrws web service.
-    It handles GET, HEAD, and OPTIONS requests.
+    A base class for endpoints that return documentation about
+    the API and are not part of the API itself.
 
     For the GET request it returns either text/html or the configured
     JSON media type depending on the Accept header of the request.

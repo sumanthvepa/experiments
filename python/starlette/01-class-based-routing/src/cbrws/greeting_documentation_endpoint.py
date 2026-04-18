@@ -1,20 +1,22 @@
 """
-  greeting_relation_profile_endpoint.py: URL handler for the
+  greeting_documentation_endpoint.py: URL handler for the
   /profiles/cbrws/v1/rels/greeting URL of the cbrws web service.
 """
 from starlette.requests import Request
 
-from cbrws.http_endpoint_base import LinkHeaderItem, LinkHeaderItems
-from cbrws.profile_endpoint_base import (
+from cbrws.http_endpoint import LinkHeaderItem, LinkHeaderItems
+from cbrws.documentation_endpoint import (
   HTMLFilename,
   JSONFilename,
   make_html_filename,
   make_json_filename
 )
-from cbrws.profile_schema_endpoint import LiteralContext, ProfileSchemaEndpoint
+from cbrws.schema_endpoint import LiteralContext, SchemaEndpoint
+
+from cbrws.greeting_endpoint import GreetingEndpoint
 
 
-class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
+class GreetingDocumentationEndpoint(SchemaEndpoint):
   """
     A URL handler for the /profiles/cbrws/v1/rels/greeting URL of the
     cbrws web service.
@@ -70,7 +72,7 @@ class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
       LinkHeaderItem(
         route_name='profile_endpoint',
         rel='describedBy',
-        type=ProfileSchemaEndpoint.response_media_type(),
+        type=cls.response_media_type(),
         title='JSON schema of the response'),
       LinkHeaderItem(
         route_name='profile_endpoint',
@@ -87,5 +89,5 @@ class GreetingRelationProfileEndpoint(ProfileSchemaEndpoint):
       :return: A dictionary of template variables
     """
     context = super().context(request)
-    context['resource_media_type'] = 'application/hal+json'
+    context['resource_media_type'] = GreetingEndpoint.response_media_type()
     return context

@@ -1,11 +1,11 @@
 """
-  cbrws_base_endpoint.py: Base class for API endpoints in the cbrws
+  functional_endpoint.py: Base class for API endpoints in the cbrws
   web service.
 """
 from starlette.requests import Request
 
-from cbrws.http_endpoint_base import (
-  HTTPEndpointBase,
+from cbrws.http_endpoint import (
+  HTTPEndpoint,
   LinkHeaderItem,
   LinkHeaderItems,
   ResponseMediaType,
@@ -14,14 +14,14 @@ from cbrws.http_endpoint_base import (
 from cbrws.url_util import public_url_for
 
 
-class CBRWSBaseEndpoint(HTTPEndpointBase):
+class FunctionalEndpoint(HTTPEndpoint):
   """
-  A base class for the API endpoints (/ and /api) in the cbrws
-  web service.
+  A base class for endpoints that are actual functional endpoints
+  of the web service. They only return HAL+JSON responses.
 
   This class provides common functionality for API endpoints
-  / and /api, such as generating profile URLs and handling
-  common response structures. It is not intended to be used
+  /, /api, and /greeting such as generating profile URLs and
+  handling common response structures. It is not intended to be used
   directly, but rather as a base class for RootEndpoint and
   APIEndpoint classes.
   """
@@ -50,7 +50,7 @@ class CBRWSBaseEndpoint(HTTPEndpointBase):
       :param request: The HTTP request
       :return: A string representing the schema URL
     """
-    return CBRWSBaseEndpoint.profile_url(request)
+    return FunctionalEndpoint.profile_url(request)
 
   @classmethod
   def response_media_type(cls) -> ResponseMediaType:

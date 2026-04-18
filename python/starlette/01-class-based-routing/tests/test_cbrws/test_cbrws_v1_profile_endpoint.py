@@ -7,7 +7,7 @@ from pathlib import Path
 
 from starlette import status
 
-from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.api_documentation_endpoint import APIDocumentationEndpoint
 from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
 
@@ -22,6 +22,22 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
       :return: The CBRWS v1 profile endpoint URL
     """
     return '/profiles/cbrws/v1'
+
+  @property
+  def profile_link_title(self) -> str:
+    """
+      Expected title for the profile Link header item.
+      :return: The CBRWS v1 profile link title
+    """
+    return 'Documentation for V1 of the CBRWS web service API'
+
+  @property
+  def documentation_link_title(self) -> str:
+    """
+      Expected title for the documentation Link header item.
+      :return: The CBRWS v1 documentation link title
+    """
+    return 'Documentation for V1 of the CBRWS web service API'
 
   def test_get_html(self) -> None:
     """
@@ -55,8 +71,8 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
     self.check_content_type(response, self.schema_media_type)
     self.check_link(response)
     expected_data = self.load_json(
-      CBRWSV1ProfileEndpoint,
-      str(Path(CBRWSV1ProfileEndpoint.schema_dir()) / 'api-profile-v1.json'),
+      APIDocumentationEndpoint,
+      str(Path(APIDocumentationEndpoint.schema_dir()) / 'api-profile-v1.json'),
       {
         'profile_url': self.profile_url,
         'schema_url': self.schema_url,

@@ -15,11 +15,11 @@ from cbrws.logging_config import AccessLogMiddleware
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
 from cbrws.greeting_endpoint import GreetingEndpoint
-from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
-from cbrws.relations_endpoint import RelationsEndpoint
+from cbrws.greeting_documentation_endpoint import GreetingDocumentationEndpoint
+from cbrws.relations_schema_endpoint import RelationsSchemaEndpoint
 from cbrws.profiles_endpoint import ProfilesEndpoint
-from cbrws.cbrws_profiles_endpoint import CBRWSProfilesEndpoint
-from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.cbrws_profiles_endpoint import CBRWSSchemaDirectoryEndpoint
+from cbrws.api_documentation_endpoint import APIDocumentationEndpoint
 from cbrws.not_found import not_found
 
 
@@ -37,15 +37,15 @@ routes: list[Route] = [
         endpoint=ProfilesEndpoint,
         name='profiles_endpoint'),
   Route('/profiles/cbrws/v1/rels/',
-        endpoint=RelationsEndpoint,
+        endpoint=RelationsSchemaEndpoint,
         name='relations_endpoint'),
   Route('/profiles/cbrws/v1/rels/greeting',
-        endpoint=GreetingRelationProfileEndpoint,
+        endpoint=GreetingDocumentationEndpoint,
         name='greeting_relation_endpoint'),
-  Route('/profiles/cbrws', endpoint=CBRWSProfilesEndpoint,
+  Route('/profiles/cbrws', endpoint=CBRWSSchemaDirectoryEndpoint,
         name='cbrws_profiles_endpoint'),
   Route('/profiles/cbrws/v1',
-        endpoint=CBRWSV1ProfileEndpoint,
+        endpoint=APIDocumentationEndpoint,
         name='profile_endpoint')
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}

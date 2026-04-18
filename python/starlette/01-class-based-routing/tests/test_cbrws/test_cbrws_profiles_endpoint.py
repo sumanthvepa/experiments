@@ -8,7 +8,7 @@ from pathlib import Path
 from httpx import Response
 from starlette import status
 
-from cbrws.cbrws_profiles_endpoint import CBRWSProfilesEndpoint
+from cbrws.cbrws_profiles_endpoint import CBRWSSchemaDirectoryEndpoint
 from test_cbrws.link_header import Link, parse
 from test_cbrws.test_helper import TestHelper
 
@@ -102,8 +102,8 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_allow(response)
     self.check_cbrws_profiles_link(response)
     expected_data = self.load_json(
-      CBRWSProfilesEndpoint,
-      str(Path(CBRWSProfilesEndpoint.schema_dir()) / 'cbrws-profiles.json'),
+      CBRWSSchemaDirectoryEndpoint,
+      str(Path(CBRWSSchemaDirectoryEndpoint.schema_dir()) / 'cbrws-profiles.json'),
       self.template_context)
     self.assertDictEqual(response.json(), expected_data)
 
@@ -121,8 +121,8 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_allow(response)
     self.check_cbrws_profiles_link(response)
     expected_data = self.load_json(
-      CBRWSProfilesEndpoint,
-      str(Path(CBRWSProfilesEndpoint.schema_dir()) / 'cbrws-profiles.json'),
+      CBRWSSchemaDirectoryEndpoint,
+      str(Path(CBRWSSchemaDirectoryEndpoint.schema_dir()) / 'cbrws-profiles.json'),
       self.template_context)
     self.assertDictEqual(response.json(), expected_data)
 
@@ -140,8 +140,8 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_allow(response)
     self.check_cbrws_profiles_link(response)
     expected_html = self.load_file(
-      CBRWSProfilesEndpoint,
-      str(Path(CBRWSProfilesEndpoint.schema_dir()) / 'cbrws-profiles.jinja2'),
+      CBRWSSchemaDirectoryEndpoint,
+      str(Path(CBRWSSchemaDirectoryEndpoint.schema_dir()) / 'cbrws-profiles.jinja2'),
       self.template_context)
     self.assertEqual(expected_html, response.text)
 

@@ -1,5 +1,5 @@
 """
-  profile_schema_endpoint.py: Base class for profile schema URLs in the
+  schema_endpoint.py: Base class for profile schema URLs in the
   cbrws web service.
 """
 from abc import ABC
@@ -7,14 +7,14 @@ from typing import TypeAlias
 
 from starlette.requests import Request
 
-from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
-from cbrws.profile_endpoint_base import ProfileEndpointBase
+from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
+from cbrws.documentation_endpoint import DocumentationEndpoint
 
 
 LiteralContext: TypeAlias = dict[str, str]
 
 
-class ProfileSchemaEndpoint(ProfileEndpointBase, ABC):
+class SchemaEndpoint(DocumentationEndpoint, ABC):
   """
     A base class for profile schema URLs in the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.

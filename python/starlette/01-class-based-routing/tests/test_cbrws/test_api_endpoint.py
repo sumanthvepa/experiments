@@ -10,18 +10,20 @@ from starlette import status
 from starlette.testclient import TestClient
 
 from cbrws.api_endpoint import APIEndpoint
-from cbrws.cbrws_v1_profile_endpoint import CBRWSV1ProfileEndpoint
+from cbrws.api_documentation_endpoint import APIDocumentationEndpoint
 from cbrws.config import Settings
 from cbrws.greeting_endpoint import GreetingEndpoint
-from cbrws.greeting_relation_profile_endpoint import GreetingRelationProfileEndpoint
-from cbrws.http_endpoint_base import ResponseMediaType, SupportedMediaTypes
-from cbrws.relations_endpoint import RelationsEndpoint
+from cbrws.greeting_documentation_endpoint import GreetingDocumentationEndpoint
+from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
+from cbrws.relations_schema_endpoint import RelationsSchemaEndpoint
+
 from test_cbrws.test_helper import TestHelper
 
 
 class TestAPIEndpoint(unittest.TestCase, TestHelper):
   """
-    Unit tests for the / route of the cbrws webservice
+    Unit tests for the /api route of the cbrws webservice
+    The class being tested is APIEndpoint
   """
   @property
   def endpoint_url(self) -> str:
@@ -90,10 +92,10 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
     app = Starlette(routes=[
       Route('/api', APIEndpoint, name='api_endpoint'),
       Route('/api/greeting', GreetingEndpoint, name='greeting_endpoint'),
-      Route('/profiles/cbrws/v1', CBRWSV1ProfileEndpoint, name='profile_endpoint'),
-      Route('/profiles/cbrws/v1/rels/', RelationsEndpoint, name='relations_endpoint'),
+      Route('/profiles/cbrws/v1', APIDocumentationEndpoint, name='profile_endpoint'),
+      Route('/profiles/cbrws/v1/rels/', RelationsSchemaEndpoint, name='relations_endpoint'),
       Route('/profiles/cbrws/v1/rels/greeting',
-            GreetingRelationProfileEndpoint,
+            GreetingDocumentationEndpoint,
             name='greeting_relation_endpoint')
     ])
     app.state.settings = Settings(
@@ -147,10 +149,10 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
     app = Starlette(routes=[
       Route('/api', CustomAPIEndpoint, name='api_endpoint'),
       Route('/api/greeting', GreetingEndpoint, name='greeting_endpoint'),
-      Route('/profiles/cbrws/v1', CBRWSV1ProfileEndpoint, name='profile_endpoint'),
-      Route('/profiles/cbrws/v1/rels/', RelationsEndpoint, name='relations_endpoint'),
+      Route('/profiles/cbrws/v1', APIDocumentationEndpoint, name='profile_endpoint'),
+      Route('/profiles/cbrws/v1/rels/', RelationsSchemaEndpoint, name='relations_endpoint'),
       Route('/profiles/cbrws/v1/rels/greeting',
-            GreetingRelationProfileEndpoint,
+            GreetingDocumentationEndpoint,
             name='greeting_relation_endpoint')
     ])
     app.state.settings = Settings(

@@ -1,12 +1,12 @@
 """
-  http_endpoint_base.py: Common base class for cbrws HTTP endpoints.
+  http_endpoint.py: Common base class for cbrws HTTP endpoints.
 """
 from abc import ABC, abstractmethod
 import logging
 from typing import Literal, NotRequired, TypeAlias, TypedDict, override
 
 from starlette import status
-from starlette.endpoints import HTTPEndpoint
+from starlette.endpoints import HTTPEndpoint as StarletteHTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -50,7 +50,7 @@ class LinkHeaderItem(TypedDict):
 LinkHeaderItems: TypeAlias = tuple[LinkHeaderItem, ...]
 
 
-class HTTPEndpointBase(HTTPEndpoint, ABC):
+class HTTPEndpoint(StarletteHTTPEndpoint, ABC):
   """
     A base class for common HTTP endpoint behavior in the cbrws web service.
   """
@@ -67,7 +67,7 @@ class HTTPEndpointBase(HTTPEndpoint, ABC):
 
       :return: A tuple of allowed HTTP methods
     """
-    return ('GET', 'HEAD', 'OPTIONS')
+    return 'GET', 'HEAD', 'OPTIONS'
 
   @classmethod
   def allow_header(cls) -> str:
@@ -119,7 +119,7 @@ class HTTPEndpointBase(HTTPEndpoint, ABC):
     """
     return 'application/problem+json'
 
-
+  # pylint: disable=unused-argument
   @classmethod
   def link_header_items(cls, request: Request) -> LinkHeaderItems:
     """
