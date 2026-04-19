@@ -6,10 +6,10 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from starlette import status
 
-from cbrws.functional_endpoint import FunctionalEndpoint
+from cbrws.service_endpoint import ServiceEndpoint
 
 
-class RootEndpoint(FunctionalEndpoint):
+class RootEndpoint(ServiceEndpoint):
   """
     A URL handler for the root URL of the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
