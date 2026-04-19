@@ -39,7 +39,7 @@ class APIEndpoint(ServiceEndpoint):
         'self': {
           'href': public_url_for(request, 'api_endpoint'),
           'type': cls.response_media_type(),
-          'profile': ServiceEndpoint.profile_url(request)
+          'profile': ServiceEndpoint.schema_url(request)
         },
         'curies': [
           {
@@ -47,7 +47,7 @@ class APIEndpoint(ServiceEndpoint):
             'href': public_url_for(request, 'relations_endpoint') + '{rel}',
             'templated': True,
             'type': ServiceEndpoint.schema_media_type(),
-            'profile': ServiceEndpoint.profile_url(request)
+            'profile': ServiceEndpoint.schema_url(request)
           }
         ],
         'cbrws:greeting': {

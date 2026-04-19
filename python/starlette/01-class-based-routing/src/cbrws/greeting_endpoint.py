@@ -42,7 +42,7 @@ class GreetingEndpoint(ServiceEndpoint):
         'up': {
           'href': public_url_for(request, 'api_endpoint'),
           'type': cls.response_media_type(),
-          'profile': ServiceEndpoint.profile_url(request)
+          'profile': ServiceEndpoint.schema_url(request)
         }
       }
     }

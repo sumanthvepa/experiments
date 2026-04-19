@@ -34,14 +34,13 @@ class ServiceEndpoint(HTTPEndpoint):
     """
     return ('application/hal+json',)
 
-  @staticmethod
-  def profile_url(request: Request) -> str:
+  @classmethod
+  def response_media_type(cls) -> ResponseMediaType:
     """
-      Generate the profile URL for the cbrws web service.
-      :param request: The HTTP request
-      :return: A string representing the profile URL
+      Return the media type for cbrws API responses.
+      :return: A string representing the response media type
     """
-    return public_url_for(request, 'profile_endpoint')
+    return 'application/hal+json'
 
   @staticmethod
   def schema_url(request: Request) -> str:
@@ -50,15 +49,8 @@ class ServiceEndpoint(HTTPEndpoint):
       :param request: The HTTP request
       :return: A string representing the schema URL
     """
-    return ServiceEndpoint.profile_url(request)
+    return public_url_for(request, 'profile_endpoint')
 
-  @classmethod
-  def response_media_type(cls) -> ResponseMediaType:
-    """
-      Return the media type for cbrws API responses.
-      :return: A string representing the response media type
-    """
-    return 'application/hal+json'
 
   @staticmethod
   def schema_media_type() -> str:
