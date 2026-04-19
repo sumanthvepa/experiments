@@ -1,5 +1,5 @@
 """
-  cbrws_profiles_endpoint.py: URL handler for the /profiles/cbrws URL of
+  cbrws_directory_endpoint.py: URL handler for the /profiles/cbrws URL of
   the cbrws web service.
 """
 from starlette.requests import Request
@@ -11,20 +11,23 @@ from cbrws.documentation_endpoint import (
   make_html_filename,
   make_json_filename
 )
-from cbrws.schema_directory_endpoint import SchemaDirectoryEndpoint
+from cbrws.documentation_directory_endpoint import DocumentationDirectoryEndpoint
+from cbrws.url_util import public_url_for
 
 
-class CBRWSSchemaDirectoryEndpoint(SchemaDirectoryEndpoint):
+class CBRWSDirectoryEndpoint(DocumentationDirectoryEndpoint):
   """
     A URL handler for the /profiles/cbrws URL of the cbrws web service.
 
     This endpoint lists the versions of the CBRWS profile supported by
     the service.
   """
-  URL_CONTEXT = {
-    'cbrws_profile_url': 'cbrws_profiles_endpoint',
-    'cbrws_v1_profile_url': 'profile_endpoint'
-  }
+  @classmethod
+  def context(cls, request: Request) -> dict[str, str]:
+    return {
+      'cbrws_profile_url': public_url_for(request, 'cbrws_profiles_endpoint'),
+      'cbrws_v1_profile_url': public_url_for(request, 'profile_endpoint')
+    }
 
   @classmethod
   def html_filename(cls) -> HTMLFilename:
@@ -53,7 +56,7 @@ class CBRWSSchemaDirectoryEndpoint(SchemaDirectoryEndpoint):
       LinkHeaderItem(
         route_name='cbrws_profiles_endpoint',
         rel='self',
-        type=SchemaDirectoryEndpoint.response_media_type()),
+        type=cls.response_media_type()),
       LinkHeaderItem(
         route_name='profile_endpoint',
         rel='item',

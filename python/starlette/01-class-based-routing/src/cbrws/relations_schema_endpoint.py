@@ -11,7 +11,8 @@ from cbrws.documentation_endpoint import (
   make_html_filename,
   make_json_filename
 )
-from cbrws.schema_endpoint import LiteralContext, SchemaEndpoint
+from cbrws.schema_endpoint import SchemaEndpoint
+from cbrws.url_util import public_url_for
 
 
 class RelationsSchemaEndpoint(SchemaEndpoint):
@@ -23,19 +24,15 @@ class RelationsSchemaEndpoint(SchemaEndpoint):
     'application/schema+json' depending on the Accept header.
   """
   RELATIONS_PATH = '/profiles/cbrws/v1/rels/'
-  URL_CONTEXT = {
-    'profile_url': 'profile_endpoint',
-    'relations_url': 'relations_endpoint',
-    'greeting_relation_url': 'greeting_relation_endpoint'
-  }
 
   @classmethod
-  def literal_context(cls) -> LiteralContext:
-    """
-      Return literal template context values for the endpoint.
-      :return: A dictionary of template variables
-    """
+  def context(cls, request: Request) -> dict[str, str]:
     return {
+      'profile_url': public_url_for(request, 'profile_endpoint'),
+      'relations_url': public_url_for(request, 'relations_endpoint'),
+      'greeting_relation_url': public_url_for(
+        request,
+        'greeting_relation_endpoint'),
       'title': 'CBRWS v1 Relations'
     }
 

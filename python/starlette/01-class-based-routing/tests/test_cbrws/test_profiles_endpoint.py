@@ -8,7 +8,7 @@ from pathlib import Path
 from httpx import Response
 from starlette import status
 
-from cbrws.profiles_endpoint import ProfilesEndpoint
+from cbrws.profiles_directory_endpoint import ProfilesDirectoryEndpoint
 from test_cbrws.link_header import Link, parse
 from test_cbrws.test_helper import TestHelper
 
@@ -102,8 +102,8 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_allow(response)
     self.check_profiles_link(response)
     expected_data = self.load_json(
-      ProfilesEndpoint,
-      str(Path(ProfilesEndpoint.schema_dir()) / 'profiles.json'),
+      ProfilesDirectoryEndpoint,
+      str(Path(ProfilesDirectoryEndpoint.schema_dir()) / 'profiles.json'),
       self.template_context)
     self.assertDictEqual(response.json(), expected_data)
 
@@ -121,8 +121,8 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_allow(response)
     self.check_profiles_link(response)
     expected_data = self.load_json(
-      ProfilesEndpoint,
-      str(Path(ProfilesEndpoint.schema_dir()) / 'profiles.json'),
+      ProfilesDirectoryEndpoint,
+      str(Path(ProfilesDirectoryEndpoint.schema_dir()) / 'profiles.json'),
       self.template_context)
     self.assertDictEqual(response.json(), expected_data)
 
@@ -140,8 +140,8 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.check_allow(response)
     self.check_profiles_link(response)
     expected_html = self.load_file(
-      ProfilesEndpoint,
-      str(Path(ProfilesEndpoint.schema_dir()) / 'profiles.jinja2'),
+      ProfilesDirectoryEndpoint,
+      str(Path(ProfilesDirectoryEndpoint.schema_dir()) / 'profiles.jinja2'),
       self.template_context)
     self.assertEqual(expected_html, response.text)
 

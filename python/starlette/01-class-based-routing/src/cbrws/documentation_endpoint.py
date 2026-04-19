@@ -63,7 +63,6 @@ class DocumentationEndpoint(HTTPEndpoint):
     For the GET request it returns either text/html or the configured
     JSON media type depending on the Accept header of the request.
   """
-  URL_CONTEXT: dict[str, str] = {}
   HTML_ENVIRONMENT = Environment(
     autoescape=select_autoescape(['html', 'jinja2']))
   JSON_ENVIRONMENT = Environment(autoescape=False)
@@ -155,16 +154,19 @@ class DocumentationEndpoint(HTTPEndpoint):
     return make_schema_dir(Path(__file__).resolve().parent / 'schemas')
 
   @classmethod
+  @abstractmethod
   def context(cls, request: Request) -> dict[str, str]:
     """
-      Generate the template context for the profile response.
-      :param request: The HTTP request
-      :return: A dictionary of template variables
+      Return the template context for the endpoint.
+
+      This is a dictionary consisting of the values for all template
+      variables used to render the endpoint. The keys are the template
+      variables and the values are the values those template variables
+      should have.
+
+    :return:
+      The context for the endpoint
     """
-    return {
-      key: public_url_for(request, route_name)
-      for key, route_name in cls.URL_CONTEXT.items()
-    }
 
   @classmethod
   def negotiate_media_type(cls, request: Request) -> str | None:

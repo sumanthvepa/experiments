@@ -8,6 +8,7 @@ from pathlib import Path
 
 from starlette import status
 from starlette.applications import Starlette
+from starlette.requests import Request
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
@@ -102,6 +103,14 @@ class TestProfileEndpointBase(unittest.TestCase):
           :return: A JSON filename
         """
         return make_json_filename('custom.json')
+
+      @classmethod
+      def context(cls, request: Request) -> dict[str, str]:
+        """
+          Return the template context for the endpoint.
+          :return: The template context
+        """
+        return {}
 
       @classmethod
       def allowed_methods(cls) -> HTTPMethods:
@@ -252,6 +261,14 @@ class TestProfileEndpointBase(unittest.TestCase):
           """
           return make_json_filename('custom.json')
 
+        @classmethod
+        def context(cls, request: Request) -> dict[str, str]:
+          """
+            Return the template context for the endpoint.
+            :return: The template context
+          """
+          return {}
+
       app = Starlette(routes=[
         Route('/custom', CustomProfileEndpoint, name='custom_endpoint')
       ])
@@ -310,6 +327,14 @@ class TestProfileEndpointBase(unittest.TestCase):
           :return: A JSON filename
         """
         return make_json_filename('custom.json')
+
+      @classmethod
+      def context(cls, request: Request) -> dict[str, str]:
+        """
+          Return the template context for the endpoint.
+          :return: The template context
+        """
+        return {}
 
       @classmethod
       async def load_html(cls, filename: str, context: dict[str, str]) -> str:

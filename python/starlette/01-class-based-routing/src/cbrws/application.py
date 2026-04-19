@@ -17,9 +17,9 @@ from cbrws.api_endpoint import APIEndpoint
 from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.greeting_documentation_endpoint import GreetingDocumentationEndpoint
 from cbrws.relations_schema_endpoint import RelationsSchemaEndpoint
-from cbrws.profiles_endpoint import ProfilesEndpoint
-from cbrws.cbrws_profiles_endpoint import CBRWSSchemaDirectoryEndpoint
-from cbrws.api_documentation_endpoint import APIDocumentationEndpoint
+from cbrws.profiles_directory_endpoint import ProfilesDirectoryEndpoint
+from cbrws.cbrws_directory_endpoint import CBRWSDirectoryEndpoint
+from cbrws.cbrws_v1_schema_endpoint import CBRWSV1SchemaEndpoint
 from cbrws.not_found import not_found
 
 
@@ -34,7 +34,7 @@ routes: list[Route] = [
         endpoint=GreetingEndpoint,
         name='greeting_endpoint'),
   Route('/profiles/',
-        endpoint=ProfilesEndpoint,
+        endpoint=ProfilesDirectoryEndpoint,
         name='profiles_endpoint'),
   Route('/profiles/cbrws/v1/rels/',
         endpoint=RelationsSchemaEndpoint,
@@ -42,10 +42,10 @@ routes: list[Route] = [
   Route('/profiles/cbrws/v1/rels/greeting',
         endpoint=GreetingDocumentationEndpoint,
         name='greeting_relation_endpoint'),
-  Route('/profiles/cbrws', endpoint=CBRWSSchemaDirectoryEndpoint,
+  Route('/profiles/cbrws', endpoint=CBRWSDirectoryEndpoint,
         name='cbrws_profiles_endpoint'),
   Route('/profiles/cbrws/v1',
-        endpoint=APIDocumentationEndpoint,
+        endpoint=CBRWSV1SchemaEndpoint,
         name='profile_endpoint')
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}

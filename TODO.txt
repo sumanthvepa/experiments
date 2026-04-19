@@ -1,4 +1,4 @@
-*issue238-python-starlette-01-cbrws-asgi-refactor-class-hierarchy: Refactor the class hierarchy to be more intuitive and prepare it for use in a more general web service framework
+*issue238-python-starlette-01-cbrws-refactor-class-hierarchy: Refactor the class hierarchy to be more intuitive and prepare it for use in a more general web service framework
 [DONE]issue237-python-starlette-01-cbrws-asgi-access-log-middleware: Replace AccessLogMiddleware BaseHTTPMiddleware with ASGI middleware
 [DONE]issue236-python-starlette-01-cbrws-link-header-item-typing: Use explicit LinkHeaderItem values for link header hooks
 [DONE]issue235-python-starlette-01-cbrws-schema-dir-contract: Replace schema directory attributes with a typed method contract

@@ -1,5 +1,5 @@
 """
-  api_documentation_endpoint.py: URL handler for the /profiles/cbrws/v1
+  cbrws_v1_schema_endpoint.py: URL handler for the /profiles/cbrws/v1
   URL of the cbrws web service.
 """
 from starlette.requests import Request
@@ -11,27 +11,22 @@ from cbrws.documentation_endpoint import (
   make_html_filename,
   make_json_filename
 )
-from cbrws.schema_endpoint import LiteralContext, SchemaEndpoint
+from cbrws.schema_endpoint import SchemaEndpoint
+from cbrws.url_util import public_url_for
 
 
-class APIDocumentationEndpoint(SchemaEndpoint):
+class CBRWSV1SchemaEndpoint(SchemaEndpoint):
   """
     A URL handler for the /profiles/cbrws/v1 URL of the cbrws web service.
 
     This endpoint describes the concrete v1 CBRWS API profile.
   """
-  URL_CONTEXT = {
-    'profile_url': 'profile_endpoint',
-    'schema_url': 'profile_endpoint'
-  }
-
   @classmethod
-  def literal_context(cls) -> LiteralContext:
-    """
-      Return literal template context values for the endpoint.
-      :return: A dictionary of template variables
-    """
+  def context(cls, request: Request) -> dict[str, str]:
+    profile_url = public_url_for(request, 'profile_endpoint')
     return {
+      'profile_url': profile_url,
+      'schema_url': profile_url,
       'version': '1.0',
       'title': 'CBRWS V1 API Profile'
     }

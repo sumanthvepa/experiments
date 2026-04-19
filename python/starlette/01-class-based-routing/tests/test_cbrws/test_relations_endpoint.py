@@ -11,7 +11,7 @@ from starlette.routing import Route
 from starlette.testclient import TestClient
 
 from cbrws.application import app
-from cbrws.api_documentation_endpoint import APIDocumentationEndpoint
+from cbrws.cbrws_v1_schema_endpoint import CBRWSV1SchemaEndpoint
 from cbrws.config import Settings
 from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
 from cbrws.relations_schema_endpoint import RelationsSchemaEndpoint
@@ -63,8 +63,8 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
     self.check_content_type(response, self.schema_media_type)
     self.check_link(response)
     expected_data = self.load_json(
-      APIDocumentationEndpoint,
-      str(Path(APIDocumentationEndpoint.schema_dir()) / 'relations-v1.json'),
+      CBRWSV1SchemaEndpoint,
+      str(Path(CBRWSV1SchemaEndpoint.schema_dir()) / 'relations-v1.json'),
       {
         'profile_url': self.profile_url,
         'relations_url': self.profile_url + '/rels/',
@@ -157,7 +157,7 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
             CustomRelationsEndpoint,
             name='relations_endpoint'),
       Route('/profiles/cbrws/v1',
-            APIDocumentationEndpoint,
+            CBRWSV1SchemaEndpoint,
             name='profile_endpoint')
     ])
     test_app.state.settings = Settings(

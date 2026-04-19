@@ -11,9 +11,10 @@ from cbrws.documentation_endpoint import (
   make_html_filename,
   make_json_filename
 )
-from cbrws.schema_endpoint import LiteralContext, SchemaEndpoint
+from cbrws.schema_endpoint import SchemaEndpoint
 
 from cbrws.greeting_endpoint import GreetingEndpoint
+from cbrws.url_util import public_url_for
 
 
 class GreetingDocumentationEndpoint(SchemaEndpoint):
@@ -23,20 +24,19 @@ class GreetingDocumentationEndpoint(SchemaEndpoint):
 
     This endpoint describes the cbrws:greeting relation.
   """
-  URL_CONTEXT = {
-    'profile_url': 'profile_endpoint',
-    'relations_url': 'relations_endpoint',
-    'relation_url': 'greeting_relation_endpoint',
-    'resource_url': 'greeting_endpoint'
-  }
-
   @classmethod
-  def literal_context(cls) -> LiteralContext:
+  def context(cls, request: Request) -> dict[str, str]:
     """
-      Return literal template context values for the endpoint.
-      :return: A dictionary of template variables
+    Return the template context for the endpoint.
+    :param request:
+    :return:
     """
     return {
+      'profile_url': public_url_for(request, 'profile_endpoint'),
+      'relations_url': public_url_for(request, 'relations_endpoint'),
+      'relation_url': public_url_for(request, 'greeting_relation_endpoint'),
+      'resource_url': public_url_for(request, 'greeting_endpoint'),
+      'resource_media_type': GreetingEndpoint.response_media_type(),
       'title': 'CBRWS V1 Greeting Relation'
     }
 
@@ -80,14 +80,3 @@ class GreetingDocumentationEndpoint(SchemaEndpoint):
         type='text/html',
         title='Documentation for the cbrws web service API')
     )
-
-  @classmethod
-  def context(cls, request: Request) -> dict[str, str]:
-    """
-      Generate the template context for the greeting relation profile.
-      :param request: The HTTP request
-      :return: A dictionary of template variables
-    """
-    context = super().context(request)
-    context['resource_media_type'] = GreetingEndpoint.response_media_type()
-    return context

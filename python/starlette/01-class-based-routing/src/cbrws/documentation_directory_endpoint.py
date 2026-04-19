@@ -1,5 +1,5 @@
 """
-  schema_directory_endpoint.py: Base class for profile directory URLs in
+  documentation_directory_endpoint.py: Base class for profile directory URLs in
   the cbrws web service.
 """
 from abc import ABC
@@ -8,7 +8,7 @@ from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
 from cbrws.documentation_endpoint import DocumentationEndpoint
 
 
-class SchemaDirectoryEndpoint(DocumentationEndpoint, ABC):
+class DocumentationDirectoryEndpoint(DocumentationEndpoint, ABC):
   """
     A base class for profile directory URLs in the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.

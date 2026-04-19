@@ -1,5 +1,5 @@
 """
-  profiles_endpoint.py: URL handler for the /profiles/ URL of the cbrws
+  profiles_directory_endpoint.py: URL handler for the /profiles/ URL of the cbrws
   web service.
 """
 from starlette.requests import Request
@@ -11,19 +11,22 @@ from cbrws.documentation_endpoint import (
   make_html_filename,
   make_json_filename
 )
-from cbrws.schema_directory_endpoint import SchemaDirectoryEndpoint
+from cbrws.documentation_directory_endpoint import DocumentationDirectoryEndpoint
+from cbrws.url_util import public_url_for
 
 
-class ProfilesEndpoint(SchemaDirectoryEndpoint):
+class ProfilesDirectoryEndpoint(DocumentationDirectoryEndpoint):
   """
     A URL handler for the /profiles/ URL of the cbrws web service.
 
     This endpoint lists the profile families supported by the service.
   """
-  URL_CONTEXT = {
-    'profiles_url': 'profiles_endpoint',
-    'cbrws_profile_url': 'cbrws_profiles_endpoint'
-  }
+  @classmethod
+  def context(cls, request: Request) -> dict[str, str]:
+    return {
+      'profiles_url': public_url_for(request, 'profiles_endpoint'),
+      'cbrws_profile_url': public_url_for(request, 'cbrws_profiles_endpoint')
+    }
 
   @classmethod
   def html_filename(cls) -> HTMLFilename:
@@ -52,10 +55,10 @@ class ProfilesEndpoint(SchemaDirectoryEndpoint):
       LinkHeaderItem(
         route_name='profiles_endpoint',
         rel='self',
-        type=SchemaDirectoryEndpoint.response_media_type()),
+        type=DocumentationDirectoryEndpoint.response_media_type()),
       LinkHeaderItem(
         route_name='cbrws_profiles_endpoint',
         rel='item',
-        type=SchemaDirectoryEndpoint.response_media_type(),
+        type=DocumentationDirectoryEndpoint.response_media_type(),
         title='CBRWS profile family')
     )

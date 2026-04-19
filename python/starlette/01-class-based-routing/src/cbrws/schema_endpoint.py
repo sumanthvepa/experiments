@@ -43,21 +43,3 @@ class SchemaEndpoint(DocumentationEndpoint, ABC):
     """
     return 'application/schema+json'
 
-  @classmethod
-  def literal_context(cls) -> LiteralContext:
-    """
-      Return literal template context values for the profile schema.
-      :return: A dictionary of template variables
-    """
-    return {}
-
-  @classmethod
-  def context(cls, request: Request) -> dict[str, str]:
-    """
-      Generate the template context for the profile schema.
-      :param request: The HTTP request
-      :return: A dictionary of template variables
-    """
-    context = super().context(request)
-    context.update(cls.literal_context())
-    return context
