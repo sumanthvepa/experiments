@@ -13,7 +13,7 @@ from cbrws.api_endpoint import APIEndpoint
 from cbrws.cbrws_v1_schema_endpoint import CBRWSV1SchemaEndpoint
 from cbrws.config import Settings
 from cbrws.greeting_endpoint import GreetingEndpoint
-from cbrws.greeting_documentation_endpoint import GreetingDocumentationEndpoint
+from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
 from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
 from cbrws.relations_schema_endpoint import RelationsSchemaEndpoint
 
@@ -95,7 +95,7 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
       Route('/profiles/cbrws/v1', CBRWSV1SchemaEndpoint, name='profile_endpoint'),
       Route('/profiles/cbrws/v1/rels/', RelationsSchemaEndpoint, name='relations_endpoint'),
       Route('/profiles/cbrws/v1/rels/greeting',
-            GreetingDocumentationEndpoint,
+            GreetingSchemaEndpoint,
             name='greeting_relation_endpoint')
     ])
     app.state.settings = Settings(
@@ -152,7 +152,7 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
       Route('/profiles/cbrws/v1', CBRWSV1SchemaEndpoint, name='profile_endpoint'),
       Route('/profiles/cbrws/v1/rels/', RelationsSchemaEndpoint, name='relations_endpoint'),
       Route('/profiles/cbrws/v1/rels/greeting',
-            GreetingDocumentationEndpoint,
+            GreetingSchemaEndpoint,
             name='greeting_relation_endpoint')
     ])
     app.state.settings = Settings(

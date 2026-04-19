@@ -15,7 +15,7 @@ from cbrws.logging_config import AccessLogMiddleware
 from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
 from cbrws.greeting_endpoint import GreetingEndpoint
-from cbrws.greeting_documentation_endpoint import GreetingDocumentationEndpoint
+from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
 from cbrws.relations_schema_endpoint import RelationsSchemaEndpoint
 from cbrws.profiles_directory_endpoint import ProfilesDirectoryEndpoint
 from cbrws.cbrws_directory_endpoint import CBRWSDirectoryEndpoint
@@ -40,7 +40,7 @@ routes: list[Route] = [
         endpoint=RelationsSchemaEndpoint,
         name='relations_endpoint'),
   Route('/profiles/cbrws/v1/rels/greeting',
-        endpoint=GreetingDocumentationEndpoint,
+        endpoint=GreetingSchemaEndpoint,
         name='greeting_relation_endpoint'),
   Route('/profiles/cbrws', endpoint=CBRWSDirectoryEndpoint,
         name='cbrws_profiles_endpoint'),

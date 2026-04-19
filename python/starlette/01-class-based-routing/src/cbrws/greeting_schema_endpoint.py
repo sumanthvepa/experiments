@@ -1,5 +1,5 @@
 """
-  greeting_documentation_endpoint.py: URL handler for the
+  greeting_schema_endpoint.py: URL handler for the
   /profiles/cbrws/v1/rels/greeting URL of the cbrws web service.
 """
 from starlette.requests import Request
@@ -17,7 +17,7 @@ from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.url_util import public_url_for
 
 
-class GreetingDocumentationEndpoint(SchemaEndpoint):
+class GreetingSchemaEndpoint(SchemaEndpoint):
   """
     A URL handler for the /profiles/cbrws/v1/rels/greeting URL of the
     cbrws web service.
