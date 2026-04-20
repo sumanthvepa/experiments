@@ -5,10 +5,10 @@
 from abc import ABC
 
 from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
-from cbrws.documentation_endpoint import DocumentationEndpoint
+from cbrws.template_endpoint import TemplateEndpoint
 
 
-class DocumentationDirectoryEndpoint(DocumentationEndpoint, ABC):
+class DocumentationDirectoryEndpoint(TemplateEndpoint, ABC):
   """
     A base class for profile directory URLs in the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.

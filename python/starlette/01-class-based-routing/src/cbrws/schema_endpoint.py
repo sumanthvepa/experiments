@@ -7,13 +7,13 @@ from typing import TypeAlias
 
 
 from cbrws.http_endpoint import SupportedMediaTypes
-from cbrws.documentation_endpoint import DocumentationEndpoint
+from cbrws.template_endpoint import TemplateEndpoint
 
 
 LiteralContext: TypeAlias = dict[str, str]
 
 
-class SchemaEndpoint(DocumentationEndpoint, ABC):
+class SchemaEndpoint(TemplateEndpoint, ABC):
   """
     A base class for profile schema URLs in the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.

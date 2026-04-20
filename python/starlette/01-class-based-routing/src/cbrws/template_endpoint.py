@@ -1,5 +1,5 @@
 """
-  documentation_endpoint.py: Base class for profile URLs in the cbrws
+  template_endpoint.py: Base class for profile URLs in the cbrws
   web service.
 """
 from abc import abstractmethod
@@ -55,10 +55,13 @@ def make_schema_dir(value: Path) -> SchemaDir:
   return SchemaDir(value)
 
 
-class DocumentationEndpoint(HTTPEndpoint):
+class TemplateEndpoint(HTTPEndpoint):
   """
-    A base class for endpoints that return documentation about
-    the API and are not part of the API itself.
+    A base class for endpoints that return rendered Jinja2
+    templates.
+
+    Depending on the Accept header sent to the endpoint the
+    response is either an HTML document or a JSON document.
 
     For the GET request it returns either text/html or the configured
     JSON media type depending on the Accept header of the request.

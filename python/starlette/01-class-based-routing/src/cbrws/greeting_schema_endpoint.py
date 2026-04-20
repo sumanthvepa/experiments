@@ -5,7 +5,7 @@
 from starlette.requests import Request
 
 from cbrws.http_endpoint import LinkHeaderItem, LinkHeaderItems
-from cbrws.documentation_endpoint import (
+from cbrws.template_endpoint import (
   HTMLFilename,
   JSONFilename,
   make_html_filename,

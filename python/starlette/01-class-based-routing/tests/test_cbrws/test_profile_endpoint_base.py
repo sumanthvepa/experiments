@@ -17,8 +17,8 @@ from cbrws.http_endpoint import (
   ResponseMediaType,
   SupportedMediaTypes
 )
-from cbrws.documentation_endpoint import DocumentationEndpoint
-from cbrws.documentation_endpoint import (
+from cbrws.template_endpoint import TemplateEndpoint
+from cbrws.template_endpoint import (
   HTMLFilename,
   JSONFilename,
   SchemaDir,
@@ -37,8 +37,8 @@ class TestProfileEndpointBase(unittest.TestCase):
       Clear template caches before each test.
       :return: None
     """
-    DocumentationEndpoint.HTML_TEMPLATE_CACHE.clear()
-    DocumentationEndpoint.JSON_TEMPLATE_CACHE.clear()
+    TemplateEndpoint.HTML_TEMPLATE_CACHE.clear()
+    TemplateEndpoint.JSON_TEMPLATE_CACHE.clear()
 
   def test_load_html_caches_template_not_content(self) -> None:
     """
@@ -49,13 +49,13 @@ class TestProfileEndpointBase(unittest.TestCase):
       filename = Path(temp_dir) / 'custom.jinja2'
       filename.write_text('<p>{{ name }}</p>', encoding='utf-8')
 
-      template = DocumentationEndpoint.load_html_template(str(filename))
-      self.assertIs(template, DocumentationEndpoint.load_html_template(str(filename)))
+      template = TemplateEndpoint.load_html_template(str(filename))
+      self.assertIs(template, TemplateEndpoint.load_html_template(str(filename)))
 
-      first_content = asyncio.run(DocumentationEndpoint.load_html(
+      first_content = asyncio.run(TemplateEndpoint.load_html(
         str(filename),
         {'name': 'first'}))
-      second_content = asyncio.run(DocumentationEndpoint.load_html(
+      second_content = asyncio.run(TemplateEndpoint.load_html(
         str(filename),
         {'name': 'second'}))
 
@@ -67,7 +67,7 @@ class TestProfileEndpointBase(unittest.TestCase):
       Test that subclasses can extend the default allowed HTTP methods.
       :return: None
     """
-    class PostProfileEndpoint(DocumentationEndpoint):
+    class PostProfileEndpoint(TemplateEndpoint):
       """
         A profile endpoint that declares POST in addition to defaults.
       """
@@ -142,13 +142,13 @@ class TestProfileEndpointBase(unittest.TestCase):
       filename = Path(temp_dir) / 'object.json'
       filename.write_text('{"name": "{{ name }}"}', encoding='utf-8')
 
-      template = DocumentationEndpoint.load_json_template(str(filename))
-      self.assertIs(template, DocumentationEndpoint.load_json_template(str(filename)))
+      template = TemplateEndpoint.load_json_template(str(filename))
+      self.assertIs(template, TemplateEndpoint.load_json_template(str(filename)))
 
-      first_data = asyncio.run(DocumentationEndpoint.load_json(
+      first_data = asyncio.run(TemplateEndpoint.load_json(
         str(filename),
         {'name': 'first'}))
-      second_data = asyncio.run(DocumentationEndpoint.load_json(
+      second_data = asyncio.run(TemplateEndpoint.load_json(
         str(filename),
         {'name': 'second'}))
 
@@ -163,7 +163,7 @@ class TestProfileEndpointBase(unittest.TestCase):
     with tempfile.TemporaryDirectory() as temp_dir:
       filename = Path(temp_dir) / 'object.json'
       filename.write_text('{"name": "{{ name }}"}', encoding='utf-8')
-      data = asyncio.run(DocumentationEndpoint.load_json(
+      data = asyncio.run(TemplateEndpoint.load_json(
         str(filename),
         {'name': 'cbrws'}))
     self.assertEqual({'name': 'cbrws'}, data)
@@ -176,7 +176,7 @@ class TestProfileEndpointBase(unittest.TestCase):
     with tempfile.TemporaryDirectory() as temp_dir:
       filename = Path(temp_dir) / 'object.json'
       filename.write_text('{"name": "{{ name }}"}', encoding='utf-8')
-      data = asyncio.run(DocumentationEndpoint.load_json(
+      data = asyncio.run(TemplateEndpoint.load_json(
         str(filename),
         {'name': '<cbrws>&'}))
     self.assertEqual({'name': '<cbrws>&'}, data)
@@ -189,7 +189,7 @@ class TestProfileEndpointBase(unittest.TestCase):
     with tempfile.TemporaryDirectory() as temp_dir:
       filename = Path(temp_dir) / 'custom.jinja2'
       filename.write_text('<p>{{ name }}</p>', encoding='utf-8')
-      content = asyncio.run(DocumentationEndpoint.load_html(
+      content = asyncio.run(TemplateEndpoint.load_html(
         str(filename),
         {'name': '<cbrws>&'}))
     self.assertEqual('<p>&lt;cbrws&gt;&amp;</p>', content)
@@ -205,7 +205,7 @@ class TestProfileEndpointBase(unittest.TestCase):
       with self.assertRaisesRegex(
             ValueError,
             'JSON document must be an object'):
-        asyncio.run(DocumentationEndpoint.load_json(str(filename), {}))
+        asyncio.run(TemplateEndpoint.load_json(str(filename), {}))
 
   def test_get_and_head_negotiate_with_supported_media_types(self) -> None:
     """
@@ -217,7 +217,7 @@ class TestProfileEndpointBase(unittest.TestCase):
       (schema_dir / 'custom.jinja2').write_text('<h1>Custom</h1>', encoding='utf-8')
       (schema_dir / 'custom.json').write_text('{"name": "custom"}', encoding='utf-8')
 
-      class CustomProfileEndpoint(DocumentationEndpoint):
+      class CustomProfileEndpoint(TemplateEndpoint):
         """
           A profile endpoint with a deliberately restricted media type list.
         """
@@ -291,7 +291,7 @@ class TestProfileEndpointBase(unittest.TestCase):
       Test that HEAD negotiates headers without rendering profile content.
       :return: None
     """
-    class HeadOnlyProfileEndpoint(DocumentationEndpoint):
+    class HeadOnlyProfileEndpoint(TemplateEndpoint):
       """
         A profile endpoint whose render methods fail if called.
       """
