@@ -38,7 +38,7 @@ class APIEndpoint(ServiceEndpoint):
       '_links': {
         'self': {
           'href': public_url_for(request, 'api_endpoint'),
-          'type': cls.response_media_type(),
+          'type': cls.default_response_media_type(),
           'profile': ServiceEndpoint.schema_url(request)
         },
         'curies': [
@@ -52,7 +52,7 @@ class APIEndpoint(ServiceEndpoint):
         ],
         'cbrws:greeting': {
           'href': public_url_for(request, 'greeting_endpoint'),
-          'type': cls.response_media_type(),
+          'type': cls.default_response_media_type(),
           'profile': public_url_for(request, 'greeting_relation_endpoint')
         }
       }
@@ -60,5 +60,5 @@ class APIEndpoint(ServiceEndpoint):
     return JSONResponse(
       content=message,
       status_code=status.HTTP_200_OK,
-      media_type=cls.response_media_type(),
+      media_type=cls.default_response_media_type(),
       headers=cls.headers(request))

@@ -68,7 +68,7 @@ class RelationsSchemaEndpoint(SchemaEndpoint):
       LinkHeaderItem(
         route_name='profile_endpoint',
         rel='describedBy',
-        type=cls.response_media_type(),
+        type=cls.default_response_media_type(),
         title='JSON schema of the response'),
       LinkHeaderItem(
         route_name='profile_endpoint',

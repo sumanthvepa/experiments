@@ -8,7 +8,6 @@ from cbrws.http_endpoint import (
   HTTPEndpoint,
   LinkHeaderItem,
   LinkHeaderItems,
-  ResponseMediaType,
   SupportedMediaTypes
 )
 from cbrws.url_util import public_url_for
@@ -27,20 +26,12 @@ class ServiceEndpoint(HTTPEndpoint):
   """
 
   @classmethod
-  def _supported_media_types(cls) -> SupportedMediaTypes:
+  def supported_media_types(cls) -> SupportedMediaTypes:
     """
       Return the response media types supported by CBRWS API endpoints.
       :return: A non-empty tuple of concrete response media types
     """
     return ('application/hal+json',)
-
-  @classmethod
-  def response_media_type(cls) -> ResponseMediaType:
-    """
-      Return the media type for cbrws API responses.
-      :return: A string representing the response media type
-    """
-    return 'application/hal+json'
 
   @staticmethod
   def schema_url(request: Request) -> str:

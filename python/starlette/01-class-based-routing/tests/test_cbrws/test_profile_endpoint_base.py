@@ -73,7 +73,7 @@ class TestProfileEndpointBase(unittest.TestCase):
       """
 
       @classmethod
-      def response_media_type(cls) -> ResponseMediaType:
+      def default_response_media_type(cls) -> ResponseMediaType:
         """
           Return the primary response media type for the endpoint.
           :return: A concrete response media type
@@ -81,7 +81,7 @@ class TestProfileEndpointBase(unittest.TestCase):
         return 'text/html'
 
       @classmethod
-      def _supported_media_types(cls) -> SupportedMediaTypes:
+      def supported_media_types(cls) -> SupportedMediaTypes:
         """
           Return the response media types supported by the endpoint.
           :return: A non-empty tuple of concrete response media types
@@ -230,7 +230,7 @@ class TestProfileEndpointBase(unittest.TestCase):
           return make_schema_dir(schema_dir)
 
         @classmethod
-        def response_media_type(cls) -> ResponseMediaType:
+        def default_response_media_type(cls) -> ResponseMediaType:
           """
             Return the primary response media type for the endpoint.
             :return: A concrete response media type
@@ -238,7 +238,7 @@ class TestProfileEndpointBase(unittest.TestCase):
           return 'text/html'
 
         @classmethod
-        def _supported_media_types(cls) -> SupportedMediaTypes:
+        def supported_media_types(cls) -> SupportedMediaTypes:
           """
             Return the response media types supported by the endpoint.
             :return: A non-empty tuple of concrete response media types
@@ -297,7 +297,7 @@ class TestProfileEndpointBase(unittest.TestCase):
       """
 
       @classmethod
-      def response_media_type(cls) -> ResponseMediaType:
+      def default_response_media_type(cls) -> ResponseMediaType:
         """
           Return the primary response media type for the endpoint.
           :return: A concrete response media type
@@ -305,7 +305,7 @@ class TestProfileEndpointBase(unittest.TestCase):
         return 'application/hal+json'
 
       @classmethod
-      def _supported_media_types(cls) -> SupportedMediaTypes:
+      def supported_media_types(cls) -> SupportedMediaTypes:
         """
           Return the response media types supported by the endpoint.
           :return: A non-empty tuple of concrete response media types

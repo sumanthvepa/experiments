@@ -137,7 +137,7 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
         A relations endpoint with a deliberately restricted media type list.
       """
       @classmethod
-      def response_media_type(cls) -> ResponseMediaType:
+      def default_response_media_type(cls) -> ResponseMediaType:
         """
           Return the primary response media type for the endpoint.
           :return: A concrete response media type
@@ -145,7 +145,7 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
         return 'text/html'
 
       @classmethod
-      def _supported_media_types(cls) -> SupportedMediaTypes:
+      def supported_media_types(cls) -> SupportedMediaTypes:
         """
           Return the response media types supported by the endpoint.
           :return: A non-empty tuple of concrete response media types

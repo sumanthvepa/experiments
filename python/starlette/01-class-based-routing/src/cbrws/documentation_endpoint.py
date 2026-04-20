@@ -209,7 +209,7 @@ class DocumentationEndpoint(HTTPEndpoint):
     return JSONResponse(
       content,
       status_code=status.HTTP_200_OK,
-      media_type=cls.response_media_type(),
+      media_type=cls.default_response_media_type(),
       headers=cls.headers(request))
 
   async def get(self, request: Request) -> Response:
@@ -222,7 +222,7 @@ class DocumentationEndpoint(HTTPEndpoint):
     media_type = cls.negotiate_media_type(request)
     if media_type == 'text/html':
       return await self.html_response(request)
-    if media_type == cls.response_media_type():
+    if media_type == cls.default_response_media_type():
       return await self.json_response(request)
     return cls.not_acceptable(request)
 
@@ -239,9 +239,9 @@ class DocumentationEndpoint(HTTPEndpoint):
         status_code=status.HTTP_200_OK,
         media_type='text/html',
         headers=cls.headers(request))
-    if media_type == cls.response_media_type():
+    if media_type == cls.default_response_media_type():
       return Response(
         status_code=status.HTTP_200_OK,
-        media_type=cls.response_media_type(),
+        media_type=cls.default_response_media_type(),
         headers=cls.headers(request))
     return cls.not_acceptable(request)

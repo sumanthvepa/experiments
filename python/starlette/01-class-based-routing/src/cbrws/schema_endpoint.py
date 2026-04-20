@@ -5,9 +5,8 @@
 from abc import ABC
 from typing import TypeAlias
 
-from starlette.requests import Request
 
-from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
+from cbrws.http_endpoint import SupportedMediaTypes
 from cbrws.documentation_endpoint import DocumentationEndpoint
 
 
@@ -28,18 +27,9 @@ class SchemaEndpoint(DocumentationEndpoint, ABC):
     this class is an abstract base class and should not be instantiated.
   """
   @classmethod
-  def _supported_media_types(cls) -> SupportedMediaTypes:
+  def supported_media_types(cls) -> SupportedMediaTypes:
     """
       Return the response media types supported by profile schema endpoints.
       :return: A non-empty tuple of concrete responses media types
     """
     return 'application/schema+json', 'text/html'
-
-  @classmethod
-  def response_media_type(cls) -> ResponseMediaType:
-    """
-      Return the primary response media type for profile schema endpoints.
-      :return: A concrete response media type
-    """
-    return 'application/schema+json'
-

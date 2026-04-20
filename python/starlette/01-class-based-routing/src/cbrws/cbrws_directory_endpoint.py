@@ -56,7 +56,7 @@ class CBRWSDirectoryEndpoint(DocumentationDirectoryEndpoint):
       LinkHeaderItem(
         route_name='cbrws_profiles_endpoint',
         rel='self',
-        type=cls.response_media_type()),
+        type=cls.default_response_media_type()),
       LinkHeaderItem(
         route_name='profile_endpoint',
         rel='item',

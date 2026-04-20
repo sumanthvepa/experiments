@@ -55,10 +55,10 @@ class ProfilesDirectoryEndpoint(DocumentationDirectoryEndpoint):
       LinkHeaderItem(
         route_name='profiles_endpoint',
         rel='self',
-        type=DocumentationDirectoryEndpoint.response_media_type()),
+        type=DocumentationDirectoryEndpoint.default_response_media_type()),
       LinkHeaderItem(
         route_name='cbrws_profiles_endpoint',
         rel='item',
-        type=DocumentationDirectoryEndpoint.response_media_type(),
+        type=DocumentationDirectoryEndpoint.default_response_media_type(),
         title='CBRWS profile family')
     )

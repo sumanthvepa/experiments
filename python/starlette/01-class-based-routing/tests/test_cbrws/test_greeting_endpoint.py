@@ -78,7 +78,7 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
       """ Greeting endpoint with a custom response media type. """
 
       @classmethod
-      def response_media_type(cls) -> ResponseMediaType:
+      def default_response_media_type(cls) -> ResponseMediaType:
         """
           Return the primary response media type for the endpoint.
           :return: A concrete response media type
@@ -86,7 +86,7 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
         return 'application/schema+json'
 
       @classmethod
-      def _supported_media_types(cls) -> SupportedMediaTypes:
+      def supported_media_types(cls) -> SupportedMediaTypes:
         """
           Return the response media types supported by the endpoint.
           :return: A non-empty tuple of concrete response media types
@@ -110,10 +110,10 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
     data = response.json()
     self.check_content_type(
       response,
-      CustomGreetingEndpoint.response_media_type())
+      CustomGreetingEndpoint.default_response_media_type())
     self.assertEqual(
-      CustomGreetingEndpoint.response_media_type(),
+      CustomGreetingEndpoint.default_response_media_type(),
       data['_links']['self']['type'])
     self.assertEqual(
-      CustomGreetingEndpoint.response_media_type(),
+      CustomGreetingEndpoint.default_response_media_type(),
       data['_links']['up']['type'])

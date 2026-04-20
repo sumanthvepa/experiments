@@ -131,7 +131,7 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
       """ API endpoint with a custom response media type. """
 
       @classmethod
-      def response_media_type(cls) -> ResponseMediaType:
+      def default_response_media_type(cls) -> ResponseMediaType:
         """
           Return the primary response media type for the endpoint.
           :return: A concrete response media type
@@ -139,7 +139,7 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
         return 'application/schema+json'
 
       @classmethod
-      def _supported_media_types(cls) -> SupportedMediaTypes:
+      def supported_media_types(cls) -> SupportedMediaTypes:
         """
           Return the response media types supported by the endpoint.
           :return: A non-empty tuple of concrete response media types
@@ -162,10 +162,10 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
     client = TestClient(app, self.base_url)
     response = client.get('/api')
     data = response.json()
-    self.check_content_type(response, CustomAPIEndpoint.response_media_type())
+    self.check_content_type(response, CustomAPIEndpoint.default_response_media_type())
     self.assertEqual(
-      CustomAPIEndpoint.response_media_type(),
+      CustomAPIEndpoint.default_response_media_type(),
       data['_links']['self']['type'])
     self.assertEqual(
-      CustomAPIEndpoint.response_media_type(),
+      CustomAPIEndpoint.default_response_media_type(),
       data['_links']['cbrws:greeting']['type'])

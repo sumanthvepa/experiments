@@ -78,38 +78,24 @@ class HTTPEndpoint(StarletteHTTPEndpoint, ABC):
     return ', '.join(cls.allowed_methods())
 
   @classmethod
+  @abstractmethod
   def supported_media_types(cls) -> SupportedMediaTypes:
     """
       Return the response media types supported by the endpoint.
+
+      The first supported media type should always be the default
+      response media type that is returned when the client does not
+      specify a desire media type.
       :return: A non-empty tuple of concrete response media types
     """
-    media_types = cls._supported_media_types()
-    if '*/*' in media_types:
-      raise ValueError(
-        f'{cls.__name__} must not support */* as a response type')
-    if cls.response_media_type() not in media_types:
-      raise ValueError(
-        f'{cls.__name__} response media type must be supported')
-    return media_types
 
   @classmethod
-  @abstractmethod
-  def response_media_type(cls) -> ResponseMediaType:
+  def default_response_media_type(cls) -> ResponseMediaType:
     """
       Return the primary response media type for the endpoint.
       :return: A concrete response media type
     """
-
-  @classmethod
-  @abstractmethod
-  def _supported_media_types(cls) -> SupportedMediaTypes:
-    """
-      Return the concrete response media types supported by the endpoint.
-
-      Derived classes should implement this method.
-
-      :return: A non-empty tuple of concrete response media types
-    """
+    return cls.supported_media_types()[0]
 
   @staticmethod
   def problem_media_type() -> str:

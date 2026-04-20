@@ -22,7 +22,7 @@ class DocumentationDirectoryEndpoint(DocumentationEndpoint, ABC):
     this class is an abstract base class and should not be instantiated.
   """
   @classmethod
-  def _supported_media_types(cls) -> SupportedMediaTypes:
+  def supported_media_types(cls) -> SupportedMediaTypes:
     """
       Return the response media types supported by profile directories.
       :return: A non-empty tuple of concrete response media types
@@ -30,7 +30,7 @@ class DocumentationDirectoryEndpoint(DocumentationEndpoint, ABC):
     return 'application/hal+json', 'text/html'
 
   @classmethod
-  def response_media_type(cls) -> ResponseMediaType:
+  def default_response_media_type(cls) -> ResponseMediaType:
     """
       Return the primary response media type for profile directories.
       :return: A concrete response media type

@@ -36,7 +36,7 @@ class GreetingSchemaEndpoint(SchemaEndpoint):
       'relations_url': public_url_for(request, 'relations_endpoint'),
       'relation_url': public_url_for(request, 'greeting_relation_endpoint'),
       'resource_url': public_url_for(request, 'greeting_endpoint'),
-      'resource_media_type': GreetingEndpoint.response_media_type(),
+      'resource_media_type': GreetingEndpoint.default_response_media_type(),
       'title': 'CBRWS V1 Greeting Relation'
     }
 
@@ -72,7 +72,7 @@ class GreetingSchemaEndpoint(SchemaEndpoint):
       LinkHeaderItem(
         route_name='profile_endpoint',
         rel='describedBy',
-        type=cls.response_media_type(),
+        type=cls.default_response_media_type(),
         title='JSON schema of the response'),
       LinkHeaderItem(
         route_name='profile_endpoint',
