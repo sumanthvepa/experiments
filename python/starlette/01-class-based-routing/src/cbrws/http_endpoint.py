@@ -146,6 +146,16 @@ class HTTPEndpoint(StarletteHTTPEndpoint, ABC):
       headers['Link'] = link_header
     return headers
 
+  async def options(self, request: Request) -> Response:
+    """
+      Handle OPTIONS requests for the endpoint.
+      :param request: The HTTP request
+      :return: A 204 No Content response with appropriate headers
+    """
+    return Response(
+      status_code=status.HTTP_204_NO_CONTENT,
+      headers=type(self).headers(request))
+
   @classmethod
   def not_acceptable(cls, request: Request) -> JSONResponse:
     """
@@ -173,16 +183,6 @@ class HTTPEndpoint(StarletteHTTPEndpoint, ABC):
       status_code=status.HTTP_406_NOT_ACCEPTABLE,
       media_type=cls.problem_media_type(),
       headers=cls.headers(request))
-
-  async def options(self, request: Request) -> Response:
-    """
-      Handle OPTIONS requests for the endpoint.
-      :param request: The HTTP request
-      :return: A 204 No Content response with appropriate headers
-    """
-    return Response(
-      status_code=status.HTTP_204_NO_CONTENT,
-      headers=type(self).headers(request))
 
   @override
   async def method_not_allowed(self, request: Request) -> JSONResponse:
