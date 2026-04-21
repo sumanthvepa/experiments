@@ -2,6 +2,9 @@
   test_helper.py: Mixin for testing HTTP endpoints.
   Provides methods to make requests and check responses.
 """
+# Pylint 4.0.x misclassifies test_cbrws imports as third-party.
+# Revisit this once Pylint 4.1 known-first-party support is available.
+# pylint: disable=wrong-import-order
 import asyncio
 from html.parser import HTMLParser
 from typing import Any, Container, Iterable, Protocol
@@ -186,7 +189,7 @@ class TestHelper(RequireAsserts):
     }
     for rel, link in expected_links.items():
       self.assertIn(rel, actual_links)
-      self.assertEqual(expected_links[rel], actual_links[rel])
+      self.assertEqual(link, actual_links[rel])
 
   def check_content_type(self, response: Response, media_type: str) -> None:
     """

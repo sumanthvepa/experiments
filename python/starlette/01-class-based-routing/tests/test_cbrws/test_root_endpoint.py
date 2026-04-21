@@ -2,6 +2,9 @@
   test_root_endpoint.py: Unit tests for the root endpoint (/)
   of the cbrws webservice.
 """
+# Pylint 4.0.x misclassifies test_cbrws imports as third-party.
+# Revisit this once Pylint 4.1 known-first-party support is available.
+# pylint: disable=wrong-import-order
 import unittest
 
 from starlette import status

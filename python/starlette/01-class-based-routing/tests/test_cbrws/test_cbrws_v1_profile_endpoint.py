@@ -2,6 +2,9 @@
   test_cbrws_v1_profile_endpoint.py: Unit tests for the
   /profiles/cbrws/v1 endpoint of the cbrws webservice.
 """
+# Pylint 4.0.x misclassifies test_cbrws imports as third-party.
+# Revisit this once Pylint 4.1 known-first-party support is available.
+# pylint: disable=wrong-import-order
 import unittest
 from pathlib import Path
 
