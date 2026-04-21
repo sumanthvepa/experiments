@@ -62,10 +62,7 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
       :return: None
     """
     response = self.make_request('GET', '/api/greeting')
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'application/hal+json')
-    self.check_allow(response)
-    self.check_endpoint_link(response)
+    self.check_hal_success_response(response)
     self.assertDictEqual(
       response.json(),
       {
@@ -90,11 +87,7 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
       :return: None
     """
     response = self.make_request('HEAD', '/api/greeting')
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'application/hal+json')
-    self.check_allow(response)
-    self.check_endpoint_link(response)
-    self.assertEqual(b'', response.content)
+    self.check_head_response(response)
 
   def test_options_returns_allow_and_link_headers(self) -> None:
     """
@@ -102,10 +95,7 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
       :return: None
     """
     response = self.make_request('OPTIONS', '/api/greeting')
-    self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-    self.check_allow(response)
-    self.check_endpoint_link(response)
-    self.assertEqual(b'', response.content)
+    self.check_options_response(response)
 
   def test_get_returns_problem_details_for_unsupported_accept(self) -> None:
     """
@@ -116,20 +106,7 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
       'GET',
       '/api/greeting',
       headers={'Accept': 'application/xml'})
-    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
-    self.check_content_type(response, self.problem_media_type)
-    self.check_allow(response)
-    self.check_endpoint_link(response)
-    self.assertDictEqual(
-      response.json(),
-      {
-        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
-        'title': 'Not Acceptable',
-        'status': status.HTTP_406_NOT_ACCEPTABLE,
-        'detail': 'The requested media type is not supported by this endpoint. '
-                  + 'Supported media types are: application/hal+json',
-        'supportedMediaTypes': ['application/hal+json']
-      })
+    self.check_not_acceptable_response(response, ['application/hal+json'])
 
   def test_get_uses_subclass_response_media_type(self) -> None:
     """

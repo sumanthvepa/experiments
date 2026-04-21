@@ -74,6 +74,8 @@ class RequireAsserts(Protocol):
     """ Assert that first and second compare as equal. """
 
 
+# This mixin intentionally exposes many small reusable test helper methods.
+# pylint: disable=too-many-public-methods
 class TestHelper(RequireAsserts):
   """
     Mixin for testing HTTP endpoints.
@@ -269,6 +271,64 @@ class TestHelper(RequireAsserts):
       :return: None
     """
     self.check_link(response)
+
+  def check_hal_success_response(self, response: Response) -> None:
+    """
+      Check the common headers for a successful HAL response.
+      :param response: The response object
+      :return: None
+    """
+    self.assertEqual(status.HTTP_200_OK, response.status_code)
+    self.check_content_type(response, 'application/hal+json')
+    self.check_allow(response)
+    self.check_endpoint_link(response)
+
+  def check_head_response(self, response: Response) -> None:
+    """
+      Check the common headers and empty body for a HEAD response.
+      :param response: The response object
+      :return: None
+    """
+    self.check_hal_success_response(response)
+    self.assertEqual(b'', response.content)
+
+  def check_options_response(self, response: Response) -> None:
+    """
+      Check the common headers and empty body for an OPTIONS response.
+      :param response: The response object
+      :return: None
+    """
+    self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+    self.check_allow(response)
+    self.check_endpoint_link(response)
+    self.assertEqual(b'', response.content)
+
+  def check_not_acceptable_response(
+        self,
+        response: Response,
+        supported_media_types: list[str]) -> None:
+    """
+      Check the common 406 response shape for unsupported Accept values.
+      :param response: The response object
+      :param supported_media_types: Supported media types for the endpoint
+      :return: None
+    """
+    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
+    self.check_content_type(response, self.problem_media_type)
+    self.check_allow(response)
+    self.check_endpoint_link(response)
+    self.assertEqual(
+      {
+        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
+        'title': 'Not Acceptable',
+        'status': status.HTTP_406_NOT_ACCEPTABLE,
+        'detail': (
+          'The requested media type is not supported by this endpoint. '
+          + 'Supported media types are: '
+          + ', '.join(supported_media_types)),
+        'supportedMediaTypes': supported_media_types
+      },
+      response.json())
 
   def test_options(self) -> None:
     """
