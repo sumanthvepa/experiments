@@ -3,13 +3,10 @@
   web service.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Any, override
 
 from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette import status
 
-from cbrws.accept_util import select_media_type
 from cbrws.service_endpoint import ServiceEndpoint
 from cbrws.url_util import public_url_for
 if TYPE_CHECKING:
@@ -29,25 +26,18 @@ class APIEndpoint(ServiceEndpoint):
     from cbrws.api_v1_schema_endpoint import APIV1SchemaEndpoint
     return APIV1SchemaEndpoint
 
-  # noinspection PyMethodMayBeStatic
-  async def get(self, request: Request) -> JSONResponse:
+  @override
+  def response_document(self, request: Request) -> dict[str, Any]:
     """
-      Handle GET requests to the /api endpoint.
+      Build the HAL document for the /api endpoint.
       :param request: The HTTP request
-      :return: A JSON response with API information
+      :return: The API discovery document
     """
     # pylint: disable=import-outside-toplevel
     from cbrws.relations_directory_endpoint import RelationsDirectoryEndpoint
     from cbrws.greeting_endpoint import GreetingEndpoint
 
-    cls = type(self)
-    media_type = select_media_type(
-      request.headers.get('accept'),
-      cls.supported_media_types())
-    if media_type is None:
-      return cls.not_acceptable(request)
-
-    message = {
+    return {
       'title': 'CBRWS API',
       'version': '1.0',
       'description': 'This is the API endpoint for the cbrws web service.',
@@ -72,8 +62,3 @@ class APIEndpoint(ServiceEndpoint):
         }
       }
     }
-    return JSONResponse(
-      content=message,
-      status_code=status.HTTP_200_OK,
-      media_type=cls.default_response_media_type(),
-      headers=cls.headers(request))

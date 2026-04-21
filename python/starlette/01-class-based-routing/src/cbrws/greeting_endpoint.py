@@ -3,13 +3,10 @@
   cbrws web service.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, override
 
 from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette import status
 
-from cbrws.accept_util import select_media_type
 from cbrws.api_endpoint import APIEndpoint
 from cbrws.service_endpoint import ServiceEndpoint
 from cbrws.url_util import public_url_for
@@ -33,21 +30,15 @@ class GreetingEndpoint(ServiceEndpoint):
     from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
     return GreetingSchemaEndpoint
 
-  # noinspection PyMethodMayBeStatic
-  async def get(self, request: Request) -> JSONResponse:
+  @override
+  def response_document(self, request: Request) -> dict[str, Any]:
     """
-      Handle GET requests to the /api/greeting endpoint.
+      Build the HAL document for the /api/greeting endpoint.
       :param request: The HTTP request
-      :return: A JSON response with the greeting resource
+      :return: The greeting resource document
     """
     cls = type(self)
-    media_type = select_media_type(
-      request.headers.get('accept'),
-      cls.supported_media_types())
-    if media_type is None:
-      return cls.not_acceptable(request)
-
-    message = {
+    return {
       'message': 'Hello, world!',
       '_links': {
         'self': {
@@ -62,8 +53,3 @@ class GreetingEndpoint(ServiceEndpoint):
         }
       }
     }
-    return JSONResponse(
-      content=message,
-      status_code=status.HTTP_200_OK,
-      media_type=cls.default_response_media_type(),
-      headers=cls.headers(request))

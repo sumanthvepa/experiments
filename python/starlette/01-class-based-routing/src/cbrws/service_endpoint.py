@@ -3,11 +3,14 @@
   web service.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from abc import abstractmethod
+from typing import TYPE_CHECKING, Any
+from abc import ABC, abstractmethod
 
 from starlette.requests import Request
+from starlette.responses import JSONResponse
+from starlette import status
 
+from cbrws.accept_util import select_media_type
 from cbrws.http_endpoint import (
   HTTPEndpoint,
   LinkHeaderItem,
@@ -19,7 +22,7 @@ if TYPE_CHECKING:
   from cbrws.schema_endpoint import SchemaEndpoint
 
 
-class ServiceEndpoint(HTTPEndpoint):
+class ServiceEndpoint(HTTPEndpoint, ABC):
   """
   A base class for endpoints that are actual functional endpoints
   of the web service. They only return HAL+JSON responses.
@@ -30,6 +33,25 @@ class ServiceEndpoint(HTTPEndpoint):
   directly, but rather as a base class for RootEndpoint and
   APIEndpoint classes.
   """
+
+  async def get(self, request: Request) -> JSONResponse:
+    """
+      Handle GET requests for HAL service endpoints.
+      :param request: The HTTP request
+      :return: A JSON response with the endpoint document
+    """
+    cls = type(self)
+    media_type = select_media_type(
+      request.headers.get('accept'),
+      cls.supported_media_types())
+    if media_type is None:
+      return cls.not_acceptable(request)
+
+    return JSONResponse(
+      content=self.response_document(request),
+      status_code=status.HTTP_200_OK,
+      media_type=cls.default_response_media_type(),
+      headers=cls.headers(request))
 
   @classmethod
   def supported_media_types(cls) -> SupportedMediaTypes:
@@ -45,6 +67,14 @@ class ServiceEndpoint(HTTPEndpoint):
     """
     Returns the schema endpoint class for this service endpoint
     :return:
+    """
+
+  @abstractmethod
+  def response_document(self, request: Request) -> dict[str, Any]:
+    """
+      Build the HAL document returned by this service endpoint.
+      :param request: The HTTP request
+      :return: The endpoint response document
     """
 
   @classmethod
