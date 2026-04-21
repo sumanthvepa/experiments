@@ -3,20 +3,17 @@
   endpoint of the cbrws webservice.
 """
 import unittest
-from pathlib import Path
 
-from httpx import Response
 from starlette import status
 
-from cbrws.cbrws_directory_endpoint import CBRWSDirectoryEndpoint
-from test_cbrws.link_header import Link, parse
-from test_cbrws.test_helper import TestHelper
+from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
 
 class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the CBRWS profile versions directory route.
   """
+
   @property
   def endpoint_url(self) -> str:
     """
@@ -26,18 +23,18 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     return '/profiles/cbrws'
 
   @property
-  def cbrws_profile_url(self) -> str:
+  def cbrws_directory_url(self) -> str:
     """
-      Expected URL for the CBRWS profile family.
-      :return: The CBRWS profile family URL
+      Expected URL for the CBRWS directory.
+      :return: The CBRWS directory URL
     """
     return f'{self.base_url}/profiles/cbrws'
 
   @property
-  def cbrws_v1_profile_url(self) -> str:
+  def api_v1_schema_url(self) -> str:
     """
-      Expected URL for the CBRWS v1 profile.
-      :return: The CBRWS v1 profile URL
+      Expected URL for the CBRWS v1 schema.
+      :return: The v1 schema URL
     """
     return f'{self.base_url}/profiles/cbrws/v1'
 
@@ -49,63 +46,33 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     """
     return 'application/hal+json'
 
-  @property
-  def template_context(self) -> dict[str, str]:
+  def check_endpoint_link(self, response: object) -> None:
     """
-      Expected template context for the CBRWS profile versions directory.
-      :return: The template context
-    """
-    return {
-      'cbrws_profile_url': self.cbrws_profile_url,
-      'cbrws_v1_profile_url': self.cbrws_v1_profile_url
-    }
-
-  def check_cbrws_profiles_link(self, response: Response) -> None:
-    """
-      Check that the response has the CBRWS profile directory Link header.
+      Template endpoints do not emit Link headers.
       :param response: The response object
       :return: None
     """
-    self.assertIn('Link', response.headers)
-    actual_links: dict[str, Link] = parse(response.headers['Link'])
-    expected_links: dict[str, Link] = {
-      'self': Link(
-        url=self.cbrws_profile_url,
-        rel='self',
-        media_type=self.hal_media_type),
-      'item': Link(
-        url=self.cbrws_v1_profile_url,
-        rel='item',
-        media_type=self.schema_media_type,
-        title='CBRWS v1 API profile')
-    }
-    for rel, link in expected_links.items():
-      self.assertIn(rel, actual_links)
-      self.assertEqual(link, actual_links[rel])
-
-  def check_endpoint_link(self, response: Response) -> None:
-    """
-      Check that the response has the CBRWS profile directory Link header.
-      :param response: The response object
-      :return: None
-    """
-    self.check_cbrws_profiles_link(response)
+    return None
 
   def test_get_hal_json_by_default(self) -> None:
     """
-      Test that GET /profiles/cbrws returns HAL JSON by default.
+      Test that GET /profiles/cbrws returns the current HAL directory.
       :return: None
     """
     response = self.make_request('GET', '/profiles/cbrws')
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.hal_media_type)
     self.check_allow(response)
-    self.check_cbrws_profiles_link(response)
-    expected_data = self.load_json(
-      CBRWSDirectoryEndpoint,
-      str(Path(CBRWSDirectoryEndpoint.schema_dir()) / 'cbrws-profiles.json'),
-      self.template_context)
-    self.assertDictEqual(response.json(), expected_data)
+    self.assertNotIn('Link', response.headers)
+
+    data = response.json()
+    self.assertEqual('CBRWS Profile Versions', data['title'])
+    self.assertIn('lists the versions of the CBRWS schema', data['description'])
+    self.assertEqual(self.cbrws_directory_url, data['_links']['self']['href'])
+    self.assertEqual(self.hal_media_type, data['_links']['self']['type'])
+    self.assertEqual(self.api_v1_schema_url, data['_links']['item'][0]['href'])
+    self.assertEqual('CBRWS v1 API profile', data['_links']['item'][0]['title'])
+    self.assertEqual('application/schema+json', data['_links']['item'][0]['type'])
 
   def test_get_hal_json_with_accept_header(self) -> None:
     """
@@ -119,12 +86,11 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.hal_media_type)
     self.check_allow(response)
-    self.check_cbrws_profiles_link(response)
-    expected_data = self.load_json(
-      CBRWSDirectoryEndpoint,
-      str(Path(CBRWSDirectoryEndpoint.schema_dir()) / 'cbrws-profiles.json'),
-      self.template_context)
-    self.assertDictEqual(response.json(), expected_data)
+    self.assertNotIn('Link', response.headers)
+
+    data = response.json()
+    self.assertEqual(self.cbrws_directory_url, data['_links']['self']['href'])
+    self.assertEqual(self.api_v1_schema_url, data['_links']['item'][0]['href'])
 
   def test_get_html(self) -> None:
     """
@@ -138,12 +104,16 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, 'text/html; charset=utf-8')
     self.check_allow(response)
-    self.check_cbrws_profiles_link(response)
-    expected_html = self.load_file(
-      CBRWSDirectoryEndpoint,
-      str(Path(CBRWSDirectoryEndpoint.schema_dir()) / 'cbrws-profiles.jinja2'),
-      self.template_context)
-    self.assertEqual(expected_html, response.text)
+    self.assertNotIn('Link', response.headers)
+
+    parser = HTMLTitleParser()
+    parser.feed(response.text)
+    self.assertEqual('CBRWS Schema Versions', parser.title)
+    self.assertIn('<h1>CBRWS Schema Versions</h1>', response.text)
+    self.assertIn(self.cbrws_directory_url, response.text)
+    self.assertIn(self.api_v1_schema_url, response.text)
+    self.assertIn('<code>application/hal+json</code>', response.text)
+    self.assertIn('<code>text/html</code>', response.text)
 
   def test_get_unsupported_media_type(self) -> None:
     """
@@ -157,10 +127,18 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
     self.check_content_type(response, self.problem_media_type)
     self.check_allow(response)
-    self.check_cbrws_profiles_link(response)
-    data = response.json()
-    self.assertEqual('Not Acceptable', data['title'])
-    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, data['status'])
+    self.assertNotIn('Link', response.headers)
+
+    self.assertDictEqual(
+      response.json(),
+      {
+        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
+        'title': 'Not Acceptable',
+        'status': status.HTTP_406_NOT_ACCEPTABLE,
+        'detail': 'The requested media type is not supported by this endpoint. '
+                  + 'Supported media types are: application/hal+json, text/html',
+        'supportedMediaTypes': ['application/hal+json', 'text/html']
+      })
 
   def test_head_hal_json(self) -> None:
     """
@@ -174,7 +152,7 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.hal_media_type)
     self.check_allow(response)
-    self.check_cbrws_profiles_link(response)
+    self.assertNotIn('Link', response.headers)
     self.assertEqual('', response.text)
 
   def test_head_html(self) -> None:
@@ -189,15 +167,16 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, 'text/html; charset=utf-8')
     self.check_allow(response)
-    self.check_cbrws_profiles_link(response)
+    self.assertNotIn('Link', response.headers)
     self.assertEqual('', response.text)
 
   def test_options_cbrws_profiles(self) -> None:
     """
-      Test that OPTIONS /profiles/cbrws returns allowed methods and links.
+      Test that OPTIONS /profiles/cbrws returns no Link header.
       :return: None
     """
     response = self.make_request('OPTIONS', '/profiles/cbrws')
     self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
     self.check_allow(response)
-    self.check_cbrws_profiles_link(response)
+    self.assertNotIn('Link', response.headers)
+    self.assertEqual(b'', response.content)

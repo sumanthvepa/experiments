@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "{{ schema_url }}",
+  "title": "{{ title }}",
+  "description": "JSON Schema for the response returned by the CBRWS v1 discovery endpoint (/api).",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Display name of the API."
+    },
+    "version": {
+      "type": "string",
+      "description": "Version string for the CBRWS API schema that the response conforms to."
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional human-readable description of the API."
+    },
+    "_links": {
+      "type": "object",
+      "description": "HAL link collection. Each member is either a link object or (for 'curies') an array of link objects.",
+      "properties": {
+        "self": {
+          "type": "object",
+          "description": "Link to the discovery endpoint itself.",
+          "properties": {
+            "href": { "type": "string", "format": "uri" },
+            "type": { "type": "string" },
+            "profile": { "type": "string", "format": "uri" }
+          },
+          "required": ["href", "type", "profile"]
+        },
+        "curies": {
+          "type": "array",
+          "description": "CURIE definitions used to compact custom link-relation names.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "href": { "type": "string", "format": "uri-template" },
+              "templated": { "type": "boolean" },
+              "type": { "type": "string" },
+              "profile": { "type": "string", "format": "uri" }
+            },
+            "required": ["name", "href", "templated"]
+          }
+        },
+        "cbrws:greeting": {
+          "type": "object",
+          "description": "Link to the greeting endpoint.",
+          "properties": {
+            "href": { "type": "string", "format": "uri" },
+            "type": { "type": "string" },
+            "profile": { "type": "string", "format": "uri" }
+          },
+          "required": ["href", "type", "profile"]
+        }
+      },
+      "required": ["self", "curies", "cbrws:greeting"]
+    }
+  },
+  "required": ["title", "version", "_links"],
+  "examples": [
+    {
+      "title": "CBRWS API",
+      "version": "1.0",
+      "description": "This is the API endpoint for the cbrws web service.",
+      "_links": {
+        "self": {
+          "href": "https://example.com/api",
+          "type": "application/hal+json",
+          "profile": "https://example.com/profiles/cbrws/v1"
+        },
+        "curies": [
+          {
+            "name": "cbrws",
+            "href": "https://example.com/profiles/cbrws/v1/rels/{rel}",
+            "templated": true
+          }
+        ],
+        "cbrws:greeting": {
+          "href": "https://example.com/api/greeting",
+          "type": "application/hal+json",
+          "profile": "https://example.com/profiles/cbrws/v1/rels/greeting"
+        }
+      }
+    }
+  ]
+}

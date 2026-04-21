@@ -16,37 +16,37 @@ from cbrws.root_endpoint import RootEndpoint
 from cbrws.api_endpoint import APIEndpoint
 from cbrws.greeting_endpoint import GreetingEndpoint
 from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
-from cbrws.relations_schema_endpoint import RelationsSchemaEndpoint
+from cbrws.relations_directory_endpoint import RelationsDirectoryEndpoint
 from cbrws.profiles_directory_endpoint import ProfilesDirectoryEndpoint
 from cbrws.cbrws_directory_endpoint import CBRWSDirectoryEndpoint
-from cbrws.cbrws_v1_schema_endpoint import CBRWSV1SchemaEndpoint
+from cbrws.api_v1_schema_endpoint import APIV1SchemaEndpoint
 from cbrws.not_found import not_found
 
 
 routes: list[Route] = [
   Route('/',
         endpoint=RootEndpoint,
-        name='root_endpoint'),
+        name=RootEndpoint.route_name()),
   Route('/api',
         endpoint=APIEndpoint,
-        name='api_endpoint'),
+        name=APIEndpoint.route_name()),
   Route('/api/greeting',
         endpoint=GreetingEndpoint,
-        name='greeting_endpoint'),
+        name=GreetingEndpoint.route_name()),
   Route('/profiles/',
         endpoint=ProfilesDirectoryEndpoint,
-        name='profiles_endpoint'),
+        name=ProfilesDirectoryEndpoint.route_name()),
   Route('/profiles/cbrws/v1/rels/',
-        endpoint=RelationsSchemaEndpoint,
-        name='relations_endpoint'),
+        endpoint=RelationsDirectoryEndpoint,
+        name=RelationsDirectoryEndpoint.route_name()),
   Route('/profiles/cbrws/v1/rels/greeting',
         endpoint=GreetingSchemaEndpoint,
-        name='greeting_relation_endpoint'),
+        name=GreetingSchemaEndpoint.route_name()),
   Route('/profiles/cbrws', endpoint=CBRWSDirectoryEndpoint,
-        name='cbrws_profiles_endpoint'),
+        name=CBRWSDirectoryEndpoint.route_name()),
   Route('/profiles/cbrws/v1',
-        endpoint=CBRWSV1SchemaEndpoint,
-        name='profile_endpoint')
+        endpoint=APIV1SchemaEndpoint,
+        name=APIV1SchemaEndpoint.route_name())
 ]
 exception_handlers: dict[int, ExceptionHandler] = {404: not_found}
 

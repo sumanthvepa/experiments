@@ -11,11 +11,11 @@ from cbrws.template_endpoint import (
   make_html_filename,
   make_json_filename
 )
-from cbrws.documentation_directory_endpoint import DocumentationDirectoryEndpoint
+from cbrws.directory_endpoint import DirectoryEndpoint
 from cbrws.url_util import public_url_for
 
 
-class CBRWSDirectoryEndpoint(DocumentationDirectoryEndpoint):
+class CBRWSDirectoryEndpoint(DirectoryEndpoint):
   """
     A URL handler for the /profiles/cbrws URL of the cbrws web service.
 
@@ -24,9 +24,21 @@ class CBRWSDirectoryEndpoint(DocumentationDirectoryEndpoint):
   """
   @classmethod
   def context(cls, request: Request) -> dict[str, str]:
+    # pylint: disable=import-outside-toplevel
+    from cbrws.api_v1_schema_endpoint import APIV1SchemaEndpoint
     return {
-      'cbrws_profile_url': public_url_for(request, 'cbrws_profiles_endpoint'),
-      'cbrws_v1_profile_url': public_url_for(request, 'profile_endpoint')
+      'cbrws_directory_url': public_url_for(request, cls.route_name()),
+      'api_v1_schema_url': public_url_for(request, APIV1SchemaEndpoint.route_name()),
+      'description': (
+        'This endpoint lists the versions of the CBRWS schema '
+        'supported by this web service. Each version describes the '
+        'structure of responses from the CBRWS API, including the '
+        'discovery document and its custom link relations. Clients '
+        'can use this directory to locate the JSON Schema for the '
+        'version that their API responses conform to. The '
+        'response is available as HAL+JSON (the default, for machine '
+        'consumption) or as HTML (for human reading) via content '
+        'negotiation on the Accept header.')
     }
 
   @classmethod
@@ -35,7 +47,7 @@ class CBRWSDirectoryEndpoint(DocumentationDirectoryEndpoint):
       Return the HTML template filename for the endpoint.
       :return: An HTML filename
     """
-    return make_html_filename('cbrws-profiles.jinja2')
+    return make_html_filename('cbrws-directory.jinja2')
 
   @classmethod
   def json_filename(cls) -> JSONFilename:
@@ -43,23 +55,4 @@ class CBRWSDirectoryEndpoint(DocumentationDirectoryEndpoint):
       Return the JSON filename for the endpoint.
       :return: A JSON filename
     """
-    return make_json_filename('cbrws-profiles.json')
-
-  @classmethod
-  def link_header_items(cls, request: Request) -> LinkHeaderItems:
-    """
-      Generate Link header item definitions.
-      :param request: The HTTP request
-      :return: A tuple of Link header item definitions
-    """
-    return (
-      LinkHeaderItem(
-        route_name='cbrws_profiles_endpoint',
-        rel='self',
-        type=cls.default_response_media_type()),
-      LinkHeaderItem(
-        route_name='profile_endpoint',
-        rel='item',
-        type='application/schema+json',
-        title='CBRWS v1 API profile')
-    )
+    return make_json_filename('cbrws-directory.json')

@@ -6,10 +6,10 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from starlette import status
 
-from cbrws.service_endpoint import ServiceEndpoint
+from cbrws.http_endpoint import HTTPEndpoint, SupportedMediaTypes
 
 
-class RootEndpoint(ServiceEndpoint):
+class RootEndpoint(HTTPEndpoint):
   """
     A URL handler for the root URL of the cbrws web service.
     It handles GET, HEAD, and OPTIONS requests.
@@ -21,6 +21,20 @@ class RootEndpoint(ServiceEndpoint):
     actual service at the /api endpoint. The root URL should
     always redirect to the /api endpoint.
   """
+
+  @classmethod
+  def supported_media_types(cls) -> SupportedMediaTypes:
+    """
+      Raise because the root endpoint never negotiates content.
+
+      RootEndpoint.get returns an unconditional 308 redirect, so no
+      code path inside the class reads this value. The method exists
+      only to satisfy the abstract declaration on HTTPEndpoint.
+      :raises NotImplementedError: always
+    """
+    raise NotImplementedError(
+      'RootEndpoint redirects unconditionally and does not negotiate content')
+
   # noinspection PyMethodMayBeStatic,PyUnusedLocal
   async def get(
         self, request: Request) -> RedirectResponse:  # pylint: disable=unused-argument

@@ -3,20 +3,17 @@
   the cbrws webservice.
 """
 import unittest
-from pathlib import Path
 
-from httpx import Response
 from starlette import status
 
-from cbrws.profiles_directory_endpoint import ProfilesDirectoryEndpoint
-from test_cbrws.link_header import Link, parse
-from test_cbrws.test_helper import TestHelper
+from test_cbrws.test_helper import HTMLTitleParser, TestHelper
 
 
 class TestProfilesEndpoint(unittest.TestCase, TestHelper):
   """
     Unit tests for the profiles directory route.
   """
+
   @property
   def endpoint_url(self) -> str:
     """
@@ -26,18 +23,18 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     return '/profiles/'
 
   @property
-  def profiles_url(self) -> str:
+  def profiles_directory_url(self) -> str:
     """
-      Expected URL for the 'profiles' directory.
+      Expected URL for the profiles directory.
       :return: The profiles directory URL
     """
     return f'{self.base_url}/profiles/'
 
   @property
-  def cbrws_profile_url(self) -> str:
+  def cbrws_directory_url(self) -> str:
     """
-      Expected URL for the CBRWS profile family.
-      :return: The CBRWS profile family URL
+      Expected URL for the CBRWS directory.
+      :return: The CBRWS directory URL
     """
     return f'{self.base_url}/profiles/cbrws'
 
@@ -49,63 +46,33 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     """
     return 'application/hal+json'
 
-  @property
-  def template_context(self) -> dict[str, str]:
+  def check_endpoint_link(self, response: object) -> None:
     """
-      Expected template context for the 'profiles' directory.
-      :return: The template context
-    """
-    return {
-      'profiles_url': self.profiles_url,
-      'cbrws_profile_url': self.cbrws_profile_url
-    }
-
-  def check_profiles_link(self, response: Response) -> None:
-    """
-      Check that the response has the profiles directory Link header.
+      Template endpoints do not emit Link headers.
       :param response: The response object
       :return: None
     """
-    self.assertIn('Link', response.headers)
-    actual_links: dict[str, Link] = parse(response.headers['Link'])
-    expected_links: dict[str, Link] = {
-      'self': Link(
-        url=self.profiles_url,
-        rel='self',
-        media_type=self.hal_media_type),
-      'item': Link(
-        url=self.cbrws_profile_url,
-        rel='item',
-        media_type=self.hal_media_type,
-        title='CBRWS profile family')
-    }
-    for rel, link in expected_links.items():
-      self.assertIn(rel, actual_links)
-      self.assertEqual(link, actual_links[rel])
-
-  def check_endpoint_link(self, response: Response) -> None:
-    """
-      Check that the response has the profiles directory Link header.
-      :param response: The response object
-      :return: None
-    """
-    self.check_profiles_link(response)
+    return None
 
   def test_get_hal_json_by_default(self) -> None:
     """
-      Test that GET /profiles/ returns HAL JSON by default.
+      Test that GET /profiles/ returns the current HAL directory.
       :return: None
     """
     response = self.make_request('GET', '/profiles/')
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.hal_media_type)
     self.check_allow(response)
-    self.check_profiles_link(response)
-    expected_data = self.load_json(
-      ProfilesDirectoryEndpoint,
-      str(Path(ProfilesDirectoryEndpoint.schema_dir()) / 'profiles.json'),
-      self.template_context)
-    self.assertDictEqual(response.json(), expected_data)
+    self.assertNotIn('Link', response.headers)
+
+    data = response.json()
+    self.assertEqual('Profiles Directory', data['title'])
+    self.assertIn('top-level directory', data['description'])
+    self.assertEqual(self.profiles_directory_url, data['_links']['self']['href'])
+    self.assertEqual(self.hal_media_type, data['_links']['self']['type'])
+    self.assertEqual(self.cbrws_directory_url, data['_links']['item'][0]['href'])
+    self.assertEqual('CBRWS profile family', data['_links']['item'][0]['title'])
+    self.assertEqual(self.hal_media_type, data['_links']['item'][0]['type'])
 
   def test_get_hal_json_with_accept_header(self) -> None:
     """
@@ -119,12 +86,11 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.hal_media_type)
     self.check_allow(response)
-    self.check_profiles_link(response)
-    expected_data = self.load_json(
-      ProfilesDirectoryEndpoint,
-      str(Path(ProfilesDirectoryEndpoint.schema_dir()) / 'profiles.json'),
-      self.template_context)
-    self.assertDictEqual(response.json(), expected_data)
+    self.assertNotIn('Link', response.headers)
+
+    data = response.json()
+    self.assertEqual(self.profiles_directory_url, data['_links']['self']['href'])
+    self.assertEqual(self.cbrws_directory_url, data['_links']['item'][0]['href'])
 
   def test_get_html(self) -> None:
     """
@@ -138,12 +104,16 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, 'text/html; charset=utf-8')
     self.check_allow(response)
-    self.check_profiles_link(response)
-    expected_html = self.load_file(
-      ProfilesDirectoryEndpoint,
-      str(Path(ProfilesDirectoryEndpoint.schema_dir()) / 'profiles.jinja2'),
-      self.template_context)
-    self.assertEqual(expected_html, response.text)
+    self.assertNotIn('Link', response.headers)
+
+    parser = HTMLTitleParser()
+    parser.feed(response.text)
+    self.assertEqual('Profiles Directory', parser.title)
+    self.assertIn('<h1>Profiles Directory</h1>', response.text)
+    self.assertIn(self.profiles_directory_url, response.text)
+    self.assertIn(self.cbrws_directory_url, response.text)
+    self.assertIn('<code>application/hal+json</code>', response.text)
+    self.assertIn('<code>text/html</code>', response.text)
 
   def test_get_unsupported_media_type(self) -> None:
     """
@@ -157,14 +127,18 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
     self.check_content_type(response, self.problem_media_type)
     self.check_allow(response)
-    self.check_profiles_link(response)
-    data = response.json()
-    self.assertEqual('Not Acceptable', data['title'])
-    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, data['status'])
-    self.assertEqual(
-      ['application/hal+json', 'text/html'],
-      data['supportedMediaTypes'])
-    self.assertNotIn('*/*', data['detail'])
+    self.assertNotIn('Link', response.headers)
+
+    self.assertDictEqual(
+      response.json(),
+      {
+        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
+        'title': 'Not Acceptable',
+        'status': status.HTTP_406_NOT_ACCEPTABLE,
+        'detail': 'The requested media type is not supported by this endpoint. '
+                  + 'Supported media types are: application/hal+json, text/html',
+        'supportedMediaTypes': ['application/hal+json', 'text/html']
+      })
 
   def test_get_partial_html_media_type_is_unsupported(self) -> None:
     """
@@ -177,6 +151,7 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
       headers={'Accept': 'text/html-fragment'})
     self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
     self.check_content_type(response, self.problem_media_type)
+    self.assertNotIn('Link', response.headers)
 
   def test_head_hal_json(self) -> None:
     """
@@ -190,7 +165,7 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, self.hal_media_type)
     self.check_allow(response)
-    self.check_profiles_link(response)
+    self.assertNotIn('Link', response.headers)
     self.assertEqual('', response.text)
 
   def test_head_html(self) -> None:
@@ -205,15 +180,16 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
     self.assertEqual(status.HTTP_200_OK, response.status_code)
     self.check_content_type(response, 'text/html; charset=utf-8')
     self.check_allow(response)
-    self.check_profiles_link(response)
+    self.assertNotIn('Link', response.headers)
     self.assertEqual('', response.text)
 
   def test_options_profiles(self) -> None:
     """
-      Test that OPTIONS /profiles/ returns allowed methods and links.
+      Test that OPTIONS /profiles/ returns no Link header.
       :return: None
     """
     response = self.make_request('OPTIONS', '/profiles/')
     self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
     self.check_allow(response)
-    self.check_profiles_link(response)
+    self.assertNotIn('Link', response.headers)
+    self.assertEqual(b'', response.content)

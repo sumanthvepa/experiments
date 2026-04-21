@@ -3,6 +3,7 @@
 """
 from abc import ABC, abstractmethod
 import logging
+import re
 from typing import Literal, NotRequired, TypeAlias, TypedDict, override
 
 from starlette import status
@@ -14,6 +15,20 @@ from cbrws.url_util import public_url_for
 
 
 logger = logging.getLogger('cbrws.http')
+
+
+def camel_to_snake_case(name: str) -> str:
+  """
+    Convert a CamelCase name to snake_case.
+    :param name: The name to convert
+    :return: The snake_case name
+  """
+  name = re.sub(r'([A-Z]+)(V[0-9])', r'\1_\2', name)
+  name = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', name)
+  name = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name)
+  name = re.sub(r'([0-9])([A-Za-z])', r'\1_\2', name)
+  return name.lower()
+
 
 HTTPMethod: TypeAlias = Literal[
   'GET',
@@ -54,6 +69,14 @@ class HTTPEndpoint(StarletteHTTPEndpoint, ABC):
   """
     A base class for common HTTP endpoint behavior in the cbrws web service.
   """
+
+  @classmethod
+  def route_name(cls) -> str:
+    """
+      Return the route name for this endpoint.
+      :return: The route name
+    """
+    return camel_to_snake_case(cls.__name__)
 
   @classmethod
   def allowed_methods(cls) -> HTTPMethods:

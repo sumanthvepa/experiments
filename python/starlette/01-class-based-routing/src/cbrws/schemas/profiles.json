@@ -1,14 +1,14 @@
 {
-  "title": "Profiles",
-  "description": "Profiles identify the semantic contracts supported by this web service.",
+  "title": "Profiles Directory",
+  "description": "{{ description }}",
   "_links": {
     "self": {
-      "href": "{{ profiles_url }}",
+      "href": "{{ profiles_directory_url }}",
       "type": "application/hal+json"
     },
     "item": [
       {
-        "href": "{{ cbrws_profile_url }}",
+        "href": "{{ cbrws_directory_url }}",
         "title": "CBRWS profile family",
         "type": "application/hal+json"
       }

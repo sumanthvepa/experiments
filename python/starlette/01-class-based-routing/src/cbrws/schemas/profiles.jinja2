@@ -1,22 +1,135 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Profiles</title>
+  <meta charset="utf-8" />
+  <title>Profiles Directory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
-  <main>
-    <h1>Profiles</h1>
-    <p>
-      Profiles identify the semantic contracts supported by this web service.
-    </p>
+<header>
+  <h1>Profiles Directory</h1>
+  <p>
+    Endpoint: <code>{{ profiles_directory_url }}</code>
+  </p>
+</header>
 
-    <h2>Supported Profiles</h2>
+<main>
+  <section>
+    <h2>Summary</h2>
+    <p>{{ description }}</p>
+  </section>
+
+  <section>
+    <h2>What Is a Profile?</h2>
+    <p>
+      When you call an API endpoint such as <code>/api/greeting</code>,
+      the response includes data fields and navigation links. A
+      <em>profile</em> is a separate document that describes that
+      response: what fields it contains, what each link means, and how
+      a client should interpret the data. Think of a profile as the
+      instruction manual for a particular API response.
+    </p>
+    <p>
+      Every profile is available in two formats from the same URL,
+      selected by the <code>Accept</code> header you send:
+    </p>
     <ul>
       <li>
-        <a href="{{ cbrws_profile_url }}">CBRWS profile family</a>
+        <strong>HTML</strong> (<code>Accept: text/html</code>) &mdash;
+        a human-readable page that explains the endpoint's behavior,
+        response fields, links, and error conditions. This is what you
+        see when you open the URL in a browser, and it is useful when
+        you are learning the API or writing a client for the first
+        time.
+      </li>
+      <li>
+        <strong>JSON Schema</strong>
+        (<code>Accept: application/schema+json</code>) &mdash; a
+        machine-readable document that formally describes the response
+        structure. You can feed this to a JSON Schema validator library
+        to automatically check that a response has the expected shape.
       </li>
     </ul>
-  </main>
+    <p>
+      Profiles are organized into <em>families</em>. A family groups
+      all the profiles that belong to the same API or service. Within
+      a family, profiles may be versioned so that the API can evolve
+      without breaking existing clients. This directory lists the
+      profile families available on this server.
+    </p>
+  </section>
+
+  <section>
+    <h2>Directory Contents</h2>
+    <p>The following profile families are available:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Family</th>
+          <th>URL</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CBRWS</td>
+          <td>
+            <a href="{{ cbrws_directory_url }}"><code>{{ cbrws_directory_url }}</code></a>
+          </td>
+          <td>
+            Profiles for the CBRWS (Class Based Routing Web Service)
+            API. This family contains versioned profiles that describe
+            the API discovery document, resource endpoints, and custom
+            link relations. Follow this link to see the available
+            versions.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Content Negotiation</h2>
+    <p>
+      This directory is available in two formats. The format you
+      receive depends on the <code>Accept</code> header in your
+      request:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th><code>Accept</code> Header</th>
+          <th>What You Get</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <code>application/hal+json</code> (or omitted)
+          </td>
+          <td>
+            A HAL+JSON document listing the profile families as
+            navigable links. This is the default and is intended for
+            programmatic consumption.
+          </td>
+        </tr>
+        <tr>
+          <td><code>text/html</code> (or a browser)</td>
+          <td>This human-readable page.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Examples using curl:</p>
+    <pre><code># Fetch the machine-readable HAL+JSON directory
+curl -s -H "Accept: application/hal+json" {{ profiles_directory_url }}
+
+# Fetch the human-readable HTML page
+curl -s -H "Accept: text/html" {{ profiles_directory_url }}</code></pre>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; Sumanth Vepa. 2025. Licensed under the GNU GPL v3.0 or later.</p>
+</footer>
 </body>
 </html>

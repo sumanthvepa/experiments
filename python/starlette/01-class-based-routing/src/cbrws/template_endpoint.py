@@ -13,8 +13,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 
 from cbrws.accept_util import select_media_type
-from cbrws.http_endpoint import HTTPEndpoint
-from cbrws.url_util import public_url_for
+from cbrws.http_endpoint import HTTPEndpoint, ResponseMediaType, SupportedMediaTypes
 
 
 HTMLFilename = NewType('HTMLFilename', str)
@@ -170,6 +169,38 @@ class TemplateEndpoint(HTTPEndpoint):
     :return:
       The context for the endpoint
     """
+
+  @classmethod
+  def supported_media_types(cls) -> SupportedMediaTypes:
+    """
+      Return the supported media types for template enpoints.
+      Template endpoints always support at least two media types
+      machine_readable, and human_readable. Machine readble is
+      the default media type.
+
+      :return: A tuple of media types supported by profile directories
+    """
+    return cls.machine_readable_response_media_type(), cls.human_readable_response_media_type()
+
+  @classmethod
+  @abstractmethod
+  def machine_readable_response_media_type(cls) -> ResponseMediaType:
+    """
+      Return the media type for a machine readable media type.
+      Subclasses must return a specific subset of JSON such as
+      application/hal+json or application/schema+json.
+
+      :return:  The media type for a machine readable media type
+    """
+
+  @classmethod
+  def human_readable_response_media_type(cls) -> ResponseMediaType:
+    """
+      Return the media type for human-readable responses.
+
+      :return:  The media type for human-readable responses
+    """
+    return 'text/html'
 
   @classmethod
   def negotiate_media_type(cls, request: Request) -> str | None:

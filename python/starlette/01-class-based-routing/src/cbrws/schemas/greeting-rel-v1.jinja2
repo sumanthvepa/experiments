@@ -7,63 +7,601 @@
 </head>
 <body>
 <header>
-  <h1>{{ title }}: <code>cbrws:greeting</code></h1>
+  <h1>{{ title }}</h1>
   <p>
-    This document describes the custom <code>cbrws:greeting</code>
-    relation used by the CBRWS v1 API.
+    Endpoint documentation for <code>{{ service_url }}</code> in the
+    CBRWS web service.
   </p>
 </header>
 
 <main>
   <section>
-    <h2>Meaning</h2>
+    <h2>What This Endpoint Does</h2>
     <p>
-      The <code>cbrws:greeting</code> relation identifies a resource
-      that returns the API's greeting representation.
+      The greeting endpoint (<code>{{ service_url }}</code>) returns
+      a JSON greeting message. It is the simplest resource in the
+      CBRWS web service and a good starting point for understanding
+      how the API works.
     </p>
     <p>
-      Parent relations URL: <code>{{ relations_url }}</code><br />
-      Relation document URL: <code>{{ relation_url }}</code><br />
-      Target resource URL: <code>{{ resource_url }}</code>
-    </p>
-    <p>
-      Back to relations index:
-      <a href="{{ relations_url }}"><code>{{ relations_url }}</code></a>
-    </p>
-  </section>
-
-  <section>
-    <h2>Target Resource</h2>
-    <p>
-      Dereferencing this relation reaches <code>{{ resource_url }}</code>.
-      That resource supports <code>GET</code>, <code>HEAD</code>, and
-      <code>OPTIONS</code>.
-    </p>
-    <p>
-      Successful responses use
-      <code>{{ resource_media_type }}</code> and conform to the profile
-      <code>{{ relation_url }}</code>.
+      The endpoint accepts <code>GET</code>, <code>HEAD</code>, and
+      <code>OPTIONS</code> requests. All other HTTP methods (such as
+      <code>POST</code>, <code>PUT</code>, or <code>DELETE</code>)
+      are rejected with an error.
     </p>
   </section>
 
   <section>
-    <h2>Representation Contract</h2>
-    <p>The <code>/api/greeting</code> resource returns a JSON object with:</p>
+    <h2>Discovering the Endpoint</h2>
+    <p>
+      You do not need to hardcode the greeting endpoint URL into your
+      client. Instead, you can discover it by first requesting the API
+      discovery document at <code>{{ api_url }}</code>.
+    </p>
+    <p>
+      The discovery document is a JSON object that lists the resources
+      available in the API. Each resource appears as a link with a URL
+      (<code>href</code>) and metadata. The greeting endpoint appears
+      under the key <code>cbrws:greeting</code> inside the
+      <code>_links</code> object:
+    </p>
+    <pre><code>GET {{ api_url }}
+
+{
+  "title": "CBRWS API",
+  "version": "1.0",
+  "_links": {
+    ...
+    "cbrws:greeting": {
+      "href": "{{ service_url }}",
+      "type": "{{ service_media_type }}",
+      "profile": "{{ schema_url }}"
+    }
+  }
+}</code></pre>
+    <p>
+      The key <code>cbrws:greeting</code> is a shorthand called a
+      CURIE (Compact URI). The prefix <code>cbrws:</code> is defined
+      in a <code>curies</code> array in the same document. Expanding
+      the CURIE gives you the full URL of this documentation page:
+      <code>{{ schema_url }}</code>. You do not need to expand CURIEs to
+      use the API &mdash; they are simply a naming convention for link
+      relations.
+    </p>
+    <p>
+      To call the greeting endpoint, use the value of the
+      <code>href</code> field: <code>{{ service_url }}</code>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Making a GET Request</h2>
+    <h3>URL</h3>
+    <p><code>{{ service_url }}</code></p>
+
+    <h3>Method</h3>
+    <p><code>GET</code></p>
+
+    <h3>Request Headers</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Header</th>
+          <th>Required</th>
+          <th>Value</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Accept</code></td>
+          <td>No</td>
+          <td><code>{{ service_media_type }}</code></td>
+          <td>
+            If omitted, the server defaults to
+            <code>{{ service_media_type }}</code>. Sending an
+            unsupported value (such as <code>application/xml</code>)
+            produces a <code>406 Not Acceptable</code> error.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Request Body</h3>
+    <p>
+      None. <code>GET</code> requests to this endpoint do not accept
+      a request body.
+    </p>
+  </section>
+
+  <section>
+    <h2>Successful Response (200 OK)</h2>
+
+    <h3>Response Headers</h3>
+    <table>
+      <thead>
+        <tr><th>Header</th><th>Value</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Content-Type</code></td>
+          <td><code>{{ service_media_type }}</code></td>
+          <td>
+            The response body is JSON formatted using HAL (Hypertext
+            Application Language). HAL is a convention for including
+            navigation links inside JSON responses. If your client
+            just needs the data fields, you can treat the response as
+            ordinary JSON and ignore the <code>_links</code> object.
+          </td>
+        </tr>
+        <tr>
+          <td><code>Allow</code></td>
+          <td><code>GET, HEAD, OPTIONS</code></td>
+          <td>The HTTP methods this endpoint accepts.</td>
+        </tr>
+        <tr>
+          <td><code>Link</code></td>
+          <td>(multiple entries &mdash; see below)</td>
+          <td>
+            Machine-readable pointers to this documentation page and
+            to the JSON Schema for the response.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>The Link Header</h4>
+    <p>
+      The <code>Link</code> header contains three entries, all
+      pointing to this documentation URL
+      (<code>{{ schema_url }}</code>):
+    </p>
+    <table>
+      <thead>
+        <tr><th>Relation</th><th>Type</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>profile</code></td>
+          <td>&mdash;</td>
+          <td>
+            Identifies the semantic profile (i.e. the contract) that
+            this response conforms to. This is a standard mechanism
+            (defined in RFC 6906) for a server to say &ldquo;the
+            response you just received follows the rules described at
+            this URL.&rdquo;
+          </td>
+        </tr>
+        <tr>
+          <td><code>describedBy</code></td>
+          <td><code>application/schema+json</code></td>
+          <td>
+            Points to a machine-readable JSON Schema that describes the
+            structure of the response body. Request this URL with
+            <code>Accept: application/schema+json</code> to retrieve
+            the schema.
+          </td>
+        </tr>
+        <tr>
+          <td><code>documentation</code></td>
+          <td><code>text/html</code></td>
+          <td>
+            Points to this human-readable HTML page. Request this URL
+            with <code>Accept: text/html</code> or open it in a
+            browser.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Response Body</h3>
+    <p>
+      The response body is a JSON object with the following fields:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Always Present</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>message</code></td>
+          <td>string</td>
+          <td>Yes</td>
+          <td>
+            The greeting message
+            (e.g. <code>"Hello, world!"</code>).
+          </td>
+        </tr>
+        <tr>
+          <td><code>_links</code></td>
+          <td>object</td>
+          <td>Yes</td>
+          <td>
+            Navigation links. See
+            <a href="#understanding-the-links">Understanding the
+            Links</a> below.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Example Response Body</h4>
+    <pre><code>{
+  "message": "Hello, world!",
+  "_links": {
+    "self": {
+      "href": "{{ service_url }}",
+      "type": "{{ service_media_type }}",
+      "profile": "{{ schema_url }}"
+    },
+    "up": {
+      "href": "{{ api_url }}",
+      "type": "{{ service_media_type }}",
+      "profile": "{{ api_schema_url }}"
+    }
+  }
+}</code></pre>
+  </section>
+
+  <section id="understanding-the-links">
+    <h2>Understanding the Links</h2>
+    <p>
+      The <code>_links</code> object is a HAL convention for embedding
+      navigation links in a JSON response. Each key in
+      <code>_links</code> is a <em>relation name</em> that describes
+      how the linked resource relates to the current one. Think of
+      them as the JSON equivalent of clickable links on a web page.
+    </p>
+    <p>
+      You do not need to follow these links to use the greeting
+      endpoint. They are provided so that a client can navigate the
+      API programmatically without hardcoding URLs.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Link</th>
+          <th>What It Points To</th>
+          <th>Why It Is Useful</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>self</code></td>
+          <td>
+            This endpoint:
+            <code>{{ service_url }}</code>
+          </td>
+          <td>
+            The canonical URL for this resource. A client can use it to
+            refresh the resource or share a stable reference to it.
+          </td>
+        </tr>
+        <tr>
+          <td><code>up</code></td>
+          <td>
+            The API discovery document:
+            <code>{{ api_url }}</code>
+          </td>
+          <td>
+            The parent resource. Following this link takes you back to
+            the API root, where you can discover other endpoints.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Each link object also contains:</p>
     <ul>
-      <li><code>message</code>: a greeting string</li>
-      <li><code>_links.self</code>: a link to the greeting resource</li>
-      <li><code>_links.up</code>: a link back to <code>/api</code></li>
+      <li>
+        <code>type</code> &mdash; the response media type of the
+        linked resource
+        (e.g. <code>{{ service_media_type }}</code>), telling your
+        client what format to expect.
+      </li>
+      <li>
+        <code>profile</code> &mdash; the URL of the documentation
+        page that describes the linked resource&rsquo;s structure and
+        meaning. Open this URL in a browser to read the documentation,
+        or request it with
+        <code>Accept: application/schema+json</code> to get a
+        machine-readable schema.
+      </li>
     </ul>
   </section>
 
   <section>
-    <h2>Content Negotiation</h2>
-    <p>This relation document supports:</p>
+    <h2>Other Supported HTTP Methods</h2>
+
+    <h3>HEAD</h3>
+    <p>
+      A <code>HEAD</code> request returns the same response headers as
+      a <code>GET</code> request (including <code>Content-Type</code>,
+      <code>Allow</code>, and <code>Link</code>) but with an empty
+      body. Use this when you only need to check that the endpoint
+      exists or to inspect its headers without downloading the full
+      response.
+    </p>
+
+    <h3>OPTIONS</h3>
+    <p>
+      An <code>OPTIONS</code> request returns a
+      <code>204 No Content</code> response with an
+      <code>Allow</code> header listing the HTTP methods this endpoint
+      accepts (<code>GET, HEAD, OPTIONS</code>) and a
+      <code>Link</code> header. The response has no body. Use this to
+      check which methods are available before making a request.
+    </p>
+  </section>
+
+  <section>
+    <h2>Error Responses</h2>
+    <p>
+      All error responses from this endpoint (and from the CBRWS web
+      service in general) use the
+      <code>application/problem+json</code> media type. This is a
+      standard format defined in
+      <a href="https://datatracker.ietf.org/doc/html/rfc7807">RFC
+      7807</a> (Problem Details for HTTP APIs) for reporting errors in
+      a consistent, machine-readable way. Every error response is a
+      JSON object with at least these fields:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>type</code></td>
+          <td>string (URL)</td>
+          <td>
+            A URL that identifies the kind of error. You can open this
+            URL in a browser for a general explanation of the HTTP
+            status code.
+          </td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>string</td>
+          <td>A short, human-readable name for the error.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>integer</td>
+          <td>
+            The HTTP status code (matches the response status line).
+          </td>
+        </tr>
+        <tr>
+          <td><code>detail</code></td>
+          <td>string</td>
+          <td>
+            A human-readable explanation of what went wrong in this
+            specific request.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>405 Method Not Allowed</h3>
+    <p>
+      Returned when you use an HTTP method that this endpoint does not
+      support (for example <code>POST</code>, <code>PUT</code>,
+      <code>DELETE</code>, or <code>PATCH</code>). The response
+      includes an <code>Allow</code> header listing the methods that
+      are accepted, and an <code>allowedMethods</code> array in the
+      body with the same information.
+    </p>
+    <pre><code>HTTP/1.1 405 Method Not Allowed
+Content-Type: application/problem+json
+Allow: GET, HEAD, OPTIONS
+
+{
+  "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/405",
+  "title": "Method Not Allowed",
+  "status": 405,
+  "detail": "The requested method is not allowed for this resource. See the Allow header for allowed methods.",
+  "allowedMethods": ["GET", "HEAD", "OPTIONS"]
+}</code></pre>
+
+    <h3>406 Not Acceptable</h3>
+    <p>
+      Returned when your <code>Accept</code> header asks for a media
+      type that this endpoint cannot produce. The greeting endpoint
+      only produces <code>{{ service_media_type }}</code>. If you
+      request something else (such as <code>application/xml</code>),
+      you will get this error. The response body lists the media types
+      the endpoint supports in the <code>supportedMediaTypes</code>
+      array.
+    </p>
+    <pre><code>HTTP/1.1 406 Not Acceptable
+Content-Type: application/problem+json
+Allow: GET, HEAD, OPTIONS
+
+{
+  "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406",
+  "title": "Not Acceptable",
+  "status": 406,
+  "detail": "The requested media type is not supported by this endpoint. Supported media types are: {{ service_media_type }}",
+  "supportedMediaTypes": ["{{ service_media_type }}"]
+}</code></pre>
+
+    <h3>404 Not Found</h3>
+    <p>
+      Returned when you request a URL that does not exist on the
+      server. If you receive this error when trying to reach the
+      greeting endpoint, check that you are using the correct URL. The
+      safest approach is to discover the URL from the API discovery
+      document at <code>{{ api_url }}</code> rather than hardcoding it.
+    </p>
+    <pre><code>HTTP/1.1 404 Not Found
+Content-Type: application/problem+json
+
+{
+  "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/404",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "The requested resource was not found on this server. Please check the URL and try again."
+}</code></pre>
+  </section>
+
+  <section>
+    <h2>Examples Using curl</h2>
+    <p>
+      The examples below use
+      <a href="https://curl.se/">curl</a>, a command-line tool for
+      making HTTP requests. The <code>-s</code> flag silences
+      progress output and <code>-D -</code> prints the response
+      headers to the terminal alongside the body.
+    </p>
+
+    <h3>Fetch the Greeting</h3>
+    <pre><code>curl -s -D - {{ service_url }}</code></pre>
+    <p>Expected output:</p>
+    <pre><code>HTTP/1.1 200 OK
+content-type: {{ service_media_type }}
+allow: GET, HEAD, OPTIONS
+link: &lt;{{ schema_url }}&gt;; rel="profile"; ..., ...
+
+{
+  "message": "Hello, world!",
+  "_links": {
+    "self": {
+      "href": "{{ service_url }}",
+      "type": "{{ service_media_type }}",
+      "profile": "{{ schema_url }}"
+    },
+    "up": {
+      "href": "{{ api_url }}",
+      "type": "{{ service_media_type }}",
+      "profile": "{{ api_schema_url }}"
+    }
+  }
+}</code></pre>
+
+    <h3>Fetch with an Explicit Accept Header</h3>
+    <pre><code>curl -s -D - -H "Accept: {{ service_media_type }}" {{ service_url }}</code></pre>
+    <p>
+      The response is identical to the previous example. Setting the
+      <code>Accept</code> header explicitly is optional but good
+      practice &mdash; it makes your client&rsquo;s expectations
+      clear to both the server and to anyone reading your code.
+    </p>
+
+    <h3>Check Headers Only (HEAD)</h3>
+    <pre><code>curl -s -D - --head {{ service_url }}</code></pre>
+    <p>Expected output (headers only, no body):</p>
+    <pre><code>HTTP/1.1 200 OK
+content-type: {{ service_media_type }}
+allow: GET, HEAD, OPTIONS
+link: ...</code></pre>
+
+    <h3>Check Allowed Methods (OPTIONS)</h3>
+    <pre><code>curl -s -D - -X OPTIONS {{ service_url }}</code></pre>
+    <p>Expected output:</p>
+    <pre><code>HTTP/1.1 204 No Content
+allow: GET, HEAD, OPTIONS
+link: ...</code></pre>
+
+    <h3>Trigger a 405 Method Not Allowed Error</h3>
+    <pre><code>curl -s -D - -X POST {{ service_url }}</code></pre>
+    <p>Expected output:</p>
+    <pre><code>HTTP/1.1 405 Method Not Allowed
+content-type: application/problem+json
+allow: GET, HEAD, OPTIONS
+
+{
+  "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/405",
+  "title": "Method Not Allowed",
+  "status": 405,
+  "detail": "The requested method is not allowed for this resource. See the Allow header for allowed methods.",
+  "allowedMethods": ["GET", "HEAD", "OPTIONS"]
+}</code></pre>
+
+    <h3>Trigger a 406 Not Acceptable Error</h3>
+    <pre><code>curl -s -D - -H "Accept: application/xml" {{ service_url }}</code></pre>
+    <p>Expected output:</p>
+    <pre><code>HTTP/1.1 406 Not Acceptable
+content-type: application/problem+json
+allow: GET, HEAD, OPTIONS
+
+{
+  "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406",
+  "title": "Not Acceptable",
+  "status": 406,
+  "detail": "The requested media type is not supported by this endpoint. Supported media types are: {{ service_media_type }}",
+  "supportedMediaTypes": ["{{ service_media_type }}"]
+}</code></pre>
+  </section>
+
+  <section>
+    <h2>About This Documentation URL</h2>
+    <p>
+      You are reading a page served from
+      <code>{{ schema_url }}</code>. This same URL also serves a
+      machine-readable JSON Schema &mdash; which one you receive
+      depends on the <code>Accept</code> header you send:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th><code>Accept</code> Header</th>
+          <th>What You Get</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>text/html</code> (or a browser)</td>
+          <td>This page (human-readable documentation).</td>
+        </tr>
+        <tr>
+          <td>
+            <code>application/schema+json</code> (or omitted)
+          </td>
+          <td>
+            A JSON Schema document that formally describes the
+            structure of the greeting endpoint response. You can use
+            this schema with a JSON Schema validator library to verify
+            that a response body has the expected shape.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>To fetch the JSON Schema from the command line:</p>
+    <pre><code>curl -s -H "Accept: application/schema+json" {{ schema_url }}</code></pre>
+    <p>
+      This documentation URL is referenced in two places in the
+      greeting endpoint response:
+    </p>
     <ul>
-      <li><code>text/html</code> for this documentation page</li>
-      <li><code>application/schema+json</code> for a JSON Schema of the target resource</li>
+      <li>
+        In the response body, at
+        <code>_links.self.profile</code> &mdash; identifying the
+        contract that the response conforms to.
+      </li>
+      <li>
+        In the HTTP <code>Link</code> response header, with
+        <code>rel="profile"</code>,
+        <code>rel="describedBy"</code>, and
+        <code>rel="documentation"</code> &mdash; providing
+        machine-discoverable pointers to this documentation and the
+        JSON Schema.
+      </li>
     </ul>
+    <p>
+      The parent of this page is the relations directory at
+      <code>{{ parent_url }}</code>, which lists all custom link
+      relation types defined by the v1 CBRWS API.
+    </p>
   </section>
 </main>
+
+<footer>
+  <p>&copy; Sumanth Vepa. 2025. Licensed under the GNU GPL v3.0 or later.</p>
+</footer>
 </body>
 </html>

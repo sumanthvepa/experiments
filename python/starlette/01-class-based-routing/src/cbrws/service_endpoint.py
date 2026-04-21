@@ -2,6 +2,10 @@
   service_endpoint.py: Base class for API endpoints in the cbrws
   web service.
 """
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from abc import abstractmethod
+
 from starlette.requests import Request
 
 from cbrws.http_endpoint import (
@@ -10,7 +14,9 @@ from cbrws.http_endpoint import (
   LinkHeaderItems,
   SupportedMediaTypes
 )
-from cbrws.url_util import public_url_for
+
+if TYPE_CHECKING:
+  from cbrws.schema_endpoint import SchemaEndpoint
 
 
 class ServiceEndpoint(HTTPEndpoint):
@@ -33,23 +39,13 @@ class ServiceEndpoint(HTTPEndpoint):
     """
     return ('application/hal+json',)
 
-  @staticmethod
-  def schema_url(request: Request) -> str:
+  @classmethod
+  @abstractmethod
+  def schema_class(cls) -> type[SchemaEndpoint]:
     """
-      Generate the schema URL for the cbrws web service.
-      :param request: The HTTP request
-      :return: A string representing the schema URL
+    Returns the schema endpoint class for this service endpoint
+    :return:
     """
-    return public_url_for(request, 'profile_endpoint')
-
-
-  @staticmethod
-  def schema_media_type() -> str:
-    """
-      Generate the media type for the schema of the cbrws web service.
-      :return: A string representing the schema media type
-    """
-    return 'application/schema+json'
 
   @classmethod
   def link_header_items(cls, request: Request) -> LinkHeaderItems:
@@ -60,18 +56,17 @@ class ServiceEndpoint(HTTPEndpoint):
     """
     return (
       LinkHeaderItem(
-        route_name='profile_endpoint',
+        route_name=cls.schema_class().route_name(),
         rel='profile',
-        type='application/ld+json',
-        title='API version identifier(URI) for the cbrws web service'),
+        title=cls.schema_class().schema_title()),
       LinkHeaderItem(
-        route_name='profile_endpoint',
+        route_name=cls.schema_class().route_name(),
         rel='describedBy',
-        type=cls.schema_media_type(),
-        title='JSON schema of the response'),
+        type=cls.schema_class().machine_readable_response_media_type(),
+        title=cls.schema_class().schema_title()),
       LinkHeaderItem(
-        route_name='profile_endpoint',
+        route_name=cls.schema_class().route_name(),
         rel='documentation',
-        type='text/html',
-        title='Documentation for the cbrws web service API')
+        type=cls.schema_class().human_readable_response_media_type(),
+        title=cls.schema_class().schema_title())
     )

@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<header>
+  <h1>{{ title }}</h1>
+  <p>
+    URL: <code>{{ schema_url }}</code>
+  </p>
+</header>
+
+<main>
+  <section>
+    <h2>Summary</h2>
+    <p>
+      This page is the specification (the "contract") for the response
+      returned by the CBRWS v1 discovery endpoint,
+      <code>{{ api_url }}</code>. It describes exactly what fields that
+      response contains, what they mean, and what other URLs the
+      response links to. (In this documentation the word
+      <em>endpoint</em> means a URL that responds to HTTP requests; the
+      two terms are used interchangeably.)
+    </p>
+  </section>
+
+  <section>
+    <h2>Where This Page Fits</h2>
+    <p>
+      This page lives inside <code>/profiles</code> in the URL
+      hierarchy of this web service:
+    </p>
+    <ul>
+      <li>
+        <code>/profiles</code> &mdash; the top-level index of every
+        schema family on this server.
+      </li>
+      <li>
+        <code>/profiles/cbrws</code> &mdash;
+        <a href="{{ cbrws_directory_url }}">parent directory</a>,
+        listing the versions of the CBRWS schema that this server
+        publishes.
+      </li>
+      <li>
+        <code>/profiles/cbrws/v1</code> &mdash;
+        <strong>this page</strong>. The v1 API specification.
+      </li>
+      <li>
+        <code>/profiles/cbrws/v1/rels/</code> &mdash;
+        <a href="{{ relations_directory_url }}">relations directory</a>.
+        It has a sub-page for every custom link relation this API uses
+        (see the <a href="#link-relations">Custom Link Relations</a>
+        section below).
+      </li>
+    </ul>
+    <p>
+      The path prefix <code>/profiles/</code> reflects a term from the
+      HTTP standard RFC 6906, which calls this kind of specification a
+      <em>profile</em>. In this documentation and in the rest of the
+      codebase we use the word <em>schema</em> for the same idea; the
+      URL path keeps the older name.
+    </p>
+  </section>
+
+  <section>
+    <h2>Background: Terms Used on This Page</h2>
+    <p>
+      The sections below use several terms from HTTP and REST
+      standards. If you already know them, skip ahead to
+      <a href="#response-contract">The /api Response Contract</a>.
+      Otherwise, here is a short glossary.
+    </p>
+    <dl>
+      <dt><em>JSON Schema</em></dt>
+      <dd>
+        A JSON document that formally describes the shape of another
+        JSON document &mdash; the fields it contains, their types, and
+        which are required. A client can feed it to a JSON Schema
+        validator library to check automatically that a response is
+        well-formed. The machine-readable version of this page (fetched
+        with <code>Accept: application/schema+json</code>) is a JSON
+        Schema for the <code>{{ api_url }}</code> response.
+      </dd>
+      <dt><em>HAL</em> (Hypertext Application Language)</dt>
+      <dd>
+        A lightweight convention for embedding navigation links inside
+        a JSON response. Links go under a top-level key named
+        <code>_links</code>; the rest of the document is ordinary JSON.
+        The CBRWS API serves its responses as HAL+JSON
+        (<code>{{ api_media_type }}</code>).
+      </dd>
+      <dt><em>Link relation</em></dt>
+      <dd>
+        A short name attached to a link that describes how the linked
+        resource relates to the current one &mdash; for example
+        <code>self</code> (the current resource's own URL),
+        <code>up</code> (its parent), or a custom name like
+        <code>cbrws:greeting</code>. The HAL document puts these names
+        as keys inside the <code>_links</code> object.
+      </dd>
+      <dt><em>CURIE</em> (Compact URI)</dt>
+      <dd>
+        A shorthand for long URIs. HAL lets an API define its own link
+        relations, but the names are supposed to be URIs, which are
+        verbose. A CURIE lets the API declare a prefix
+        (<code>cbrws:</code>) that expands into a longer URL template.
+        In this API, <code>cbrws:greeting</code> expands to
+        <code>{{ greeting_relation_url }}</code> &mdash; the
+        documentation page for that relation.
+      </dd>
+      <dt>The HTTP <code>profile</code> link relation</dt>
+      <dd>
+        A standard link-relation name defined in RFC 6906. It points to
+        a document that describes the contract a response follows.
+        Inside a HAL link object, it is also carried as the
+        <code>profile</code> member. CBRWS uses it to point clients at
+        this specification page.
+      </dd>
+    </dl>
+  </section>
+
+  <section id="response-contract">
+    <h2>The /api Response Contract</h2>
+    <p>
+      A response from <code>{{ api_url }}</code> is a JSON object with
+      the following top-level fields:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>title</code></td>
+          <td>string</td>
+          <td>Yes</td>
+          <td>Display name of the API (e.g. "CBRWS API").</td>
+        </tr>
+        <tr>
+          <td><code>version</code></td>
+          <td>string</td>
+          <td>Yes</td>
+          <td>
+            Version string for the CBRWS schema that the response
+            conforms to (e.g. "1.0").
+          </td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>string</td>
+          <td>No</td>
+          <td>Optional human-readable description of the API.</td>
+        </tr>
+        <tr>
+          <td><code>_links</code></td>
+          <td>object</td>
+          <td>Yes</td>
+          <td>HAL link collection &mdash; see below.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>The <code>_links</code> Object</h3>
+    <p>
+      The <code>_links</code> object must contain the following members:
+    </p>
+
+    <h4><code>self</code></h4>
+    <p>A link pointing at <code>{{ api_url }}</code> itself.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>href</code></td>
+          <td>URI</td>
+          <td>Yes</td>
+          <td>Absolute URL of the discovery endpoint.</td>
+        </tr>
+        <tr>
+          <td><code>type</code></td>
+          <td>string</td>
+          <td>Yes</td>
+          <td>
+            Media type of the response
+            (<code>{{ api_media_type }}</code>).
+          </td>
+        </tr>
+        <tr>
+          <td><code>profile</code></td>
+          <td>URI</td>
+          <td>Yes</td>
+          <td>
+            The URL of this specification page
+            (<code>{{ schema_url }}</code>).
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4><code>curies</code></h4>
+    <p>
+      An array declaring the CURIE prefixes used elsewhere in
+      <code>_links</code>. For the CBRWS API, this array contains one
+      entry binding the prefix <code>cbrws:</code> to the relations
+      directory.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td>string</td>
+          <td>Yes</td>
+          <td>
+            Prefix used in link-relation names (always <code>cbrws</code>
+            for this API).
+          </td>
+        </tr>
+        <tr>
+          <td><code>href</code></td>
+          <td>URI template</td>
+          <td>Yes</td>
+          <td>
+            Template that expands to a relation's documentation URL.
+            Always ends in <code>/{rel}</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><code>templated</code></td>
+          <td>boolean</td>
+          <td>Yes</td>
+          <td>
+            Always <code>true</code>, signalling that <code>href</code>
+            contains a <code>{rel}</code> placeholder that clients must
+            substitute.
+          </td>
+        </tr>
+        <tr>
+          <td><code>type</code></td>
+          <td>string</td>
+          <td>No</td>
+          <td>
+            Optional. Hint about what content negotiation will return
+            when a client dereferences the expanded URL.
+          </td>
+        </tr>
+        <tr>
+          <td><code>profile</code></td>
+          <td>URI</td>
+          <td>No</td>
+          <td>Optional.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      To expand a CURIE, replace <code>{rel}</code> in the template
+      with the part of the relation name that follows the colon. For
+      example, <code>cbrws:greeting</code> expands to
+      <code>{{ greeting_relation_url }}</code>.
+    </p>
+
+    <h4 id="link-relations">Custom Link Relations</h4>
+    <p>
+      Every custom link relation below is documented on its own page
+      under the relations directory,
+      <code>{{ relations_directory_url }}</code>. Clients do not need
+      to follow these links to call the API &mdash; they are a
+      machine-readable way for a client to discover what each relation
+      means.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Relation</th>
+          <th>Target URL</th>
+          <th>Documentation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>cbrws:greeting</code></td>
+          <td><code>{{ greeting_url }}</code></td>
+          <td>
+            <a href="{{ greeting_relation_url }}">Greeting relation page</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Each relation's link object has the same three members as
+      <code>self</code>: <code>href</code>, <code>type</code>, and
+      <code>profile</code>. The relation's documentation page gives the
+      exact expected values.
+    </p>
+  </section>
+
+  <section>
+    <h2>Example Response</h2>
+    <p>
+      A valid response from <code>{{ api_url }}</code> looks like this:
+    </p>
+    <pre><code>GET {{ api_url }}
+Accept: {{ api_media_type }}
+
+HTTP/1.1 200 OK
+Content-Type: {{ api_media_type }}
+
+{
+  "title": "CBRWS API",
+  "version": "1.0",
+  "description": "This is the API endpoint for the cbrws web service.",
+  "_links": {
+    "self": {
+      "href": "{{ api_url }}",
+      "type": "{{ api_media_type }}",
+      "profile": "{{ schema_url }}"
+    },
+    "curies": [
+      {
+        "name": "cbrws",
+        "href": "{{ curie_href_template }}",
+        "templated": true
+      }
+    ],
+    "cbrws:greeting": {
+      "href": "{{ greeting_url }}",
+      "type": "{{ api_media_type }}",
+      "profile": "{{ greeting_relation_url }}"
+    }
+  }
+}</code></pre>
+    <p>
+      A client can validate this body against the JSON Schema returned
+      by this same URL when the client sends
+      <code>Accept: application/schema+json</code>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Content Negotiation</h2>
+    <p>
+      This specification page is available in two formats. Which one
+      you receive depends on the <code>Accept</code> header in your
+      request:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th><code>Accept</code> Header</th>
+          <th>What You Get</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>text/html</code> (or a browser)</td>
+          <td>This human-readable page.</td>
+        </tr>
+        <tr>
+          <td>
+            <code>application/schema+json</code> (or omitted)
+          </td>
+          <td>
+            A JSON Schema document that formally describes the
+            <code>{{ api_url }}</code> response shape.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Examples using curl:</p>
+    <pre><code># Fetch the human-readable HTML page
+curl -s -H "Accept: text/html" {{ schema_url }}
+
+# Fetch the machine-readable JSON Schema
+curl -s -H "Accept: application/schema+json" {{ schema_url }}</code></pre>
+  </section>
+
+  <section>
+    <h2>Compliance Checklist</h2>
+    <p>
+      A response from <code>{{ api_url }}</code> conforms to this
+      specification if and only if:
+    </p>
+    <ul>
+      <li>
+        It is a JSON object containing <code>title</code>,
+        <code>version</code>, and <code>_links</code>.
+      </li>
+      <li>
+        <code>_links.self</code> contains <code>href</code>,
+        <code>type</code>, and <code>profile</code>.
+      </li>
+      <li>
+        <code>_links.curies</code> is an array whose first element sets
+        <code>name</code>, <code>href</code> (with a <code>{rel}</code>
+        placeholder), and <code>templated=true</code>.
+      </li>
+      <li>
+        <code>_links["cbrws:greeting"]</code> contains
+        <code>href</code>, <code>type</code>, and <code>profile</code>.
+      </li>
+      <li>
+        Each CURIE expands to a URL under the relations directory, and
+        dereferencing that URL returns documentation or a JSON Schema
+        via content negotiation.
+      </li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; Sumanth Vepa. 2025. Licensed under the GNU GPL v3.0 or later.</p>
+</footer>
+</body>
+</html>

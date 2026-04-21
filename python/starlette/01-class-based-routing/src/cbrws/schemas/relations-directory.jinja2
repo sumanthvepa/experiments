@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CBRWS v1 Link Relations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<header>
+  <h1>CBRWS v1 Link Relations</h1>
+  <p>
+    URL: <code>{{ relations_directory_url }}</code>
+  </p>
+</header>
+
+<main>
+  <section>
+    <h2>Summary</h2>
+    <p>{{ description }}</p>
+  </section>
+
+  <section>
+    <h2>Where This Page Fits</h2>
+    <p>
+      This page sits inside the v1 CBRWS schema in the URL hierarchy
+      of this web service. (In this documentation the word
+      <em>endpoint</em> means a URL that responds to HTTP requests;
+      the two terms are used interchangeably.)
+    </p>
+    <ul>
+      <li>
+        <code>/profiles/cbrws/v1</code> &mdash; the v1 API schema.
+        It describes the response returned by <code>/api</code>.
+      </li>
+      <li>
+        <code>/profiles/cbrws/v1/rels</code> &mdash; <strong>this
+        page</strong>. It lists the custom <em>link relations</em>
+        that appear in responses from the v1 API.
+      </li>
+      <li>
+        <code>/profiles/cbrws/v1/rels/{rel}</code> &mdash; the
+        documentation for a single link relation named
+        <code>{rel}</code>. Each entry in the
+        <a href="#directory-contents">Directory Contents</a> table
+        below is one of these pages.
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>What Is a "Link Relation"?</h2>
+    <p>
+      When the v1 API returns a JSON response, the response contains
+      a block called <code>_links</code>. Each entry in
+      <code>_links</code> is keyed by a short name and points to
+      another URL. The short name is called a <em>link relation</em>.
+      It tells the client <em>why</em> a link is there &mdash; what
+      the linked resource is in relation to the current one. For
+      example, the relation <code>self</code> points back to the URL
+      of the response itself, and the relation <code>cbrws:greeting</code>
+      points to the greeting endpoint.
+    </p>
+    <p>
+      Some relation names are standardized (like <code>self</code>,
+      <code>next</code>, <code>up</code>). The ones this API defines
+      for itself are called <em>custom</em> relations and are listed
+      on this page.
+    </p>
+  </section>
+
+  <section>
+    <h2>The <code>cbrws:</code> Prefix and the <code>{rel}</code> Template</h2>
+    <p>
+      Custom relation names must be globally unique, so in principle
+      each one should be a full URL. To keep responses readable,
+      HAL lets the server publish a short prefix (a <em>CURIE</em>,
+      short for Compact URI) that expands to a URL template. In this
+      API the prefix is <code>cbrws</code>, and its template is:
+    </p>
+    <pre><code>{{ curie_href_template }}</code></pre>
+    <p>
+      The <code>{rel}</code> part is a placeholder. To get the full
+      URL for a relation, substitute the relation's short name for
+      <code>{rel}</code>. For example, the relation written in a
+      response as <code>cbrws:greeting</code> expands to:
+    </p>
+    <pre><code>{{ greeting_relation_url }}</code></pre>
+    <p>
+      Fetching that URL returns the documentation page for the
+      <code>cbrws:greeting</code> relation &mdash; that is what every
+      entry in the table below is. The <code>{rel}</code> syntax
+      itself comes from a standard called RFC 6570, which describes
+      how placeholders inside URL templates are filled in.
+    </p>
+  </section>
+
+  <section id="directory-contents">
+    <h2>Directory Contents</h2>
+    <p>The following custom link relations are defined by the v1 API:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Relation</th>
+          <th>URL</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>cbrws:greeting</code></td>
+          <td>
+            <a href="{{ greeting_relation_url }}"><code>{{ greeting_relation_url }}</code></a>
+          </td>
+          <td>
+            Documentation for the link that points from the
+            discovery endpoint to the greeting endpoint. Open the
+            URL in a browser for the human-readable page, or
+            request it with
+            <code>Accept: application/schema+json</code> to fetch
+            the machine-readable JSON Schema for the greeting
+            response.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Content Negotiation</h2>
+    <p>
+      This directory page is itself available in two formats. Which
+      one you receive depends on the <code>Accept</code> header in
+      your request:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th><code>Accept</code> Header</th>
+          <th>What You Get</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <code>application/hal+json</code> (or omitted)
+          </td>
+          <td>
+            A JSON document listing the custom link relations as
+            navigable links. This is the default and is intended for
+            programs that walk the API automatically. (HAL is a
+            convention for embedding navigation links inside JSON
+            under a key named <code>_links</code>; the rest of the
+            document is ordinary JSON.)
+          </td>
+        </tr>
+        <tr>
+          <td><code>text/html</code> (or a browser)</td>
+          <td>This human-readable page.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Examples using curl:</p>
+    <pre><code># Fetch the machine-readable HAL+JSON directory
+curl -s -H "Accept: application/hal+json" {{ relations_directory_url }}
+
+# Fetch the human-readable HTML page
+curl -s -H "Accept: text/html" {{ relations_directory_url }}</code></pre>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; Sumanth Vepa. 2025. Licensed under the GNU GPL v3.0 or later.</p>
+</footer>
+</body>
+</html>

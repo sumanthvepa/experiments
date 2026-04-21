@@ -1,0 +1,17 @@
+{
+  "title": "CBRWS v1 Link Relations",
+  "description": "{{ description }}",
+  "_links": {
+    "self": {
+      "href": "{{ relations_directory_url }}",
+      "type": "application/hal+json"
+    },
+    "item": [
+      {
+        "href": "{{ greeting_relation_url }}",
+        "title": "cbrws:greeting link relation",
+        "type": "application/schema+json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CBRWS Schema Versions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<header>
+  <h1>CBRWS Schema Versions</h1>
+  <p>
+    URL: <code>{{ cbrws_directory_url }}</code>
+  </p>
+</header>
+
+<main>
+  <section>
+    <h2>Summary</h2>
+    <p>{{ description }}</p>
+  </section>
+
+  <section>
+    <h2>Where This Page Fits</h2>
+    <p>
+      This page sits inside <code>/profiles</code> in the URL
+      hierarchy of this web service. (In this documentation the word
+      <em>endpoint</em> means a URL that responds to HTTP requests;
+      the two terms are used interchangeably.)
+    </p>
+    <ul>
+      <li>
+        <code>/profiles</code> &mdash; the top-level index of every
+        schema family published by this server. If you start there,
+        this page is one of the entries listed.
+      </li>
+      <li>
+        <code>/profiles/cbrws</code> &mdash; <strong>this page</strong>.
+        It lists the versions of the CBRWS schema that the server
+        currently publishes. A <em>schema family</em> is simply a
+        named group of related schemas, usually one entry per
+        version.
+      </li>
+      <li>
+        <code>/profiles/cbrws/v1</code> &mdash; the v1 API
+        specification for this web service. It is linked from the
+        <a href="#directory-contents">Directory Contents</a> table
+        below. Open it to see the shape of the responses returned by
+        <code>/api</code> and the endpoints that <code>/api</code>
+        links to.
+      </li>
+    </ul>
+    <p>
+      The path prefix <code>/profiles/</code> reflects a term from the
+      HTTP standard RFC 6906, which calls this kind of specification a
+      <em>profile</em>. In this documentation and in the rest of the
+      codebase we use the word <em>schema</em> for the same idea; the
+      URL path keeps the older name.
+    </p>
+  </section>
+
+  <section>
+    <h2>What Is a "Schema"?</h2>
+    <p>
+      When a client calls an endpoint on this service (for example
+      <code>/api</code>), the server returns a JSON document. A
+      <em>schema</em> is a separate document that describes the
+      shape of that JSON response: what fields it contains, what
+      each field means, and what other URLs the response links to.
+      You can think of a schema as the specification, or contract,
+      for an endpoint's response.
+    </p>
+    <p>
+      Every schema on this server is available in two formats from
+      the same URL. The format you receive is selected by the
+      <code>Accept</code> header the client sends with its request:
+    </p>
+    <ul>
+      <li>
+        <strong>HTML</strong> (<code>Accept: text/html</code>)
+        &mdash; a human-readable documentation page that explains the
+        response fields, the URLs the response links to, and the
+        error conditions the endpoint can return. This is what a
+        browser shows you, and it is the first place to look when you
+        are learning the API.
+      </li>
+      <li>
+        <strong>JSON Schema</strong>
+        (<code>Accept: application/schema+json</code>) &mdash; a
+        machine-readable JSON document that formally describes the
+        response structure. A <em>JSON Schema</em> is itself a JSON
+        document; it lists the expected fields and their types. A
+        client can feed it to a JSON Schema validator library to
+        check automatically that a response from the service has the
+        expected shape.
+      </li>
+    </ul>
+    <p>
+      Because an API's response format can change over time, schemas
+      are versioned. This page lists the versions of the CBRWS
+      schema that the server currently publishes.
+    </p>
+  </section>
+
+  <section id="directory-contents">
+    <h2>Directory Contents</h2>
+    <p>The following CBRWS schema versions are available:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>URL</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v1</td>
+          <td>
+            <a href="{{ api_v1_schema_url }}"><code>{{ api_v1_schema_url }}</code></a>
+          </td>
+          <td>
+            The v1 API specification. This page documents the
+            response returned by <code>/api</code> (the service's
+            top-level discovery endpoint) and the contract that its
+            response follows. Open the URL in a browser to read the
+            human-readable documentation, or request it with
+            <code>Accept: application/schema+json</code> to fetch the
+            machine-readable JSON Schema.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Content Negotiation</h2>
+    <p>
+      This directory page is itself available in two formats. Which
+      one you receive depends on the <code>Accept</code> header in
+      your request:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th><code>Accept</code> Header</th>
+          <th>What You Get</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <code>application/hal+json</code> (or omitted)
+          </td>
+          <td>
+            A JSON document listing the schema versions as navigable
+            links. This is the default and is intended for programs
+            that walk the API automatically. (HAL is a convention for
+            embedding navigation links inside JSON under a key named
+            <code>_links</code>; the rest of the document is ordinary
+            JSON.)
+          </td>
+        </tr>
+        <tr>
+          <td><code>text/html</code> (or a browser)</td>
+          <td>This human-readable page.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Examples using curl:</p>
+    <pre><code># Fetch the machine-readable HAL+JSON directory
+curl -s -H "Accept: application/hal+json" {{ cbrws_directory_url }}
+
+# Fetch the human-readable HTML page
+curl -s -H "Accept: text/html" {{ cbrws_directory_url }}</code></pre>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; Sumanth Vepa. 2025. Licensed under the GNU GPL v3.0 or later.</p>
+</footer>
+</body>
+</html>

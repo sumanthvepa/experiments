@@ -2,12 +2,14 @@
   schema_endpoint.py: Base class for profile schema URLs in the
   cbrws web service.
 """
-from abc import ABC
-from typing import TypeAlias
+from __future__ import annotations
+from typing import TYPE_CHECKING, TypeAlias
+from abc import ABC, abstractmethod
 
-
-from cbrws.http_endpoint import SupportedMediaTypes
+from cbrws.http_endpoint import ResponseMediaType
 from cbrws.template_endpoint import TemplateEndpoint
+if TYPE_CHECKING:
+  from cbrws.service_endpoint import ServiceEndpoint
 
 
 LiteralContext: TypeAlias = dict[str, str]
@@ -23,13 +25,30 @@ class SchemaEndpoint(TemplateEndpoint, ABC):
     request.
 
     The ABC base is not strictly needed because abstract methods are
-    inherited from ProfileEndpointBase. It is included to signal that
+    inherited from TemplateEndpoint. It is included to signal that
     this class is an abstract base class and should not be instantiated.
   """
   @classmethod
-  def supported_media_types(cls) -> SupportedMediaTypes:
+  @abstractmethod
+  def service_class(cls) -> type[ServiceEndpoint]:
     """
-      Return the response media types supported by profile schema endpoints.
-      :return: A non-empty tuple of concrete responses media types
+      Return the service endpoint class that this schema endpoint describes.
+      :return: The service endpoint class that this schema endpoint describes.
     """
-    return 'application/schema+json', 'text/html'
+
+  @classmethod
+  def machine_readable_response_media_type(cls) -> ResponseMediaType:
+    """
+      Return the machine-readable media type for the endpoint:
+      "application/schema+json".
+      :return: The machine-readable media type for the endpoint:
+    """
+    return 'application/schema+json'
+
+  @classmethod
+  @abstractmethod
+  def schema_title(cls) -> str:
+    """
+      Return the title of the schema for this endpoint.
+      :return: The schema title
+    """
