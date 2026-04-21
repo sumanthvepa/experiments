@@ -55,6 +55,10 @@ class TestAPIEndpoint(unittest.TestCase, TestHelper):
     }
     self.assertDictEqual(expected_links, actual_links)
 
+  # Pylint flags the expected HAL document here because the same
+  # dictionary shape appears in src/. That duplication is intentional:
+  # this test exists to assert the exact current contract.
+  # pylint: disable=duplicate-code
   def test_get_returns_current_hal_document(self) -> None:
     """
       Test that GET /api returns the current HAL document.
