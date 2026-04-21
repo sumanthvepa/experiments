@@ -11,8 +11,16 @@ from typing import Any, Container, Iterable, Protocol
 
 from httpx import Response
 from starlette import status
+from starlette.applications import Starlette
+from starlette.routing import Route
 from starlette.testclient import TestClient
 
+from cbrws.api_endpoint import APIEndpoint
+from cbrws.api_v1_schema_endpoint import APIV1SchemaEndpoint
+from cbrws.config import Settings
+from cbrws.greeting_endpoint import GreetingEndpoint
+from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
+from cbrws.relations_directory_endpoint import RelationsDirectoryEndpoint
 from cbrws.application import app
 from test_cbrws.link_header import Link, parse
 
@@ -121,7 +129,11 @@ class TestHelper(RequireAsserts):
     """ Expected media type for problem responses. """
     return 'application/problem+json'
 
-  def make_request(self, method: str, url: str, headers: dict[str, str] | None = None) -> Response:
+  def make_request(
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str] | None = None) -> Response:
     """
       Helper function to make a request to the root endpoint.
       :param method: The HTTP method to use (e.g., 'get', 'head')
@@ -131,6 +143,44 @@ class TestHelper(RequireAsserts):
     """
     client = TestClient(app, self.base_url)
     return client.request(method, url=url, headers=headers, follow_redirects=False)
+
+  def make_custom_test_client(
+        self,
+        api_endpoint_class: Any = APIEndpoint,
+        greeting_endpoint_class: Any = GreetingEndpoint,
+        base_url: str | None = None,
+        allowed_hosts: tuple[str, ...] = ('localhost',)) -> TestClient:
+    """
+      Build a TestClient around a custom app route table for endpoint tests.
+      :param api_endpoint_class: The endpoint class to route at /api
+      :param greeting_endpoint_class: The endpoint class to route at /api/greeting
+      :param base_url: Optional base URL override for the test client
+      :param allowed_hosts: Allowed hosts to place in application settings
+      :return: A configured test client
+    """
+    test_app = Starlette(routes=[
+      Route('/api', api_endpoint_class, name=api_endpoint_class.route_name()),
+      Route(
+        '/api/greeting',
+        greeting_endpoint_class,
+        name=greeting_endpoint_class.route_name()),
+      Route(
+        '/profiles/cbrws/v1',
+        APIV1SchemaEndpoint,
+        name=APIV1SchemaEndpoint.route_name()),
+      Route(
+        '/profiles/cbrws/v1/rels/',
+        RelationsDirectoryEndpoint,
+        name=RelationsDirectoryEndpoint.route_name()),
+      Route('/profiles/cbrws/v1/rels/greeting',
+            GreetingSchemaEndpoint,
+            name=GreetingSchemaEndpoint.route_name())
+    ])
+    test_app.state.settings = Settings(
+      debug=False,
+      access_log=True,
+      allowed_hosts=allowed_hosts)
+    return TestClient(test_app, base_url or self.base_url)
 
   def load_file(
         self,

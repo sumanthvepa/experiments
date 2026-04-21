@@ -9,15 +9,9 @@ import unittest
 
 from httpx import Response
 from starlette import status
-from starlette.applications import Starlette
-from starlette.routing import Route
-from starlette.testclient import TestClient
 
 from cbrws.api_endpoint import APIEndpoint
-from cbrws.api_v1_schema_endpoint import APIV1SchemaEndpoint
-from cbrws.config import Settings
 from cbrws.greeting_endpoint import GreetingEndpoint
-from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
 from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
 from test_cbrws.link_header import Link, parse
 from test_cbrws.test_helper import TestHelper
@@ -161,19 +155,9 @@ class TestGreetingEndpoint(unittest.TestCase, TestHelper):
         """
         return ('application/schema+json',)
 
-    app = Starlette(routes=[
-      Route('/api', APIEndpoint, name=APIEndpoint.route_name()),
-      Route('/api/greeting', CustomGreetingEndpoint, name=CustomGreetingEndpoint.route_name()),
-      Route('/profiles/cbrws/v1', APIV1SchemaEndpoint, name=APIV1SchemaEndpoint.route_name()),
-      Route('/profiles/cbrws/v1/rels/greeting',
-            GreetingSchemaEndpoint,
-            name=GreetingSchemaEndpoint.route_name())
-    ])
-    app.state.settings = Settings(
-      debug=False,
-      access_log=True,
-      allowed_hosts=('localhost',))
-    client = TestClient(app, self.base_url)
+    client = self.make_custom_test_client(
+      api_endpoint_class=APIEndpoint,
+      greeting_endpoint_class=CustomGreetingEndpoint)
 
     response = client.get('/api/greeting')
 
