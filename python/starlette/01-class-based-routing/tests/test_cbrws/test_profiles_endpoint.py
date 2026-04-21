@@ -4,9 +4,7 @@
 """
 import unittest
 
-from starlette import status
-
-from test_cbrws.test_helper import HTMLTitleParser, TestHelper
+from test_cbrws.test_helper import TestHelper
 
 
 class TestProfilesEndpoint(unittest.TestCase, TestHelper):
@@ -60,10 +58,7 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
       :return: None
     """
     response = self.make_request('GET', '/profiles/')
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, self.hal_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
+    self.check_success_without_link(response, self.hal_media_type)
 
     data = response.json()
     self.assertEqual('Profiles Directory', data['title'])
@@ -83,10 +78,7 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
       'GET',
       '/profiles/',
       headers={'Accept': self.hal_media_type})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, self.hal_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
+    self.check_success_without_link(response, self.hal_media_type)
 
     data = response.json()
     self.assertEqual(self.profiles_directory_url, data['_links']['self']['href'])
@@ -97,99 +89,54 @@ class TestProfilesEndpoint(unittest.TestCase, TestHelper):
       Test that GET /profiles/ returns HTML when requested.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_html_response_without_link(
       '/profiles/',
-      headers={'Accept': 'text/html'})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'text/html; charset=utf-8')
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-
-    parser = HTMLTitleParser()
-    parser.feed(response.text)
-    self.assertEqual('Profiles Directory', parser.title)
-    self.assertIn('<h1>Profiles Directory</h1>', response.text)
-    self.assertIn(self.profiles_directory_url, response.text)
-    self.assertIn(self.cbrws_directory_url, response.text)
-    self.assertIn('<code>application/hal+json</code>', response.text)
-    self.assertIn('<code>text/html</code>', response.text)
+      'Profiles Directory',
+      [
+        '<h1>Profiles Directory</h1>',
+        self.profiles_directory_url,
+        self.cbrws_directory_url,
+        '<code>application/hal+json</code>',
+        '<code>text/html</code>'
+      ])
 
   def test_get_unsupported_media_type(self) -> None:
     """
       Test that unsupported Accept values return 406.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_not_acceptable_without_link(
       '/profiles/',
-      headers={'Accept': 'application/xml'})
-    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
-    self.check_content_type(response, self.problem_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-
-    self.assertDictEqual(
-      response.json(),
-      {
-        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
-        'title': 'Not Acceptable',
-        'status': status.HTTP_406_NOT_ACCEPTABLE,
-        'detail': 'The requested media type is not supported by this endpoint. '
-                  + 'Supported media types are: application/hal+json, text/html',
-        'supportedMediaTypes': ['application/hal+json', 'text/html']
-      })
+      ['application/hal+json', 'text/html'])
 
   def test_get_partial_html_media_type_is_unsupported(self) -> None:
     """
       Test that media types are not matched by substring.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_not_acceptable_without_link(
       '/profiles/',
-      headers={'Accept': 'text/html-fragment'})
-    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
-    self.check_content_type(response, self.problem_media_type)
-    self.assertNotIn('Link', response.headers)
+      ['application/hal+json', 'text/html'],
+      accept_header='text/html-fragment',
+      check_allow=False)
 
   def test_head_hal_json(self) -> None:
     """
       Test that HEAD /profiles/ returns HAL JSON headers.
       :return: None
     """
-    response = self.make_request(
-      'HEAD',
-      '/profiles/',
-      headers={'Accept': self.hal_media_type})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, self.hal_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual('', response.text)
+    self.assert_head_without_link('/profiles/', self.hal_media_type)
 
   def test_head_html(self) -> None:
     """
       Test that HEAD /profiles/ returns HTML headers when requested.
       :return: None
     """
-    response = self.make_request(
-      'HEAD',
-      '/profiles/',
-      headers={'Accept': 'text/html'})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'text/html; charset=utf-8')
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual('', response.text)
+    self.assert_head_without_link('/profiles/', 'text/html')
 
   def test_options_profiles(self) -> None:
     """
       Test that OPTIONS /profiles/ returns no Link header.
       :return: None
     """
-    response = self.make_request('OPTIONS', '/profiles/')
-    self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual(b'', response.content)
+    self.assert_options_without_link('/profiles/')

@@ -4,9 +4,7 @@
 """
 import unittest
 
-from starlette import status
-
-from test_cbrws.test_helper import HTMLTitleParser, TestHelper
+from test_cbrws.test_helper import TestHelper
 
 
 class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
@@ -60,10 +58,7 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
       :return: None
     """
     response = self.make_request('GET', '/profiles/cbrws')
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, self.hal_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
+    self.check_success_without_link(response, self.hal_media_type)
 
     data = response.json()
     self.assertEqual('CBRWS Profile Versions', data['title'])
@@ -83,10 +78,7 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
       'GET',
       '/profiles/cbrws',
       headers={'Accept': self.hal_media_type})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, self.hal_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
+    self.check_success_without_link(response, self.hal_media_type)
 
     data = response.json()
     self.assertEqual(self.cbrws_directory_url, data['_links']['self']['href'])
@@ -97,86 +89,43 @@ class TestCBRWSProfilesEndpoint(unittest.TestCase, TestHelper):
       Test that GET /profiles/cbrws returns HTML when requested.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_html_response_without_link(
       '/profiles/cbrws',
-      headers={'Accept': 'text/html'})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'text/html; charset=utf-8')
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-
-    parser = HTMLTitleParser()
-    parser.feed(response.text)
-    self.assertEqual('CBRWS Schema Versions', parser.title)
-    self.assertIn('<h1>CBRWS Schema Versions</h1>', response.text)
-    self.assertIn(self.cbrws_directory_url, response.text)
-    self.assertIn(self.api_v1_schema_url, response.text)
-    self.assertIn('<code>application/hal+json</code>', response.text)
-    self.assertIn('<code>text/html</code>', response.text)
+      'CBRWS Schema Versions',
+      [
+        '<h1>CBRWS Schema Versions</h1>',
+        self.cbrws_directory_url,
+        self.api_v1_schema_url,
+        '<code>application/hal+json</code>',
+        '<code>text/html</code>'
+      ])
 
   def test_get_unsupported_media_type(self) -> None:
     """
       Test that unsupported Accept values return 406.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_not_acceptable_without_link(
       '/profiles/cbrws',
-      headers={'Accept': 'application/xml'})
-    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
-    self.check_content_type(response, self.problem_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-
-    self.assertDictEqual(
-      response.json(),
-      {
-        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
-        'title': 'Not Acceptable',
-        'status': status.HTTP_406_NOT_ACCEPTABLE,
-        'detail': 'The requested media type is not supported by this endpoint. '
-                  + 'Supported media types are: application/hal+json, text/html',
-        'supportedMediaTypes': ['application/hal+json', 'text/html']
-      })
+      ['application/hal+json', 'text/html'])
 
   def test_head_hal_json(self) -> None:
     """
       Test that HEAD /profiles/cbrws returns HAL JSON headers.
       :return: None
     """
-    response = self.make_request(
-      'HEAD',
-      '/profiles/cbrws',
-      headers={'Accept': self.hal_media_type})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, self.hal_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual('', response.text)
+    self.assert_head_without_link('/profiles/cbrws', self.hal_media_type)
 
   def test_head_html(self) -> None:
     """
       Test that HEAD /profiles/cbrws returns HTML headers when requested.
       :return: None
     """
-    response = self.make_request(
-      'HEAD',
-      '/profiles/cbrws',
-      headers={'Accept': 'text/html'})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'text/html; charset=utf-8')
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual('', response.text)
+    self.assert_head_without_link('/profiles/cbrws', 'text/html')
 
   def test_options_cbrws_profiles(self) -> None:
     """
       Test that OPTIONS /profiles/cbrws returns no Link header.
       :return: None
     """
-    response = self.make_request('OPTIONS', '/profiles/cbrws')
-    self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual(b'', response.content)
+    self.assert_options_without_link('/profiles/cbrws')

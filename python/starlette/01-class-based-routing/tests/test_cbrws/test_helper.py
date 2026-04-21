@@ -66,6 +66,13 @@ class RequireAsserts(Protocol):
         msg: Any | None = None) -> None:
     """ Assert that member is present in the given container. """
 
+  def assertNotIn(  # pylint: disable=invalid-name
+        self,
+        member: Any,
+        container: Iterable[Any] | Container[Any],
+        msg: Any | None = None) -> None:
+    """ Assert that member is not present in the given container. """
+
   def assertEqual(  # pylint: disable=invalid-name
         self,
         first: Any,
@@ -174,6 +181,36 @@ class TestHelper(RequireAsserts):
         '/profiles/cbrws/v1/rels/',
         RelationsDirectoryEndpoint,
         name=RelationsDirectoryEndpoint.route_name()),
+      Route('/profiles/cbrws/v1/rels/greeting',
+            GreetingSchemaEndpoint,
+            name=GreetingSchemaEndpoint.route_name())
+    ])
+    test_app.state.settings = Settings(
+      debug=False,
+      access_log=True,
+      allowed_hosts=allowed_hosts)
+    return TestClient(test_app, base_url or self.base_url)
+
+  def make_relations_test_client(
+        self,
+        relations_endpoint_class: Any = RelationsDirectoryEndpoint,
+        base_url: str | None = None,
+        allowed_hosts: tuple[str, ...] = ('localhost',)) -> TestClient:
+    """
+      Build a TestClient around the relations route table for endpoint tests.
+      :param relations_endpoint_class: The endpoint class to route at the
+        relations directory URL
+      :param base_url: Optional base URL override for the test client
+      :param allowed_hosts: Allowed hosts to place in application settings
+      :return: A configured test client
+    """
+    test_app = Starlette(routes=[
+      Route('/profiles/cbrws/v1/rels/',
+            relations_endpoint_class,
+            name=relations_endpoint_class.route_name()),
+      Route('/profiles/cbrws/v1',
+            APIV1SchemaEndpoint,
+            name=APIV1SchemaEndpoint.route_name()),
       Route('/profiles/cbrws/v1/rels/greeting',
             GreetingSchemaEndpoint,
             name=GreetingSchemaEndpoint.route_name())
@@ -329,6 +366,157 @@ class TestHelper(RequireAsserts):
         'supportedMediaTypes': supported_media_types
       },
       response.json())
+
+  def check_success_without_link(
+        self,
+        response: Response,
+        media_type: str) -> None:
+    """
+      Check a successful template response that does not emit Link headers.
+      :param response: The response object
+      :param media_type: The expected response media type
+      :return: None
+    """
+    self.assertEqual(status.HTTP_200_OK, response.status_code)
+    self.check_content_type(response, media_type)
+    self.check_allow(response)
+    self.assertNotIn('Link', response.headers)
+
+  def check_html_response_without_link(
+        self,
+        response: Response,
+        title: str,
+        expected_fragments: list[str]) -> None:
+    """
+      Check an HTML template response that does not emit Link headers.
+      :param response: The response object
+      :param title: The expected HTML title
+      :param expected_fragments: Fragments expected in the response body
+      :return: None
+    """
+    self.check_success_without_link(response, 'text/html; charset=utf-8')
+    parser = HTMLTitleParser()
+    parser.feed(response.text)
+    self.assertEqual(title, parser.title)
+    for fragment in expected_fragments:
+      self.assertIn(fragment, response.text)
+
+  def check_head_without_link(
+        self,
+        response: Response,
+        media_type: str) -> None:
+    """
+      Check a HEAD response that does not emit Link headers.
+      :param response: The response object
+      :param media_type: The expected response media type
+      :return: None
+    """
+    self.check_success_without_link(response, media_type)
+    self.assertEqual('', response.text)
+
+  def check_options_without_link(self, response: Response) -> None:
+    """
+      Check an OPTIONS response that does not emit Link headers.
+      :param response: The response object
+      :return: None
+    """
+    self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+    self.check_allow(response)
+    self.assertNotIn('Link', response.headers)
+    self.assertEqual(b'', response.content)
+
+  def check_not_acceptable_without_link(
+        self,
+        response: Response,
+        supported_media_types: list[str],
+        check_allow: bool = True) -> None:
+    """
+      Check a 406 response that does not emit Link headers.
+      :param response: The response object
+      :param supported_media_types: Supported media types for the endpoint
+      :param check_allow: Whether to assert the Allow header is present
+      :return: None
+    """
+    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
+    self.check_content_type(response, self.problem_media_type)
+    if check_allow:
+      self.check_allow(response)
+    self.assertNotIn('Link', response.headers)
+    self.assertEqual(
+      {
+        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
+        'title': 'Not Acceptable',
+        'status': status.HTTP_406_NOT_ACCEPTABLE,
+        'detail': (
+          'The requested media type is not supported by this endpoint. '
+          + 'Supported media types are: '
+          + ', '.join(supported_media_types)),
+        'supportedMediaTypes': supported_media_types
+      },
+      response.json())
+
+  def assert_html_response_without_link(
+        self,
+        url: str,
+        title: str,
+        expected_fragments: list[str]) -> None:
+    """
+      Request a URL as HTML and check the response without Link headers.
+      :param url: The URL to request
+      :param title: The expected HTML title
+      :param expected_fragments: Fragments expected in the response body
+      :return: None
+    """
+    response = self.make_request(
+      'GET',
+      url,
+      headers={'Accept': 'text/html'})
+    self.check_html_response_without_link(response, title, expected_fragments)
+
+  def assert_not_acceptable_without_link(
+        self,
+        url: str,
+        supported_media_types: list[str],
+        accept_header: str = 'application/xml',
+        check_allow: bool = True) -> None:
+    """
+      Request a URL with an unsupported Accept value and check the 406 response.
+      :param url: The URL to request
+      :param supported_media_types: Supported media types for the endpoint
+      :param accept_header: The Accept header value to send
+      :param check_allow: Whether to assert the Allow header is present
+      :return: None
+    """
+    response = self.make_request(
+      'GET',
+      url,
+      headers={'Accept': accept_header})
+    self.check_not_acceptable_without_link(
+      response,
+      supported_media_types,
+      check_allow=check_allow)
+
+  def assert_head_without_link(self, url: str, media_type: str) -> None:
+    """
+      Request a URL with HEAD and check the response without Link headers.
+      :param url: The URL to request
+      :param media_type: The expected response media type
+      :return: None
+    """
+    response = self.make_request(
+      'HEAD',
+      url,
+      headers={'Accept': media_type})
+    self.check_head_without_link(response, media_type)
+
+  def assert_options_without_link(self, url: str) -> None:
+    """
+      Request a URL with OPTIONS and check the response without Link headers.
+      :param url: The URL to request
+      :return: None
+    """
+    response = self.make_request('OPTIONS', url)
+    self.check_options_without_link(response)
 
   def test_options(self) -> None:
     """

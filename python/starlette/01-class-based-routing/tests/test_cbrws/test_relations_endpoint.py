@@ -8,17 +8,12 @@
 import unittest
 
 from starlette import status
-from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.testclient import TestClient
 
 from cbrws.application import app
-from cbrws.api_v1_schema_endpoint import APIV1SchemaEndpoint
-from cbrws.config import Settings
-from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
 from cbrws.http_endpoint import ResponseMediaType, SupportedMediaTypes
 from cbrws.relations_directory_endpoint import RelationsDirectoryEndpoint
-from test_cbrws.test_helper import HTMLTitleParser, TestHelper
+from test_cbrws.test_helper import TestHelper
 
 
 class TestRelationsEndpoint(unittest.TestCase, TestHelper):
@@ -72,10 +67,7 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
       :return: None
     """
     response = self.make_request('GET', '/profiles/cbrws/v1/rels/')
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'application/hal+json')
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
+    self.check_success_without_link(response, 'application/hal+json')
 
     data = response.json()
     self.assertEqual('CBRWS v1 Link Relations', data['title'])
@@ -95,62 +87,40 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
       Test that GET /profiles/cbrws/v1/rels/ returns HTML when requested.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_html_response_without_link(
       '/profiles/cbrws/v1/rels/',
-      headers={'Accept': 'text/html'})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'text/html; charset=utf-8')
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-
-    parser = HTMLTitleParser()
-    parser.feed(response.text)
-    self.assertEqual('CBRWS v1 Link Relations', parser.title)
-    self.assertIn('<h1>CBRWS v1 Link Relations</h1>', response.text)
-    self.assertIn(self.relations_directory_url, response.text)
-    self.assertIn(self.greeting_relation_url, response.text)
-    self.assertIn(self.curie_href_template, response.text)
-    self.assertIn('<code>application/hal+json</code>', response.text)
-    self.assertIn('<code>text/html</code>', response.text)
+      'CBRWS v1 Link Relations',
+      [
+        '<h1>CBRWS v1 Link Relations</h1>',
+        self.relations_directory_url,
+        self.greeting_relation_url,
+        self.curie_href_template,
+        '<code>application/hal+json</code>',
+        '<code>text/html</code>'
+      ])
 
   def test_head_returns_default_media_type_headers(self) -> None:
     """
       Test that HEAD /profiles/cbrws/v1/rels/ returns HAL headers by default.
       :return: None
     """
-    response = self.make_request('HEAD', '/profiles/cbrws/v1/rels/')
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'application/hal+json')
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual(b'', response.content)
+    self.assert_head_without_link(
+      '/profiles/cbrws/v1/rels/',
+      'application/hal+json')
 
   def test_head_returns_html_headers_when_requested(self) -> None:
     """
       Test that HEAD /profiles/cbrws/v1/rels/ returns HTML headers when requested.
       :return: None
     """
-    response = self.make_request(
-      'HEAD',
-      '/profiles/cbrws/v1/rels/',
-      headers={'Accept': 'text/html'})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'text/html; charset=utf-8')
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual(b'', response.content)
+    self.assert_head_without_link('/profiles/cbrws/v1/rels/', 'text/html')
 
   def test_options_returns_allow_without_link_header(self) -> None:
     """
       Test that OPTIONS /profiles/cbrws/v1/rels/ returns no Link header.
       :return: None
     """
-    response = self.make_request('OPTIONS', '/profiles/cbrws/v1/rels/')
-    self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertEqual(b'', response.content)
+    self.assert_options_without_link('/profiles/cbrws/v1/rels/')
 
   def test_get_uses_current_request_origin_in_directory_links(self) -> None:
     """
@@ -213,24 +183,9 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
       Test that unsupported Accept values return 406.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_not_acceptable_without_link(
       '/profiles/cbrws/v1/rels/',
-      headers={'Accept': 'application/xml'})
-    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
-    self.check_content_type(response, self.problem_media_type)
-    self.check_allow(response)
-    self.assertNotIn('Link', response.headers)
-    self.assertDictEqual(
-      response.json(),
-      {
-        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
-        'title': 'Not Acceptable',
-        'status': status.HTTP_406_NOT_ACCEPTABLE,
-        'detail': 'The requested media type is not supported by this endpoint. '
-                  + 'Supported media types are: application/hal+json, text/html',
-        'supportedMediaTypes': ['application/hal+json', 'text/html']
-      })
+      ['application/hal+json', 'text/html'])
 
   def test_get_negotiates_with_supported_media_types(self) -> None:
     """
@@ -258,36 +213,14 @@ class TestRelationsEndpoint(unittest.TestCase, TestHelper):
         """
         return ('text/html',)
 
-    test_app = Starlette(routes=[
-      Route('/profiles/cbrws/v1/rels/',
-            CustomRelationsEndpoint,
-            name=CustomRelationsEndpoint.route_name()),
-      Route('/profiles/cbrws/v1',
-            APIV1SchemaEndpoint,
-            name=APIV1SchemaEndpoint.route_name()),
-      Route('/profiles/cbrws/v1/rels/greeting',
-            GreetingSchemaEndpoint,
-            name=GreetingSchemaEndpoint.route_name())
-    ])
-    test_app.state.settings = Settings(
-      debug=False,
-      access_log=True,
-      allowed_hosts=('localhost',))
-    client = TestClient(test_app, self.base_url)
+    client = self.make_relations_test_client(
+      relations_endpoint_class=CustomRelationsEndpoint)
 
     response = client.get(
       '/profiles/cbrws/v1/rels/',
       headers={'Accept': 'application/hal+json'})
 
-    self.assertEqual(status.HTTP_406_NOT_ACCEPTABLE, response.status_code)
-    self.check_content_type(response, self.problem_media_type)
-    self.assertDictEqual(
-      response.json(),
-      {
-        'type': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/406',
-        'title': 'Not Acceptable',
-        'status': status.HTTP_406_NOT_ACCEPTABLE,
-        'detail': 'The requested media type is not supported by this endpoint. '
-                  + 'Supported media types are: text/html',
-        'supportedMediaTypes': ['text/html']
-      })
+    self.check_not_acceptable_without_link(
+      response,
+      ['text/html'],
+      check_allow=False)
