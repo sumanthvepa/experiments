@@ -40,12 +40,16 @@ class APIV1SchemaEndpoint(SchemaEndpoint):
   @override
   @classmethod
   def context(cls, request: Request) -> dict[str, str]:
-    # pylint: disable=import-outside-toplevel
+    # Imports are placed here to avoid circular import issues
+    # pylint still detects a circular import, but it does not
+    # occur in practice, because the imports happen at runtime,
+    # not at the module level.
+    # pylint: disable=cyclic-import, import-outside-toplevel
     from cbrws.api_endpoint import APIEndpoint
     from cbrws.cbrws_directory_endpoint import CBRWSDirectoryEndpoint
-    from cbrws.greeting_endpoint import GreetingEndpoint
-    from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
     from cbrws.relations_directory_endpoint import RelationsDirectoryEndpoint
+    from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
+    from cbrws.greeting_endpoint import GreetingEndpoint
     relations_directory_url = public_url_for(
       request, RelationsDirectoryEndpoint.route_name())
     return {

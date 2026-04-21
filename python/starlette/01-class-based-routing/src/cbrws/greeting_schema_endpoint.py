@@ -46,7 +46,11 @@ class GreetingSchemaEndpoint(SchemaEndpoint):
     :param request:
     :return:
     """
-    # pylint: disable=import-outside-toplevel
+    # Imports are placed here to avoid circular import issues
+    # pylint still detects a circular import, but it does not
+    # occur in practice, because the imports happen at runtime,
+    # not at the module level.
+    # pylint: disable=cyclic-import, import-outside-toplevel
     from cbrws.api_endpoint import APIEndpoint
     from cbrws.relations_directory_endpoint import RelationsDirectoryEndpoint
     return {

@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, override
 
 from starlette.requests import Request
 
-from cbrws.api_endpoint import APIEndpoint
 from cbrws.service_endpoint import ServiceEndpoint
 from cbrws.url_util import public_url_for
 if TYPE_CHECKING:
@@ -26,7 +25,11 @@ class GreetingEndpoint(ServiceEndpoint):
     GreetingSchemaEndpoint class
     :return: The schema class of the greeting endpoint.
     """
-    # pylint: disable=import-outside-toplevel
+    # Imports are placed here to avoid circular import issues
+    # pylint still detects a circular import, but it does not
+    # occur in practice, because the imports happen at runtime,
+    # not at the module level.
+    # pylint: disable=cyclic-import, import-outside-toplevel
     from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
     return GreetingSchemaEndpoint
 
@@ -37,6 +40,12 @@ class GreetingEndpoint(ServiceEndpoint):
       :param request: The HTTP request
       :return: The greeting resource document
     """
+    # Imports are placed here to avoid circular import issues
+    # pylint still detects a circular import, but it does not
+    # occur in practice, because the imports happen at runtime,
+    # not at the module level.
+    # pylint: disable=cyclic-import, import-outside-toplevel
+    from cbrws.api_endpoint import APIEndpoint
     cls = type(self)
     return {
       'message': 'Hello, world!',

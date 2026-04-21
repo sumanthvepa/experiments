@@ -22,7 +22,11 @@ class ProfilesDirectoryEndpoint(DirectoryEndpoint):
   """
   @classmethod
   def context(cls, request: Request) -> dict[str, str]:
-    # pylint: disable=import-outside-toplevel
+    # Imports are placed here to avoid circular import issues
+    # pylint still detects a circular import, but it does not
+    # occur in practice, because the imports happen at runtime,
+    # not at the module level.
+    # pylint: disable=cyclic-import, import-outside-toplevel
     from cbrws.cbrws_directory_endpoint import CBRWSDirectoryEndpoint
     return {
       'profiles_directory_url': public_url_for(request, cls.route_name()),

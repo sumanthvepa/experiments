@@ -22,7 +22,11 @@ class APIEndpoint(ServiceEndpoint):
   @override
   @classmethod
   def schema_class(cls) -> type[SchemaEndpoint]:
-    # pylint: disable=import-outside-toplevel
+    # Imports are placed here to avoid circular import issues
+    # pylint still detects a circular import, but it does not
+    # occur in practice, because the imports happen at runtime,
+    # not at the module level.
+    # pylint: disable=cyclic-import, import-outside-toplevel
     from cbrws.api_v1_schema_endpoint import APIV1SchemaEndpoint
     return APIV1SchemaEndpoint
 
@@ -33,10 +37,13 @@ class APIEndpoint(ServiceEndpoint):
       :param request: The HTTP request
       :return: The API discovery document
     """
-    # pylint: disable=import-outside-toplevel
+    # Imports are placed here to avoid circular import issues
+    # pylint still detects a circular import, but it does not
+    # occur in practice, because the imports happen at runtime,
+    # not at the module level.
+    # pylint: disable=cyclic-import, import-outside-toplevel
     from cbrws.relations_directory_endpoint import RelationsDirectoryEndpoint
     from cbrws.greeting_endpoint import GreetingEndpoint
-
     return {
       'title': 'CBRWS API',
       'version': '1.0',
