@@ -51,8 +51,19 @@ class RequireAsserts(Protocol):
     This is used to ensure that the test mixin has the necessary
     assert methods available.
   """
-  def assertIn(self, member: Any, container: Iterable[Any] | Container[Any], msg: Any | None = None) -> None: ...
-  def assertEqual(self, first: Any, second: Any, msg: Any | None = None) -> None: ...
+  def assertIn(  # pylint: disable=invalid-name
+        self,
+        member: Any,
+        container: Iterable[Any] | Container[Any],
+        msg: Any | None = None) -> None:
+    """ Assert that member is present in the given container. """
+
+  def assertEqual(  # pylint: disable=invalid-name
+        self,
+        first: Any,
+        second: Any,
+        msg: Any | None = None) -> None:
+    """ Assert that first and second compare as equal. """
 
 
 class TestHelper(RequireAsserts):
