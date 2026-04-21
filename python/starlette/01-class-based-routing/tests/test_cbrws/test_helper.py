@@ -83,7 +83,7 @@ class RequireAsserts(Protocol):
 
 # This mixin intentionally exposes many small reusable test helper methods.
 # pylint: disable=too-many-public-methods
-class TestHelper(RequireAsserts):
+class CommonTestHelper(RequireAsserts):
   """
     Mixin for testing HTTP endpoints.
     Provides methods to make requests and check responses.
@@ -401,6 +401,24 @@ class TestHelper(RequireAsserts):
     for fragment in expected_fragments:
       self.assertIn(fragment, response.text)
 
+  def assert_html_page_without_link(
+        self,
+        url: str,
+        title: str,
+        expected_fragments: list[str]) -> None:
+    """
+      Request a URL as HTML and check the rendered page.
+      :param url: The URL to request
+      :param title: The expected HTML title
+      :param expected_fragments: Fragments expected in the response body
+      :return: None
+    """
+    response = self.make_request(
+      'GET',
+      url,
+      headers={'Accept': 'text/html'})
+    self.check_html_response_without_link(response, title, expected_fragments)
+
   def check_head_without_link(
         self,
         response: Response,
@@ -411,7 +429,10 @@ class TestHelper(RequireAsserts):
       :param media_type: The expected response media type
       :return: None
     """
-    self.check_success_without_link(response, media_type)
+    expected_media_type = media_type
+    if media_type == 'text/html':
+      expected_media_type = 'text/html; charset=utf-8'
+    self.check_success_without_link(response, expected_media_type)
     self.assertEqual('', response.text)
 
   def check_options_without_link(self, response: Response) -> None:
@@ -517,6 +538,36 @@ class TestHelper(RequireAsserts):
     """
     response = self.make_request('OPTIONS', url)
     self.check_options_without_link(response)
+
+  def check_problem_response(
+        self,
+        response: Response,
+        expected_status: int,
+        expected_problem: dict[str, str | int],
+        expected_media_type: str | None = None) -> None:
+    """
+      Check a problem+json style response body and content type.
+      :param response: The response object
+      :param expected_status: The expected status code
+      :param expected_problem: Expected type, title, status, and detail values
+      :param expected_media_type: Optional override for the content type
+      :return: None
+    """
+    self.assertEqual(expected_status, response.status_code)
+    self.check_content_type(
+      response,
+      expected_media_type or self.problem_media_type)
+    data = response.json()
+    self.assertIn('type', data)
+    self.assertIn('title', data)
+    self.assertIn('status', data)
+    self.assertIn('detail', data)
+    self.assertEqual(expected_problem, data)
+
+class TestHelper(CommonTestHelper):
+  """
+    Shared endpoint behavior tests for concrete endpoint test cases.
+  """
 
   def test_options(self) -> None:
     """

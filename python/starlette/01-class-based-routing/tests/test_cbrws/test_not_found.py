@@ -2,16 +2,19 @@
   test_not_found.py: Unit tests for the unknown URLs passed to
   the cbrws webservice.
 """
+# Pylint 4.0.x misclassifies test_cbrws imports as third-party.
+# Revisit this once Pylint 4.1 known-first-party support is available.
+# pylint: disable=wrong-import-order
 import unittest
 
 from httpx import Response
-from starlette import status
 from starlette.testclient import TestClient
 
 from cbrws.application import app
+from test_cbrws.test_helper import CommonTestHelper
 
 
-class TestNotFound(unittest.TestCase):
+class TestNotFound(unittest.TestCase, CommonTestHelper):
   """
     Unit tests for the unknown URLs passed to the colophonws
     webservice
@@ -24,22 +27,15 @@ class TestNotFound(unittest.TestCase):
     """
     client = TestClient(app, 'http://localhost:5101')
     response: Response = client.get('/unknown')
-    self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
-    self.assertIn('Content-Type', response.headers)
-    self.assertEqual(
-      'application/problem+json',
-      response.headers['Content-Type'])
-    data = response.json()
-    self.assertIn('type', data)
-    self.assertIn('title', data)
-    self.assertIn('status', data)
-    self.assertIn('detail', data)
-    self.assertEqual(
-      data['type'],
-      'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/404')
-    self.assertEqual(data['title'], 'Not Found')
-    self.assertEqual(data['status'], status.HTTP_404_NOT_FOUND)
-    self.assertEqual(
-      data['detail'],
-      'The requested resource was not found on this server. '
-      + 'Please check the URL and try again.')
+    self.check_problem_response(
+      response,
+      404,
+      {
+        'type': (
+          'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/404'),
+        'title': 'Not Found',
+        'status': 404,
+        'detail': (
+          'The requested resource was not found on this server. '
+          + 'Please check the URL and try again.')
+      })

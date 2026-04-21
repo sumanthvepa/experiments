@@ -11,7 +11,7 @@ from pathlib import Path
 from starlette import status
 
 from cbrws.api_v1_schema_endpoint import APIV1SchemaEndpoint
-from test_cbrws.test_helper import HTMLTitleParser, TestHelper
+from test_cbrws.test_helper import TestHelper
 
 
 class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
@@ -80,25 +80,19 @@ class TestCBRWSV1ProfileEndpoint(unittest.TestCase, TestHelper):
       Test that the profile endpoint returns HTML documentation.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_html_page_without_link(
       '/profiles/cbrws/v1',
-      headers={'Accept': 'text/html'})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'text/html; charset=utf-8')
-    self.assertNotIn('Link', response.headers)
-
-    parser = HTMLTitleParser()
-    parser.feed(response.text)
-    self.assertEqual('CBRWS API v1 Schema', parser.title)
-    self.assertIn('<h1>CBRWS API v1 Schema</h1>', response.text)
-    self.assertIn(self.profile_url, response.text)
-    self.assertIn(self.cbrws_directory_url, response.text)
-    self.assertIn(self.api_url, response.text)
-    self.assertIn(self.greeting_url, response.text)
-    self.assertIn(self.greeting_relation_url, response.text)
-    self.assertIn(self.relations_directory_url, response.text)
-    self.assertIn('application/schema+json', response.text)
+      'CBRWS API v1 Schema',
+      [
+        '<h1>CBRWS API v1 Schema</h1>',
+        self.profile_url,
+        self.cbrws_directory_url,
+        self.api_url,
+        self.greeting_url,
+        self.greeting_relation_url,
+        self.relations_directory_url,
+        'application/schema+json'
+      ])
 
   def test_get_schema(self) -> None:
     """

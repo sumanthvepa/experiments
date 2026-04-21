@@ -11,7 +11,7 @@ from pathlib import Path
 from starlette import status
 
 from cbrws.greeting_schema_endpoint import GreetingSchemaEndpoint
-from test_cbrws.test_helper import HTMLTitleParser, TestHelper
+from test_cbrws.test_helper import TestHelper
 
 
 class TestGreetingRelationProfileEndpoint(unittest.TestCase, TestHelper):
@@ -80,27 +80,20 @@ class TestGreetingRelationProfileEndpoint(unittest.TestCase, TestHelper):
       Test that the relation endpoint returns HTML documentation.
       :return: None
     """
-    response = self.make_request(
-      'GET',
+    self.assert_html_page_without_link(
       '/profiles/cbrws/v1/rels/greeting',
-      headers={'Accept': 'text/html'})
-    self.assertEqual(status.HTTP_200_OK, response.status_code)
-    self.check_content_type(response, 'text/html; charset=utf-8')
-    self.assertNotIn('Link', response.headers)
-
-    parser = HTMLTitleParser()
-    parser.feed(response.text)
-    expected_title = 'CBRWS V1 Greeting Schema'
-    self.assertEqual(expected_title, parser.title)
-    self.assertIn(f'<h1>{expected_title}</h1>', response.text)
-    self.assertIn(self.relation_url, response.text)
-    self.assertIn(self.relations_directory_url, response.text)
-    self.assertIn(self.service_url, response.text)
-    self.assertIn(self.api_url, response.text)
-    self.assertIn(self.api_schema_url, response.text)
-    self.assertIn(self.response_media_type, response.text)
-    self.assertIn('application/schema+json', response.text)
-    self.assertIn('cbrws:greeting', response.text)
+      'CBRWS V1 Greeting Schema',
+      [
+        '<h1>CBRWS V1 Greeting Schema</h1>',
+        self.relation_url,
+        self.relations_directory_url,
+        self.service_url,
+        self.api_url,
+        self.api_schema_url,
+        self.response_media_type,
+        'application/schema+json',
+        'cbrws:greeting'
+      ])
 
   def test_get_schema(self) -> None:
     """
