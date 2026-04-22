@@ -81,6 +81,25 @@ class RequireAsserts(Protocol):
     """ Assert that first and second compare as equal. """
 
 
+class SupportsFileLoading(Protocol):
+  """
+    Protocol for endpoint classes that expose async file loading helpers.
+  """
+  @classmethod
+  async def load_file(
+        cls,
+        filename: str,
+        context: dict[str, str]) -> str:
+    """ Load a rendered file as a string. """
+
+  @classmethod
+  async def load_json(
+        cls,
+        filename: str,
+        context: dict[str, str]) -> dict[str, Any]:
+    """ Load a rendered JSON document as a dictionary. """
+
+
 # This mixin intentionally exposes many small reusable test helper methods.
 # pylint: disable=too-many-public-methods
 class CommonTestHelper(RequireAsserts):
@@ -223,7 +242,7 @@ class CommonTestHelper(RequireAsserts):
 
   def load_file(
         self,
-        endpoint_class: Any,
+        endpoint_class: type[SupportsFileLoading],
         filename: str,
         context: dict[str, str]) -> str:
     """
@@ -237,7 +256,7 @@ class CommonTestHelper(RequireAsserts):
 
   def load_json(
         self,
-        endpoint_class: Any,
+        endpoint_class: type[SupportsFileLoading],
         filename: str,
         context: dict[str, str]) -> dict[str, Any]:
     """
