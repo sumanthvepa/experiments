@@ -208,7 +208,6 @@ class TestURLUtil(unittest.TestCase):
     ])
     test_app.state.settings = Settings(
       debug=False,
-      access_log=True,
       allowed_hosts=('API.example.com',))
     client = TestClient(test_app, 'https://api.example.com')
 

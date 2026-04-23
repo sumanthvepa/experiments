@@ -67,7 +67,6 @@ class TestApplication(unittest.TestCase):
     with patch.dict('os.environ', {}, clear=True):
       settings = settings_from_env()
       self.assertFalse(settings.debug)
-      self.assertTrue(settings.access_log)
       self.assertEqual(('localhost', '127.0.0.1'), settings.allowed_hosts)
 
   def test_settings_from_env_reads_config_values(self) -> None:
@@ -79,12 +78,10 @@ class TestApplication(unittest.TestCase):
           'os.environ',
           {
             'CBRWS_DEBUG': 'true',
-            'CBRWS_ACCESS_LOG': 'false',
             'CBRWS_ALLOWED_HOSTS': 'localhost, api.example.com'
           }):
       settings = settings_from_env()
       self.assertTrue(settings.debug)
-      self.assertFalse(settings.access_log)
       self.assertEqual(
         ('localhost', 'api.example.com'),
         settings.allowed_hosts)
@@ -116,7 +113,6 @@ class TestApplication(unittest.TestCase):
     """
     settings = Settings(
       debug=False,
-      access_log=True,
       allowed_hosts=('api.example.com',))
     test_app = Starlette(
       routes=routes,
@@ -133,7 +129,6 @@ class TestApplication(unittest.TestCase):
     """
     settings = Settings(
       debug=False,
-      access_log=True,
       allowed_hosts=('api.example.com',))
     test_app = Starlette(
       routes=routes,
@@ -150,7 +145,6 @@ class TestApplication(unittest.TestCase):
     """
     validate_settings(Settings(
       debug=True,
-      access_log=True,
       allowed_hosts=('*',)))
 
   def test_validate_settings_rejects_wildcard_in_production(self) -> None:
@@ -163,7 +157,6 @@ class TestApplication(unittest.TestCase):
           r'CBRWS_ALLOWED_HOSTS must not contain \*'):
       validate_settings(Settings(
         debug=False,
-        access_log=True,
         allowed_hosts=('*',)))
 
   def test_access_log_records_completed_requests(self) -> None:

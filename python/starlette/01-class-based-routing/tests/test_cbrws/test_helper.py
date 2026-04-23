@@ -206,7 +206,6 @@ class CommonTestHelper(RequireAsserts):
     ])
     test_app.state.settings = Settings(
       debug=False,
-      access_log=True,
       allowed_hosts=allowed_hosts)
     return TestClient(test_app, base_url or self.base_url)
 
@@ -236,7 +235,6 @@ class CommonTestHelper(RequireAsserts):
     ])
     test_app.state.settings = Settings(
       debug=False,
-      access_log=True,
       allowed_hosts=allowed_hosts)
     return TestClient(test_app, base_url or self.base_url)
 
