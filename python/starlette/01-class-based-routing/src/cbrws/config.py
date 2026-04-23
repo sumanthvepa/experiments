@@ -11,7 +11,6 @@ class Settings:
     Runtime settings for the cbrws web service.
   """
   debug: bool
-  access_log: bool
   allowed_hosts: tuple[str, ...]
 
 
@@ -54,7 +53,6 @@ def settings_from_env() -> Settings:
   """
   return Settings(
     debug=bool_from_env('CBRWS_DEBUG'),
-    access_log=bool_from_env('CBRWS_ACCESS_LOG', default=True),
     allowed_hosts=list_from_env(
       'CBRWS_ALLOWED_HOSTS',
       ('localhost', '127.0.0.1')))

@@ -1,5 +1,8 @@
+*[DONE]issue242-python-starlette-01-cbrws-always-access-log: Always log requests and document uvicorn log config
+[DONE]issue241-python-starlette-01-cbrws-dev-run-script: Add a dev run script and logging configuration
+[DONE]issue240-python-starlette-01-cbrws-fix-mypy-test-helper-file-loader-typing: Replace Any-typed test helper file loader endpoint classes with a typed protocol
 [DONE]issue238-python-starlette-01-cbrws-refactor-class-hierarchy: Refactor the class hierarchy to be more intuitive and prepare it for use in a more general web service framework
-*issue239-python-starlette-01-cbrws-fix-pylint-warnings: Fix remaining pylint warnings in src and tests
+[DONE]issue239-python-starlette-01-cbrws-fix-pylint-warnings: Fix remaining pylint warnings in src and tests
 [DONE]issue237-python-starlette-01-cbrws-asgi-access-log-middleware: Replace AccessLogMiddleware BaseHTTPMiddleware with ASGI middleware
 [DONE]issue236-python-starlette-01-cbrws-link-header-item-typing: Use explicit LinkHeaderItem values for link header hooks
 [DONE]issue235-python-starlette-01-cbrws-schema-dir-contract: Replace schema directory attributes with a typed method contract
