@@ -1,4 +1,5 @@
 venv
+ws.log
 __pycache__
 .mypy_cache
 *.egg-info/
