@@ -104,23 +104,23 @@ in production.
 Start the web service with:
 
 ```bash
-uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
+uvicorn cbrws.application:app --log-config config/log-config.dev.json --host 0.0.0.0 --port 5101
 ```
 
 This starts the Starlette app on `http://localhost:5101`. The host and
-port are uvicorn options. Application behavior can be configured with
-environment variables:
+port are uvicorn options. The --log-config option give uvicorn the path
+to the development logging configuration. Application behavior can be
+configured with environment variables:
 
 - `CBRWS_DEBUG`: defaults to `false`
-- `CBRWS_ACCESS_LOG`: defaults to `true`
 - `CBRWS_ALLOWED_HOSTS`: defaults to `localhost,127.0.0.1`
 
 To enable debug mode during local development, set `CBRWS_DEBUG` to
 `true`:
 
 ```bash
-CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
-```
+CBRWS_DEBUG=true uvicorn cbrws.application:app --log-config config/log-config.dev.json --host 0.0.0.0 --port 5101
+````
 
 If you want hot reload during development, add the `--reload` option.
 This is not recommended for production use because it adds overhead
@@ -128,18 +128,38 @@ and can cause unexpected behavior if the app reloads while processing
 a request. The command given below should be ideal for local development:
 
 ```bash
-CBRWS_DEBUG=true uvicorn cbrws.application:app --host 0.0.0.0 --port 5101 --reload
+CBRWS_DEBUG=true \
+  uvicorn cbrws.application:app \
+  --log-config config/log-config.dev.json \
+  --host 0.0.0.0 \
+  --port 5101 \
+  --reload
+```
+
+As a convenience for development, the command has been placed
+in the `run-dev.sh` script. You can run that script instead of typing the full command:
+
+```bash
+./run-dev.sh
+````
+
+By convention the stdout and sterr output of the scrpt are tee'd
+to 'ws.log' in the project root, so you can see the logs in real time and
+also have them saved to a file for later review. Run the
+script in the project root as follows:
+
+```bash
+./run-dev.sh 2>&1 | tee ./ws.log
 ```
 
 In production CBRWS_DEBUG should be `false` and `--reload` should not be used.
-Also CBRWS_ACCESS_LOG should be `true` in production to log all requests, and
 CBRWS_ALLOWED_HOSTS should be set to a comma-separated list of trusted host
-ips or hostnames that clients will use to connect to the service.
-The application will not start with `CBRWS_ALLOWED_HOSTS=*` unless
+ips or hostnames that clients will use to connect to the service. The
+application will not start with `CBRWS_ALLOWED_HOSTS=*` unless
 `CBRWS_DEBUG=true`.
+
 ```bash
 CBRWS_DEBUG=false \
-  CBRWS_ACCESS_LOG=true \
   CBRWS_ALLOWED_HOSTS="localhost, crystal.milestone42.com, darkness2.milestone42.com, dustbin2.milestone42.com, pitts.milestone42.com" \
   uvicorn cbrws.application:app --host 0.0.0.0 --port 5101
 ```
@@ -162,15 +182,70 @@ Useful URLs during development:
 - `/profiles/cbrws/v1`
 - `/profiles/cbrws/v1/rels/greeting`
 
-The app emits logs through Python loggers and leaves logging levels,
-formatting, and destinations to uvicorn. Use uvicorn's logging options
-to change what is logged. To disable the app's request access logs, set
-`CBRWS_ACCESS_LOG` to `false`:
+The app emits logs through Python loggers. Application request access
+logging is always enabled and cannot be turned off through application
+configuration. Use uvicorn logging options to control log levels,
+formatting, and destinations.
 
+Uvicorn's built-in `--log-level` option only affects uvicorn's own
+loggers, not the application's loggers. To see application logs
+use the ``--log-config`` option to give uvicorn a logging
+configuration that includes the application's loggers. The included
+development logging configuration sends application logs to
+standard error and uvicorn's HTTP access logs to standard output,
+so you can easily separate them.
 ```bash
-CBRWS_ACCESS_LOG=false \
-  uvicorn cbrws.application:app --host 0.0.0.0 --port 5101 --log-level debug
+uvicorn cbrws.application:app \
+  --host 0.0.0.0 \
+  --port 5101 \
+  --log-config config/log-config.dev.json
 ```
+
+The `config/log-config.dev.json` file is a Python `logging.config`
+dictionary in JSON form. It has these top-level entries:
+
+- `version`: selects the logging configuration schema version. Python
+  currently requires this to be `1`.
+- `disable_existing_loggers`: keeps loggers that were created before
+  the config file is loaded instead of disabling them.
+- `formatters`: defines how log records are converted to text.
+- `handlers`: defines where formatted log records are written.
+- `loggers`: maps logger names to handlers, log levels, and propagation
+  behavior.
+
+The `formatters` section defines three output formats:
+
+- `default`: uses `uvicorn.logging.DefaultFormatter` for general
+  uvicorn messages. The `fmt` value prints uvicorn's level prefix and
+  the message, and `use_colors` lets uvicorn decide whether colors are
+  appropriate for the current terminal.
+- `access`: uses `uvicorn.logging.AccessFormatter` for uvicorn's own
+  HTTP access logs. Its format includes the client address, request
+  line, and status code.
+- `cbrws`: uses the standard logging formatter for application logs.
+  It prints the timestamp, level, logger name, and message with the
+  configured date format.
+
+The `handlers` section sends each formatted record to a stream:
+
+- `default`: writes general uvicorn messages to standard error with
+  the `default` formatter.
+- `access`: writes uvicorn access messages to standard output with the
+  `access` formatter.
+- `cbrws`: writes cbrws application messages to standard error with the
+  `cbrws` formatter.
+
+The `loggers` section connects named loggers to those handlers:
+
+- `uvicorn`: sends general uvicorn logs to the `default` handler at
+  `INFO` level and stops them from propagating to ancestor loggers.
+- `uvicorn.error`: sets the error logger level to `INFO`. It does not
+  define its own handler, so it inherits uvicorn's logger behavior.
+- `uvicorn.access`: sends uvicorn's HTTP access logs to the `access`
+  handler at `INFO` level and stops propagation.
+- `cbrws`: sends all cbrws application logs, including the app's
+  always-on request access logs, to the `cbrws` handler at `DEBUG`
+  level and stops propagation.
 
 To restrict accepted HTTP Host headers, set `CBRWS_ALLOWED_HOSTS` to a
 comma-separated list of trusted host names:

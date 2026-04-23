@@ -71,9 +71,7 @@ def trusted_host_middleware(
   return TrustedHostMiddleware(asgi_app, allowed_hosts=allowed_hosts)
 
 
-def access_log_middleware(
-  asgi_app: ASGIApp,
-  app_settings: Settings) -> ASGIApp:
+def access_log_middleware(asgi_app: ASGIApp) -> ASGIApp:
   """
     Build the access log middleware.
 
@@ -85,10 +83,9 @@ def access_log_middleware(
     type checker the factory shape it expects.
 
     :param asgi_app: The ASGI application to wrap
-    :param app_settings: The application settings
     :return: The wrapped ASGI application
   """
-  return AccessLogMiddleware(asgi_app, settings=app_settings)
+  return AccessLogMiddleware(asgi_app)
 
 
 def application_middleware(app_settings: Settings) -> list[Middleware]:
@@ -106,7 +103,7 @@ def application_middleware(app_settings: Settings) -> list[Middleware]:
     Middleware(
       trusted_host_middleware,
       allowed_hosts=list(app_settings.allowed_hosts)),
-    Middleware(access_log_middleware, app_settings=app_settings)
+    Middleware(access_log_middleware)
   ]
 
 
