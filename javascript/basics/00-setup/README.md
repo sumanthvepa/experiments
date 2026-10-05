@@ -67,7 +67,7 @@ For example:
 ```
 
 ### AlmaLinux setup instructions
-Check to see if Node.js 20 is available
+Check to see if Node.js 24 is available
 ```
   dnf -y module list nodejs
 ```
@@ -77,7 +77,7 @@ Make sure other version of Node.js are disabled
   dnf -y module enable nodejs:22
 ```
 
-Install nodejs:20
+Install nodejs:24
 ```
   dnf -y module install nodejs:20/common
 ```
@@ -371,7 +371,7 @@ Now you can do the actual update. To update all packages to their latest
 versions, run the following command:
 ```
   npx ncu -u  # This updates package.json with the latest versions
-  npm install # This installs the latest versions node modules and updates package-lock.json
+  npm install # This installs the latest versions in node modules and updates package-lock.json
 ```
 
 You can also check and update specific packages. For example, to
@@ -388,7 +388,7 @@ Note that this only needs to be done once.
 
 ### Turn on Coding Assistance for Node.js
 Then go to IntelliJIDE (or File) -> Settings -> Languages & Frameworks
--> Node.js. Then check the box that says 'Coding assistance for
+-> Javascript Runtime. Then check the box that says 'Coding assistance for
 Node.js'.
 
 ### Setup Run Configurations
