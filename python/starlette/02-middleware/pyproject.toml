@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mws"
+version = "0.1.0"
+description = "A Starlette web service illustrating the use of middleware"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "starlette",
+  "uvicorn"
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx",
+  "mypy",
+  "pylint",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["mws*"]
+# mws is a namespace package: it has no __init__.py files.
+namespaces = true
+
+# Not needed for this project but kept here for reference on
+# how to include package data in a setuptools project.
+# [tool.setuptools.package-data]
+# mws = [
+#   "schemas/*.jinja2",
+#   "schemas/*.json",
+#]
