@@ -56,6 +56,100 @@ the host machine at `http://<vm-address>:5102/`, provided the VM's
 network settings allow it (for example a bridged adapter or a
 forwarded port).
 
-The service has no authentication. Only run it on a network you trust.
-To accept connections from the local machine only, change
-`--host=0.0.0.0` to `--host=127.0.0.1` in `runws.sh`.
+The only sign in is a demo session cookie (see below), and its value is
+hard coded in `src/mws/login.py`, so anyone who knows it can use it.
+Only run the service on a network you trust. To accept connections from
+the local machine only, change `--host=0.0.0.0` to `--host=127.0.0.1`
+in `runws.sh`.
+
+## Trying the / endpoint
+
+The home page is open to everyone. It greets a signed in user by name
+and everyone else with a plain `hello`. A user is signed in if the
+request has the demo `session` cookie described in the next section
+(the session `abc123` belongs to the user `alice`).
+
+Start the server first (see above). The examples use port 5102. If you
+run `curl` from another machine, replace `localhost` with the address
+of the machine running the server.
+
+The `-sS` option hides curl's progress output but still shows errors,
+and `-i` shows the response status and headers.
+
+1. Not signed in:
+
+   ```bash
+   curl -sS -i http://localhost:5102/
+   ```
+
+   You should get `200 OK` with the body `{"message":"hello"}`.
+
+2. Signed in, with the demo session cookie:
+
+   ```bash
+   curl -sS -b 'session=abc123' http://localhost:5102/
+   ```
+
+   You should get `{"message":"hello alice"}`.
+   (`-H 'Cookie: session=abc123'` does the same thing as `-b`.)
+
+3. An unknown session is treated as not signed in:
+
+   ```bash
+   curl -sS -b 'session=nope' http://localhost:5102/
+   ```
+
+   You should get `{"message":"hello"}`.
+
+## Trying the /account endpoint
+
+The `/account` endpoint is only shown to signed in users. A user is
+signed in if the request has a `session` cookie that matches an entry
+in the `SESSIONS` table in `src/mws/login.py`. The table has one demo
+entry: the session `abc123` belongs to the user `alice`.
+
+Start the server first (see above). The examples use port 5102. If you
+run `curl` from another machine, replace `localhost` with the address
+of the machine running the server.
+
+The `-sS` option hides curl's progress output but still shows errors,
+and `-i` shows the response status and headers.
+
+1. Signed in, with the demo session cookie:
+
+   ```bash
+   curl -sS -i -b 'session=abc123' http://localhost:5102/account
+   ```
+
+   You should get `200 OK` with the body `{"account":"alice"}`.
+   (`-H 'Cookie: session=abc123'` does the same thing as `-b`.)
+
+2. Not signed in, with no cookie or an unknown one:
+
+   ```bash
+   curl -sS -i http://localhost:5102/account
+   ```
+
+   You should get `303 See Other` and a `location` header that points
+   back to the home page, with the original URL in the `next` query
+   parameter, for example:
+
+   ```
+   location: http://localhost:5102/?next=http%3A%2F%2Flocalhost%3A5102%2Faccount
+   ```
+
+3. Follow the redirect with `-L`:
+
+   ```bash
+   curl -sS -L http://localhost:5102/account
+   ```
+
+   This ends at the home page and prints `{"message":"hello"}`.
+
+4. Print only the status code:
+
+   ```bash
+   curl -sS -o /dev/null -w '%{http_code}\n' -b 'session=abc123' http://localhost:5102/account
+   ```
+
+   This prints `200`. Without `-b 'session=abc123'` it prints `303`.
