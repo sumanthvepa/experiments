@@ -23,11 +23,13 @@
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint
 from starlette.middleware import Middleware as DeferConstruction
+from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
 from mws.logger import SimpleLogger, FullASGIAccessLogger
+# from mws.login import CookieBackend, LoginGateMiddleware
 
 
 class Hello(HTTPEndpoint):
@@ -35,14 +37,25 @@ class Hello(HTTPEndpoint):
     Endpoint that responds with a hello message.
 
     This is just a simple HTTP endpoint used to illustrate how
-    middleware works in a Starlette application.
+    middleware works in a Starlette application. If an authentication
+    middleware has identified the user, the message greets the user
+    by name.
   """
   async def get(self, request: Request) -> JSONResponse:
     """
       Handle a GET request.
+
+      The message is 'hello' if the user is not authenticated or if no
+      authentication middleware is installed (in which case
+      scope['user'] is not set). Otherwise it is 'hello' followed by
+      the display name of the user.
+
       :param request: The incoming request
       :return: A JSON response containing a hello message
     """
+    user = request.scope.get('user')
+    if user is not None and user.is_authenticated:
+      return JSONResponse({'message': f'hello {user.display_name}'})
     return JSONResponse({'message': 'hello'})
 
 
