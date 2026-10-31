@@ -42,8 +42,8 @@ WEBSITE_PORT=8080
 # The image is built successfully, now we can run a container from
 # this image.
 docker container run --detach \
-    --name website-test
-    --publish 8080:80 
+    --name website-test \
+    --publish 8080:80  \
     --env FLASK_HOST='darkness2.milestone42.com:5000' website-test
 
 
