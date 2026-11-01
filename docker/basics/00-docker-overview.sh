@@ -25,13 +25,13 @@ echo
 echo "A container is an isolated environment for running one or more"
 echo "processes on a host operating system. The host may be a physical"
 echo "machine or a virtual machine."
-
+echo
 echo "A container is created from a container image. An image contains"
 echo "the filesystem and configuration needed to start the container."
 echo "The relationship between an image and a container is somewhat"
 echo "like the relationship between an executable file and a running"
 echo "process."
-
+echo
 echo "Containers share the host's operating system kernel. An image"
 echo "can contain a different Linux distribution from the host. For"
 echo "example, an AlmaLinux container can run on a Fedora host."
