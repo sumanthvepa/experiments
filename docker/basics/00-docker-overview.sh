@@ -6,7 +6,7 @@
 # Copyright (C) 2024-25 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License a
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
@@ -22,14 +22,16 @@
 
 echo "00 Docker Overview"
 echo
-echo "A container is an isolated process run on a host operating"
-echo "system (which itself may be running on either a physical host"
-echo "or a virtual machine)"
-echo
-echo "A container is generated from a container image. The"
-echo "relationship between a container and its image is analogous"
-echo "to the relationship between a process and its executable file"
-echo
-echo "Hence a docker container image is a lightweight, standalone"
-echo "executable package (not an executable in-and-of-itself) that"
-echo "includes everything needed to run the application it packages."
+echo "A container is an isolated environment for running one or more"
+echo "processes on a host operating system. The host may be a physical"
+echo "machine or a virtual machine."
+
+echo "A container is created from a container image. An image contains"
+echo "the filesystem and configuration needed to start the container."
+echo "The relationship between an image and a container is somewhat"
+echo "like the relationship between an executable file and a running"
+echo "process."
+
+echo "Containers share the host's operating system kernel. An image"
+echo "can contain a different Linux distribution from the host. For"
+echo "example, an AlmaLinux container can run on a Fedora host."

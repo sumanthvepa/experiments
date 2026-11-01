@@ -1,4 +1,5 @@
-*[DONE]issue248-prompts: Update the prompts system to match the milestone42 standard
+*issue249-docker-basics: Update the basics tutorial
+[DONE]issue248-prompts: Update the prompts system to match the milestone42 standard
 [DONE]issue247-docker-basics: Fix error in 20-docker-build-website.sh 
 [DONE]issue246-python-starlette-middleware: Explore python starlette middleware
 [DONE]issue245-scheme-hello: Hello world in scheme
