@@ -1,0 +1,1 @@
+../../../../prompts/javascript-code-style.md

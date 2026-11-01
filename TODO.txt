@@ -1,4 +1,5 @@
-*[DONE]issue247-docker-basics: Fix error in 20-docker-build-website.sh 
+*[DONE]issue248-prompts: Update the prompts system to match the milestone42 standard
+[DONE]issue247-docker-basics: Fix error in 20-docker-build-website.sh 
 [DONE]issue246-python-starlette-middleware: Explore python starlette middleware
 [DONE]issue245-scheme-hello: Hello world in scheme
 [DONE]issue244-python-basics-update: Update python basics notes

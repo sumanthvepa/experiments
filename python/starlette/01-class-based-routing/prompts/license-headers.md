@@ -1,0 +1,1 @@
+../../../../prompts/license-headers.md

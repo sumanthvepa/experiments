@@ -7,7 +7,10 @@ This repository contains multiple independent Python projects.
 Before running tests, identify the relevant Python project.
 
 The project root is the nearest ancestor of the source or test file
-that contains `pyproject.toml`. Run all commands from that directory.
+that contains `pyproject.toml`. Some older projects have no
+`pyproject.toml`. For those, the project root is the nearest ancestor
+that contains the `tests/` directory. Run all commands from that
+directory.
 
 If a change affects multiple Python projects, run the relevant tests
 in each project separately.
@@ -18,7 +21,9 @@ for every Python project that consumes it.
 ## Environment
 
 Make sure the relevant project's Python environment is active and
-that the project is installed in that environment.
+that the project is installed in that environment. Each project has its
+own environment; its dependencies are listed in the project's
+`packages.txt` and `local-packages.txt` files, where they exist.
 
 If project imports or dependencies are unavailable, report that the
 environment is not configured correctly. Do not install packages or
