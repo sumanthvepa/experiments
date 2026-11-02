@@ -79,47 +79,83 @@ source /etc/os-release
 # uninstall_packages.sh. They remove the packages that are given as
 # arguments, if they are installed, and know nothing about the
 # distribution: the code that installs docker decides which packages to
-# remove, by passing the list for the distribution (see the
-# *_DISTRIBUTION_DOCKER_PACKAGES lists below). The file is found in the
-# directory of this script, so the script can be run from any directory.
+# remove, by passing the list for the distribution (see the function
+# conflicting_packages below). The file is found in the directory of
+# this script, so the script can be run from any directory.
 source "$(dirname "${BASH_SOURCE[0]}")/uninstall_packages.sh"
 
 
-# Unwanted Docker packages that come with each distribution
+# conflicting_packages: print the names of the packages that come with
+# a distribution and conflict with the packages from Docker's
+# repository, one name on each line. They must be removed before
+# Docker's packages are installed. Each distribution has its own list,
+# because the names are different on each distribution.
 #
-# Each distribution has its own list of the packages that conflict with
-# the packages from Docker's repository, because the names are
-# different on each distribution. They must be removed before Docker's
-# packages are installed. The lists are only data: nothing is removed
-# until the code that installs docker passes the list for the
-# distribution to apt_uninstall_packages or dnf_uninstall_packages.
+# Usage: conflicting_packages os_id
+#   os_id: the id of the distribution. This is the value of the ID
+#          variable that /etc/os-release defines, e.g. ubuntu, debian,
+#          almalinux or fedora.
+#
+# A function cannot return an array, so it prints the names. The caller
+# reads them into an array, and passes the array to the function that
+# removes the packages:
+#   names=$(conflicting_packages "$ID")
+#   mapfile -t packages <<< "$names"
+#   apt_uninstall_packages "${packages[@]}"
+# (Assigning the output to a variable, instead of reading it directly
+# with mapfile, lets set -e stop the script if the function fails.)
+#
+# If the distribution is not supported, it prints an error message on
+# stderr and returns 1. Nothing is removed by this function.
+conflicting_packages() {
+  local os_id=$1
 
-# Unwanted Ubuntu packages
-readonly -a UBUNTU_DISTRIBUTION_DOCKER_PACKAGES=(
-  docker.io docker-compose docker-compose-v2 docker-doc docker-buildx
-  podman-docker containerd containerd-stable runc runc-stable
-)
+  # Unwanted Ubuntu packages
+  local -a ubuntu_distribution_docker_packages=(
+    docker.io docker-compose docker-compose-v2 docker-doc docker-buildx
+    podman-docker containerd containerd-stable runc runc-stable
+  )
 
-# Unwanted Debian packages
-readonly -a DEBIAN_DISTRIBUTION_DOCKER_PACKAGES=(
-  docker.io docker-cli docker-compose docker-doc docker-buildx
-  podman-docker containerd runc
-)
+  # Unwanted Debian packages
+  local -a debian_distribution_docker_packages=(
+    docker.io docker-cli docker-compose docker-doc docker-buildx
+    podman-docker containerd runc
+  )
 
-# Unwanted AlmaLinux packages
-readonly -a ALMALINUX_DISTRIBUTION_DOCKER_PACKAGES=(
-  podman-docker docker docker-client docker-client-latest docker-common
-  docker-latest docker-latest-logrotate docker-logrotate docker-engine
-  containerd runc
-)
+  # Unwanted AlmaLinux packages
+  local -a almalinux_distribution_docker_packages=(
+    podman-docker docker docker-client docker-client-latest
+    docker-common docker-latest docker-latest-logrotate
+    docker-logrotate docker-engine containerd runc
+  )
 
-# Fedora
-readonly -a FEDORA_DISTRIBUTION_DOCKER_PACKAGES=(
-  moby-engine docker-cli docker-compose docker-buildx podman-docker
-  containerd runc docker docker-client docker-client-latest
-  docker-common docker-latest docker-latest-logrotate docker-logrotate
-  docker-selinux docker-engine-selinux docker-engine
-)
+  # Unwanted Fedora packages
+  local -a fedora_distribution_docker_packages=(
+    moby-engine docker-cli docker-compose docker-buildx podman-docker
+    containerd runc docker docker-client docker-client-latest
+    docker-common docker-latest docker-latest-logrotate
+    docker-logrotate docker-selinux docker-engine-selinux docker-engine
+  )
+
+  case $os_id in
+    ubuntu)
+      printf '%s\n' "${ubuntu_distribution_docker_packages[@]}"
+      ;;
+    debian)
+      printf '%s\n' "${debian_distribution_docker_packages[@]}"
+      ;;
+    almalinux)
+      printf '%s\n' "${almalinux_distribution_docker_packages[@]}"
+      ;;
+    fedora)
+      printf '%s\n' "${fedora_distribution_docker_packages[@]}"
+      ;;
+    *)
+      echo "ERROR: unsupported distribution: '$os_id'" >&2
+      return 1
+      ;;
+  esac
+}
 
 
 # We can now install docker based on the distribution
