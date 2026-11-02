@@ -291,10 +291,12 @@ dnf_install_docker() {
 }
 
 
-# Decide which users will be added to the docker group
-# This is done before installing anything, so that a mistake (a
-# misspelled user name, for example) stops the script before the
-# system has been changed.
+# users_for_docker_group: print the names of the users that will be
+# added to the docker group, one name on each line. The names are
+# checked, so that a mistake (a misspelled user name, for example) is
+# found before anything is installed.
+#
+# Usage: users_for_docker_group
 #
 # The users come from, in order of preference:
 #   1. The DOCKER_USERS environment variable (comma separated list)
@@ -303,38 +305,57 @@ dnf_install_docker() {
 #      use docker. Note that when the script is run from a root shell
 #      that was not started by sudo, SUDO_USER is not set. A login
 #      name of root would be useless, so it is ignored.
-users=()
-if [[ -n "${DOCKER_USERS:-}" ]]; then
-  IFS=',' read -r -a users <<< "$DOCKER_USERS"
-elif [[ -n "${SUDO_USER:-}" && $SUDO_USER != 'root' ]]; then
-  users=("$SUDO_USER")
-else
-  die "Cannot tell which user to add to the docker group." \
-    "Run the script using sudo from the user's own account, or" \
-    "list the users in DOCKER_USERS, e.g." \
-    "sudo DOCKER_USERS=alice ./01-install-docker.sh"
-fi
+#
+# A name is accepted if it only has letters, digits, '.', '_', '@' and
+# '-', and does not start with '-' (which would look like a command
+# line option). It must also be the name of an existing account.
+#
+# If there is no user, or a name is not accepted, it prints an error
+# message on stderr and stops the script with die. Because of that, the
+# caller assigns the output to a variable (see below) and not just
+# reads it with mapfile, so that set -e stops the script:
+#   names=$(users_for_docker_group)
+#   mapfile -t docker_users < <(printf '%s' "$names")
+users_for_docker_group() {
+  local user_name_pattern='^[A-Za-z0-9_][A-Za-z0-9._@-]*$'
+  local user
+  local -a users=()
+  local -a valid_users=()
 
-# Validate the user names. A name is accepted if it only has letters,
-# digits, '.', '_', '@' and '-', and does not start with '-' (which
-# would look like a command line option). It must also be the name of
-# an existing account.
-user_name_pattern='^[A-Za-z0-9_][A-Za-z0-9._@-]*$'
-docker_users=()
-for user in "${users[@]}"; do
-  # User names cannot contain white space, so strip any that was typed
-  # around the commas, e.g. "alice, bob"
-  user="${user//[[:space:]]/}"
-  if [[ ! $user =~ $user_name_pattern ]]; then
-    die "'$user' is not a valid user name"
+  if [[ -n "${DOCKER_USERS:-}" ]]; then
+    IFS=',' read -r -a users <<< "$DOCKER_USERS"
+  elif [[ -n "${SUDO_USER:-}" && $SUDO_USER != 'root' ]]; then
+    users=("$SUDO_USER")
+  else
+    die "Cannot tell which user to add to the docker group." \
+      "Run the script using sudo from the user's own account, or" \
+      "list the users in DOCKER_USERS, e.g." \
+      "sudo DOCKER_USERS=alice ./01-install-docker.sh"
   fi
-  # getent looks the user up in all the sources of user accounts
-  # (/etc/passwd, LDAP, sssd, etc.)
-  if ! getent passwd "$user" > /dev/null; then
-    die "User '$user' does not exist"
-  fi
-  docker_users+=("$user")
-done
+
+  for user in "${users[@]}"; do
+    # User names cannot contain white space, so strip any that was
+    # typed around the commas, e.g. "alice, bob"
+    user="${user//[[:space:]]/}"
+    if [[ ! $user =~ $user_name_pattern ]]; then
+      die "'$user' is not a valid user name"
+    fi
+    # getent looks the user up in all the sources of user accounts
+    # (/etc/passwd, LDAP, sssd, etc.)
+    if ! getent passwd "$user" > /dev/null; then
+      die "User '$user' does not exist"
+    fi
+    valid_users+=("$user")
+  done
+
+  printf '%s\n' "${valid_users[@]}"
+}
+
+# Decide which users will be added to the docker group. This is done
+# before installing anything, so that a mistake stops the script before
+# the system has been changed.
+names=$(users_for_docker_group)
+mapfile -t docker_users < <(printf '%s' "$names")
 
 
 # We can now install docker based on the distribution
