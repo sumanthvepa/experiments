@@ -166,6 +166,130 @@ apt_install_docker() {
   apt-get --yes install "${docker_packages[@]}"
 }
 
+# dnf_install_docker: install Docker Engine from Docker's dnf
+# repository, on AlmaLinux, CentOS or Fedora. The steps follow Docker's
+# instructions for the rpm repository:
+#   https://docs.docker.com/engine/install/centos/
+#   https://docs.docker.com/engine/install/fedora/
+# The instructions are the same for the three, except for the
+# repository that is used, and for the way the repository is added.
+# AlmaLinux is a derivative of Red Hat Enterprise Linux. Docker does not
+# have a repository for AlmaLinux, but it provides packages for CentOS,
+# a close relative, and the function uses the repository for CentOS.
+#
+# Usage: dnf_install_docker dist_id
+#   dist_id: almalinux, centos or fedora. This is the value of
+#            distribution_id.
+#
+# It must be run as root. It does not remove the packages that conflict
+# with Docker's packages: see conflicting_packages. If dist_id is not
+# one of the three, it prints an error message on stderr and returns 1.
+#
+# Before the packages are installed, the function checks Docker's
+# package signing key. The instructions say to compare the fingerprint
+# of the key with the one on the web page. The function does that
+# itself, so that it can run without asking. If the fingerprint is not
+# the one it expects, it stops before the Docker packages are
+# installed.
+dnf_install_docker() {
+  local dist_id=${1:-}
+  # The fingerprint of the key, from the pages above (the pages show it
+  # in groups of four characters: 060A 61C5 1B55 8A7F 742B 77AA C52F
+  # EB6B 621E 9F35). It was last compared with the pages on 2026-11-03.
+  # If Docker ever changes its signing key, update this value from the
+  # pages, after checking the new key on the pages.
+  local expected_fingerprint=060A61C51B558A7F742B77AAC52FEB6B621E9F35
+  local repo_name display_name repo_file_url key_url
+  local -a docker_packages=(
+    docker-ce docker-ce-cli containerd.io
+    docker-buildx-plugin docker-compose-plugin
+  )
+
+  # repo_name is the name that Docker's repository has for the
+  # distribution, which is part of the URLs. display_name is for the
+  # messages.
+  case $dist_id in
+    almalinux)
+      repo_name=centos
+      display_name=AlmaLinux
+      ;;
+    centos)
+      repo_name=centos
+      display_name=CentOS
+      ;;
+    fedora)
+      repo_name=fedora
+      display_name=Fedora
+      ;;
+    *)
+      echo "ERROR: dnf_install_docker: unsupported distribution:" \
+        "'$dist_id'" >&2
+      return 1
+      ;;
+  esac
+  repo_file_url=https://download.docker.com/linux/$repo_name/docker-ce.repo
+  key_url=https://download.docker.com/linux/$repo_name/gpg
+
+  echo "Installing docker for $display_name"
+
+  # Add Docker's repository, unless it has already been added. The
+  # repository is defined by the [docker-ce-stable] section in a file in
+  # /etc/yum.repos.d. The name of the file depends on the tool that
+  # created it, so look for the section header, anchored to the start
+  # of a line, in all the repository files. (DNF5 does not overwrite a
+  # repository file that exists already, so this makes it possible to
+  # run the function again.)
+  #
+  # The config-manager command comes from a plugin package that depends
+  # on the version of dnf. Fedora has DNF5: the package is dnf5-plugins,
+  # and the repository is added with the addrepo command. AlmaLinux and
+  # CentOS have DNF 4: the package is dnf-plugins-core, and the
+  # repository is added with the --add-repo option. Installing the
+  # package if it is already installed does no harm.
+  if grep -qsE '^\[docker-ce-stable\]' /etc/yum.repos.d/*.repo; then
+    echo "The Docker repository has already been added"
+  elif [[ $repo_name == fedora ]]; then
+    dnf --assumeyes install dnf5-plugins
+    dnf config-manager addrepo --from-repofile="$repo_file_url"
+  else
+    dnf --assumeyes install dnf-plugins-core
+    dnf config-manager --add-repo "$repo_file_url"
+  fi
+
+  # Check the signing key, and import it into the rpm database if it is
+  # the right one. This runs in a subshell, so that the temporary file
+  # is removed (by the EXIT trap) however the subshell ends. gpg (from
+  # the gnupg2 package, which dnf needs) prints the fingerprint of the
+  # key in a file, without importing the key. In its --with-colons
+  # output the fingerprint is the 10th field of the line that starts
+  # with fpr.
+  (
+    local key_file fingerprint
+    key_file=$(mktemp)
+    trap 'rm --force "$key_file"' EXIT
+
+    curl --fail --silent --show-error --location "$key_url" \
+      --output "$key_file"
+    fingerprint=$(gpg --show-keys --with-colons "$key_file" |
+      awk -F: '$1 == "fpr" { print $10; exit }')
+
+    if [[ $fingerprint != "$expected_fingerprint" ]]; then
+      echo "ERROR: the fingerprint of Docker's key is" \
+        "'$fingerprint', not the expected" \
+        "'$expected_fingerprint'. No Docker packages have been" \
+        "installed." >&2
+      exit 1
+    fi
+    echo "Docker's key has the expected fingerprint"
+    rpm --import "$key_file"
+  )
+
+  # --assumeyes answers yes to the questions that dnf asks, so that the
+  # installation does not stop to wait for an answer. The key was
+  # imported above, so dnf has no question about the key.
+  dnf --assumeyes install "${docker_packages[@]}"
+}
+
 
 # We can now install docker based on the distribution
 if [[ $distribution_id == 'ubuntu' || $distribution_id == 'debian' ]]; then
