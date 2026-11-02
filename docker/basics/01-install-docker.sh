@@ -291,6 +291,52 @@ dnf_install_docker() {
 }
 
 
+# Decide which users will be added to the docker group
+# This is done before installing anything, so that a mistake (a
+# misspelled user name, for example) stops the script before the
+# system has been changed.
+#
+# The users come from, in order of preference:
+#   1. The DOCKER_USERS environment variable (comma separated list)
+#   2. SUDO_USER: sudo sets this variable to the name of the user
+#      who ran sudo. This is the user who is most likely to want to
+#      use docker. Note that when the script is run from a root shell
+#      that was not started by sudo, SUDO_USER is not set. A login
+#      name of root would be useless, so it is ignored.
+users=()
+if [[ -n "${DOCKER_USERS:-}" ]]; then
+  IFS=',' read -r -a users <<< "$DOCKER_USERS"
+elif [[ -n "${SUDO_USER:-}" && $SUDO_USER != 'root' ]]; then
+  users=("$SUDO_USER")
+else
+  die "Cannot tell which user to add to the docker group." \
+    "Run the script using sudo from the user's own account, or" \
+    "list the users in DOCKER_USERS, e.g." \
+    "sudo DOCKER_USERS=alice ./01-install-docker.sh"
+fi
+
+# Validate the user names. A name is accepted if it only has letters,
+# digits, '.', '_', '@' and '-', and does not start with '-' (which
+# would look like a command line option). It must also be the name of
+# an existing account.
+user_name_pattern='^[A-Za-z0-9_][A-Za-z0-9._@-]*$'
+docker_users=()
+for user in "${users[@]}"; do
+  # User names cannot contain white space, so strip any that was typed
+  # around the commas, e.g. "alice, bob"
+  user="${user//[[:space:]]/}"
+  if [[ ! $user =~ $user_name_pattern ]]; then
+    die "'$user' is not a valid user name"
+  fi
+  # getent looks the user up in all the sources of user accounts
+  # (/etc/passwd, LDAP, sssd, etc.)
+  if ! getent passwd "$user" > /dev/null; then
+    die "User '$user' does not exist"
+  fi
+  docker_users+=("$user")
+done
+
+
 # We can now install docker based on the distribution
 if [[ $distribution_id == 'ubuntu' || $distribution_id == 'debian' ]]; then
   apt_install_docker "$distribution_id"
@@ -301,36 +347,59 @@ else
   echo "Unsupported OS"
 fi
 
-# This code adds the current user or a list of users specified in the
-# DOCKER_USERS environment variable to the docker group.
+# Add users to the docker group
+# The docker daemon listens on a socket (/var/run/docker.sock) that is
+# only accessible by root and by members of the docker group. Adding a
+# user to the group lets them run docker commands without sudo.
+#
+# WARNING: Membership of the docker group is equivalent to having
+# root privileges on this machine. A member can, for example, start a
+# container that mounts the whole filesystem of the host and change
+# any file in it. Only add users that you would trust with the root
+# password.
+#
+# Group membership is read when a user logs in. A user who is added to
+# the group will not be able to use docker without sudo until they
+# log out and log in again (or start a shell with the new group, using
+# 'newgrp docker'). Their existing sessions are not changed.
 
-# Check if the DOCKER_USERS environment variable is set and not empty
-if [ -z "$DOCKER_USERS" ]; then
-  # If USERS is not set, get the username of the user invoking sudo
-  # This user will be added to the group docker
-  users=($(logname))
-else
-  # If USERS is set, split it into an array
-  IFS=',' read -r -a users <<< "$DOCKER_USERS"
-fi
-# Now add all the users in the array to the docker group
-for user in "${users[@]}"; do
-  # Check that the user exists before adding them to the docker group
-  getent passwd $user
-  if [[ $? -eq 0 ]]; then
-    # Check that the user is not already a member of the docker group
-    getent group docker | grep $user
-    if [[ $? -ne 0 ]]; then
-      # Add the user to the docker group
-      echo "Adding $user to docker group"
-      usermod --append --groups docker $user
-    else
-      echo "$user is already a member of the docker group"
+# The docker packages create the docker group.
+getent group docker > /dev/null || die "The docker group does not exist"
+
+# Succeeds if user $1 is a member of the group $2. The names of the
+# groups the user belongs to are compared one by one, as whole words.
+# (Searching for the user name in the output of 'getent group' would
+# also match user names that merely contain it, e.g. 'al' in 'alice'.)
+is_member_of_group() {
+  local user=$1 group=$2 member
+  local -a groups
+  read -r -a groups <<< "$(id -nG "$user")"
+  for member in "${groups[@]}"; do
+    if [[ $member == "$group" ]]; then
+      return 0
     fi
+  done
+  return 1
+}
+
+echo
+echo "WARNING: Members of the docker group have root-equivalent"
+echo "privileges on this machine."
+for user in "${docker_users[@]}"; do
+  if is_member_of_group "$user" docker; then
+    echo "$user is already a member of the docker group"
   else
-    echo "User $user does not exist"
+    # --append: Append the group, and keep the user's other groups.
+    #           Without it the user would be removed from all other
+    #           groups!
+    # --groups: The group(s) to add
+    echo "Adding $user to the docker group"
+    usermod --append --groups docker "$user"
   fi
 done
+echo "Users added to the docker group must log out and log in again"
+echo "before they can use docker without sudo."
+echo
 
 # Start and enable the docker service
 systemctl start docker
