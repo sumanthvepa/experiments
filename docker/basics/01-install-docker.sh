@@ -89,6 +89,83 @@ readonly distribution_id=${ID:-linux}
 # script, so the script can be run from any directory.
 source "$(dirname "${BASH_SOURCE[0]}")/package-utilities.sh"
 
+# apt_install_docker: install Docker Engine from Docker's apt
+# repository, on Ubuntu or Debian. The steps follow Docker's
+# instructions for the apt repository:
+#   https://docs.docker.com/engine/install/ubuntu/
+#   https://docs.docker.com/engine/install/debian/
+# The instructions for the two distributions are the same, except for
+# the name of the distribution in the URLs of the key and the
+# repository, and for the way the release codename is found.
+#
+# Usage: apt_install_docker dist_id
+#   dist_id: ubuntu or debian. This is the value of distribution_id.
+#
+# It must be run as root. It does not remove the packages that
+# conflict with Docker's packages: see conflicting_packages. If
+# dist_id is neither ubuntu nor debian, it prints an error message on
+# stderr and returns 1.
+apt_install_docker() {
+  local dist_id=${1:-}
+  local keyring=/etc/apt/keyrings/docker.asc
+  local repo_url arch codename
+  local -a docker_packages=(
+    docker-ce docker-ce-cli containerd.io
+    docker-buildx-plugin docker-compose-plugin
+  )
+
+  case $dist_id in
+    ubuntu | debian)
+      ;;
+    *)
+      echo "ERROR: apt_install_docker: unsupported distribution:" \
+        "'$dist_id'" >&2
+      return 1
+      ;;
+  esac
+  repo_url=https://download.docker.com/linux/$dist_id
+
+  # ${dist_id^} makes the first letter a capital letter, e.g. Ubuntu
+  echo "Installing docker for ${dist_id^}"
+
+  # Add Docker's official GPG key. The key is what the packages from
+  # Docker are signed with. It is made readable by everyone, because
+  # apt reads it as an unprivileged user.
+  apt-get update
+  apt-get --yes install ca-certificates curl
+  install --mode=0755 --directory /etc/apt/keyrings
+  curl --fail --silent --show-error --location "$repo_url/gpg" \
+    --output "$keyring"
+  chmod a+r "$keyring"
+
+  # Add the repository to Apt sources. The file is in the deb822
+  # format, which has one field on each line. The architecture (for
+  # example amd64) comes from dpkg. The codename of the release (for
+  # example noble or trixie) comes from /etc/os-release. On a
+  # distribution that is derived from Ubuntu (Linux Mint, for example)
+  # VERSION_CODENAME is the codename of the derivative, so the codename
+  # of the Ubuntu release it is based on, UBUNTU_CODENAME, is used when
+  # it is defined. (Docker does not officially support the derivatives.)
+  arch=$(dpkg --print-architecture)
+  codename=$(
+    . /etc/os-release
+    echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}"
+  )
+  printf '%s\n' \
+    'Types: deb' \
+    "URIs: $repo_url" \
+    "Suites: $codename" \
+    'Components: stable' \
+    "Architectures: $arch" \
+    "Signed-By: $keyring" |
+    tee /etc/apt/sources.list.d/docker.sources > /dev/null
+
+  # Read the package lists again, so that apt knows about the packages
+  # in the repository that was just added
+  apt-get update
+  apt-get --yes install "${docker_packages[@]}"
+}
+
 
 # We can now install docker based on the distribution
 if [[ $distribution_id == 'ubuntu' ]]; then
