@@ -22,15 +22,9 @@
 
 echo '01-install-docker'
 
-# A more robust implementation of an install docker script is
-# can be found at https://www.smushd.in/devops/
-# (Subscription required)
-
 # This script installs Docker Engine from Docker's own package
 # repository. It is written for the current development environments:
-#
-#   Fedora 44
-#   AlmaLinux 10.2
+# Fedora 44, AlmaLinux 10.2, Debian 13, Ubuntu 26.04
 #
 # Run it as root, for example:
 #
@@ -81,92 +75,14 @@ fi
 source /etc/os-release
 
 # Functions that remove packages
-#
-# There is one function for each package manager. Each one removes the
-# packages that are given as arguments, if they are installed. A
-# function knows about the package manager, but not about the
+# apt_uninstall_packages and dnf_uninstall_packages are defined in
+# uninstall_packages.sh. They remove the packages that are given as
+# arguments, if they are installed, and know nothing about the
 # distribution: the code that installs docker decides which packages to
-# remove, by passing it the list for the distribution (see the
-# *_DISTRIBUTION_DOCKER_PACKAGES lists below). The functions are defined
-# here but nothing runs until they are called.
-
-apt_uninstall_packages() {
-  # Remove packages with apt, the package manager of Ubuntu and Debian.
-  # Usage: apt_uninstall_packages package...
-  #   package: the name of a package to remove, if it is installed.
-  #            Names of packages that are not installed are ignored.
-  local -a installed=()
-  local package
-
-  # dpkg-query reports the status of a package. It fails for a package
-  # that dpkg has never heard of (for example a package that only
-  # exists in newer releases), so the output (not the exit status) is
-  # compared, with the whole word 'installed'.
-  for package in "$@"; do
-    if [[ $(dpkg-query --show --showformat='${db:Status-Status}' "$package" \
-      2> /dev/null) == 'installed' ]]; then
-      installed+=("$package")
-    fi
-  done
-
-  if [[ ${#installed[@]} -eq 0 ]]; then
-    echo 'No distribution docker packages are installed'
-    return 0
-  fi
-
-  echo 'Removing these distribution docker packages:'
-  printf '  %s\n' "${installed[@]}"
-
-  # Removing a package also removes the packages that depend on it.
-  # --simulate shows everything apt is going to remove, without
-  # removing anything.
-  echo 'apt will remove (this includes packages that depend on them):'
-  apt-get --simulate remove "${installed[@]}"
-
-  # remove (as opposed to purge) leaves the packages' configuration
-  # files behind. Images, containers, volumes and networks in
-  # /var/lib/docker are not removed either.
-  apt-get --yes remove "${installed[@]}"
-}
-
-dnf_uninstall_packages() {
-  # Remove packages with dnf, the package manager of AlmaLinux and Fedora.
-  # Usage: dnf_uninstall_packages package...
-  #   package: the name of a package to remove, if it is installed.
-  #            Names of packages that are not installed are ignored.
-  local -a installed=()
-  local package
-
-  # rpm --query --quiet succeeds only if a package with exactly this
-  # name is installed. (It does not match other packages that merely
-  # provide the name.)
-  for package in "$@"; do
-    if rpm --query --quiet "$package"; then
-      installed+=("$package")
-    fi
-  done
-
-  if [[ ${#installed[@]} -eq 0 ]]; then
-    echo 'No distribution docker packages are installed'
-    return 0
-  fi
-
-  echo 'Removing these distribution docker packages:'
-  printf '  %s\n' "${installed[@]}"
-
-  # Removing a package also removes the packages that depend on it, and
-  # the dependencies that nothing else needs any more. DNF has no
-  # option that only shows what would be removed, so ask for the
-  # removal and answer no (--assumeno). DNF then shows everything it
-  # would remove and stops. Answering no makes DNF exit with a non-zero
-  # status, so ignore that status here.
-  echo 'dnf will remove (this includes packages that depend on them):'
-  dnf --assumeno remove "${installed[@]}" || true
-
-  # Images, containers, volumes and networks in /var/lib/docker are
-  # not removed either.
-  dnf --assumeyes remove "${installed[@]}"
-}
+# remove, by passing the list for the distribution (see the
+# *_DISTRIBUTION_DOCKER_PACKAGES lists below). The file is found in the
+# directory of this script, so the script can be run from any directory.
+source "$(dirname "${BASH_SOURCE[0]}")/uninstall_packages.sh"
 
 
 # Unwanted Docker packages that come with each distribution
@@ -178,66 +94,31 @@ dnf_uninstall_packages() {
 # until the code that installs docker passes the list for the
 # distribution to apt_uninstall_packages or dnf_uninstall_packages.
 
-# Ubuntu
+# Unwanted Ubuntu packages
 readonly -a UBUNTU_DISTRIBUTION_DOCKER_PACKAGES=(
-  docker.io
-  docker-compose
-  docker-compose-v2
-  docker-doc
-  docker-buildx
-  podman-docker
-  containerd
-  containerd-stable
-  runc
-  runc-stable
+  docker.io docker-compose docker-compose-v2 docker-doc docker-buildx
+  podman-docker containerd containerd-stable runc runc-stable
 )
 
-# Debian
+# Unwanted Debian packages
 readonly -a DEBIAN_DISTRIBUTION_DOCKER_PACKAGES=(
-  docker.io
-  docker-cli
-  docker-compose
-  docker-doc
-  docker-buildx
-  podman-docker
-  containerd
-  runc
+  docker.io docker-cli docker-compose docker-doc docker-buildx
+  podman-docker containerd runc
 )
 
-# AlmaLinux
+# Unwanted AlmaLinux packages
 readonly -a ALMALINUX_DISTRIBUTION_DOCKER_PACKAGES=(
-  podman-docker
-  docker
-  docker-client
-  docker-client-latest
-  docker-common
-  docker-latest
-  docker-latest-logrotate
-  docker-logrotate
-  docker-engine
-  containerd
-  runc
+  podman-docker docker docker-client docker-client-latest docker-common
+  docker-latest docker-latest-logrotate docker-logrotate docker-engine
+  containerd runc
 )
 
 # Fedora
 readonly -a FEDORA_DISTRIBUTION_DOCKER_PACKAGES=(
-  moby-engine
-  docker-cli
-  docker-compose
-  docker-buildx
-  podman-docker
-  containerd
-  runc
-  docker
-  docker-client
-  docker-client-latest
-  docker-common
-  docker-latest
-  docker-latest-logrotate
-  docker-logrotate
-  docker-selinux
-  docker-engine-selinux
-  docker-engine
+  moby-engine docker-cli docker-compose docker-buildx podman-docker
+  containerd runc docker docker-client docker-client-latest
+  docker-common docker-latest docker-latest-logrotate docker-logrotate
+  docker-selinux docker-engine-selinux docker-engine
 )
 
 
