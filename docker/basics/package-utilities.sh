@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# uninstall_packages.sh: Functions that remove packages
+# package-utilities.sh: Functions that remove packages
 #
 # Copyright (C) 2026 Sumanth Vepa.
 #

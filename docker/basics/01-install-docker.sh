@@ -76,13 +76,13 @@ source /etc/os-release
 
 # Functions that remove packages
 # apt_uninstall_packages and dnf_uninstall_packages are defined in
-# uninstall_packages.sh. They remove the packages that are given as
+# package-utilities.sh. They remove the packages that are given as
 # arguments, if they are installed, and know nothing about the
 # distribution: the code that installs docker decides which packages to
 # remove, by passing the list for the distribution (see the function
 # conflicting_packages below). The file is found in the directory of
 # this script, so the script can be run from any directory.
-source "$(dirname "${BASH_SOURCE[0]}")/uninstall_packages.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/package-utilities.sh"
 
 
 # distribution_packages: print the names of the packages that come with
