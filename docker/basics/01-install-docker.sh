@@ -294,23 +294,9 @@ dnf_install_docker() {
 # We can now install docker based on the distribution
 if [[ $distribution_id == 'ubuntu' || $distribution_id == 'debian' ]]; then
   apt_install_docker "$distribution_id"
-elif [[ $distribution_id == 'almalinux' ]]; then
-  echo "Installing docker for AlmaLinux"
-  dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-  dnf -y install \
-    docker-ce \
-    docker-ce-cli \
-    containerd.io \
-    docker-buildx-plugin \
-    docker-compose-plugin
-elif [[ $distribution_id == 'fedora' ]]; then
-  echo "Installing docker for Fedora"
-  dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-  dnf -y install \
-    docker-ce \
-    docker-ce-cli \
-    containerd.io \
-    docker-buildx-plugin
+elif [[ $distribution_id == 'almalinux' || $distribution_id == 'centos' ||
+        $distribution_id == 'fedora' ]]; then
+  dnf_install_docker "$distribution_id"
 else
   echo "Unsupported OS"
 fi
