@@ -26,11 +26,6 @@ echo '01-install-docker'
 # can be found at https://www.smushd.in/devops/
 # (Subscription required)
 
-
-# A more robust implementation of an install docker script is
-# can be found at https://www.smushd.in/devops/
-# (Subscription required)
-
 # This script installs Docker Engine from Docker's own package
 # repository. It is written for the current development environments:
 #
@@ -85,18 +80,21 @@ if [[ -r /etc/os-release ]]; then
 fi
 source /etc/os-release
 
-# Helpers for the uninstall functions
+# Functions that remove packages
 #
-# Each helper removes the packages that are given as arguments, if they
-# are installed. The helpers know about the package manager (apt or
-# dnf), but not about the distribution: the code that calls the helper
-# decides which packages to remove, by passing it the list for the
-# distribution (see the *_DISTRIBUTION_DOCKER_PACKAGES lists below). The
-# helpers are defined here but nothing runs until they are called.
+# There is one function for each package manager. Each one removes the
+# packages that are given as arguments, if they are installed. A
+# function knows about the package manager, but not about the
+# distribution: the code that installs docker decides which packages to
+# remove, by passing it the list for the distribution (see the
+# *_DISTRIBUTION_DOCKER_PACKAGES lists below). The functions are defined
+# here but nothing runs until they are called.
 
 apt_uninstall_packages() {
-  # For distributions that use apt (Ubuntu and Debian).
-  # $@: the names of the packages to remove, if they are installed
+  # Remove packages with apt, the package manager of Ubuntu and Debian.
+  # Usage: apt_uninstall_packages package...
+  #   package: the name of a package to remove, if it is installed.
+  #            Names of packages that are not installed are ignored.
   local -a installed=()
   local package
 
@@ -129,6 +127,45 @@ apt_uninstall_packages() {
   # files behind. Images, containers, volumes and networks in
   # /var/lib/docker are not removed either.
   apt-get --yes remove "${installed[@]}"
+}
+
+dnf_uninstall_packages() {
+  # Remove packages with dnf, the package manager of AlmaLinux and Fedora.
+  # Usage: dnf_uninstall_packages package...
+  #   package: the name of a package to remove, if it is installed.
+  #            Names of packages that are not installed are ignored.
+  local -a installed=()
+  local package
+
+  # rpm --query --quiet succeeds only if a package with exactly this
+  # name is installed. (It does not match other packages that merely
+  # provide the name.)
+  for package in "$@"; do
+    if rpm --query --quiet "$package"; then
+      installed+=("$package")
+    fi
+  done
+
+  if [[ ${#installed[@]} -eq 0 ]]; then
+    echo 'No distribution docker packages are installed'
+    return 0
+  fi
+
+  echo 'Removing these distribution docker packages:'
+  printf '  %s\n' "${installed[@]}"
+
+  # Removing a package also removes the packages that depend on it, and
+  # the dependencies that nothing else needs any more. DNF has no
+  # option that only shows what would be removed, so ask for the
+  # removal and answer no (--assumeno). DNF then shows everything it
+  # would remove and stops. Answering no makes DNF exit with a non-zero
+  # status, so ignore that status here.
+  echo 'dnf will remove (this includes packages that depend on them):'
+  dnf --assumeno remove "${installed[@]}" || true
+
+  # Images, containers, volumes and networks in /var/lib/docker are
+  # not removed either.
+  dnf --assumeyes remove "${installed[@]}"
 }
 
 
