@@ -85,37 +85,26 @@ if [[ -r /etc/os-release ]]; then
 fi
 source /etc/os-release
 
-ubuntu_uninstall_distribution_docker_packages() {
-  # Ubuntu's own docker packages conflict with the packages from
-  # Docker's repository. This function removes them. The list is the
-  # one in Docker's installation instructions for Ubuntu
-  # (https://docs.docker.com/engine/install/ubuntu/), plus the
-  # containerd-stable and runc-stable packages that Ubuntu 26.04 and
-  # later provide in place of containerd and runc.
-  #
-  # None of these packages is installed on a stock Ubuntu Server, so
-  # normally there is nothing to do. They are only present if someone
-  # installed them. (The docker snap, which the Ubuntu Server installer
-  # can install, is a snap and not an apt package. It is not removed.)
-  local -a candidates=(
-    docker.io
-    docker-compose
-    docker-compose-v2
-    docker-doc
-    docker-buildx
-    podman-docker
-    containerd
-    containerd-stable
-    runc
-    runc-stable
-  )
+# Helpers for the uninstall functions
+#
+# Each helper removes the packages that are given as arguments, if they
+# are installed. The helpers know about the package manager (apt or
+# dnf), but not about the distribution: the code that calls the helper
+# decides which packages to remove, by passing it the list for the
+# distribution (see the *_DISTRIBUTION_DOCKER_PACKAGES lists below). The
+# helpers are defined here but nothing runs until they are called.
+
+apt_uninstall_packages() {
+  # For distributions that use apt (Ubuntu and Debian).
+  # $@: the names of the packages to remove, if they are installed
   local -a installed=()
   local package
 
   # dpkg-query reports the status of a package. It fails for a package
-  # that dpkg has never heard of, so the output (not the exit status)
-  # is compared, with the whole word 'installed'.
-  for package in "${candidates[@]}"; do
+  # that dpkg has never heard of (for example a package that only
+  # exists in newer releases), so the output (not the exit status) is
+  # compared, with the whole word 'installed'.
+  for package in "$@"; do
     if [[ $(dpkg-query --show --showformat='${db:Status-Status}' "$package" \
       2> /dev/null) == 'installed' ]]; then
       installed+=("$package")
@@ -123,11 +112,11 @@ ubuntu_uninstall_distribution_docker_packages() {
   done
 
   if [[ ${#installed[@]} -eq 0 ]]; then
-    echo 'No Ubuntu distribution docker packages are installed'
+    echo 'No distribution docker packages are installed'
     return 0
   fi
 
-  echo 'Removing these Ubuntu distribution docker packages:'
+  echo 'Removing these distribution docker packages:'
   printf '  %s\n' "${installed[@]}"
 
   # Removing a package also removes the packages that depend on it.
@@ -142,229 +131,156 @@ ubuntu_uninstall_distribution_docker_packages() {
   apt-get --yes remove "${installed[@]}"
 }
 
-debian_uninstall_distribution_docker_packages() {
-  # Debian's own docker packages conflict with the packages from
-  # Docker's repository. This function removes them. The list is the
-  # one in Docker's installation instructions for Debian
-  # (https://docs.docker.com/engine/install/debian/), plus docker-cli.
-  # Debian 13 (trixie) and later split the docker command line client
-  # out of docker.io into the docker-cli package, which conflicts with
-  # Docker's docker-ce-cli package.
-  #
-  # Notes on the Debian packages:
-  #   - docker-compose is Compose version 1 in Debian 12 (bookworm), but
-  #     Compose version 2 in Debian 13 and later. The newer one
-  #     conflicts with Docker's docker-compose-plugin package.
-  #   - Debian does not have a docker-compose-v2 package, or the
-  #     containerd-stable and runc-stable packages that Ubuntu has.
-  #   - The docker package in Debian 12 is unrelated to Docker. It is a
-  #     transitional package for a window manager dock (wmdocker), so
-  #     it is not removed.
-  #
-  # These packages are normally only present if someone installed them.
-  local -a candidates=(
-    docker.io
-    docker-cli
-    docker-compose
-    docker-doc
-    docker-buildx
-    podman-docker
-    containerd
-    runc
-  )
-  local -a installed=()
-  local package
 
-  # dpkg-query reports the status of a package. It fails for a package
-  # that dpkg has never heard of (for example, docker-cli on Debian 12),
-  # so the output (not the exit status) is compared, with the whole word
-  # 'installed'.
-  for package in "${candidates[@]}"; do
-    if [[ $(dpkg-query --show --showformat='${db:Status-Status}' "$package" \
-      2> /dev/null) == 'installed' ]]; then
-      installed+=("$package")
-    fi
-  done
+# Docker packages that come with each distribution
+#
+# Each distribution has its own list of the packages that conflict with
+# the packages from Docker's repository, because the names are
+# different on each distribution. They must be removed before Docker's
+# packages are installed. The lists are only data: nothing is removed
+# until the code that installs docker passes the list for the
+# distribution to apt_uninstall_packages or dnf_uninstall_packages.
 
-  if [[ ${#installed[@]} -eq 0 ]]; then
-    echo 'No Debian distribution docker packages are installed'
-    return 0
-  fi
+# Ubuntu
+# The list is the one in Docker's installation instructions for Ubuntu
+# (https://docs.docker.com/engine/install/ubuntu/), plus the
+# containerd-stable and runc-stable packages that Ubuntu 26.04 and later
+# provide in place of containerd and runc.
+#
+# None of these packages is installed on a stock Ubuntu Server, so
+# normally there is nothing to remove. They are only present if someone
+# installed them. (The docker snap, which the Ubuntu Server installer
+# can install, is a snap and not an apt package. It is not in the list.)
+readonly -a UBUNTU_DISTRIBUTION_DOCKER_PACKAGES=(
+  docker.io
+  docker-compose
+  docker-compose-v2
+  docker-doc
+  docker-buildx
+  podman-docker
+  containerd
+  containerd-stable
+  runc
+  runc-stable
+)
 
-  echo 'Removing these Debian distribution docker packages:'
-  printf '  %s\n' "${installed[@]}"
+# Debian
+# The list is the one in Docker's installation instructions for Debian
+# (https://docs.docker.com/engine/install/debian/), plus docker-cli.
+# Debian 13 (trixie) and later split the docker command line client out
+# of docker.io into the docker-cli package, which conflicts with
+# Docker's docker-ce-cli package.
+#
+# Notes on the Debian packages:
+#   - docker-compose is Compose version 1 in Debian 12 (bookworm), but
+#     Compose version 2 in Debian 13 and later. The newer one conflicts
+#     with Docker's docker-compose-plugin package.
+#   - Debian does not have a docker-compose-v2 package, or the
+#     containerd-stable and runc-stable packages that Ubuntu has.
+#   - The docker package in Debian 12 is unrelated to Docker. It is a
+#     transitional package for a window manager dock (wmdocker), so it
+#     is not in the list.
+#
+# These packages are normally only present if someone installed them.
+readonly -a DEBIAN_DISTRIBUTION_DOCKER_PACKAGES=(
+  docker.io
+  docker-cli
+  docker-compose
+  docker-doc
+  docker-buildx
+  podman-docker
+  containerd
+  runc
+)
 
-  # Removing a package also removes the packages that depend on it.
-  # --simulate shows everything apt is going to remove, without
-  # removing anything.
-  echo 'apt will remove (this includes packages that depend on them):'
-  apt-get --simulate remove "${installed[@]}"
+# AlmaLinux
+# The names come from two places:
+#   - Docker's installation instructions for CentOS
+#     (https://docs.docker.com/engine/install/centos/) list the
+#     unofficial docker packages to remove.
+#   - Docker's packages declare what they conflict with. In particular
+#     containerd.io conflicts with containerd and runc.
+#
+# Of these only podman-docker is part of AlmaLinux 10 (it is in the
+# AppStream repository). It provides a docker command that runs podman,
+# and it conflicts with docker-ce. The other packages are not in the
+# AlmaLinux 10 repositories. They are only present if they were
+# installed from somewhere else. (AlmaLinux 10 has crun, not runc, as
+# its container runtime. crun does not conflict with Docker's packages.)
+#
+# Not in the list:
+#   - podman: only its docker wrapper (podman-docker) conflicts.
+#   - container-selinux: it provides the name docker-selinux, but
+#     Docker's packages need it.
+readonly -a ALMALINUX_DISTRIBUTION_DOCKER_PACKAGES=(
+  podman-docker
+  docker
+  docker-client
+  docker-client-latest
+  docker-common
+  docker-latest
+  docker-latest-logrotate
+  docker-logrotate
+  docker-engine
+  containerd
+  runc
+)
 
-  # remove (as opposed to purge) leaves the packages' configuration
-  # files behind. Images, containers, volumes and networks in
-  # /var/lib/docker are not removed either.
-  apt-get --yes remove "${installed[@]}"
-}
+# Fedora
+# The names come from two places:
+#   - The packages in the Fedora repositories (Fedora 44). Fedora
+#     provides its own build of Docker, called Moby (moby-engine).
+#   - Docker's installation instructions for Fedora
+#     (https://docs.docker.com/engine/install/fedora/), which list the
+#     unofficial docker packages to remove.
+#
+# Fedora packages that conflict with Docker's packages:
+#   - moby-engine: provides the name docker, and conflicts with
+#     docker-ce
+#   - docker-cli: conflicts with docker-ce-cli
+#   - docker-compose: conflicts with docker-compose-plugin
+#   - docker-buildx: installs the same file as docker-buildx-plugin
+#   - podman-docker: a docker command that runs podman. Conflicts with
+#     docker-ce
+#   - containerd and runc: containerd.io (from Docker) conflicts with
+#     both
+#
+# The other names are the ones in Docker's instructions. They are not
+# in the Fedora 44 repositories. They are only present if they were
+# installed from somewhere else, or are left from an older release.
+#
+# Some packages are removed along with these because they need them,
+# for example moby-engine-rootless-extras (needs moby-engine),
+# docker-compose-switch (needs docker-compose) and docker-buildkit
+# (needs containerd and runc). Removing runc also removes the cri-o
+# packages (the Kubernetes container runtime) if they are installed.
+# The list that dnf shows before the removal has all of them.
+#
+# Not in the list:
+#   - podman: only its docker wrapper (podman-docker) conflicts.
+#   - container-selinux: it provides the name docker-selinux, but
+#     Docker's packages need it. It is not found by the name
+#     docker-selinux, because only package names are matched.
+readonly -a FEDORA_DISTRIBUTION_DOCKER_PACKAGES=(
+  moby-engine
+  docker-cli
+  docker-compose
+  docker-buildx
+  podman-docker
+  containerd
+  runc
+  docker
+  docker-client
+  docker-client-latest
+  docker-common
+  docker-latest
+  docker-latest-logrotate
+  docker-logrotate
+  docker-selinux
+  docker-engine-selinux
+  docker-engine
+)
 
-almalinux_uninstall_distribution_docker_packages() {
-  # Packages that conflict with the packages from Docker's repository
-  # for CentOS. This function removes them if they are installed.
-  #
-  # The names come from two places:
-  #   - Docker's installation instructions for CentOS
-  #     (https://docs.docker.com/engine/install/centos/) list the
-  #     unofficial docker packages to remove.
-  #   - Docker's packages declare what they conflict with. In
-  #     particular containerd.io conflicts with containerd and runc.
-  #
-  # Of these only podman-docker is part of AlmaLinux 10 (it is in the
-  # AppStream repository). It provides a docker command that runs
-  # podman, and it conflicts with docker-ce. The other packages are not
-  # in the AlmaLinux 10 repositories. They are only present if they
-  # were installed from somewhere else. (AlmaLinux 10 has crun, not
-  # runc, as its container runtime. crun does not conflict with
-  # Docker's packages.)
-  #
-  # Not removed:
-  #   - podman: only its docker wrapper (podman-docker) conflicts.
-  #   - container-selinux: it provides the name docker-selinux, but
-  #     Docker's packages need it.
-  local -a candidates=(
-    podman-docker
-    docker
-    docker-client
-    docker-client-latest
-    docker-common
-    docker-latest
-    docker-latest-logrotate
-    docker-logrotate
-    docker-engine
-    containerd
-    runc
-  )
-  local -a installed=()
-  local package
-
-  # rpm --query --quiet succeeds only if a package with exactly this
-  # name is installed. (It does not match other packages that merely
-  # provide the name.)
-  for package in "${candidates[@]}"; do
-    if rpm --query --quiet "$package"; then
-      installed+=("$package")
-    fi
-  done
-
-  if [[ ${#installed[@]} -eq 0 ]]; then
-    echo 'No AlmaLinux distribution docker packages are installed'
-    return 0
-  fi
-
-  echo 'Removing these AlmaLinux distribution docker packages:'
-  printf '  %s\n' "${installed[@]}"
-
-  # Removing a package also removes the packages that depend on it.
-  # DNF has no option that only shows what would be removed, so ask
-  # for the removal and answer no (--assumeno). DNF then shows
-  # everything it would remove and stops. Answering no makes DNF exit
-  # with a non-zero status, so ignore that status here.
-  echo 'dnf will remove (this includes packages that depend on them):'
-  dnf --assumeno remove "${installed[@]}" || true
-
-  # Images, containers, volumes and networks in /var/lib/docker are
-  # not removed either.
-  dnf --assumeyes remove "${installed[@]}"
-}
-
-fedora_uninstall_distribution_docker_packages() {
-  # Packages that conflict with the packages from Docker's repository
-  # for Fedora. This function removes them if they are installed.
-  #
-  # The names come from two places:
-  #   - The packages in the Fedora repositories (Fedora 44). Fedora
-  #     provides its own build of Docker, called Moby (moby-engine).
-  #   - Docker's installation instructions for Fedora
-  #     (https://docs.docker.com/engine/install/fedora/), which list
-  #     the unofficial docker packages to remove.
-  #
-  # Fedora packages that conflict with Docker's packages:
-  #   - moby-engine: provides the name docker, and conflicts with
-  #     docker-ce
-  #   - docker-cli: conflicts with docker-ce-cli
-  #   - docker-compose: conflicts with docker-compose-plugin
-  #   - docker-buildx: installs the same file as docker-buildx-plugin
-  #   - podman-docker: a docker command that runs podman. Conflicts
-  #     with docker-ce
-  #   - containerd and runc: containerd.io (from Docker) conflicts with
-  #     both
-  #
-  # The other names are the ones in Docker's instructions. They are not
-  # in the Fedora 44 repositories. They are only present if they were
-  # installed from somewhere else, or are left from an older release.
-  #
-  # Some packages are removed along with these because they need them,
-  # for example moby-engine-rootless-extras (needs moby-engine),
-  # docker-compose-switch (needs docker-compose) and docker-buildkit
-  # (needs containerd and runc). Removing runc also removes the cri-o
-  # packages (the Kubernetes container runtime) if they are installed.
-  # The list that dnf shows before the removal has all of them.
-  #
-  # Not removed:
-  #   - podman: only its docker wrapper (podman-docker) conflicts.
-  #   - container-selinux: it provides the name docker-selinux, but
-  #     Docker's packages need it.
-  local -a candidates=(
-    moby-engine
-    docker-cli
-    docker-compose
-    docker-buildx
-    podman-docker
-    containerd
-    runc
-    docker
-    docker-client
-    docker-client-latest
-    docker-common
-    docker-latest
-    docker-latest-logrotate
-    docker-logrotate
-    docker-selinux
-    docker-engine-selinux
-    docker-engine
-  )
-  local -a installed=()
-  local package
-
-  # rpm --query --quiet succeeds only if a package with exactly this
-  # name is installed. (It does not match other packages that merely
-  # provide the name. That is why container-selinux, which provides
-  # docker-selinux, is not found by the name docker-selinux.)
-  for package in "${candidates[@]}"; do
-    if rpm --query --quiet "$package"; then
-      installed+=("$package")
-    fi
-  done
-
-  if [[ ${#installed[@]} -eq 0 ]]; then
-    echo 'No Fedora distribution docker packages are installed'
-    return 0
-  fi
-
-  echo 'Removing these Fedora distribution docker packages:'
-  printf '  %s\n' "${installed[@]}"
-
-  # Removing a package also removes the packages that depend on it, and
-  # the dependencies that nothing else needs any more. DNF has no
-  # option that only shows what would be removed, so ask for the
-  # removal and answer no (--assumeno). DNF then shows everything it
-  # would remove and stops. Answering no makes DNF exit with a non-zero
-  # status, so ignore that status here.
-  echo 'dnf will remove (this includes packages that depend on them):'
-  dnf --assumeno remove "${installed[@]}" || true
-
-  # Images, containers, volumes and networks in /var/lib/docker are
-  # not removed either.
-  dnf --assumeyes remove "${installed[@]}"
-}
 
 # We can now install docker based on the distribution
 if [[ $ID == 'ubuntu' ]]; then
