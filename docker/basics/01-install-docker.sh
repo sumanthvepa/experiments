@@ -69,7 +69,7 @@ fi
 # os-release is a file that contains information about the distribution
 # In particular it defines the environment variable ID, that can be used
 # to determine the distribution, e.g. ubuntu, debian, fedora, almalinux
-if [[ -r /etc/os-release ]]; then
+if [[ ! -r /etc/os-release ]]; then
   die "Cannot read /etc/os-release"
 fi
 source /etc/os-release
