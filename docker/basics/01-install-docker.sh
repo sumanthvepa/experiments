@@ -351,6 +351,74 @@ users_for_docker_group() {
   printf '%s\n' "${valid_users[@]}"
 }
 
+# is_member_of_group: succeeds if user $1 is a member of the group $2.
+# The names of the groups the user belongs to are compared one by one,
+# as whole words. (Searching for the user name in the output of
+# 'getent group' would also match user names that merely contain it,
+# e.g. 'al' in 'alice'.)
+is_member_of_group() {
+  local user=$1 group=$2 member
+  local -a groups
+  read -r -a groups <<< "$(id -nG "$user")"
+  for member in "${groups[@]}"; do
+    if [[ $member == "$group" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# add_users_to_docker_group: add users to the docker group.
+#
+# Usage: add_users_to_docker_group user...
+#   user: the name of a user to add. Users that are members of the
+#         group already are left alone. See users_for_docker_group for
+#         a list of users that have been checked.
+#
+# The docker daemon listens on a socket (/var/run/docker.sock) that is
+# only accessible by root and by members of the docker group. Adding a
+# user to the group lets them run docker commands without sudo.
+#
+# WARNING: Membership of the docker group is equivalent to having
+# root privileges on this machine. A member can, for example, start a
+# container that mounts the whole filesystem of the host and change
+# any file in it. Only add users that you would trust with the root
+# password.
+#
+# Group membership is read when a user logs in. A user who is added to
+# the group will not be able to use docker without sudo until they
+# log out and log in again (or start a shell with the new group, using
+# 'newgrp docker'). Their existing sessions are not changed.
+#
+# The docker group is created by the docker packages, so the function
+# must be called after they have been installed. If the group does not
+# exist, it stops the script with die.
+add_users_to_docker_group() {
+  local user
+
+  getent group docker > /dev/null ||
+    die "The docker group does not exist"
+
+  echo
+  echo "WARNING: Members of the docker group have root-equivalent"
+  echo "privileges on this machine."
+  for user in "$@"; do
+    if is_member_of_group "$user" docker; then
+      echo "$user is already a member of the docker group"
+    else
+      # --append: Append the group, and keep the user's other groups.
+      #           Without it the user would be removed from all other
+      #           groups!
+      # --groups: The group(s) to add
+      echo "Adding $user to the docker group"
+      usermod --append --groups docker "$user"
+    fi
+  done
+  echo "Users added to the docker group must log out and log in again"
+  echo "before they can use docker without sudo."
+  echo
+}
+
 # Decide which users will be added to the docker group. This is done
 # before installing anything, so that a mistake stops the script before
 # the system has been changed.
@@ -368,59 +436,9 @@ else
   echo "Unsupported OS"
 fi
 
-# Add users to the docker group
-# The docker daemon listens on a socket (/var/run/docker.sock) that is
-# only accessible by root and by members of the docker group. Adding a
-# user to the group lets them run docker commands without sudo.
-#
-# WARNING: Membership of the docker group is equivalent to having
-# root privileges on this machine. A member can, for example, start a
-# container that mounts the whole filesystem of the host and change
-# any file in it. Only add users that you would trust with the root
-# password.
-#
-# Group membership is read when a user logs in. A user who is added to
-# the group will not be able to use docker without sudo until they
-# log out and log in again (or start a shell with the new group, using
-# 'newgrp docker'). Their existing sessions are not changed.
-
-# The docker packages create the docker group.
-getent group docker > /dev/null || die "The docker group does not exist"
-
-# Succeeds if user $1 is a member of the group $2. The names of the
-# groups the user belongs to are compared one by one, as whole words.
-# (Searching for the user name in the output of 'getent group' would
-# also match user names that merely contain it, e.g. 'al' in 'alice'.)
-is_member_of_group() {
-  local user=$1 group=$2 member
-  local -a groups
-  read -r -a groups <<< "$(id -nG "$user")"
-  for member in "${groups[@]}"; do
-    if [[ $member == "$group" ]]; then
-      return 0
-    fi
-  done
-  return 1
-}
-
-echo
-echo "WARNING: Members of the docker group have root-equivalent"
-echo "privileges on this machine."
-for user in "${docker_users[@]}"; do
-  if is_member_of_group "$user" docker; then
-    echo "$user is already a member of the docker group"
-  else
-    # --append: Append the group, and keep the user's other groups.
-    #           Without it the user would be removed from all other
-    #           groups!
-    # --groups: The group(s) to add
-    echo "Adding $user to the docker group"
-    usermod --append --groups docker "$user"
-  fi
-done
-echo "Users added to the docker group must log out and log in again"
-echo "before they can use docker without sudo."
-echo
+# Add the users to the docker group. This is done after the docker
+# packages have been installed, because they create the group.
+add_users_to_docker_group "${docker_users[@]}"
 
 # Start and enable the docker service
 systemctl start docker
