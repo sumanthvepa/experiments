@@ -85,13 +85,14 @@ source /etc/os-release
 source "$(dirname "${BASH_SOURCE[0]}")/uninstall_packages.sh"
 
 
-# conflicting_packages: print the names of the packages that come with
-# a distribution and conflict with the packages from Docker's
-# repository, one name on each line. They must be removed before
-# Docker's packages are installed. Each distribution has its own list,
+# distribution_packages: print the names of the packages that come with
+# a distribution and can conflict with the packages from Docker's
+# repository, one name on each line. This is the complete list for the
+# distribution. It does not say which of the packages are installed:
+# see conflicting_packages for that. Each distribution has its own list,
 # because the names are different on each distribution.
 #
-# Usage: conflicting_packages os_id
+# Usage: distribution_packages os_id
 #   os_id: the id of the distribution. This is the value of the ID
 #          variable that /etc/os-release defines, e.g. ubuntu, debian,
 #          almalinux or fedora.
@@ -99,7 +100,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/uninstall_packages.sh"
 # A function cannot return an array, so it prints the names. The caller
 # reads them into an array, and passes the array to the function that
 # removes the packages:
-#   names=$(conflicting_packages "$ID")
+#   names=$(distribution_packages "$ID")
 #   mapfile -t packages <<< "$names"
 #   apt_uninstall_packages "${packages[@]}"
 # (Assigning the output to a variable, instead of reading it directly
@@ -107,7 +108,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/uninstall_packages.sh"
 #
 # If the distribution is not supported, it prints an error message on
 # stderr and returns 1. Nothing is removed by this function.
-conflicting_packages() {
+distribution_packages() {
   local os_id=$1
 
   # Unwanted Ubuntu packages
@@ -155,6 +156,61 @@ conflicting_packages() {
       return 1
       ;;
   esac
+}
+
+# conflicting_packages: print the names of the packages that are
+# installed on this machine and conflict with the packages from
+# Docker's repository, one name on each line. These are the packages
+# that must be removed before Docker's packages are installed. If none
+# of them is installed, nothing is printed.
+#
+# It looks at each package in the list that distribution_packages gives
+# for the distribution, and keeps the ones that are installed. The way
+# to find out if a package is installed depends on the package manager:
+# dpkg for Ubuntu and Debian, rpm for AlmaLinux and Fedora.
+#
+# Usage: conflicting_packages os_id
+#   os_id: the id of the distribution, as for distribution_packages
+#
+# The caller reads the names into an array, in the same way as for
+# distribution_packages:
+#   names=$(conflicting_packages "$ID")
+#   mapfile -t packages < <(printf '%s' "$names")
+#   apt_uninstall_packages "${packages[@]}"
+# (The printf avoids an array with one empty name when nothing
+# conflicts. Reading an empty $names with <<< would give that.)
+#
+# If the distribution is not supported, it prints an error message on
+# stderr and returns 1. Nothing is removed by this function.
+conflicting_packages() {
+  local os_id=$1
+  local names package
+  local -a candidates
+
+  # If distribution_packages fails, it has already printed the error.
+  names=$(distribution_packages "$os_id") || return 1
+  mapfile -t candidates <<< "$names"
+
+  for package in "${candidates[@]}"; do
+    case $os_id in
+      ubuntu | debian)
+        # dpkg-query fails for a package that dpkg has never heard of,
+        # so compare its output (not its exit status) with the whole
+        # word 'installed'.
+        if [[ $(dpkg-query --show --showformat='${db:Status-Status}' \
+          "$package" 2> /dev/null) == 'installed' ]]; then
+          echo "$package"
+        fi
+        ;;
+      almalinux | fedora)
+        # rpm --query --quiet succeeds only if a package with exactly
+        # this name is installed.
+        if rpm --query --quiet "$package"; then
+          echo "$package"
+        fi
+        ;;
+    esac
+  done
 }
 
 
