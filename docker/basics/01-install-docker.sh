@@ -169,7 +169,7 @@ dnf_uninstall_packages() {
 }
 
 
-# Docker packages that come with each distribution
+# Unwanted Docker packages that come with each distribution
 #
 # Each distribution has its own list of the packages that conflict with
 # the packages from Docker's repository, because the names are
@@ -179,15 +179,6 @@ dnf_uninstall_packages() {
 # distribution to apt_uninstall_packages or dnf_uninstall_packages.
 
 # Ubuntu
-# The list is the one in Docker's installation instructions for Ubuntu
-# (https://docs.docker.com/engine/install/ubuntu/), plus the
-# containerd-stable and runc-stable packages that Ubuntu 26.04 and later
-# provide in place of containerd and runc.
-#
-# None of these packages is installed on a stock Ubuntu Server, so
-# normally there is nothing to remove. They are only present if someone
-# installed them. (The docker snap, which the Ubuntu Server installer
-# can install, is a snap and not an apt package. It is not in the list.)
 readonly -a UBUNTU_DISTRIBUTION_DOCKER_PACKAGES=(
   docker.io
   docker-compose
@@ -202,23 +193,6 @@ readonly -a UBUNTU_DISTRIBUTION_DOCKER_PACKAGES=(
 )
 
 # Debian
-# The list is the one in Docker's installation instructions for Debian
-# (https://docs.docker.com/engine/install/debian/), plus docker-cli.
-# Debian 13 (trixie) and later split the docker command line client out
-# of docker.io into the docker-cli package, which conflicts with
-# Docker's docker-ce-cli package.
-#
-# Notes on the Debian packages:
-#   - docker-compose is Compose version 1 in Debian 12 (bookworm), but
-#     Compose version 2 in Debian 13 and later. The newer one conflicts
-#     with Docker's docker-compose-plugin package.
-#   - Debian does not have a docker-compose-v2 package, or the
-#     containerd-stable and runc-stable packages that Ubuntu has.
-#   - The docker package in Debian 12 is unrelated to Docker. It is a
-#     transitional package for a window manager dock (wmdocker), so it
-#     is not in the list.
-#
-# These packages are normally only present if someone installed them.
 readonly -a DEBIAN_DISTRIBUTION_DOCKER_PACKAGES=(
   docker.io
   docker-cli
@@ -231,24 +205,6 @@ readonly -a DEBIAN_DISTRIBUTION_DOCKER_PACKAGES=(
 )
 
 # AlmaLinux
-# The names come from two places:
-#   - Docker's installation instructions for CentOS
-#     (https://docs.docker.com/engine/install/centos/) list the
-#     unofficial docker packages to remove.
-#   - Docker's packages declare what they conflict with. In particular
-#     containerd.io conflicts with containerd and runc.
-#
-# Of these only podman-docker is part of AlmaLinux 10 (it is in the
-# AppStream repository). It provides a docker command that runs podman,
-# and it conflicts with docker-ce. The other packages are not in the
-# AlmaLinux 10 repositories. They are only present if they were
-# installed from somewhere else. (AlmaLinux 10 has crun, not runc, as
-# its container runtime. crun does not conflict with Docker's packages.)
-#
-# Not in the list:
-#   - podman: only its docker wrapper (podman-docker) conflicts.
-#   - container-selinux: it provides the name docker-selinux, but
-#     Docker's packages need it.
 readonly -a ALMALINUX_DISTRIBUTION_DOCKER_PACKAGES=(
   podman-docker
   docker
@@ -264,40 +220,6 @@ readonly -a ALMALINUX_DISTRIBUTION_DOCKER_PACKAGES=(
 )
 
 # Fedora
-# The names come from two places:
-#   - The packages in the Fedora repositories (Fedora 44). Fedora
-#     provides its own build of Docker, called Moby (moby-engine).
-#   - Docker's installation instructions for Fedora
-#     (https://docs.docker.com/engine/install/fedora/), which list the
-#     unofficial docker packages to remove.
-#
-# Fedora packages that conflict with Docker's packages:
-#   - moby-engine: provides the name docker, and conflicts with
-#     docker-ce
-#   - docker-cli: conflicts with docker-ce-cli
-#   - docker-compose: conflicts with docker-compose-plugin
-#   - docker-buildx: installs the same file as docker-buildx-plugin
-#   - podman-docker: a docker command that runs podman. Conflicts with
-#     docker-ce
-#   - containerd and runc: containerd.io (from Docker) conflicts with
-#     both
-#
-# The other names are the ones in Docker's instructions. They are not
-# in the Fedora 44 repositories. They are only present if they were
-# installed from somewhere else, or are left from an older release.
-#
-# Some packages are removed along with these because they need them,
-# for example moby-engine-rootless-extras (needs moby-engine),
-# docker-compose-switch (needs docker-compose) and docker-buildkit
-# (needs containerd and runc). Removing runc also removes the cri-o
-# packages (the Kubernetes container runtime) if they are installed.
-# The list that dnf shows before the removal has all of them.
-#
-# Not in the list:
-#   - podman: only its docker wrapper (podman-docker) conflicts.
-#   - container-selinux: it provides the name docker-selinux, but
-#     Docker's packages need it. It is not found by the name
-#     docker-selinux, because only package names are matched.
 readonly -a FEDORA_DISTRIBUTION_DOCKER_PACKAGES=(
   moby-engine
   docker-cli
