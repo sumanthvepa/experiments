@@ -74,6 +74,12 @@ if [[ ! -r /etc/os-release ]]; then
 fi
 source /etc/os-release
 
+# The rest of the script uses distribution_id to identify the
+# distribution. If os-release does not define ID, the value is linux
+# (this is what the os-release specification says), which is not a
+# supported distribution.
+readonly distribution_id=${ID:-linux}
+
 # Functions that find and remove the distribution's docker packages
 # The functions distribution_packages, conflicting_packages,
 # apt_uninstall_packages and dnf_uninstall_packages are defined in
@@ -85,7 +91,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/package-utilities.sh"
 
 
 # We can now install docker based on the distribution
-if [[ $ID == 'ubuntu' ]]; then
+if [[ $distribution_id == 'ubuntu' ]]; then
   echo "Installing docker for Ubuntu"
   apt-get --yes install ca-certificates
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
@@ -101,7 +107,7 @@ if [[ $ID == 'ubuntu' ]]; then
     containerd.io \
     docker-buildx-plugin \
     docker-compose-plugin
-elif [[ $ID == 'almalinux' ]]; then
+elif [[ $distribution_id == 'almalinux' ]]; then
   echo "Installing docker for AlmaLinux"
   dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   dnf -y install \
@@ -110,7 +116,7 @@ elif [[ $ID == 'almalinux' ]]; then
     containerd.io \
     docker-buildx-plugin \
     docker-compose-plugin
-elif [[ $ID == 'fedora' ]]; then
+elif [[ $distribution_id == 'fedora' ]]; then
   echo "Installing docker for Fedora"
   dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
   dnf -y install \
@@ -118,7 +124,7 @@ elif [[ $ID == 'fedora' ]]; then
     docker-ce-cli \
     containerd.io \
     docker-buildx-plugin
-elif [[ $ID == 'debian' ]]; then
+elif [[ $distribution_id == 'debian' ]]; then
   echo "Installing docker for Debian"
 else
   echo "Unsupported OS"

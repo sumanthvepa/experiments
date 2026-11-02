@@ -24,10 +24,10 @@
 # 01-install-docker.sh. It defines these functions. Nothing runs until
 # they are called.
 #
-#   distribution_packages os_id
+#   distribution_packages dist_id
 #     The complete list of the packages that come with a distribution
 #     and can conflict with the packages from Docker's repository.
-#   conflicting_packages os_id
+#   conflicting_packages dist_id
 #     The packages on that list that are installed on this machine.
 #   apt_uninstall_packages package...
 #   dnf_uninstall_packages package...
@@ -127,15 +127,15 @@ dnf_uninstall_packages() {
 # see conflicting_packages for that. Each distribution has its own list,
 # because the names are different on each distribution.
 #
-# Usage: distribution_packages os_id
-#   os_id: the id of the distribution. This is the value of the ID
-#          variable that /etc/os-release defines, e.g. ubuntu, debian,
-#          almalinux or fedora.
+# Usage: distribution_packages dist_id
+#   dist_id: the id of the distribution. This is the value of the ID
+#            variable that /etc/os-release defines, e.g. ubuntu,
+#            debian, almalinux or fedora.
 #
 # A function cannot return an array, so it prints the names. The caller
 # reads them into an array, and passes the array to the function that
 # removes the packages:
-#   names=$(distribution_packages "$ID")
+#   names=$(distribution_packages "$distribution_id")
 #   mapfile -t packages <<< "$names"
 #   apt_uninstall_packages "${packages[@]}"
 # (Assigning the output to a variable, instead of reading it directly
@@ -144,7 +144,7 @@ dnf_uninstall_packages() {
 # If the distribution is not supported, it prints an error message on
 # stderr and returns 1. Nothing is removed by this function.
 distribution_packages() {
-  local os_id=$1
+  local dist_id=$1
 
   # Unwanted Ubuntu packages
   local -a ubuntu_distribution_docker_packages=(
@@ -173,7 +173,7 @@ distribution_packages() {
     docker-logrotate docker-selinux docker-engine-selinux docker-engine
   )
 
-  case $os_id in
+  case $dist_id in
     ubuntu)
       printf '%s\n' "${ubuntu_distribution_docker_packages[@]}"
       ;;
@@ -187,7 +187,7 @@ distribution_packages() {
       printf '%s\n' "${fedora_distribution_docker_packages[@]}"
       ;;
     *)
-      echo "ERROR: unsupported distribution: '$os_id'" >&2
+      echo "ERROR: unsupported distribution: '$dist_id'" >&2
       return 1
       ;;
   esac
@@ -204,12 +204,12 @@ distribution_packages() {
 # to find out if a package is installed depends on the package manager:
 # dpkg for Ubuntu and Debian, rpm for AlmaLinux and Fedora.
 #
-# Usage: conflicting_packages os_id
-#   os_id: the id of the distribution, as for distribution_packages
+# Usage: conflicting_packages dist_id
+#   dist_id: the id of the distribution, as for distribution_packages
 #
 # The caller reads the names into an array, in the same way as for
 # distribution_packages:
-#   names=$(conflicting_packages "$ID")
+#   names=$(conflicting_packages "$distribution_id")
 #   mapfile -t packages < <(printf '%s' "$names")
 #   apt_uninstall_packages "${packages[@]}"
 # (The printf avoids an array with one empty name when nothing
@@ -218,16 +218,16 @@ distribution_packages() {
 # If the distribution is not supported, it prints an error message on
 # stderr and returns 1. Nothing is removed by this function.
 conflicting_packages() {
-  local os_id=$1
+  local dist_id=$1
   local names package
   local -a candidates
 
   # If distribution_packages fails, it has already printed the error.
-  names=$(distribution_packages "$os_id") || return 1
+  names=$(distribution_packages "$dist_id") || return 1
   mapfile -t candidates <<< "$names"
 
   for package in "${candidates[@]}"; do
-    case $os_id in
+    case $dist_id in
       ubuntu | debian)
         # dpkg-query fails for a package that dpkg has never heard of,
         # so compare its output (not its exit status) with the whole
