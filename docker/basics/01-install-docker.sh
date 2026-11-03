@@ -101,6 +101,36 @@ source "$(dirname "${BASH_SOURCE[0]}")/docker-install-utilities.sh"
 names=$(users_for_docker_group)
 mapfile -t docker_users < <(printf '%s' "$names")
 
+# Stop if any of the packages that come with the distribution and
+# conflict with Docker's packages is installed. This script does NOT
+# remove them. Removing a package can remove other packages that depend
+# on it, and the person running the script should decide whether that
+# is acceptable. This is also done before installing anything. If the
+# distribution is not supported, conflicting_packages prints an error
+# message and stops the script.
+names=$(conflicting_packages "$distribution_id")
+mapfile -t conflicts < <(printf '%s' "$names")
+if [[ ${#conflicts[@]} -gt 0 ]]; then
+  case $distribution_id in
+    ubuntu | debian)
+      remove_command='apt-get remove'
+      ;;
+    *)
+      remove_command='dnf remove'
+      ;;
+  esac
+  echo "These installed packages conflict with Docker's packages:" >&2
+  printf '  %s\n' "${conflicts[@]}" >&2
+  echo >&2
+  echo 'If you do not need them, remove them yourself and run this' >&2
+  echo 'script again, for example:' >&2
+  echo "  $remove_command ${conflicts[*]}" >&2
+  echo >&2
+  echo 'Images, containers, volumes and networks in /var/lib/docker' >&2
+  echo 'are not removed when the packages are removed.' >&2
+  die "Conflicting packages are installed; nothing has been changed"
+fi
+
 
 # We can now install docker based on the distribution
 if [[ $distribution_id == 'ubuntu' || $distribution_id == 'debian' ]]; then
