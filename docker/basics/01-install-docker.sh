@@ -140,7 +140,7 @@ elif [[ $distribution_id == 'almalinux' || $distribution_id == 'centos' ||
         $distribution_id == 'fedora' ]]; then
   dnf_install_docker "$distribution_id"
 else
-  echo "Unsupported OS"
+  die "Unsupported distribution: $distribution_id"
 fi
 
 # Add the users to the docker group. This is done after the docker
