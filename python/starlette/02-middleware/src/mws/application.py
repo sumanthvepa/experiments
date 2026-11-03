@@ -22,6 +22,7 @@
 # -------------------------------------------------------------------
 from starlette.applications import Starlette
 from starlette.authentication import requires
+from starlette.concurrency import run_in_threadpool
 from starlette.endpoints import HTTPEndpoint
 from starlette.middleware import Middleware as DeferConstruction
 from starlette.middleware.authentication import AuthenticationMiddleware
@@ -30,7 +31,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 
 from mws.logger import SimpleLogger, FullASGIAccessLogger
-from mws.login import CookieBackend
+from mws.login import CookieBackend, check_credentials, session_id_for
 
 
 class Hello(HTTPEndpoint):
@@ -85,10 +86,62 @@ class Account(HTTPEndpoint):
     return JSONResponse({'account': request.user.display_name})
 
 
+class Login(HTTPEndpoint):
+  """
+    Endpoint that signs a user in.
+
+    A POST request with a JSON body of the form
+    {'username': <username>, 'password': <password>} signs the user in
+    if the password is correct. The response then sets the 'session'
+    cookie of the user, which CookieBackend recognizes on later
+    requests.
+  """
+  async def post(self, request: Request) -> JSONResponse:
+    """
+      Handle a POST request.
+
+      :param request: The incoming request
+      :return: 200 with the session cookie if the username and password
+               are correct. 400 if the body is not a JSON object with
+               string fields 'username' and 'password'. 401 if they are
+               not correct. The 401 message is the same for an unknown
+               username and for a wrong password.
+    """
+    try:
+      body = await request.json()
+    except ValueError:
+      body = None
+    username = body.get('username') if isinstance(body, dict) else None
+    password = body.get('password') if isinstance(body, dict) else None
+    if not isinstance(username, str) or not isinstance(password, str):
+      return JSONResponse(
+        {'error': 'expected a JSON object with string fields '
+                  'username and password'},
+        status_code=400)
+    if not await run_in_threadpool(check_credentials, username, password):
+      return JSONResponse(
+        {'error': 'invalid username or password'},
+        status_code=401)
+    session_id = session_id_for(username)
+    if session_id is None:
+      return JSONResponse(
+        {'error': 'no session is available for this user'},
+        status_code=500)
+    response = JSONResponse({'message': 'logged in', 'username': username})
+    response.set_cookie(
+      'session',
+      session_id,
+      httponly=True,
+      samesite='lax',
+      path='/')
+    return response
+
+
 starlette_app = Starlette(
   routes=[
     Route('/', Hello, name='home'),
-    Route('/account', Account, name='account')
+    Route('/account', Account, name='account'),
+    Route('/login', Login, name='login')
   ],
   middleware=[
     # This logger operates at the middleware level and logs requests
