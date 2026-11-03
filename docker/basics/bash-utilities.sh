@@ -26,6 +26,8 @@
 #
 #   die message...
 #     Print an error message on stderr and exit the script.
+#   die_if_not_root [message...]
+#     Exit the script with an error message unless it is run by root.
 
 # die: print an error message on stderr and exit with a non-zero
 # status. A non-zero exit status tells whoever ran the script that it
@@ -42,4 +44,22 @@
 die() {
   echo "ERROR: $*" >&2
   exit 1
+}
+
+# die_if_not_root: exit the script with an error message unless it is
+# run by root. EUID is the effective user id of the running script;
+# root has the id 0.
+#
+# Usage: die_if_not_root [message...]
+#   message: the words of the error message, as for die. The default
+#            is "This script must be run as root. Try: sudo $0", where
+#            $0 is the name of the script. (Functions do not change
+#            $0, so it is the name of the script that calls this
+#            function.)
+#
+# It uses die, so it exits the shell that it runs in.
+die_if_not_root() {
+  if [[ $EUID -ne 0 ]]; then
+    die "${@:-This script must be run as root. Try: sudo $0}"
+  fi
 }
