@@ -38,6 +38,9 @@
 #     Install Docker Engine on Ubuntu or Debian.
 #   dnf_install_docker dist_id
 #     Install Docker Engine on AlmaLinux, CentOS or Fedora.
+#   install_docker dist_id
+#     Install Docker Engine on any of the supported distributions, by
+#     calling apt_install_docker or dnf_install_docker.
 #   users_for_docker_group
 #     The names of the users that will be added to the docker group,
 #     checked.
@@ -381,6 +384,35 @@ dnf_install_docker() {
   # installation does not stop to wait for an answer. The key was
   # imported above, so dnf has no question about the key.
   dnf --assumeyes install "${docker_packages[@]}"
+}
+
+# install_docker: install Docker Engine from Docker's repository, using
+# the package manager of the distribution. It calls apt_install_docker
+# on Ubuntu and Debian, and dnf_install_docker on AlmaLinux, CentOS and
+# Fedora.
+#
+# Usage: install_docker dist_id
+#   dist_id: the id of the distribution. This is the value of
+#            distribution_id.
+#
+# It must be run as root. It does not remove the packages that conflict
+# with Docker's packages: see conflicting_packages. If the distribution
+# is not supported, it prints an error message on stderr and stops the
+# script with die.
+install_docker() {
+  local dist_id=${1:-}
+
+  case $dist_id in
+    ubuntu | debian)
+      apt_install_docker "$dist_id"
+      ;;
+    almalinux | centos | fedora)
+      dnf_install_docker "$dist_id"
+      ;;
+    *)
+      die "Unsupported distribution: $dist_id"
+      ;;
+  esac
 }
 
 

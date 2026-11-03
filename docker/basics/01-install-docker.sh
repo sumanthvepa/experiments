@@ -89,11 +89,12 @@ source "$(dirname "${BASH_SOURCE[0]}")/package-utilities.sh"
 # docker-install-utilities.sh has the functions that find the packages
 # that come with the distribution and conflict with Docker's packages
 # (distribution_packages and conflicting_packages), the functions that
-# install Docker (apt_install_docker and dnf_install_docker) and the
-# functions that choose the users and add them to the docker group
-# (users_for_docker_group and add_users_to_docker_group). See the
-# comments in that file. It is found in the directory of this script,
-# so the script can be run from any directory.
+# install Docker (install_docker, which calls apt_install_docker or
+# dnf_install_docker) and the functions that choose the users and add
+# them to the docker group (users_for_docker_group and
+# add_users_to_docker_group). See the comments in that file. It is
+# found in the directory of this script, so the script can be run from
+# any directory.
 source "$(dirname "${BASH_SOURCE[0]}")/docker-install-utilities.sh"
 
 # Decide which users will be added to the docker group. This is done
@@ -134,14 +135,7 @@ fi
 
 
 # We can now install docker based on the distribution
-if [[ $distribution_id == 'ubuntu' || $distribution_id == 'debian' ]]; then
-  apt_install_docker "$distribution_id"
-elif [[ $distribution_id == 'almalinux' || $distribution_id == 'centos' ||
-        $distribution_id == 'fedora' ]]; then
-  dnf_install_docker "$distribution_id"
-else
-  die "Unsupported distribution: $distribution_id"
-fi
+install_docker "$distribution_id"
 
 # Add the users to the docker group. This is done after the docker
 # packages have been installed, because they create the group.
