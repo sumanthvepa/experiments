@@ -24,7 +24,7 @@ echo '01-install-docker'
 
 # This script installs Docker Engine from Docker's own package
 # repository. It is written for the current development environments:
-# Fedora 44, AlmaLinux 10.2, Debian 13, Ubuntu 26.04
+# Fedora 44, AlmaLinux 10.2, CentOS Stream 10, Debian 13, Ubuntu 26.04
 #
 # Run it as root, for example:
 #
@@ -67,6 +67,7 @@ die_if_not_root
 # os-release is a file that contains information about the distribution
 # In particular it defines the environment variable ID, that can be used
 # to determine the distribution, e.g. ubuntu, debian, fedora, almalinux
+# or centos
 if [[ ! -r /etc/os-release ]]; then
   die "Cannot read /etc/os-release"
 fi

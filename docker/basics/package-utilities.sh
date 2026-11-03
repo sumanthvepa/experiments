@@ -28,7 +28,7 @@
 #   dnf_uninstall_packages package...
 #     Remove the packages that are given as arguments, if they are
 #     installed. There is one function for each package manager: apt
-#     (Ubuntu and Debian) and dnf (AlmaLinux and Fedora).
+#     (Ubuntu and Debian) and dnf (AlmaLinux, CentOS and Fedora).
 #
 # The functions know about the package manager, but not about the
 # distribution or about Docker: the script that sources this file
@@ -74,7 +74,8 @@ apt_uninstall_packages() {
 }
 
 dnf_uninstall_packages() {
-  # Remove packages with dnf, the package manager of AlmaLinux and Fedora.
+  # Remove packages with dnf, the package manager of AlmaLinux, CentOS
+  # and Fedora.
   # Usage: dnf_uninstall_packages package...
   #   package: the name of a package to remove, if it is installed.
   #            Names of packages that are not installed are ignored.

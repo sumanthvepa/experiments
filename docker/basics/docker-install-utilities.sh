@@ -345,12 +345,17 @@ dnf_install_docker() {
   fi
 
   # Check the signing key, and import it into the rpm database if it is
-  # the right one. This runs in a subshell, so that the temporary file
-  # is removed (by the EXIT trap) however the subshell ends. gpg (from
-  # the gnupg2 package, which dnf needs) prints the fingerprint of the
-  # key in a file, without importing the key. In its --with-colons
-  # output the fingerprint is the 10th field of the line that starts
-  # with fpr.
+  # the right one. gpg prints the fingerprint of the key in a file,
+  # without importing the key. It comes from the gnupg2 package, which
+  # is not installed everywhere (it is not in the images of CentOS
+  # Stream 10, for example), so install it first. Installing the
+  # package if it is already installed does no harm.
+  #
+  # The check runs in a subshell, so that the temporary file is removed
+  # (by the EXIT trap) however the subshell ends. In the --with-colons
+  # output of gpg the fingerprint is the 10th field of the line that
+  # starts with fpr.
+  dnf --assumeyes install gnupg2
   (
     local key_file fingerprint
     key_file=$(mktemp)
