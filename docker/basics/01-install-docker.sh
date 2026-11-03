@@ -49,13 +49,12 @@ echo '01-install-docker'
 # dangerous for a script that changes the system.
 set -euo pipefail
 
-# die() A utility function that prints an error message on stderr
-# and exit with a non-zero status. A non-zero exit status tells
-# whoever ran the script that it failed.
-die() {
-  echo "ERROR: $*" >&2
-  exit 1
-}
+# bash-utilities.sh has the function die, which prints an error
+# message on stderr and exits with a non-zero status. A non-zero exit
+# status tells whoever ran the script that it failed. The file is found
+# in the directory of this script, so the script can be run from any
+# directory.
+source "$(dirname "${BASH_SOURCE[0]}")/bash-utilities.sh"
 
 # Require root privileges
 # Installing packages, adding repositories, changing groups and
