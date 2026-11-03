@@ -58,7 +58,7 @@
 # Usage: distribution_packages dist_id
 #   dist_id: the id of the distribution. This is the value of the ID
 #            variable that /etc/os-release defines, e.g. ubuntu,
-#            debian, almalinux or fedora.
+#            debian, almalinux, centos or fedora.
 #
 # A function cannot return an array, so it prints the names. The caller
 # reads them into an array, and passes the array to the function that
@@ -86,8 +86,9 @@ distribution_packages() {
     podman-docker containerd runc
   )
 
-  # Unwanted AlmaLinux packages
-  local -a almalinux_distribution_docker_packages=(
+  # Unwanted CentOS packages. AlmaLinux uses the same list, because it
+  # uses Docker's repository for CentOS.
+  local -a centos_distribution_docker_packages=(
     podman-docker docker docker-client docker-client-latest
     docker-common docker-latest docker-latest-logrotate
     docker-logrotate docker-engine containerd runc
@@ -108,8 +109,8 @@ distribution_packages() {
     debian)
       printf '%s\n' "${debian_distribution_docker_packages[@]}"
       ;;
-    almalinux)
-      printf '%s\n' "${almalinux_distribution_docker_packages[@]}"
+    almalinux | centos)
+      printf '%s\n' "${centos_distribution_docker_packages[@]}"
       ;;
     fedora)
       printf '%s\n' "${fedora_distribution_docker_packages[@]}"
@@ -130,7 +131,7 @@ distribution_packages() {
 # It looks at each package in the list that distribution_packages gives
 # for the distribution, and keeps the ones that are installed. The way
 # to find out if a package is installed depends on the package manager:
-# dpkg for Ubuntu and Debian, rpm for AlmaLinux and Fedora.
+# dpkg for Ubuntu and Debian, rpm for AlmaLinux, CentOS and Fedora.
 #
 # Usage: conflicting_packages dist_id
 #   dist_id: the id of the distribution, as for distribution_packages
@@ -165,7 +166,7 @@ conflicting_packages() {
           echo "$package"
         fi
         ;;
-      almalinux | fedora)
+      almalinux | centos | fedora)
         # rpm --query --quiet succeeds only if a package with exactly
         # this name is installed.
         if rpm --query --quiet "$package"; then
