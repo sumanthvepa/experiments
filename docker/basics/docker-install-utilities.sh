@@ -1,8 +1,9 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# docker-install-utilities.sh: Functions that install Docker Engine
-# and add users to the docker group
+# docker-install-utilities.sh: Functions that find the packages that
+# conflict with Docker, install Docker Engine and add users to the
+# docker group
 #
 # Copyright (C) 2026 Sumanth Vepa.
 #
@@ -25,6 +26,14 @@
 # 01-install-docker.sh. It defines these functions. Nothing runs until
 # they are called.
 #
+#   distribution_packages dist_id
+#     The complete list of the packages that come with a distribution
+#     and can conflict with the packages from Docker's repository.
+#   conflicting_packages dist_id
+#     The packages on that list that are installed on this machine.
+#     They must be removed before Docker's packages are installed. The
+#     functions apt_uninstall_packages and dnf_uninstall_packages in
+#     package-utilities.sh can remove them.
 #   apt_install_docker dist_id
 #     Install Docker Engine on Ubuntu or Debian.
 #   dnf_install_docker dist_id
@@ -38,6 +47,134 @@
 #
 # The functions use the function die from bash-utilities.sh, so that
 # file must be sourced before the functions are called.
+
+# distribution_packages: print the names of the packages that come with
+# a distribution and can conflict with the packages from Docker's
+# repository, one name on each line. This is the complete list for the
+# distribution. It does not say which of the packages are installed:
+# see conflicting_packages for that. Each distribution has its own list,
+# because the names are different on each distribution.
+#
+# Usage: distribution_packages dist_id
+#   dist_id: the id of the distribution. This is the value of the ID
+#            variable that /etc/os-release defines, e.g. ubuntu,
+#            debian, almalinux or fedora.
+#
+# A function cannot return an array, so it prints the names. The caller
+# reads them into an array, and passes the array to the function that
+# removes the packages:
+#   names=$(distribution_packages "$distribution_id")
+#   mapfile -t packages <<< "$names"
+#   apt_uninstall_packages "${packages[@]}"
+# (Assigning the output to a variable, instead of reading it directly
+# with mapfile, lets set -e stop the script if the function fails.)
+#
+# If the distribution is not supported, it prints an error message on
+# stderr and returns 1. Nothing is removed by this function.
+distribution_packages() {
+  local dist_id=$1
+
+  # Unwanted Ubuntu packages
+  local -a ubuntu_distribution_docker_packages=(
+    docker.io docker-compose docker-compose-v2 docker-doc docker-buildx
+    podman-docker containerd containerd-stable runc runc-stable
+  )
+
+  # Unwanted Debian packages
+  local -a debian_distribution_docker_packages=(
+    docker.io docker-cli docker-compose docker-doc docker-buildx
+    podman-docker containerd runc
+  )
+
+  # Unwanted AlmaLinux packages
+  local -a almalinux_distribution_docker_packages=(
+    podman-docker docker docker-client docker-client-latest
+    docker-common docker-latest docker-latest-logrotate
+    docker-logrotate docker-engine containerd runc
+  )
+
+  # Unwanted Fedora packages
+  local -a fedora_distribution_docker_packages=(
+    moby-engine docker-cli docker-compose docker-buildx podman-docker
+    containerd runc docker docker-client docker-client-latest
+    docker-common docker-latest docker-latest-logrotate
+    docker-logrotate docker-selinux docker-engine-selinux docker-engine
+  )
+
+  case $dist_id in
+    ubuntu)
+      printf '%s\n' "${ubuntu_distribution_docker_packages[@]}"
+      ;;
+    debian)
+      printf '%s\n' "${debian_distribution_docker_packages[@]}"
+      ;;
+    almalinux)
+      printf '%s\n' "${almalinux_distribution_docker_packages[@]}"
+      ;;
+    fedora)
+      printf '%s\n' "${fedora_distribution_docker_packages[@]}"
+      ;;
+    *)
+      echo "ERROR: unsupported distribution: '$dist_id'" >&2
+      return 1
+      ;;
+  esac
+}
+
+# conflicting_packages: print the names of the packages that are
+# installed on this machine and conflict with the packages from
+# Docker's repository, one name on each line. These are the packages
+# that must be removed before Docker's packages are installed. If none
+# of them is installed, nothing is printed.
+#
+# It looks at each package in the list that distribution_packages gives
+# for the distribution, and keeps the ones that are installed. The way
+# to find out if a package is installed depends on the package manager:
+# dpkg for Ubuntu and Debian, rpm for AlmaLinux and Fedora.
+#
+# Usage: conflicting_packages dist_id
+#   dist_id: the id of the distribution, as for distribution_packages
+#
+# The caller reads the names into an array, in the same way as for
+# distribution_packages:
+#   names=$(conflicting_packages "$distribution_id")
+#   mapfile -t packages < <(printf '%s' "$names")
+#   apt_uninstall_packages "${packages[@]}"
+# (The printf avoids an array with one empty name when nothing
+# conflicts. Reading an empty $names with <<< would give that.)
+#
+# If the distribution is not supported, it prints an error message on
+# stderr and returns 1. Nothing is removed by this function.
+conflicting_packages() {
+  local dist_id=$1
+  local names package
+  local -a candidates
+
+  # If distribution_packages fails, it has already printed the error.
+  names=$(distribution_packages "$dist_id") || return 1
+  mapfile -t candidates <<< "$names"
+
+  for package in "${candidates[@]}"; do
+    case $dist_id in
+      ubuntu | debian)
+        # dpkg-query fails for a package that dpkg has never heard of,
+        # so compare its output (not its exit status) with the whole
+        # word 'installed'.
+        if [[ $(dpkg-query --show --showformat='${db:Status-Status}' \
+          "$package" 2> /dev/null) == 'installed' ]]; then
+          echo "$package"
+        fi
+        ;;
+      almalinux | fedora)
+        # rpm --query --quiet succeeds only if a package with exactly
+        # this name is installed.
+        if rpm --query --quiet "$package"; then
+          echo "$package"
+        fi
+        ;;
+    esac
+  done
+}
 
 # apt_install_docker: install Docker Engine from Docker's apt
 # repository, on Ubuntu or Debian. The steps follow Docker's

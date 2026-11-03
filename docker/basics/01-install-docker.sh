@@ -78,18 +78,18 @@ source /etc/os-release
 # supported distribution.
 readonly distribution_id=${ID:-linux}
 
-# Functions that find and remove the distribution's docker packages
-# The functions distribution_packages, conflicting_packages,
-# apt_uninstall_packages and dnf_uninstall_packages are defined in
-# package-utilities.sh. They find the packages that come with the
-# distribution and conflict with Docker's packages, and remove them.
-# See the comments in that file. It is found in the directory of this
-# script, so the script can be run from any directory.
+# package-utilities.sh has the functions apt_uninstall_packages and
+# dnf_uninstall_packages, which remove the packages that are given to
+# them, if they are installed. See the comments in that file. It is
+# found in the directory of this script, so the script can be run from
+# any directory.
 source "$(dirname "${BASH_SOURCE[0]}")/package-utilities.sh"
 
-# docker-install-utilities.sh has the functions that install Docker
-# (apt_install_docker and dnf_install_docker) and the functions that
-# choose the users and add them to the docker group
+# docker-install-utilities.sh has the functions that find the packages
+# that come with the distribution and conflict with Docker's packages
+# (distribution_packages and conflicting_packages), the functions that
+# install Docker (apt_install_docker and dnf_install_docker) and the
+# functions that choose the users and add them to the docker group
 # (users_for_docker_group and add_users_to_docker_group). See the
 # comments in that file. It is found in the directory of this script,
 # so the script can be run from any directory.
