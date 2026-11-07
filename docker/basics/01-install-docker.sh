@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------
 # 01-install-docker.sh: Explore docker installation
 #
-# Copyright (C) 2024-25 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -79,13 +79,6 @@ source /etc/os-release
 # supported distribution.
 readonly distribution_id=${ID:-linux}
 
-# package-utilities.sh has the functions apt_uninstall_packages and
-# dnf_uninstall_packages, which remove the packages that are given to
-# them, if they are installed. See the comments in that file. It is
-# found in the directory of this script, so the script can be run from
-# any directory.
-source "$(dirname "${BASH_SOURCE[0]}")/package-utilities.sh"
-
 # docker-install-utilities.sh has the functions that find the packages
 # that come with the distribution and conflict with Docker's packages
 # (distribution_packages and conflicting_packages), the function that
@@ -115,7 +108,6 @@ mapfile -t docker_users < <(printf '%s' "$names")
 # not in $(...), so that it can stop the script.)
 die_if_conflicting_packages "$distribution_id"
 
-
 # We can now install docker based on the distribution
 install_docker "$distribution_id"
 
@@ -126,6 +118,9 @@ add_users_to_docker_group "${docker_users[@]}"
 # Start and enable the docker service
 # start: Start the service now
 # enable: Start the service every time the machine boots
+# The two commands can also be written as one: enable --now enables
+# the service and starts it now.
+#   systemctl enable --now docker
 systemctl start docker
 systemctl enable docker
 
