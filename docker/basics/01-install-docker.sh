@@ -145,6 +145,18 @@ add_users_to_docker_group "${docker_users[@]}"
 systemctl start docker
 systemctl enable docker
 
-# Finally check the docker version and run a test container
+# Finally check the docker version and run a test container.
+#
+# Note that this script runs as root, so root runs the test container.
+# That tests that Docker itself is installed correctly and working.
+# It does NOT test that the user(s) added to the docker group can use
+# docker. Group membership is read when a user logs in, so to test
+# that, log out and log in again, and then, as that user (without
+# sudo), run:
+#
+#   docker run --rm hello-world
+#
+# --rm removes the container when it exits, so running the script
+# again does not leave stopped containers behind.
 docker --version
-docker run hello-world
+docker run --rm hello-world
