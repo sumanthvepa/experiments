@@ -119,7 +119,9 @@ distribution_packages() {
       printf '%s\n' "${fedora_distribution_docker_packages[@]}"
       ;;
     *)
-      echo "ERROR: unsupported distribution: '$dist_id'" >&2
+      echo "ERROR: unsupported distribution: '$dist_id'." \
+        "Supported distributions: ubuntu, debian, almalinux, centos" \
+        "and fedora" >&2
       return 1
       ;;
   esac
@@ -200,6 +202,14 @@ apt_install_docker() {
   local dist_id=${1:-}
   local keyring=/etc/apt/keyrings/docker.asc
   local repo_url arch codename
+  # The packages that make up Docker Engine. dnf_install_docker
+  # installs the same packages.
+  #   docker-ce: The Docker Engine (the daemon, dockerd)
+  #   docker-ce-cli: The docker command line client
+  #   containerd.io: The container runtime that the Docker Engine uses
+  #   docker-buildx-plugin: The docker buildx command (the build
+  #                         engine)
+  #   docker-compose-plugin: The docker compose command
   local -a docker_packages=(
     docker-ce docker-ce-cli containerd.io
     docker-buildx-plugin docker-compose-plugin
@@ -291,6 +301,9 @@ dnf_install_docker() {
   # pages, after checking the new key on the pages.
   local expected_fingerprint=060A61C51B558A7F742B77AAC52FEB6B621E9F35
   local repo_name display_name repo_file_url key_url
+  # The packages that make up Docker Engine. They are the same packages
+  # that apt_install_docker installs: see the comment there for what
+  # each one is.
   local -a docker_packages=(
     docker-ce docker-ce-cli containerd.io
     docker-buildx-plugin docker-compose-plugin

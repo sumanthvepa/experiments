@@ -142,6 +142,8 @@ install_docker "$distribution_id"
 add_users_to_docker_group "${docker_users[@]}"
 
 # Start and enable the docker service
+# start: Start the service now
+# enable: Start the service every time the machine boots
 systemctl start docker
 systemctl enable docker
 
