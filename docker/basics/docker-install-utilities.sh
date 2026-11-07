@@ -34,6 +34,10 @@
 #     They must be removed before Docker's packages are installed. The
 #     functions apt_uninstall_packages and dnf_uninstall_packages in
 #     package-utilities.sh can remove them.
+#   die_if_conflicting_packages dist_id
+#     Stop the script with an error message if any of those packages
+#     is installed. The message lists them and shows how to remove
+#     them.
 #   apt_install_docker dist_id
 #     Install Docker Engine on Ubuntu or Debian.
 #   dnf_install_docker dist_id
@@ -180,6 +184,64 @@ conflicting_packages() {
         ;;
     esac
   done
+}
+
+# die_if_conflicting_packages: stop the script with an error message if
+# any of the packages that come with the distribution and conflict with
+# Docker's packages is installed. The message lists the packages that
+# are installed (see conflicting_packages), and shows the command that
+# removes them. If none of them is installed, the function does
+# nothing.
+#
+# The function does NOT remove the packages. Removing a package can
+# remove other packages that depend on it, and the person running the
+# script should decide whether that is acceptable.
+#
+# Usage: die_if_conflicting_packages dist_id
+#   dist_id: the id of the distribution, as for distribution_packages
+#
+# Call it before anything is installed: the message says that nothing
+# has been changed.
+#
+# It uses die, so it exits the shell that it runs in. Call it directly,
+# as a command of its own, and NOT in $(...). In $(...) die would only
+# exit the subshell, and the script would carry on. If the
+# distribution is not supported, conflicting_packages prints an error
+# message on stderr, and the function exits with status 1.
+die_if_conflicting_packages() {
+  local dist_id=${1:-}
+  local names remove_command
+  local -a conflicts
+
+  # The failure is handled here, and not left to set -e, because set -e
+  # is switched off in a function that is called in a condition (in an
+  # if, or before || for example).
+  names=$(conflicting_packages "$dist_id") || exit 1
+  mapfile -t conflicts < <(printf '%s' "$names")
+
+  if [[ ${#conflicts[@]} -eq 0 ]]; then
+    return 0
+  fi
+
+  case $dist_id in
+    ubuntu | debian)
+      remove_command='apt-get remove'
+      ;;
+    almalinux | centos | fedora)
+      remove_command='dnf remove'
+      ;;
+  esac
+
+  echo "These installed packages conflict with Docker's packages:" >&2
+  printf '  %s\n' "${conflicts[@]}" >&2
+  echo >&2
+  echo 'If you do not need them, remove them yourself and run this' >&2
+  echo 'script again, for example:' >&2
+  echo "  $remove_command ${conflicts[*]}" >&2
+  echo >&2
+  echo 'Images, containers, volumes and networks in /var/lib/docker' >&2
+  echo 'are not removed when the packages are removed.' >&2
+  die "Conflicting packages are installed; nothing has been changed"
 }
 
 # apt_install_docker: install Docker Engine from Docker's apt

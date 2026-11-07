@@ -88,7 +88,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/package-utilities.sh"
 
 # docker-install-utilities.sh has the functions that find the packages
 # that come with the distribution and conflict with Docker's packages
-# (distribution_packages and conflicting_packages), the functions that
+# (distribution_packages and conflicting_packages), the function that
+# stops the script if any of them is installed
+# (die_if_conflicting_packages), the functions that
 # install Docker (install_docker, which calls apt_install_docker or
 # dnf_install_docker) and the functions that choose the users and add
 # them to the docker group (users_for_docker_group and
@@ -105,33 +107,13 @@ mapfile -t docker_users < <(printf '%s' "$names")
 
 # Stop if any of the packages that come with the distribution and
 # conflict with Docker's packages is installed. This script does NOT
-# remove them. Removing a package can remove other packages that depend
-# on it, and the person running the script should decide whether that
-# is acceptable. This is also done before installing anything. If the
-# distribution is not supported, conflicting_packages prints an error
-# message and stops the script.
-names=$(conflicting_packages "$distribution_id")
-mapfile -t conflicts < <(printf '%s' "$names")
-if [[ ${#conflicts[@]} -gt 0 ]]; then
-  case $distribution_id in
-    ubuntu | debian)
-      remove_command='apt-get remove'
-      ;;
-    *)
-      remove_command='dnf remove'
-      ;;
-  esac
-  echo "These installed packages conflict with Docker's packages:" >&2
-  printf '  %s\n' "${conflicts[@]}" >&2
-  echo >&2
-  echo 'If you do not need them, remove them yourself and run this' >&2
-  echo 'script again, for example:' >&2
-  echo "  $remove_command ${conflicts[*]}" >&2
-  echo >&2
-  echo 'Images, containers, volumes and networks in /var/lib/docker' >&2
-  echo 'are not removed when the packages are removed.' >&2
-  die "Conflicting packages are installed; nothing has been changed"
-fi
+# remove them: the person running the script should decide whether
+# that is acceptable. This is also done before installing anything, so
+# that nothing has been changed when the script stops. If the
+# distribution is not supported, the script stops here too, with an
+# error message. (die_if_conflicting_packages is called directly, and
+# not in $(...), so that it can stop the script.)
+die_if_conflicting_packages "$distribution_id"
 
 
 # We can now install docker based on the distribution
