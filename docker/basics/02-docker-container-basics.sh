@@ -113,7 +113,7 @@ docker container rm $HELLO_WORLD_CONTAINER_ID
 # Use the cidfile option when running a container. The --cidfile option
 # will write the container id of the container to the file specified,
 # in this case hello-world.cid. However, the file must NOT exist
-# when the docker command is done. To ensure this we use rm -f
+# when the docker command is started. To ensure this we use rm -f
 # prior to invoking docker to remove the cidfile if it exists.
 # The -f option causes rm to ignore any errors.
 
@@ -253,8 +253,10 @@ echo '... cleanup completed.'
 # The third case is an interactive program running in a
 # container. In this case, the user is provided with a
 # prompt. When the user 'exits' the program running in the container
-# is stopped, but can be resumed by attaching to the
-# container again. Examples of such a container include
+# ends, and the container stops. The container can be started and
+# attached to again, but the program starts afresh. Only the files
+# in the container are kept, not the memory of the program that
+# ended. Examples of such a container include
 # containers that run a shell such as bash. Or a container
 # that starts a programming language REPL.
 
@@ -263,8 +265,9 @@ echo '... cleanup completed.'
 # setup to run bash. This is normally the case for
 # OS containers. They will run bash or some interactive
 # shell in the end.
-# The --interactive option keeps STDIN open (unlike detach
-# which will close it.)
+# The --interactive option keeps STDIN of the container open and
+# connects it to the terminal. Without it, the program in the
+# container gets no input from the terminal.
 # --tty will allocate a pseudo-TTY allowing the container
 # to interact with the user via a terminal interface.
 # These two features are exactly what bash and many programming
@@ -419,9 +422,9 @@ docker container run \
 
 # This creates a container instance with iputils already installed and
 # then runs it with the command ping -c 1 www.google.com. The command
-# is passed to bash within the container which executes it as  a shell
-# command. Note that no interactive or tty flag was required. Although,
-# having them would do no harm in this instance.
+# replaces the default command of the image, which is bash, and is run
+# directly, without a shell. Note that no interactive or tty flag was
+# required. Although, having them would do no harm in this instance.
 
 # We will explore passing parameters to containers in more detail
 # in 09-docker-build-cmd-entrypoint.sh
@@ -445,18 +448,65 @@ docker container start --attach 'docker-basics-ping'
 docker container stop 'docker-basics-ping' 
 
 
-# You can send a specific signal with the -s option to stop.
-# To see this let's restart the container
-docker container start --attach 'docker-basics-ping'
+# You can send a specific signal with the --signal option to stop.
+# To see this, start a container running a bash command that prints
+# a message and exits when it receives SIGUSR1. The sleep gives bash
+# time to set up the trap.
+docker container run \
+  --name 'docker-basics-signal' \
+  --detach \
+  almalinux:10-minimal \
+  bash -c 'trap "echo Received SIGUSR1; exit 0" SIGUSR1; while true; do sleep 1; done'
+sleep 3
 
-# Now lets send a specific signal to docker
-docker container stop --signal=SIGTERM 'docker-basics-ping'
+docker container stop --signal=SIGUSR1 'docker-basics-signal'
 
-# This will stop the container by sending the specified signal
-# to the process within it. In this case, specifying
-# the signal is unnecessary, since SIGTERM is the default
-# signal that the docker container stop command sends.
-# But you could send other signals, for example SIGQUIT.
+# The logs show that the program received the signal.
+docker container logs 'docker-basics-signal'
+docker container rm 'docker-basics-signal'
+
+# Without --signal, stop sends SIGTERM, unless the image sets a
+# different stop signal. The signal goes to the main process of the
+# container, which runs as PID 1.
+
+# IMPORTANT NOTE ON PID 1: Normally, a signal that a program does not
+# handle gets its default action. For SIGTERM that is to terminate
+# the program. PID 1 is the exception. If it dies, the kernel kills
+# every other process in the container. So to protect it, the kernel
+# discards any signal that PID 1 has no handler for. For example, ping
+# has no handler for SIGTERM, so as PID 1 it keeps running. After a
+# grace period, 10 seconds by default, docker sends SIGKILL, which
+# cannot be blocked, and ping dies with exit code 137 (128 + 9).
+# To avoid this, either handle the signal in the program, as the trap
+# above does, or use the --init option of container run. It runs a
+# small init program as PID 1, that passes signals on to your command.
+
+# To see --init at work, run ping as the command of a container with
+# the --init option. The sleep gives ping time to start. The top
+# command shows two processes. The first is docker-init, which is
+# PID 1 in the container, and the second is ping, which is its child.
+# The PIDs that top prints are the ones on the host.
+docker container run \
+  --init \
+  --name 'docker-basics-init' \
+  --detach \
+  docker-basics-ping \
+  ping www.google.com
+sleep 3
+docker container top 'docker-basics-init'
+
+# ping is not PID 1 now, so the signal that docker-init passes on to
+# it gets its default action. For SIGUSR1 that is to terminate the
+# program. So stop returns at once, and not after the grace period.
+docker container stop --signal=SIGUSR1 'docker-basics-init'
+
+# The exit code is 138, i.e. 128 + 10, where 10 is the number of
+# SIGUSR1 on Linux.
+# Use the container inspect command to examine the state of the
+# container. In this case the exit code.
+docker container inspect --format '{{.State.ExitCode}}' 'docker-basics-init'
+docker container rm 'docker-basics-init'
+
 # See 04-docker-kill-top-stats.sh for the related
 # command to send a signal to a running container without
 # necessarily stopping it.
