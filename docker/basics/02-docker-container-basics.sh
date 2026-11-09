@@ -176,30 +176,29 @@ docker container rm  'hello-world-instance'
 # external port, we will explicitly add the port to the firewall. This
 # is not necessary, since docker manages iptables directly, but it is
 # a good practice to do so. Close the port after the container is
-# stopped. Also if the port is already registered as open in firewalld
-# then don't close it . The PORT_IS_ALREADY_ACCESSIBLE variable is
-# used to keep track of this.
+# stopped. Also if the port is already registered as open in the
+# firewall then don't close it . The PORT_IS_ALREADY_ACCESSIBLE
+# variable is used to keep track of this.
 
 # See 21-docker-networking.sh for how to run a container that is only
 # accessible from the host.
-# The following commands to query and manipulate the firewall require
-# root privileges. We first need to check that we are running as root
-# and if so, then we can run the commands.
+# The functions in firewall-utilities.sh work with whichever firewall
+# is active on this machine. Querying and manipulating the firewall
+# requires root privileges, so the functions invoke sudo themselves.
+# query_tcp_port prints yes if the port is already open, and no if it
+# is not. It prints partial if only some of the firewall chains allow
+# the port, and then the script leaves the firewall alone. The file is
+# found in the directory of this script.
+source "$(dirname "${BASH_SOURCE[0]}")/firewall-utilities.sh"
+
 # $EUID is the effective user id of the user running the script.
-if [[ $EUID -eq 0 ]]; then
-  PORT_IS_ALREADY_ACCESSIBLE=$(firewall-cmd --zone=public --query-port=9000/tcp)
-  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-    firewall-cmd --zone=public --add-port=9000/tcp
-  fi
-else
+if [[ $EUID -ne 0 ]]; then
   echo "Querying the firewall and adding ports requires root privileges"
-  echo "The following commands will be invoked with sudo"
-  echo "firewall-cmd --zone=public --query-port=9000/tcp"
-  PORT_IS_ALREADY_ACCESSIBLE=$(sudo firewall-cmd --zone=public --query-port=9000/tcp)
-    if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-      echo "firewall-cmd --zone=public --add-port=9000/tcp"
-      sudo firewall-cmd --zone=public --add-port=9000/tcp
-  fi
+  echo "The firewall commands will be invoked with sudo"
+fi
+PORT_IS_ALREADY_ACCESSIBLE=$(query_tcp_port 9000)
+if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+  open_tcp_port 9000
 fi
 
 docker container run \
@@ -212,7 +211,7 @@ docker container run \
 # Now running container ps will show the container as running
 docker container ps
 
-# Wait for 2 mins to allow for a browser to test the container
+# Wait for 30 seconds to allow for a browser to test the container
 echo 'Test that the container is working as expected by'
 echo "visiting http://$(hostname -f):9000/."
 echo 'Will wait for 30 seconds before proceeding'
@@ -227,16 +226,8 @@ docker container stop 'nginx-test'
 docker container rm 'nginx-test'
 
 # Remember to close the port after you're done
-if [[ $EUID -eq 0 ]]; then
-  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-    firewall-cmd --zone=public --remove-port=9000/tcp
-  fi
-else
-  # use sudo if not running as root
-  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-    echo "firewall-cmd --zone=public --remove-port=9000/tcp"
-    sudo firewall-cmd --zone=public --remove-port=9000/tcp
-  fi
+if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+  close_tcp_port 9000
 fi
 
 echo '... cleanup completed.'
