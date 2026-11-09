@@ -28,8 +28,9 @@ echo '02-docker-container-basics'
 
 docker container run hello-world
 
-# The command above will download the hello-world container image from
-# the repository and run it. When the hello-world program exits, the
+# The command above will download the hello-world container image
+# from the Docker registry, if it is not already available locally,
+# and run it. When the hello-world program exits, the
 # container will stop.
 
 # However, the container will not be removed after it has
@@ -115,7 +116,7 @@ docker container rm $HELLO_WORLD_CONTAINER_ID
 # in this case hello-world.cid. However, the file must NOT exist
 # when the docker command is started. To ensure this we use rm -f
 # prior to invoking docker to remove the cidfile if it exists.
-# The -f option causes rm to ignore any errors.
+# The -f option causes rm to ignore missing files and never prompt.
 
 rm -f './hello-world.cid'  # Remove the output of any previous runs
 docker container run --cidfile './hello-world.cid' hello-world
@@ -148,16 +149,19 @@ docker container rm  'hello-world-instance'
 # a long time or even for ever. One such example would be a container
 # running a web server.
 
-# The following command runs an nginx webserver on port 9000 and mounts
-# the directory hello-world-nginx located in the current directory
-# from the host to the standard location for HTML files for
-# nginx in the container. It also maps port 9000 on the host to port
-# 80 in the container. The program is detached from the terminal
-# after it is started.
+# The following command runs an nginx webserver. The webserver runs
+# in the container on port 80, which docker maps to port 9000 on the
+# host. It also mounts the directory hello-world-nginx located in the
+# current directory from the host to the standard location for HTML
+# files for nginx in the container. The program is detached from the
+# terminal after it is started.
 
 # The --volume  option specifies which directory on the host to
 # mount at what location in the container. The format is
-# --volume host_location:container_location
+# --volume host_location:container_location[:ro] The optional
+# ro indicates to docker that the mount should be read only.
+# If the host location is missing, docker will create an
+# empty folder at the host location.
 
 # The --publish command on container run maps a port on the host 
 # to a port on the container. The format is
@@ -201,12 +205,26 @@ if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
   open_tcp_port 9000
 fi
 
+# The ./ in the host path is very important. A source that starts
+# with ./, ../ or / tells Docker that this is a bind mount, which is
+# what we want here. Without the ./, Docker would silently create a
+# named volume, and nginx would serve its default page and not our
+# files. The command in the comments below is a more robust version.
+# --mount states the type of mount, and fails if the host directory
+# does not exist. --volume silently creates an empty one.
 docker container run \
   --name 'nginx-test'  \
   --volume ./hello-world-nginx:/usr/share/nginx/html:ro \
   --publish 9000:80 \
   --detach \
   nginx
+
+#docker container run \
+#  --name 'nginx-test' \
+#  --mount type=bind,source=./hello-world-nginx,target=/usr/share/nginx/html,readonly \
+#  --publish 9000:80 \
+#  --detach \
+#  nginx
 
 # Now running container ps will show the container as running
 docker container ps
@@ -434,8 +452,7 @@ docker container start --attach 'docker-basics-ping'
 # would have finished running by the time you attach
 # the containers output.
 
-# Anyway, clean up the container by stopping and removing it. First
-# ensure that it is stopped.
+# Anyway, ensure that the container is stopped.
 docker container stop 'docker-basics-ping' 
 
 
@@ -503,7 +520,7 @@ docker container rm 'docker-basics-init'
 # necessarily stopping it.
 
 
-# Then remove the container
+# Finally, remove the container
 docker container rm 'docker-basics-ping'
 
 # As part of the clean up we will also remove the
