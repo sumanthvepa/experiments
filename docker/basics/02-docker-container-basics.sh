@@ -229,11 +229,15 @@ docker container run \
 # Now running container ps will show the container as running
 docker container ps
 
-# Wait for 30 seconds to allow for a browser to test the container
+# Wait until the container has been tested with a browser
 echo 'Test that the container is working as expected by'
 echo "visiting http://$(hostname -f):9000/."
-echo 'Will wait for 30 seconds before proceeding'
-sleep 30
+
+# The -p option prints the prompt before read waits for input. The
+# -r option stops read from treating a backslash as special. It makes
+# no difference here, since the input is not used, but ShellCheck
+# complains if it is missing.
+read -r -p 'Press ENTER when done...'
 
 echo 'Okay. Cleaning up. Will stop the running nginx container and remove it...'
 
@@ -551,6 +555,12 @@ echo "shell in the container."
 echo
 echo "When you are done exploring the container exit the shell"
 docker container exec --interactive --tty 'nginx-test' /bin/bash
+
+
+echo "Note that leaving the shell started by exec does not stop the container."
+echo "You can verify this by checking that the website is still being"
+echo "served."
+read -r -p 'Press ENTER when done...'
 
 # Clean up, by stopping and removing the container
 docker container stop 'nginx-test'
