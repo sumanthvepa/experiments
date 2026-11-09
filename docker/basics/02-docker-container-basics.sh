@@ -4,7 +4,7 @@
 # 02-docker-container-basics.sh: Explore basic docker container
 # commands.
 #
-# Copyright (C) 2024-25 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -66,19 +66,43 @@ echo $HELLO_WORLD_CONTAINER_ID
 docker container stop $HELLO_WORLD_CONTAINER_ID
 
 # Notice that the command prints the id of the container that it just
-# stopped.
+# stopped. Stop is a blocking command, i.e. it won't return until
+# the container stops.
 
-# It is sometimes the case that the container will take some time to
-# stop. Attempting to remove a container that is still stopping will
-# result in an error. You can check if the container is still running
-# as follows. The code below will keep checking if the container is
-# still running, using container ps, every 10 seconds. The loop exits
-# when the container is no longer running.
-CONTAINER_EXISTS=$(docker container ps --quiet --all --filter name=$HELLO_WORLD_CONTAINER_ID)
-while [[ ! -z  $CONTAINER_EXISTS ]]; do
-  sleep 10
-  CONTAINER_EXISTS=$(docker container ps --quiet --all --filter name=$HELLO_WORLD_CONTAINER_ID)
-done
+# Sometimes you want to wait for a container that is running  to
+# stop on its own (or have some other process stop it) In that
+# case use the wait command.
+docker container wait $HELLO_WORLD_CONTAINER_ID
+
+# Notice that in this case the wait returns immediately, because the
+# container has already stopped.  So this is not quite an ideal
+# demonstration.
+
+# For a better demonstration, start a container that runs for a few
+# seconds. The sleep command given after the image name replaces the
+# default command of the image, and --detach returns control to the
+# terminal while the container continues to run. The wait command then
+# blocks until sleep exits and the container stops, about 5 seconds
+# later. It then prints the exit code of the container, in this case 0.
+docker container run \
+  --name 'wait-demo' \
+  --detach \
+  almalinux:10-minimal \
+  sleep 5
+docker container wait 'wait-demo'
+
+# The wait command does not remove the container, so clean it up.
+docker container rm 'wait-demo'
+
+
+# You could also wait for a container to stop by polling. But this is
+# absolutely not recommended. I've kept the code here in comments
+# because it shows how to do polling. Not because it is a good idea.
+#CONTAINER_IS_RUNNING=$(docker container ps --quiet --filter id=$HELLO_WORLD_CONTAINER_ID)
+#while [[ -n $CONTAINER_IS_RUNNING ]]; do
+#  sleep 10
+#  CONTAINER_IS_RUNNING=$(docker container ps --quiet --filter id=$HELLO_WORLD_CONTAINER_ID)
+#done
 
 # Finally you can remove a container with the rm command
 docker container rm $HELLO_WORLD_CONTAINER_ID
@@ -189,12 +213,12 @@ docker container run \
 docker container ps
 
 # Wait for 2 mins to allow for a browser to test the container
-echo 'Test that the contaner is working as expected by'
+echo 'Test that the container is working as expected by'
 echo "visiting http://$(hostname -f):9000/."
 echo 'Will wait for 30 seconds before proceeding'
 sleep 30
 
-echo 'Okay. Cleaning up. Will stop the running nginix container and remove it...' 
+echo 'Okay. Cleaning up. Will stop the running nginx container and remove it...'
 
 # Now stop the running container
 docker container stop 'nginx-test'
@@ -221,7 +245,7 @@ echo '... cleanup completed.'
 # The previous two examples of docker containers demonstrated a
 # container running a program that terminates (hello-world,) and
 # container running a program that does not terminate. In
-# latter case the running container is detatched from the
+# latter case the running container is detached from the
 # terminal using --detach to enable use to continue using
 # the terminal. One can reattach to a running container.
 # using docker container attach container-name/id.
@@ -249,7 +273,7 @@ echo '... cleanup completed.'
 echo 'Starting another container docker-basics-bash'
 echo 'Enter the following code at the bash prompt'
 echo 'ping -c 1 www.google.com'
-echo 'This will fail becuase the ping package is NOT installed'
+echo 'This will fail because the ping package is NOT installed'
 echo 'in this container.'
 echo 'To install the package, run the following command'
 echo 'microdnf -y install iputils'
@@ -262,7 +286,7 @@ docker container run \
   --name='docker-basics-bash' \
   --interactive \
   --tty \
-  almalinux:9-minimal
+  almalinux:10-minimal
 
 # The command above will drop you into the root bash shell running
 # within the container. When you try using 'ping' it won't work
@@ -319,7 +343,7 @@ echo '...removed.'
 
 # If you start another container with the same name
 # it will not have the ping command or the text.txt file
-echo 'Creating another container with the almalinux:9-minimal image...'
+echo 'Creating another container with the almalinux:10-minimal image...'
 echo 'When you try ping now it will not work, because it is a different'
 echo 'container. test.txt will not exist either for the same reason.'
 echo 'When a container is destroyed, any read-write data that is not'
@@ -329,7 +353,7 @@ docker container run \
   --name='docker-basics-bash' \
   --interactive \
   --tty \
-  almalinux:9-minimal
+  almalinux:10-minimal
 
 # Now neither ping nor test.txt exists
 # ping -c 1 www.google.com
@@ -376,7 +400,7 @@ echo '...done.'
 # docker build and custom images in much more detail
 # in 09-docker-build.sh
 docker build --tag docker-basics-ping -<<EOF
-FROM almalinux:9-minimal
+FROM almalinux:10-minimal
 RUN microdnf -y install iputils
 EOF
 
