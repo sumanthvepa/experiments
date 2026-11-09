@@ -46,14 +46,14 @@ docker container ps -a
 docker container ps
 
 # To operate on an already created container you either need its
-# name or its id. Since we did not specify the name or id, we
+# name or its id. Since we did not specify the name or id,
 # when creating hello-world, we are using the following hack
 
 # The hack works as follows:
 # First grep for containers that are running the 'hello-world' image.
 # Then only use the first column of the output, as that is the container
 # id. Then only take the very first id, as that is the latest one created,
-# and is probably (although not guarenteed) the container that was created
+# and is probably (although not guaranteed) the container that was created
 # earlier. This value is stored in the shell variable.
 HELLO_WORLD_CONTAINER_ID=`docker container ps -a | grep 'hello-world' | awk '{print $1}' | head -n 1`
 
@@ -107,14 +107,14 @@ docker container rm 'wait-demo'
 # Finally you can remove a container with the rm command
 docker container rm $HELLO_WORLD_CONTAINER_ID
 
-# rm too prints the ID of the comtainer of the command it just removed.
+# rm too prints the ID of the container it just removed.
 
-# There is a more reliable way to get the the container id of a container.
+# There is a more reliable way to get the container id of a container.
 # Use the cidfile option when running a container. The --cidfile option
-# will write the container id of the container to the file specifed,
+# will write the container id of the container to the file specified,
 # in this case hello-world.cid. However, the file must NOT exist
 # when the docker command is done. To ensure this we use rm -f
-# prior to invoking docker to remove the cidifle if it exists.
+# prior to invoking docker to remove the cidfile if it exists.
 # The -f option causes rm to ignore any errors.
 
 rm -f './hello-world.cid'  # Remove the output of any previous runs
@@ -149,13 +149,13 @@ docker container rm  'hello-world-instance'
 # running a web server.
 
 # The following command runs an nginx webserver on port 9000 and mounts
-# the directory hello-world-docker located in the current directory
+# the directory hello-world-nginx located in the current directory
 # from the host to the standard location for HTML files for
 # nginx in the container. It also maps port 9000 on the host to port
-# 80 in the container. The program is detached from the the terminal
+# 80 in the container. The program is detached from the terminal
 # after it is started.
 
-# The --volume  option specifes which directory on the host to
+# The --volume  option specifies which directory on the host to
 # mount at what location in the container. The format is
 # --volume host_location:container_location
 
@@ -172,15 +172,15 @@ docker container rm  'hello-world-instance'
 # allowing the terminal to be used for other commands, while
 # the container continues to run in the background.
 
-# To make it easier to remmber that the container is running on an
-# external port, we will explictly add the port to the firewall. This
+# To make it easier to remember that the container is running on an
+# external port, we will explicitly add the port to the firewall. This
 # is not necessary, since docker manages iptables directly, but it is
 # a good practice to do so. Close the port after the container is
 # stopped. Also if the port is already registered as open in firewalld
 # then don't close it . The PORT_IS_ALREADY_ACCESSIBLE variable is
 # used to keep track of this.
 
-# See 09-docker-networking for how to run a container that is only
+# See 21-docker-networking.sh for how to run a container that is only
 # accessible from the host.
 # The following commands to query and manipulate the firewall require
 # root privileges. We first need to check that we are running as root
@@ -246,7 +246,7 @@ echo '... cleanup completed.'
 # container running a program that terminates (hello-world,) and
 # container running a program that does not terminate. In
 # latter case the running container is detached from the
-# terminal using --detach to enable use to continue using
+# terminal using --detach to enable us to continue using
 # the terminal. One can reattach to a running container.
 # using docker container attach container-name/id.
 
@@ -265,10 +265,10 @@ echo '... cleanup completed.'
 # shell in the end.
 # The --interactive option keeps STDIN open (unlike detach
 # which will close it.)
-# --tty will allocate a pseudo-TTY allowing the the container
+# --tty will allocate a pseudo-TTY allowing the container
 # to interact with the user via a terminal interface.
 # These two features are exactly what bash and many programming
-# languate REPLS need.
+# language REPLS need.
 
 echo 'Starting another container docker-basics-bash'
 echo 'Enter the following code at the bash prompt'
@@ -310,7 +310,7 @@ docker container run \
 echo 'Now that the container is stopped you can start it again'
 echo 'and attach to it. This time when you run ping it works!'
 echo 'This is because it is the same container as before and'
-echo 'iputuils has already been installed. The text file test.txt'
+echo 'iputils has already been installed. The text file test.txt'
 echo 'is also present. You can check that with: cat ./test.txt'
 echo 'Finally, exit the bash shell, (which automatically stops'
 echo 'the container) with exit'
@@ -330,7 +330,7 @@ docker container attach 'docker-basics-bash'
 
 # The test.txt file is also present
 # cat ./test.txt
-# Some test data'
+# Some test data
 
 # Now you can exit the container
 # exit
@@ -342,7 +342,7 @@ docker container rm 'docker-basics-bash'
 echo '...removed.'
 
 # If you start another container with the same name
-# it will not have the ping command or the text.txt file
+# it will not have the ping command or the test.txt file
 echo 'Creating another container with the almalinux:10-minimal image...'
 echo 'When you try ping now it will not work, because it is a different'
 echo 'container. test.txt will not exist either for the same reason.'
@@ -378,7 +378,7 @@ docker container attach 'docker-basics-bash'
 echo $? # prints 13
 echo 'Notice that the exit code was 13?'
 echo 'This is because the docker cli exits using the same exit code'
-echo 'as as given to it by terminating container process'
+echo 'as given to it by terminating container process'
 
 # Finally lets just clean up 'docker-basics-bash'
 echo 'Finally, let us just remove docker-basics-bash...'
@@ -387,18 +387,18 @@ echo '...done.'
 
 
 # Relying on data stored in a container instance is not
-# good idea for data you don't want to lose.
+# a good idea for data you don't want to lose.
 
 # For packages like iputils and the ping binary,
 # where it is clear that the code expected to exist
 # at the point the instance is created, the best
 # way to make this sort of stuff persistent is to
 # build a custom container image, and then start
-# that an instance of that image.
+# an instance of that image.
 
 # Docker build creates custom image. We will explore
 # docker build and custom images in much more detail
-# in 09-docker-build.sh
+# in 08-docker-build-basics.sh
 docker build --tag docker-basics-ping -<<EOF
 FROM almalinux:10-minimal
 RUN microdnf -y install iputils
@@ -407,7 +407,7 @@ EOF
 # Now a container image named docker-basics-ping will
 # be available. You can see this with the docker image ls command
 # Docker image ls will be explored in more detail in
-# 03-docker-images.sh
+# 03-docker-image-basics.sh
 docker image ls
 
 # You can now instantiate a version of this container and
@@ -424,7 +424,7 @@ docker container run \
 # having them would do no harm in this instance.
 
 # We will explore passing parameters to containers in more detail
-# in 09-docker-build.sh
+# in 09-docker-build-cmd-entrypoint.sh
 
 # Also note that once the container has finished running and the
 # ping program exits the container is stopped. You can run the
@@ -468,7 +468,7 @@ docker container rm 'docker-basics-ping'
 # As part of the clean up we will also remove the
 # image that we built earlier, so that this exploration
 # script can run multiple times. We will explore docker
-# image rm in more detail in 03-docker-images.sh
+# image rm in more detail in 03-docker-image-basics.sh
 docker image rm 'docker-basics-ping'
 
 echo
