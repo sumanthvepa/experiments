@@ -22,6 +22,56 @@
 
 echo '03-docker-image-basics'
 
+# Stop on unexpected errors, unset variables and failed pipelines.
+# The image removal that is meant to fail is checked explicitly below.
+set -euo pipefail
+
+# die, cleanup_add and cleanup_cancel come from bash-utilities.sh,
+# which is in the same directory as this script.
+source "$(dirname "${BASH_SOURCE[0]}")/bash-utilities.sh"
+
+# Building and tagging replace any image with the same name. Check
+# both names before changing anything, so existing images are kept.
+# The output of ls is saved in a variable before it is tested. set -e
+# does not stop the script when a command inside [ -n "$(...)" ]
+# fails, but it does when the command is in an assignment such as
+# VAR=$(...).
+for IMAGE_TAG in 'docker-basics-ping:latest' 'docker-basics-ping:v1'; do
+  EXISTING_IMAGE_ID=$(docker image ls --quiet "$IMAGE_TAG")
+  if [ -n "$EXISTING_IMAGE_ID" ]; then
+    die "Image $IMAGE_TAG already exists. Stopping. If it is left" \
+      "over from an earlier run of this script, remove it with:" \
+      "docker image rm $IMAGE_TAG"
+  fi
+done
+
+# The script removes the images and the container that it creates at
+# the end of each part. If it stops early, because a command fails or
+# Ctrl-C is pressed, those steps never run. cleanup_add saves commands
+# that remove what the script created, usually after creation succeeds.
+# The base image check is saved before building, as explained below.
+# The saved commands run when the script exits. cleanup_cancel forgets
+# a command once the script has run it itself. Images and containers
+# that were already on this machine are kept. See bash-utilities.sh
+# for the details.
+
+# remove_added_base_image: remove almalinux:10-minimal, the base image
+# of the build below, if docker image ls lists it. The script uses it
+# only when the base image was not on this machine before the build,
+# so it removes only a base image that the build downloaded. It runs
+# as a cleanup command, and cleanup commands run with set -e turned
+# off (see bash-utilities.sh), so it checks each command itself with
+# || return $?.
+remove_added_base_image() {
+  local base_image_id
+  base_image_id=$(docker image ls --quiet 'almalinux:10-minimal') \
+    || return $?
+  if [ -n "$base_image_id" ]; then
+    docker image rm 'almalinux:10-minimal' || return $?
+  fi
+  return 0
+}
+
 # Let us create an image for use in this exploration.
 # Docker image build creates a custom image. docker build is an alias
 # for docker image build, and you will often see the shorter form.
@@ -34,10 +84,26 @@ echo '03-docker-image-basics'
 # removed in a future release. You can see the list of aliases with
 # docker image build --help. We will explore docker build and custom
 # images in much more detail in 08-docker-build-basics.sh
+
+# The build downloads the base image, almalinux:10-minimal, if it is
+# not already on this machine. On the machine this script was written
+# on, which uses the overlay2 storage driver, the build keeps the base
+# image only in its build cache, and docker image ls does not list it.
+# With other setups, such as the containerd image store, the build may
+# add it to the list. So if the base image is not listed before the
+# build, save remove_added_base_image as a cleanup command. It is
+# saved before the build, in case the build downloads the base image
+# and then fails. It is also saved before the demo image, so that on
+# an early exit the demo image is removed first.
+BASE_IMAGE_ID_BEFORE=$(docker image ls --quiet 'almalinux:10-minimal')
+if [ -z "$BASE_IMAGE_ID_BEFORE" ]; then
+  cleanup_add almalinux remove_added_base_image
+fi
 docker image build --tag docker-basics-ping -<<EOF
 FROM almalinux:10-minimal
 RUN microdnf -y install iputils
 EOF
+cleanup_add ping-latest docker image rm 'docker-basics-ping:latest'
 
 
 # docker image ls lists the images stored on this machine, both the
@@ -66,6 +132,7 @@ docker image ls
 # already called docker-basics-ping:latest, and here we also call it
 # docker-basics-ping:v1.
 docker image tag 'docker-basics-ping' 'docker-basics-ping:v1'
+cleanup_add ping-v1 docker image rm 'docker-basics-ping:v1'
 
 # Giving a repository name to image ls lists only the images in that
 # repository. Notice that both names have the same id. They are two
@@ -100,19 +167,20 @@ docker image history 'docker-basics-ping'
 # untags the image, because the name docker-basics-ping still refers
 # to it.
 docker image rm 'docker-basics-ping:v1'
+cleanup_cancel ping-v1
 
 # Docker will not remove an image that a container uses. To see this,
 # create a container from the image. container create makes the
-# container without starting it.
-# Save its id so that cleanup removes only the container we created.
-# If creation fails, for example because the name is already in use,
-# stop before cleanup can remove an existing container.
+# container without starting it, and prints its id.
+# Save the id, so that cleanup removes the container we created, and
+# not another container that is later given the same name. If creation
+# fails, for example because the name is already in use, stop.
 if ! PING_CONTAINER_ID=$(docker container create \
   --name 'docker-basics-ping-container' \
   docker-basics-ping); then
-  echo 'Could not create the demonstration container. Stopping.' >&2
-  exit 1
+  die 'Could not create the demonstration container. Stopping.'
 fi
+cleanup_add ping-container docker container rm "$PING_CONTAINER_ID"
 echo "$PING_CONTAINER_ID"
 
 # The EXTRA column now shows U, because the image is in use.
@@ -122,7 +190,12 @@ docker image ls 'docker-basics-ping'
 # image, and that the removal must be forced:
 # conflict: unable to remove repository reference "docker-basics-ping"
 # (must force) - container ... is using its referenced image ...
-docker image rm 'docker-basics-ping'
+# Checking the result lets the script continue after this expected
+# failure, while an unexpected success stops the demonstration.
+if docker image rm 'docker-basics-ping'; then
+  cleanup_cancel ping-latest
+  die 'Image removal unexpectedly succeeded. Stopping.'
+fi
 
 # docker image rm --force would delete the image anyway. The container
 # keeps working, because docker keeps the files that it needs. But
@@ -131,12 +204,21 @@ docker image rm 'docker-basics-ping'
 # runs. It is better to remove the container first, and then the
 # image.
 docker container rm "$PING_CONTAINER_ID"
+cleanup_cancel ping-container
 
 # Since this is just a test image, we will remove it so that if this
 # exploration script is run again it can be recreated. This time the
 # last name is removed, so docker deletes the image. The output shows
 # both the untagging and the deletion.
 docker image rm 'docker-basics-ping'
+cleanup_cancel ping-latest
+
+# Check for a newly added base image as well. If it was already
+# present before the build, leave it alone.
+if [ -z "$BASE_IMAGE_ID_BEFORE" ]; then
+  remove_added_base_image
+  cleanup_cancel almalinux
+fi
 
 
 # If you want to download a container image without running it, use
@@ -161,20 +243,28 @@ docker image rm 'docker-basics-ping'
 # curlimages/curl@sha256:... docker image ls --digests shows the
 # digests of the images.
 
-# Before pulling, remember whether the curl image is already on this
-# machine, so that the clean up at the end only removes it if this
-# script downloaded it. docker image inspect succeeds, with exit code
-# 0, if the image exists, and fails if it does not. Its output is not
-# needed here. >/dev/null discards the output, and 2>&1 sends the
-# error messages to the same place.
-if docker image inspect 'curlimages/curl' >/dev/null 2>&1; then
+# The pull below runs only if the curl image is not already on this
+# machine. Pulling an image that is already present checks the
+# registry, and downloads the image again if a newer one has been
+# published under the same tag. The old copy then loses its name and
+# is left behind as a dangling image. Skipping the pull keeps the
+# script from leaving anything behind. If you pull an image that is up
+# to date, docker prints:
+# Status: Image is up to date for curlimages/curl:latest
+# --quiet prints an id if the image exists, or nothing if it does not.
+# Remember whether it was present so cleanup only removes an image
+# that this script downloaded.
+CURL_IMAGE_ID=$(docker image ls --quiet 'curlimages/curl:latest')
+if [ -n "$CURL_IMAGE_ID" ]; then
   CURL_IMAGE_WAS_PRESENT='yes'
+  echo 'Reusing the local curl image; skipping docker image pull.'
 else
   CURL_IMAGE_WAS_PRESENT='no'
+  docker image pull curlimages/curl
+  cleanup_add curl docker image rm 'curlimages/curl:latest'
 fi
-docker image pull curlimages/curl
 
-# You can see that the image has been downloaded with docker image ls
+# You can see that the image is present with docker image ls.
 docker image ls
 
 # Image ls also supports the --all option to show all images. Without
@@ -201,9 +291,9 @@ docker image ls --all
 # already present. always checks the registry every time, and
 # downloads the image if it has changed, so that the latest version is
 # used. never does not download it at all, and the run fails if the
-# image is not present. Here, never proves that the image pulled
-# earlier is used. If the image had not been pulled, docker would fail
-# with the error:
+# image is not present. Here, never proves that the local image is
+# used without downloading it again. If the image were missing,
+# docker would fail with the error:
 # No such image: curlimages/curl:latest
 docker container run --rm --pull=never curlimages/curl curl --version
 
@@ -211,6 +301,7 @@ docker container run --rm --pull=never curlimages/curl curl --version
 # downloaded it.
 if [ "$CURL_IMAGE_WAS_PRESENT" == "no" ]; then
   docker image rm curlimages/curl
+  cleanup_cancel curl
 fi
 
 
@@ -222,4 +313,11 @@ fi
 # not just the ones from this script, so this script does not run
 # them. docker system df shows how much space the images, containers,
 # volumes and build cache take.
+#
+# The build at the start of this script is the one thing that it
+# leaves behind. Its steps stay in BuildKit's build cache, which is
+# what makes a second run of the build fast. docker builder prune
+# removes the build cache, but the cache of every build on this
+# machine, and not just this script's, so this script does not run it
+# either. docker buildx du lists the entries in the build cache.
 docker system df
