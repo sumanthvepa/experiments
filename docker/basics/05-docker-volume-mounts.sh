@@ -85,41 +85,12 @@ create_demo_volume 'docker-basics-test-volume'
 create_demo_volume 'docker-basics-copy-volume'
 create_demo_volume 'docker-basics-nocopy-volume'
 
-# die_container_failed: stop the script after an interactive
-# docker container run returns a non-zero status, and explain
-# what may have gone wrong.
-#
-# Usage: die_container_failed name status
-#   name:   the name of the container.
-#   status: the exit status of docker container run.
-#
-# The status alone does not say whether Docker or bash failed, so the
-# message describes possible causes. Docker may fail before the
-# container starts, for example because the name is already in use.
-# If bash started, a common cause is a mistyped command followed by
-# plain exit. For example, catt in place of cat followed by exit
-# returns 127, which means "command not found". An explicit non-zero
-# exit or termination by a signal can also produce a failure status.
-#
-# The status may not come from the container at all. If the Docker
-# client itself is killed, for example with kill -KILL from another
-# terminal, docker container run returns 137 (128 plus 9, the number
-# of SIGKILL) without printing an error. The container may then still
-# be running, and keep its volume in use, so the cleanup cannot
-# remove the volume. See the recovery commands near the end of the
-# script.
-die_container_failed() {
-  local name=$1
-  local status=$2
-  die "docker container run for $name returned status $status." \
-    'If Docker printed no error above, the status usually describes' \
-    'how bash in the container ended. A common cause is a mistyped' \
-    'command followed by plain "exit". Run the script again and' \
-    'use "exit 0". If Docker printed an error, deal with that first.' \
-    'For example, if the name is already in use by a container' \
-    'that you no longer need, remove it with:' \
-    "docker container rm --force $name"
-}
+# die_container_failed, from bash-utilities.sh, stops the script
+# after an interactive docker container run returns a non-zero
+# status, and explains what may have gone wrong. If the Docker client
+# itself is killed, the container may still be running, and keep its
+# volume in use, so the cleanup cannot remove the volume. See the
+# recovery commands near the end of the script.
 
 # Now create a container that uses the volume, with the --mount
 # option. --mount takes a comma separated list of key=value pairs:

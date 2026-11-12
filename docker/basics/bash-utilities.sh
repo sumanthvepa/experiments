@@ -34,6 +34,9 @@
 #     the script exits, unless cleanup_cancel forgets it first.
 #   cleanup_cancel key
 #     Forget a command saved by cleanup_add, without running it.
+#   die_container_failed name status
+#     Stop the script after an interactive docker container run
+#     returns a non-zero status, and explain what may have gone wrong.
 #
 # cleanup_on_exit is a helper for cleanup_add and cleanup_cancel.
 
@@ -193,4 +196,41 @@ cleanup_on_exit() {
     fi
   done
   exit "$status"
+}
+
+# die_container_failed: stop the script after an interactive
+# docker container run returns a non-zero status, and explain
+# what may have gone wrong.
+#
+# Usage: die_container_failed name status
+#   name:   the name of the container.
+#   status: the exit status of docker container run.
+#
+# The status alone does not say whether Docker or bash failed, so the
+# message describes possible causes. Docker may fail before the
+# container starts, for example because the name is already in use.
+# If bash started, a common cause is a mistyped command followed by
+# plain exit. For example, catt in place of cat followed by exit
+# returns 127, which means "command not found". An explicit non-zero
+# exit or termination by a signal can also produce a failure status.
+#
+# The status may not come from the container at all. If the Docker
+# client itself is killed, for example with kill -KILL from another
+# terminal, docker container run returns 137 (128 plus 9, the number
+# of SIGKILL) without printing an error. The container may then still
+# be running. The script that calls this function should explain how
+# to find and remove such a container.
+#
+# It uses die, so it exits the shell that it runs in.
+die_container_failed() {
+  local name=$1
+  local status=$2
+  die "docker container run for $name returned status $status." \
+    'If Docker printed no error above, the status usually describes' \
+    'how bash in the container ended. A common cause is a mistyped' \
+    'command followed by plain "exit". Run the script again and' \
+    'use "exit 0". If Docker printed an error, deal with that first.' \
+    'For example, if the name is already in use by a container' \
+    'that you no longer need, remove it with:' \
+    "docker container rm --force $name"
 }
