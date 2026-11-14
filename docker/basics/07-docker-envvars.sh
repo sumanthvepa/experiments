@@ -336,6 +336,7 @@ docker container run --rm \
 # single quotes, so that the shell on the host leaves it alone. Docker
 # sets HOME in the container to the home directory of the user that
 # the program runs as, /root for root.
+# shellcheck disable=SC2016
 echo 'echo "$HOME", expanded by the shell on the host:'
 docker container run --rm docker-basics-curl echo "$HOME"
 echo 'bash -c with single quotes, expanded by bash in the container:'
@@ -383,6 +384,7 @@ FETCH_URL=https://www.google.com docker container run --rm \
     '# A comment' \
     '' \
     'QUOTED="in quotes"' \
+    # shellcheck disable=SC2016
     'SPACES=a value with spaces' \
     'NOT_EXPANDED=$HOME' \
     'FETCH_URL') \
