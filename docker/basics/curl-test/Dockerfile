@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
 # curl-test/Dockerfile: Exploratory Docker file to create a
-# curl installation running on almalinux:9-minimal
+# curl installation running on almalinux:10-minimal
 #
-# Copyright (C) 2024-25 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,11 +21,11 @@
 # -------------------------------------------------------------------
 
 # Exploratory Dockerfile to create a curl installation running on
-# almalinux:9-minimal
-FROM almalinux:9-minimal
+# almalinux:10-minimal
+FROM almalinux:10-minimal
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This is a demo image that runs curl on almalinux:9-minimal"
+LABEL org.opencontainers.image.description="This is a demo image that runs curl on almalinux:10-minimal"
 LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:curl-test"
 LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/curl-test"
 
@@ -41,5 +41,13 @@ WORKDIR /opt/call-curl/bin
 # This is very usefull for copying the source or compiled
 # executables of an application into the image.
 COPY call-curl.sh .
+
+# The ENV instruction sets an environment variable in the image. Every
+# container of the image starts with this value, unless the
+# docker container run options --env or --env-file give another one.
+# So call-curl.sh fetches https://httpbingo.org/get when no URL is
+# given. httpbingo.org is a public service for testing HTTP clients.
+# /get returns a description of the request, in JSON.
+ENV FETCH_URL=https://httpbingo.org/get
 
 CMD ["./call-curl.sh"]
