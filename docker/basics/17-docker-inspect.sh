@@ -27,19 +27,19 @@ echo '17-docker-inspect'
 # output is in JSON format.
 
 # First lets build an image with labels
-docker build --tag nginx-test ./nginx-test
+docker build --tag docker-basics-nginx ./docker-basics-nginx
 
 # The output is a JSON object with a lot of information about the image.
-echo "JSON Metadata of the image nginx-test:"
+echo "JSON Metadata of the image docker-basics-nginx:"
 echo "---------------------------------------------------------------"
-docker inspect nginx-test
+docker inspect docker-basics-nginx
 echo "---------------------------------------------------------------"
 
 # The output can be filtered using the --format flag. For example, to
 # get the ID of the image, you can use the following command:
 echo "ID of the image:"
 echo "---------------------------------------------------------------"
-docker inspect --format='{{.Id}}' nginx-test
+docker inspect --format='{{.Id}}' docker-basics-nginx
 echo "---------------------------------------------------------------"
 
 # The --format flag uses the Go template language. You can use any
@@ -57,7 +57,7 @@ echo "---------------------------------------------------------------"
 # https://pkg.go.dev/text/template
 echo "Config section of the image:"
 echo "---------------------------------------------------------------"
-docker inspect --format='{{json .Config}}' nginx-test
+docker inspect --format='{{json .Config}}' docker-basics-nginx
 echo "---------------------------------------------------------------"
 
 
@@ -70,19 +70,19 @@ dnf -y install jq
 # inspect command.
 echo "Config section of the image (formatted):"
 echo "---------------------------------------------------------------"
-docker inspect --format='{{json .Config}}' nginx-test | jq
+docker inspect --format='{{json .Config}}' docker-basics-nginx | jq
 echo "---------------------------------------------------------------"
 
 
 # You can see all the labels of the image with the following command
 echo "Labels of the image:"
 echo "---------------------------------------------------------------"
-docker inspect --format='{{json .Config.Labels}}' nginx-test | jq
+docker inspect --format='{{json .Config.Labels}}' docker-basics-nginx | jq
 echo "---------------------------------------------------------------"
 
 # Docker inpect can be used to get information about containers as well.
 # First we will run a container from the image
-docker container run --name nginx-test-container --detach nginx-test
+docker container run --name nginx-test-container --detach docker-basics-nginx
 
 # Now we can inspect the container
 echo "JSON Metadata of the container nginx-test-container:"
@@ -92,16 +92,16 @@ echo "---------------------------------------------------------------"
 
 # If you want to explicty specify the type of object you want to inspect
 # you can use the --type flag. For example, to inspect the image
-echo "JSON Metadata of the image nginx-test, using --type option:"
+echo "JSON Metadata of the image docker-basics-nginx, using --type option:"
 echo "---------------------------------------------------------------"
-docker inspect --type=image nginx-test | jq
+docker inspect --type=image docker-basics-nginx | jq
 echo "---------------------------------------------------------------"
 
 # An alternative syntax is to use the type as a subcommand
 ## docker container inspect nginx-test-container
-echo "JSON Metadata of the image ginx-test, using subcommand:"
+echo "JSON Metadata of the image docker-basics-nginx, using subcommand:"
 echo "---------------------------------------------------------------"
-docker image inspect nginx-test | jq
+docker image inspect docker-basics-nginx | jq
 echo "---------------------------------------------------------------"
 
 # To inspect the container
@@ -119,4 +119,4 @@ docker container stop nginx-test-container
 docker container rm nginx-test-container
 
 # Cleanup: Remove the image
-docker image rm nginx-test
+docker image rm docker-basics-nginx
