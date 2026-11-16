@@ -60,9 +60,7 @@ RUN microdnf -y install nodejs \
 FROM scratch
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This a demo image to show how to setup node almalinux:9-minimal"
-LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:node-test"
-LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/node-test"
+LABEL org.opencontainers.image.description="This is a demo image to show how to set up Node.js on almalinux:9-minimal"
 
 # This copies the entire filesystem from the unoptimized stage
 # to the optimized stage as a single layer. This will reduce

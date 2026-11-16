@@ -26,8 +26,6 @@ FROM almalinux:10-minimal
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
 LABEL org.opencontainers.image.description="This is a demo image that runs curl on almalinux:10-minimal"
-LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:curl-test"
-LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/curl-test"
 
 
 # The workdir command sets the working directory for build

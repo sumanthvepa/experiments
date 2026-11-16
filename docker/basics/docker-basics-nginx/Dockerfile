@@ -56,9 +56,7 @@ FROM almalinux:10-minimal
 # by the Open Container Initiative. See 17-docker-inspect.sh for how
 # to view and use this metadata.
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This a demo image to show how to setup an nginx server on almalinux:10-minimal"
-LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:docker-basics-nginx"
-LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/docker-basics-nginx"
+LABEL org.opencontainers.image.description="This is a demo image to show how to set up an nginx server on almalinux:10-minimal"
 
 # The RUN instruction runs a command in the image that is being built.
 # Each RUN instruction results in a new layer in the union filesystem

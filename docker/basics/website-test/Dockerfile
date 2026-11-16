@@ -34,9 +34,7 @@ FROM almalinux:9-minimal
 # This metadata can be used to search for images in a registry.
 # See 10-docker-inspect.sh for how view and use this metadata.
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This a demo image to show how to setup an website frontend running on nginx."
-LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:website-test"
-LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/website-test"
+LABEL org.opencontainers.image.description="This is a demo image to show how to set up a website frontend running on nginx."
 
 # The RUN command runs specific command in the image.
 # Each RUN command will result in a new layer in the

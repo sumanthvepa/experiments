@@ -35,9 +35,7 @@ FROM almalinux:9-minimal
 ARG ARCH_SUFFIX='amd64'
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This a demo image to show how to setup a postgres server on almalinux:9-minimal"
-LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:postgres-test"
-LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/postgres-test"
+LABEL org.opencontainers.image.description="This is a demo image to show how to set up a PostgreSQL server on almalinux:9-minimal"
 
 
 # Install basic editing tools to help with debugging

@@ -27,8 +27,6 @@ FROM almalinux:9-minimal
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
 LABEL org.opencontainers.image.description="This is a demo image that runs dig using the CMD directive"
-LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:dig-cmd"
-LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/dig-cmd"
 
 
 # The RUN command runs specific command in the image. Each RUN command
