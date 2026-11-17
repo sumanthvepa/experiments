@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
 # node-test2/Dockerfile: Exploratory Docker file to create a
-# size optimized node installation running on almalinux:9-minimal
+# size optimized node installation running on almalinux:10-minimal
 #
 # Copyright (C) 2024-26 Sumanth Vepa.
 #
@@ -21,14 +21,14 @@
 # -------------------------------------------------------------------
 
 # This Dockerfile creates a size optimized  node installation running
-# on almalinux:9-minimal
+# on almalinux:10-minimal
 
 # Instead of installing nodejs from a package manager, we can create
 # a smaller footprint by downloading the nodejs binaries and copying
 # them to the image. This way we can have a smaller image size and
 # have more control over the version of nodejs we are using.
 
-FROM almalinux:9-minimal
+FROM almalinux:10-minimal
 
 # The ARG command a build-time variable that is used to pass
 # variables from the docker build command to the Dockerfile.
