@@ -81,10 +81,13 @@ between ordinary ways of meeting these requirements.
   same thing safely, and replace a duplicated explanation with a
   short reference to the lesson that owns it. Neither counts as
   removing an example.
-- You may change shared helpers and build contexts that only 09-*.sh
-  through 25-*.sh use. Find every caller with `git grep`, keep their
-  intended behavior, and check them as described in "Regression
-  checks across scripts".
+- You may change shared helpers and build contexts, including ones
+  used by 00-*.sh through 08-*.sh, if the change preserves those
+  callers' interfaces, intended behavior, demonstrations and platform
+  support. Find every caller with `git grep`. The reviewer checks
+  compatibility under "Regression checks across scripts"; compatible
+  implementation changes need no user approval. The earlier tutorial
+  scripts themselves remain outside the update.
 - You may open and close tutorial ports temporarily with
   firewall-utilities.sh, using root privileges or passwordless sudo,
   and restore their original state as described in Step 3. This does
@@ -103,11 +106,11 @@ Stop and ask the user, rather than decide yourself, before you:
   support for an operating system, distribution or CPU architecture.
   Package names and paths differ between distributions, so a failure
   on one is a reason to fix it, not to drop it.
-- change the behavior of a file that 00-*.sh through 08-*.sh also use,
-  such as bash-utilities.sh, firewall-utilities.sh or the
-  docker-basics-nginx build context. Find their callers with
-  `git grep`. Adding a function that the existing callers do not use
-  does not count.
+- intentionally change the behavior expected by a caller in
+  00-*.sh through 08-*.sh, such as its arguments, output, exit-status
+  contract, resource ownership or the demonstration it teaches.
+  Changing shared implementation while preserving those contracts,
+  including adding an unused function, does not require approval.
 - do anything that needs root privileges or credentials you do not
   have, that would change host or daemon settings other than the
   temporary firewall changes above, or that prompts/agent-session.md
@@ -181,8 +184,9 @@ not rename it. It records:
   from this work. Do not record credentials.
 - the test host as observed at startup, described in "Test host"
 - the Co-Authored lines, described in "Committing"
-- for each task: its starting HEAD, the number of review rounds, the
-  verdict, the commit and the approved tree, and any deferred checks
+- for each task: its starting HEAD, review cycle and round count,
+  verdict, commit and approved tree or document digest, and any
+  deferred checks
 - the decisions the manager made, with their reasons, and the user's
   answers to questions
 - the accepted coverage map, described in Step 5
@@ -210,9 +214,21 @@ When you start or resume work:
    the task back to a coding agent to write the explanation from the
    commit's diff, and to rerun the checks whose results are lost. Do
    not invent test results.
-4. If a task has review rounds in its explanation file but no commit,
-   resume its review loop at the next round.
-5. Continue with the next unfinished task in the order above, and
+4. If a task has an APPROVED verdict but no commit, first check the
+   approval against "Checking a finished task". For a staged-change
+   task, verify that HEAD is still its starting HEAD, the staged tree
+   matches the approved tree and the task has no unstaged changes.
+   If they match, finish the commit without another review, even if
+   approval was in round 7. For a task with no commit, verify its
+   document digest and finish its handoff. If the approved content or
+   starting state no longer matches, resolve ownership first, then
+   return it for review; never commit changed content on an old verdict.
+5. If the latest verdict is CHANGES REQUIRED, continue the corrections
+   and next review within the current cycle's remaining rounds. A
+   restart does not reset the limit. If the limit was reached, report
+   the outstanding findings and wait for authorization as described
+   in "The review loop".
+6. Continue with the next unfinished task in the order above, and
    carry every outstanding deferred check with it.
 
 ### Explanation files
@@ -231,7 +247,9 @@ keeps it current. It records:
 - the script and step, what changed and why, and the supporting files
   that changed, with the other scripts that use them
 - the commands and checks run, their results, and the paths of their
-  logs
+  logs. For tutorial tests, record the staged tree tested and the
+  input evidence needed by "Final acceptance"; associate the result
+  with the commit after its approved tree is committed.
 - the resources the tutorial deliberately keeps, its limitations, the
   checks that could not be run and why, and the deferred checks
 - after the commit, the commit hash, or `N/A` and the reason
@@ -253,8 +271,8 @@ On a resume, use the recorded lines.
 The coding agent stages its changes for review, and commits only after
 the reviewer approves them:
 
-1. Before the first review, check that the index is empty, then stage
-   only the files of this task, by explicit path:
+1. Before this task's first staging, check that the index is empty,
+   then stage only the files of this task, by explicit path:
    `git add -- <file> ...`. Never use `git add -A`, `git add .` or
    `git add --force`. Check the whole of `git diff --cached` and stop
    if a staged change does not belong to this task. Run
@@ -265,7 +283,9 @@ the reviewer approves them:
 3. After approval, write a new commit message file following
    prompts/commit.md, even though no one has asked you for one.
    prefix.txt is empty, so the file is msg at the top of the
-   repository, not in docker/basics.
+   repository, not in docker/basics. Describe the actual approved
+   diff and its main changes. Do not reuse an earlier message when
+   the task or its scope has changed.
 4. Use the Co-Authored line given in your prompt, in the format of
    commit.template. Do not add any other attribution lines.
 5. Commit with `git commit --file=<top of the repository>/msg`.
@@ -273,6 +293,9 @@ the reviewer approves them:
    and that the message ends with the Co-Authored line. Check that
    `git rev-parse 'HEAD^{tree}'` prints the tree the reviewer approved,
    and that the index is empty.
+
+Tasks with no commit follow "Approvals for tasks with no commit"
+instead of staging files or writing a commit message.
 
 ## Sub-agents
 
@@ -296,15 +319,16 @@ Do not do the work yourself in its place.
 ### Roles
 
 - A coding agent does one task: one step for one script, the coverage
-  map, a correction, or the change to TODO.txt. It changes files, runs
-  the checks, stages its changes, writes the explanation and, after
-  approval, commits.
+  map, a correction, or the change to TODO.txt. It changes files,
+  stages the content to be tested, runs the checks and writes the
+  explanation. After approval it commits the task's staged changes.
+  The coverage map and no-change steps follow the no-commit procedure below.
 - A reviewer checks one coding agent's work. It reads the staged diff,
   the files it affects and their callers, the explanation and the test
   logs, and reruns checks when it needs to. It does not change, stage
   or commit any file, except to add its review to the explanation
-  file. A reviewer that runs a tutorial or a test must leave nothing
-  behind.
+  file or its no-commit document's review history. A reviewer that
+  runs a tutorial or a test must leave nothing behind.
 - A validation agent runs the checks in "Final acceptance" and writes
   the acceptance file. It does not change tutorials, helpers or
   drivers.
@@ -324,28 +348,42 @@ separate worktree or branch.
 
 For each task:
 
-1. The coding agent does the work, runs the checks for the step,
-   stages the changes, writes the explanation and reports.
+1. The coding agent does the work, stages changes to be committed,
+   runs the step's checks on that content, writes the explanation
+   and reports. If it changes implementation after testing, restage
+   it and rerun the affected checks before requesting review.
+   For a task with no commit, its author prepares the document and
+   evidence without staging anything, as described below.
 2. The reviewer reviews the work and adds a section headed
    `## Review round <n>` to the end of the explanation file, with its
    verdict:
-   - APPROVED, with the output of `git write-tree`, which names the
-     exact staged content it approved.
+   - APPROVED, with the output of `git write-tree` for a task with
+     staged changes, or the document digest and unchanged HEAD for a
+     task with no commit. Use the procedure below for document hashes.
    - CHANGES REQUIRED, with numbered findings. Each finding names the
      file and line, the requirement in these instructions or the
      defect, and what would satisfy it.
-3. After CHANGES REQUIRED, the coding agent fixes each finding, reruns
-   the affected checks, stages the files again, and adds
-   `### Response` under that round, saying what it did about each
-   finding. If it disagrees with a finding, it says why there, and
-   the reviewer decides in the next round.
+3. After CHANGES REQUIRED, the author fixes each finding. A coding
+   agent restages implementation changes before rerunning affected
+   checks; a document-only author updates its document and evidence
+   without staging it. Add `### Response` under that round, saying
+   what was done about each finding. If the author disagrees with a
+   finding, it says why there, and the reviewer decides in the next round.
 4. Repeat from 2 until the reviewer approves. Then the coding agent
-   commits, as described in "Committing".
+   commits, or the author hands off the approved document for a task
+   with no commit. Do not stage or commit a coverage map, acceptance
+   file or no-change explanation merely to complete this loop.
 
-A round is one review. Stop after the 7th round that does not approve:
-leave the staged changes as they are, do not commit, and report to the
-user the script, the step, the explanation file and the findings that
-are still open.
+A round is one review. Each cycle allows at most seven rounds. If
+its last allowed round does not approve, leave the staged changes
+as they are, do not commit, and report the task, explanation or
+document path and outstanding findings to the user. For a task with
+no commit, preserve the document and its review history instead.
+Only explicit user authorization of more
+review starts a new cycle, with at most seven rounds unless the user
+sets another limit. Record that authorization and the new allowance.
+Keep cumulative round numbering and all earlier findings; a session
+restart or agent replacement does not start a new cycle on its own.
 
 Continue the same coding agent and the same reviewer from round to
 round if your tool can send a message to an agent that has finished.
@@ -364,11 +402,65 @@ So that the loop ends, the reviewer:
   passes it to both agents, or asks the user if the decision falls
   under "When to stop and ask".
 
+### Approvals for tasks with no commit
+
+The coverage map, final acceptance file and explanations for no-change
+steps are reviewed documents, not staged changes. `git write-tree`
+cannot identify their contents because they are not in the index.
+
+- Keep the document's complete substantive content before a single
+  line `## Review history`. Put all review rounds, responses and
+  administrative handoff notes after that line. Nothing needed to
+  justify the decision may be omitted from the reviewed content.
+- The reviewer hashes the bytes before that line with SHA-256. For
+  example, with DOCUMENT set to the document's path:
+
+  ```bash
+  sed '/^## Review history$/,$d' "$DOCUMENT" | sha256sum
+  ```
+
+  Record the digest and current HEAD with APPROVED in the review
+  history. Appending a verdict does not then change the approved
+  content's digest. Changing substantive content requires another
+  review; the digest must not be silently updated.
+- Keep the index empty and HEAD unchanged throughout a no-commit
+  task. The manager recomputes the digest and checks HEAD and the
+  index before accepting the handoff. For a no-change step, the
+  reviewed content includes the reason for `N/A` and its evidence.
+  Compare the working tree with the task's starting state too: only
+  its assigned document, review history and coordination notes may
+  change. Preserve unrelated work recorded in the baseline.
+- An inapplicable Step 4 reviewed together with Step 3 is the one
+  combined-task exception: its reviewer records the Step 4 document
+  digest alongside the approved Step 3 tree. After the Step 3 commit,
+  the manager checks both that tree and the unchanged Step 4 digest.
+  Record the association in the coordination record; no additional
+  pair or empty commit is needed for Step 4. If Step 3 also makes no
+  changes, approve both document digests at the same unchanged HEAD
+  with an empty index instead.
+- Resolve manager decisions that affect a document's content before
+  final approval. If a later decision changes that content, return
+  the document to its author and reviewer before accepting it.
+- For a temporary coverage map, preserve its latest content and full
+  review history in the coordination record after each round. If the
+  temporary file is lost, restore that copy and verify any approval
+  before continuing. Copy the accepted content exactly, with its
+  digest, rather than rewriting it during handoff.
+
+The final acceptance document is bound to the implementation HEAD
+that it validates. An implementation correction invalidates that
+approval: update the evidence and obtain a new document approval at
+the corrected HEAD. After acceptance, record the reviewed TODO-only
+completion commit in the administrative history; that permitted
+append does not change the approved validation content.
+
 ### What the reviewer checks
 
 - The diff stays within the task and the allowed paths, and every
   staged change belongs to the task. No unstaged or untracked change
-  is left in the task's files.
+  is left in files to be committed. Required explanation files and
+  approved no-commit documents remain unstaged. For a no-commit task,
+  check that the index is empty and HEAD has not changed instead.
 - The changes meet the requirements of the step. Steps 1 and 2 have
   narrow requirements: check that nothing else changed. For Steps 3
   to 5, check the teaching, the facts against the official
@@ -378,7 +470,9 @@ So that the loop ends, the reviewer:
   check recorded.
 - The test evidence comes from the staged content, the assertions
   prove what the lesson claims, and no failure or skip is hidden.
-  Rerun a check when its evidence is missing or does not match.
+  Rerun a check when its evidence is missing or does not match. For
+  final validation, check the tested revisions and input evidence
+  recorded in the acceptance document instead of a staged tree.
 - The explanation is accurate and complete.
 
 ### The coverage map
@@ -387,10 +481,11 @@ The coverage map is one task, with its own coding agent and reviewer.
 The coding agent writes the map to a temporary file whose path the
 manager gives it, and makes no commit. The reviewer checks the map
 against the actual lessons, not just their headings, and adds its
-rounds to the end of the map file. After approval, the manager reads
-the proposed changes, one line per script, makes any decisions the
-reviewer marked, and copies the accepted map into the coordination
-record. A proposal to remove an example or a feature is a question for
+rounds under its `## Review history` line. The manager resolves marked
+decisions before final approval. After approval, it reads the proposed
+changes, one line per script, verifies the document digest and copies
+the accepted map into the coordination record under the no-commit
+procedure. A proposal to remove an example or a feature is a question for
 the user, as described in "When to stop and ask". Each script's Step 5
 task gets the changes accepted for it.
 
@@ -466,7 +561,9 @@ A reviewer replies:
 ```
 Task: <task from the prompt>
 Round: <n>
-Verdict: <APPROVED, tree <hash> | CHANGES REQUIRED, <number> findings>
+Verdict: <APPROVED, tree <hash> | APPROVED, document SHA-256 <digest>,
+  HEAD <hash> | CHANGES REQUIRED, <number> findings>
+Associated N/A document: <Step 4 path and SHA-256 digest, or none>
 Manager decisions needed: <decisions, or none>
 Questions for the user: <questions, or none>
 ```
@@ -483,8 +580,11 @@ After the coding agent commits, check that:
    the explanation files and the changes that existed at the start.
 4. The explanation file has the commit hash.
 
-For a task with `N/A` in place of a commit, check instead that HEAD did
-not change and that the reviewer approved the reason.
+For a task with no commit, verify the document digest, unchanged HEAD
+and empty index under "Approvals for tasks with no commit" instead
+of checking a commit label or tree. For a no-change step, confirm the
+reviewed reason for `N/A`. These checks also apply when finishing an
+approved handoff after a restart.
 
 Record the result, any shared-file changes with their callers, and the
 deferred checks in the coordination record. Include them in the
@@ -974,10 +1074,19 @@ rather than copying every implementation detail of 02-*.sh.
 
 ### The image that script 15 keeps
 
-Script 15 keeps the postgres-test image that it builds, for later
-lessons. Other tutorials remove the images they build, unless their
-explanation names a later use. Base images and BuildKit cache are a
-separate matter, described above.
+Script 15 keeps the postgres-test:latest image that it builds, for
+later lessons. Other tutorials remove the images they build, unless
+their explanation names a later use. Base images and BuildKit cache
+are a separate matter, described above.
+
+This exception applies only to the exact tag postgres-test:latest,
+including its unqualified spelling postgres-test. It does not apply
+to every image built from the postgres-test directory. Script 18's
+postgres-test:linux-arm64 and postgres-test:linux-amd64 tags are its
+own demonstration resources: require them to be absent before the
+lesson, then create, save, remove, load and clean them up under its
+normal ownership rules. Do not reuse pre-existing demonstration tags
+or remove the retained latest tag as part of that lesson.
 
 A second run of script 15 finds the image that the first run kept. So
 the rule against reusing an existing resource needs an exception,
@@ -987,16 +1096,19 @@ one that still protects an image the reader made:
   `LABEL docker-basics.tutorial=15-docker-build-postgres-test`, so that
   the tutorial can tell its own image from another image with the same
   name.
-- If postgres-test exists with that label and the host's architecture,
-  reuse it. Say that an earlier run built it, skip the build, and show
-  the command that removes it so that the next run builds it again.
-  Then check the image as usual. Never remove or retag it.
-- If postgres-test exists without that label, or for another
+- If postgres-test:latest exists with that label and the host's
+  architecture, reuse it. Say that an earlier run built it, skip the
+  build, and show the command that removes it so that the next run
+  builds it again. Then check the image as usual. Never remove or
+  retag it.
+- If postgres-test:latest exists without that label, or for another
   architecture, stop with a conflict message, as for any other name
   conflict.
-- Later scripts that use the postgres-test image follow the same rule,
-  and build it if it is absent. Say in each explanation whether the
-  script keeps an image that it built.
+- Later scripts that use the retained postgres-test:latest tag,
+  including 16 and 21, follow the same rule and build it if it is
+  absent. Say in each explanation whether the script keeps an image
+  that it built. This does not extend the exception to script 18's
+  architecture-specific tags.
 - The driver lists `keeps-image: postgres-test`, and lists the
   conflict and interrupt scenarios before normal. `all` then runs
   conflict and interrupt while the name is free, builds the image in
@@ -1004,13 +1116,13 @@ one that still protects an image the reader made:
   the conflict scenario, the driver tags another image as
   postgres-test and checks that the tutorial stops and leaves it alone.
 - Before you run script 15's driver, and after you change its
-  Dockerfile or the files it copies, remove a postgres-test image that
-  has the label, if no container uses it, with
-  `docker image rm postgres-test`. Do this outside the driver, before
-  the runner starts, so that the runner does not see a removed
+  Dockerfile or the files it copies, remove a postgres-test:latest
+  image that has the label, if no container uses it, with
+  `docker image rm postgres-test:latest`. Do this outside the driver,
+  before the runner starts, so that the runner does not see a removed
   resource. This is the only existing resource that a sub-agent may
   remove: script 15 made it, and the test builds it again. Never
-  remove a postgres-test image without the label; stop and ask.
+  remove a postgres-test:latest image without the label; stop and ask.
 
 ### Services, ports and host configuration
 
@@ -1491,12 +1603,32 @@ Final acceptance requires all of the following:
   record. No commit of this work changes a path outside docker/basics
   other than TODO.txt.
 
-A test result still counts at the final revision if none of its inputs
-has changed since it passed. The inputs are the script, its driver,
-the files it sources, builds or copies, and the two files in tests/.
-Check with `git diff --quiet <tested-commit> HEAD -- <inputs>`, and
-record the inputs you compared. If any of them changed, run the test
-again.
+A test result still counts at the final revision only when its
+relevant inputs are demonstrably unchanged. Record the input evidence
+when running the test, not just when deciding to reuse its result:
+
+- Record the script, driver, shared test procedures and runner, all
+  transitively sourced helpers, environment or data files, and each
+  complete build context. Include Dockerfiles, .dockerignore files,
+  copied files and the relevant directory inventory so that newly
+  added inputs are detected. For generated contexts, record their
+  generation inputs and any non-Git files supplied to them.
+- For tracked inputs, use
+  `git diff --quiet <tested-commit> HEAD -- <tracked-inputs>`, with
+  complete context directories where relevant. Also verify that the
+  actual index and working tree match the compared committed inputs.
+- Git comparisons do not cover untracked or ignored files. Record
+  content checksums and the relevant file modes or symlink targets
+  for such inputs, and compare the current files and inventory with
+  that evidence. Record relevant host assumptions and the ids of
+  pre-existing images deliberately reused as test inputs. A matching
+  Git diff or a fixed image label does not establish that these
+  inputs are unchanged.
+- If any relevant input changed, or its earlier state was not recorded
+  well enough to establish equivalence, rerun the affected tutorial
+  and regressions. Unaffected results can still be reused. Do not add
+  a general dependency framework to the lessons for this purpose;
+  keep the evidence in the task explanation and acceptance table.
 
 A skipped, failed, missing or deferred essential check blocks
 acceptance. An optional check that a baseline allows to be left out,
