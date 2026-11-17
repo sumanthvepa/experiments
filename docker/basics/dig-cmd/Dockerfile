@@ -23,7 +23,7 @@
 # Exploratory Docker file to create a dig installation the is executed
 # using CMD
 
-FROM almalinux:9-minimal
+FROM almalinux:10-minimal
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
 LABEL org.opencontainers.image.description="This is a demo image that runs dig using the CMD directive"
