@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
 # website-test/Dockerfile: Exploratory Docker file to create a
-# nginix server hosting a simple website running on almalinux:9-minimal
+# nginix server hosting a simple website running on almalinux:10-minimal
 #
 # Copyright (C) 2024-26 Sumanth Vepa.
 #
@@ -21,8 +21,8 @@
 # -------------------------------------------------------------------
 
 # This Dockerfile creates an nginx server running a simple website
-# almalinux:9-minimal
-FROM almalinux:9-minimal
+# almalinux:10-minimal
+FROM almalinux:10-minimal
 
 # The MAINTAINER command is deprecated. It sets the author of
 # field in image metadata. Instead use LABEL command to set
