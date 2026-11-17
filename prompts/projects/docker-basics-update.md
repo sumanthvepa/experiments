@@ -59,9 +59,9 @@ the host's architecture, with
 If it is not arm64, stop and report it: an image for another
 platform would make every build run under emulation.
 
-At startup, verify the actual host, architecture, daemon mode, image
-store, Docker/Buildx/Compose versions and required tools rather than
-assuming this description is current. Check passwordless sudo with
+At startup, the manager checks the actual host, architecture, daemon
+mode, image store, Docker/Buildx/Compose versions and required tools
+rather than assuming this description is current. Check passwordless sudo with
 `sudo --non-interactive true` before tests that need it. Record the
 observed configuration in the coordination record. If the base image
 is absent, allow the normal native-platform pull and check its
@@ -70,355 +70,432 @@ Do not install missing prerequisites or reconfigure the host.
 
 ## Authority and limits
 
-Complete all five steps without planned user approvals. The single
-startup question for commit attribution is required as described in
-"Committing"; do not repeat it for each task. The manager
-reviews and approves the coverage map and routine implementation and
-curriculum decisions. Explain those decisions in the relevant
-explanation files; do not ask the user to choose between ordinary
-ways of meeting these requirements.
+Work through all five steps without stopping for approval, except in
+the cases listed in "When to stop and ask". The manager decides
+ordinary questions of implementation and curriculum, including
+accepting the coverage map in Step 5, and records each decision and
+its reason in the coordination record. Do not ask the user to choose
+between ordinary ways of meeting these requirements.
 
-- You may replace unsafe or misleading examples and consolidate
-  duplicated material while preserving each lesson's purpose, useful
-  demonstrations and the coverage responsibilities below. Do not
-  silently discard a difficult example or reduce existing operating
-  system, distribution or CPU architecture support to make tests pass.
-  Package names and paths differ between distributions; fix those
-  differences rather than dropping support.
-- You may change shared helpers and build contexts, including ones
-  used by 00-*.sh through 08-*.sh, when needed for this task. Find all
-  callers with `git grep`, preserve their intended behavior, and
-  validate them under "Regression checks across scripts". The earlier
-  tutorials themselves remain outside the implementation scope.
-- Temporary firewall changes made through firewall-utilities.sh for
-  the tutorial ports are authorized, using available root privileges
-  or passwordless sudo. Query and restore the original state as
-  described in Step 3. This does not authorize package installation,
-  persistent host configuration changes, daemon reconfiguration,
-  context switching, or changes to SELinux or emulation settings.
-- Follow prompts/agent-session.md and its referenced policies, with
-  only the exceptions explicitly granted at the start of this file.
-  If a necessary action exceeds that authority, prepare the concrete
-  proposed change and ask for the permission that policy requires.
-  Name the policy and explain which action it prevents.
-- If required tools, access or infrastructure are unavailable, report
-  the exact blocker, the checks attempted and the work left. Never
-  claim that missing access or a skipped essential check is success.
-  Do not ask for a routine design decision to resolve an implementation
-  defect; investigate and correct it within the authorized scope.
+- You may fix an unsafe or misleading example so that it teaches the
+  same thing safely, and replace a duplicated explanation with a
+  short reference to the lesson that owns it. Neither counts as
+  removing an example.
+- You may change shared helpers and build contexts that only 09-*.sh
+  through 25-*.sh use. Find every caller with `git grep`, keep their
+  intended behavior, and check them as described in "Regression
+  checks across scripts".
+- You may open and close tutorial ports temporarily with
+  firewall-utilities.sh, using root privileges or passwordless sudo,
+  and restore their original state as described in Step 3. This does
+  not cover installing packages, making persistent changes to the
+  host, changing daemon settings, switching Docker contexts, or
+  changing SELinux or emulation settings.
+- If a tool, access or infrastructure that a check needs is missing,
+  record the exact blocker, what you tried and the work left. A
+  skipped or missing essential check is never a pass.
 
-Sub-agents report permission questions or external blockers to the
-manager, rather than asking the user directly. The manager resolves
-ordinary decisions and defects autonomously. A genuine blocker must
-be reported honestly even when no additional permission can fix it.
+### When to stop and ask
+
+Stop and ask the user, rather than decide yourself, before you:
+
+- remove an example or a feature from a tutorial or helper, or drop
+  support for an operating system, distribution or CPU architecture.
+  Package names and paths differ between distributions, so a failure
+  on one is a reason to fix it, not to drop it.
+- change the behavior of a file that 00-*.sh through 08-*.sh also use,
+  such as bash-utilities.sh, firewall-utilities.sh or the
+  docker-basics-nginx build context. Find their callers with
+  `git grep`. Adding a function that the existing callers do not use
+  does not count.
+- do anything that needs root privileges or credentials you do not
+  have, that would change host or daemon settings other than the
+  temporary firewall changes above, or that prompts/agent-session.md
+  or the scope rules at the top of this file do not allow. Prepare
+  the change you would make, and name the rule that stops you.
+
+Also stop and report when a coding agent and its reviewer reach the
+review limit without approval, as described in "The review loop".
+
+These cases should be rare. Prefer a fix that keeps the example, the
+support and the behavior of the shared file. Sub-agents never ask the
+user directly: they stop before the change that needs the decision
+and put the question in their report. The manager asks the user and
+waits for the answer before it starts the next sub-agent.
 
 ## Order of work
 
-Process the scripts in the order that `ls` lists them in docker/basics:
+Process the 19 scripts in the order that `ls` lists them in
+docker/basics:
+
 09-docker-build-cmd-entrypoint.sh, 10-docker-build-node.sh,
-10-docker-logs.sh, 11-docker-build-node-optimized.sh, and so on through
-18-docker-save-load.sh, 18-docker-stats.sh and
-25-docker-compose-networking.sh. Work in three phases:
+10-docker-logs.sh, 11-docker-build-node-optimized.sh,
+12-docker-build-python.sh, 13-docker-build-flask.sh,
+14-docker-build-postgres-manual.sh, 15-docker-build-postgres-test.sh,
+16-docker-run-postgres-test.sh, 17-docker-inspect.sh,
+18-docker-save-load.sh, 18-docker-stats.sh,
+19-docker-login-logout.sh, 20-docker-build-website.sh,
+21-docker-networking.sh, 22-docker-rootless.sh, 23-docker-buildx.sh,
+24-docker-compose-basics.sh and 25-docker-compose-networking.sh.
 
-1. Steps 1 and 2 for every script. Finish Step 1 for all the scripts,
-   then Step 2 for all the scripts.
+Work in three phases:
+
+1. Steps 1 and 2. Finish Step 1 for every script, then Step 2 for
+   every script.
 2. Steps 3 and 4, one script at a time. For each script, finish Step 3,
-   then Step 4 or its not-applicable explanation, before you start
-   the next script.
+   then Step 4 if it applies, before you start the next script. Step 4
+   applies only to the scripts it lists.
 3. Step 5, after every script has finished Step 4 or recorded that it
-   does not apply. Make and review the coverage map for the whole
-   series first, then make each script's Step 5 changes in the same
-   order. Finish with "Final acceptance", including the full-series
-   validation pass.
+   does not apply. Make the coverage map for the whole series first,
+   then make each script's Step 5 changes in the same order. Finish
+   with "Final acceptance".
 
-After each step for each script, commit that script's changes and then
-write its explanation file. NEVER commit an explanation file.
+Each step of each script is one task, done by a coding agent and
+checked by a reviewer, as described in "Sub-agents". When the
+reviewer approves, the coding agent commits the script's changes for
+that step and completes its explanation file. NEVER commit an
+explanation file.
 
 ALWAYS write the explanation file, even when a step makes no change to
-a script, for example Step 2 for a script that uses no AlmaLinux image.
-In that case, say in the file that nothing changed and why. Do not make
-an empty commit.
+a script, for example Step 2 for a script that uses no AlmaLinux image,
+or Step 4 for a script that Step 4 does not list. Say in the file that
+nothing changed and why, and put `N/A` and that reason where the commit
+hash would go. Do not make an empty commit.
 
 Put the step number after the issue name in the first line of each
 commit message, for example:
 
 `issue249-docker-basics: Step 3: Make 17-docker-inspect.sh stop on errors ...`
 
-A step is implemented when its changes, if any, are committed and its
-explanation records the evidence below. It is verified only when its
-applicable required checks have passed and the manager has reviewed
-the work. An explanation file's existence alone proves neither.
-Permitted deferred checks leave a step implemented with validation
-pending; they must be closed before final acceptance.
+### The coordination record
 
-### Starting and resuming safely
+The manager keeps its notes in
+docker/basics/docker-basics-update-run-improvements.md. The ignore
+rule `*-improvements.md` in docker/basics/.gitignore covers that name,
+as it covers the explanation files. Never stage or commit it, and do
+not rename it. It records:
 
-The manager maintains an uncommitted coordination record at
-docker/basics/docker-basics-update-run-improvements.md. Its name is
-covered by the existing ignore rule for explanation files. This
-record is coordination work, not a tutorial implementation step.
+- at the first start: the branch, HEAD, the output of `git status`,
+  and the paths of any changes that existed before this work started,
+  with a checksum of their `git diff`, so that they can be told apart
+  from this work. Do not record credentials.
+- the test host as observed at startup, described in "Test host"
+- the Co-Authored lines, described in "Committing"
+- for each task: its starting HEAD, the number of review rounds, the
+  verdict, the commit and the approved tree, and any deferred checks
+- the decisions the manager made, with their reasons, and the user's
+  answers to questions
+- the accepted coverage map, described in Step 5
+- the next task
 
-1. At the first start, record the branch, initial HEAD, full
-   `git status`, staged and unstaged changes, and relevant untracked
-   files before any task changes. Record enough path and diff or
-   checksum information to distinguish pre-existing work from this
-   task. Do not record credentials. Require an empty index before
-   starting commits. Do not unstage, stash, reset or commit unrelated
-   work to obtain one.
-2. Preserve pre-existing unrelated working-tree changes. If they
-   overlap a file this task must modify, establish which changes
-   belong to the user before proceeding with that file. If ownership
-   cannot be established from the record and history, report the
-   blocker instead of treating the changes as yours.
-3. Update the record with each assigned task, its starting HEAD and
-   paths, resulting commits, manager review, deferred checks and the
-   next task. Keep the accepted coverage map or its recovery details
-   there as described in Step 5. Do not commit this record.
-4. On resume, compare the current branch, history, index and worktree
-   with the record, explanation files and actual diffs. Do not assume
-   that every uncommitted change belongs to an interrupted step.
-   Resolve discrepancies before staging anything. Never switch
-   branches or overwrite another person's work to recreate old state.
-5. Use `git log --oneline` to locate task commits. If a commit exists
-   without its explanation, assign a sub-agent to reconstruct the
-   explanation from its diff and available evidence. Rerun checks
-   whose results cannot be recovered; do not invent test results.
-   If the coordination record is missing, reconstruct it from history
-   and verified evidence before continuing. Ask only when an ownership
-   or permission limit prevents safe reconstruction.
-6. Verify that explanation files refer to reachable commits and still
-   describe the code. Changed shared files can invalidate earlier
-   checks. Resume the next unfinished task in the required order,
-   carrying forward every outstanding regression check.
+Do not unstage, stash, reset or commit changes that existed before this
+work started. If the index is not empty at the first start, or if such
+a change is in a file that a task must change, stop and ask the user.
 
-Each explanation records the script and step, status (implemented,
-validation pending, verified, or not applicable), commit hash or
-`N/A` with the reason no commit was needed, and the HEAD against which
-checks ran. Include changed supporting files, commands and results,
-log paths or relevant output, intentionally retained resources,
-limitations and deferred checks. Record manager review in the
-coordination record. Append correction commits and later validation
-results instead of erasing the original evidence.
+### Starting and resuming
 
-For a step with no changes, including an inapplicable Step 4, write
-the explanation with `N/A` for the commit and a reason. An inapplicable
-Step 4 counts as processed for the phase transition. Do not fabricate
-a commit hash or make an empty commit.
+When you start or resume work:
 
-Create each explanation file in docker/basics/. The format of an
-explanation filename is:
-`<script-basename>-<stepno>-improvements.md`
-Use the full script filename without the .sh extension, and a two-digit
-step number. For example, changes to 17-docker-inspect.sh in Step 1 use
-17-docker-inspect-01-improvements.md. Changes to 18-docker-save-load.sh
-in Step 3 use 18-docker-save-load-03-improvements.md. This keeps the
-explanations unique even when two scripts have the same number.
+1. Read the coordination record. If it does not exist, this is the
+   first start: create it as described above. If it is lost on a
+   resume, rebuild it from `git log --oneline`, the explanation files
+   and `git status`.
+2. Compare the branch, `git log --oneline`, the index and the working
+   tree with the record. Do not assume that every uncommitted change
+   belongs to an interrupted task: a change belongs to a task only if
+   the record or the task's explanation file says so. Stop and ask
+   about any other change in a file that a task must change. Never
+   switch branches or discard changes to recreate an old state.
+3. If a task's commit exists but its explanation file does not, give
+   the task back to a coding agent to write the explanation from the
+   commit's diff, and to rerun the checks whose results are lost. Do
+   not invent test results.
+4. If a task has review rounds in its explanation file but no commit,
+   resume its review loop at the next round.
+5. Continue with the next unfinished task in the order above, and
+   carry every outstanding deferred check with it.
+
+### Explanation files
+
+Each step of each script has an explanation file in docker/basics/.
+Its name is `<script-basename>-<stepno>-improvements.md`: the script
+filename without .sh, and a two-digit step number. For example, Step 1
+of 17-docker-inspect.sh uses 17-docker-inspect-01-improvements.md, and
+Step 3 of 18-docker-save-load.sh uses
+18-docker-save-load-03-improvements.md. This keeps the names unique
+even when two scripts have the same number.
+
+The coding agent writes the explanation before the first review and
+keeps it current. It records:
+
+- the script and step, what changed and why, and the supporting files
+  that changed, with the other scripts that use them
+- the commands and checks run, their results, and the paths of their
+  logs
+- the resources the tutorial deliberately keeps, its limitations, the
+  checks that could not be run and why, and the deferred checks
+- after the commit, the commit hash, or `N/A` and the reason
+
+The reviewer adds its review rounds to the end of the same file, as
+described in "The review loop". When a later correction changes the
+step, add to the file rather than erasing the earlier evidence.
 
 ### Committing
 
-Before starting the first sub-agent, the manager asks the user once
+Before it starts the first sub-agent, the manager asks the user once
 for the exact Co-Authored line or lines to use, in the format of
-commit.template. Obtain the attribution for every model and effort
-level planned for the workflow in that one startup question. Store
-the answer in the coordination record and pass the appropriate line
-to each sub-agent. Use those lines throughout; do not infer new
-attribution or ask again per step or sub-agent. Keep subsequent
-sub-agent model and effort choices consistent with the supplied
-attribution. On recovery, reuse the recorded answer.
+commit.template. The question names the models and effort levels the
+manager plans to use for coding agents; reviewers make no commits and
+need no line. Record the answer in the coordination record and give
+each coding agent the line for its model and effort. Do not ask again.
+On a resume, use the recorded lines.
 
-Make every commit in this order:
+The coding agent stages its changes for review, and commits only after
+the reviewer approves them:
 
-1. Stage only the files of this step, by explicit path:
+1. Before the first review, check that the index is empty, then stage
+   only the files of this task, by explicit path:
    `git add -- <file> ...`. Never use `git add -A`, `git add .` or
-   `git add --force`.
-   First confirm the index is empty. After staging, inspect the entire
-   `git diff --cached` and `git diff --cached --name-status`, and run
-   `git diff --cached --check`. Every staged change must belong to
-   this task and step and obey the scope restrictions. Explicit-path
-   staging does not exclude unrelated changes already in the index
-   or unrelated edits within the same file. Resolve ownership before
-   staging; stop if an unrelated staged change appears.
-2. Write a new commit message file following prompts/commit.md, even
-   though no one has asked you for one. prefix.txt is empty, so the
-   file is msg at the top of the repository, not in docker/basics.
-3. Use the Co-Authored line given in your prompt, in the format of
+   `git add --force`. Check the whole of `git diff --cached` and stop
+   if a staged change does not belong to this task. Run
+   `git diff --cached --check`.
+2. Stage the files again after each correction. Leave no unstaged
+   changes in the task's files, so that the tests ran on exactly what
+   is staged.
+3. After approval, write a new commit message file following
+   prompts/commit.md, even though no one has asked you for one.
+   prefix.txt is empty, so the file is msg at the top of the
+   repository, not in docker/basics.
+4. Use the Co-Authored line given in your prompt, in the format of
    commit.template. Do not add any other attribution lines.
-4. Commit with `git commit --file=<top of the repository>/msg`.
-5. Run `git log -1` and check that the first line has the step label
-   and that the message ends with the Co-Authored line.
-   Verify the committed paths and diff against the reviewed staged
-   changes, and confirm the index is empty afterward. Compare the
-   remaining worktree changes with the recorded baseline.
+5. Commit with `git commit --file=<top of the repository>/msg`.
+6. Run `git log -1` and check that the first line has the step label
+   and that the message ends with the Co-Authored line. Check that
+   `git rev-parse 'HEAD^{tree}'` prints the tree the reviewer approved,
+   and that the index is empty.
 
 ## Sub-agents
 
-The coordinating agent is the manager. An agent explicitly assigned
-a sub-agent task follows the worker rules below instead. The
-manager starts sub-agents, reviews their work and reports to the
-user. Do not implement or correct a tutorial step yourself. Read the
-tutorials, Dockerfiles, helpers, tests and evidence needed for a
-substantive review. Maintaining the coordination record and making
-review decisions are manager responsibilities.
+The coordinating agent is the manager. An agent that is given a
+coding, review or validation task follows the rules for that role
+instead.
+
+The manager starts sub-agents, keeps the coordination record, makes
+the decisions described in "Authority and limits", and reports to the
+user. It does not do the work of any task, and it does not review the
+work itself: the reviewers do that, so that the manager's context
+stays small enough to last the whole series. The manager reads the
+reports, the coordination record and the verdicts in the explanation
+files, and runs the short checks in "Checking a finished task".
 
 You must be able to start sub-agents. If your tool has no way to start
-one, report that blocker and stop. If starting one fails, retry once
-as described under "Checking a sub-agent's work". If that also fails,
-report what you tried and the error. Do not do the work yourself in
-its place.
+one, stop and tell the user. If starting one fails, try once more. If
+that also fails, stop and tell the user what you tried and the error.
+Do not do the work yourself in its place.
 
-### What the manager does
+### Roles
 
-- At the start, follow the resume rules in "Order of work" to find
-  where the work stands. If those rules call for writing a missing
-  explanation file or finishing an interrupted step, start a
-  sub-agent for that task and tell it to resume. Do not do it
-  yourself.
-- Resolve and record commit attribution once at startup, as described
-  in "Committing", and pass it to every sub-agent.
-- In Phase 1, start one sub-agent for Steps 1 and 2 for all the
-  scripts.
-- In Phase 2, start one sub-agent per script for Steps 3 and 4.
-- In Phase 3, start one sub-agent to make the coverage map for the
-  whole series. Give it the path of a temporary working map. Review
-  the actual coverage, proposed additions, consolidations and
-  deferrals against the audience, lesson boundaries and scope.
-  Request corrections from the sub-agent where needed, then accept
-  the map yourself. Preserve the accepted map, its revision and your
-  rationale in the uncommitted coordination record. Report the
-  decisions as progress without waiting for user approval. Start one
-  sub-agent per script for Step 5 and give it the accepted map and
-  its assigned changes. If the working map is lost, recover it from
-  the record; if the evidence is insufficient, have a sub-agent
-  reconstruct it and review it again yourself.
-- Carry deferred regression checks between tasks. Assign them as
-  soon as their callers can be tested, and finish with a sub-agent
-  assigned the full-series checks in "Final acceptance". Route any
-  defects back to an implementation sub-agent, review the correction
-  and repeat the affected validation before acceptance.
-- Run one sub-agent at a time. Wait for it to finish and check its
-  work before you start the next one. Never run two sub-agents at
-  once. They share one Docker daemon, one git index, the host
-  firewall, fixed ports and the shared helpers, and would conflict.
-- Run every sub-agent in this working tree and on this branch. Do not
-  give it a separate worktree or branch.
+- A coding agent does one task: one step for one script, the coverage
+  map, a correction, or the change to TODO.txt. It changes files, runs
+  the checks, stages its changes, writes the explanation and, after
+  approval, commits.
+- A reviewer checks one coding agent's work. It reads the staged diff,
+  the files it affects and their callers, the explanation and the test
+  logs, and reruns checks when it needs to. It does not change, stage
+  or commit any file, except to add its review to the explanation
+  file. A reviewer that runs a tutorial or a test must leave nothing
+  behind.
+- A validation agent runs the checks in "Final acceptance" and writes
+  the acceptance file. It does not change tutorials, helpers or
+  drivers.
+
+Give each task its own coding agent and its own reviewer. For a script
+that Step 4 does not list, the Step 3 coding agent also writes the
+Step 4 explanation, and the Step 3 reviewer checks it.
+
+Run one sub-agent at a time, and wait for it to finish before you start
+the next. A coding agent and its reviewer take turns; never run them
+at the same time. All the sub-agents share one Docker daemon, one git
+index, the host firewall, fixed ports and the shared helpers. Run every
+sub-agent in this working tree and on this branch; do not give it a
+separate worktree or branch.
+
+### The review loop
+
+For each task:
+
+1. The coding agent does the work, runs the checks for the step,
+   stages the changes, writes the explanation and reports.
+2. The reviewer reviews the work and adds a section headed
+   `## Review round <n>` to the end of the explanation file, with its
+   verdict:
+   - APPROVED, with the output of `git write-tree`, which names the
+     exact staged content it approved.
+   - CHANGES REQUIRED, with numbered findings. Each finding names the
+     file and line, the requirement in these instructions or the
+     defect, and what would satisfy it.
+3. After CHANGES REQUIRED, the coding agent fixes each finding, reruns
+   the affected checks, stages the files again, and adds
+   `### Response` under that round, saying what it did about each
+   finding. If it disagrees with a finding, it says why there, and
+   the reviewer decides in the next round.
+4. Repeat from 2 until the reviewer approves. Then the coding agent
+   commits, as described in "Committing".
+
+A round is one review. Stop after the 7th round that does not approve:
+leave the staged changes as they are, do not commit, and report to the
+user the script, the step, the explanation file and the findings that
+are still open.
+
+Continue the same coding agent and the same reviewer from round to
+round if your tool can send a message to an agent that has finished.
+Otherwise start new ones, and tell them to read the explanation file,
+which holds the earlier rounds.
+
+So that the loop ends, the reviewer:
+
+- raises only defects and failures to meet these instructions, not
+  matters of taste
+- in each later round, checks that the earlier findings were fixed and
+  reviews what changed. It raises a new finding in unchanged code only
+  for a real defect that it missed before.
+- marks a finding that needs a decision about scope or curriculum as
+  "manager decision". The manager decides, records the decision and
+  passes it to both agents, or asks the user if the decision falls
+  under "When to stop and ask".
+
+### What the reviewer checks
+
+- The diff stays within the task and the allowed paths, and every
+  staged change belongs to the task. No unstaged or untracked change
+  is left in the task's files.
+- The changes meet the requirements of the step. Steps 1 and 2 have
+  narrow requirements: check that nothing else changed. For Steps 3
+  to 5, check the teaching, the facts against the official
+  documentation, the license header, error paths, resource ownership,
+  cleanup, and the specific issues listed for the script.
+- Every caller of a changed shared file still works, or has a deferred
+  check recorded.
+- The test evidence comes from the staged content, the assertions
+  prove what the lesson claims, and no failure or skip is hidden.
+  Rerun a check when its evidence is missing or does not match.
+- The explanation is accurate and complete.
+
+### The coverage map
+
+The coverage map is one task, with its own coding agent and reviewer.
+The coding agent writes the map to a temporary file whose path the
+manager gives it, and makes no commit. The reviewer checks the map
+against the actual lessons, not just their headings, and adds its
+rounds to the end of the map file. After approval, the manager reads
+the proposed changes, one line per script, makes any decisions the
+reviewer marked, and copies the accepted map into the coordination
+record. A proposal to remove an example or a feature is a question for
+the user, as described in "When to stop and ask". Each script's Step 5
+task gets the changes accepted for it.
 
 ### What to put in a sub-agent's prompt
 
 A sub-agent cannot see your conversation. Give it everything it needs:
 
 ```
-You are working in docker/basics of this repository. Your task is:
-<Phase 1: Steps 1 and 2 for all the scripts |
- Steps 3 and 4 for <script> |
- the Phase 3 coverage map, written to <path> |
- Step 5 for <script>, using the coverage map in <path> and these
- manager-accepted changes: <changes> |
- corrections for <script, step, review findings and allowed paths> |
- final acceptance checks for the whole series |
- record verified completion in TODO.txt>
+You are working in docker/basics of this repository.
+Your role: <coding agent | reviewer | validation agent>
+Your task: <Step <n> for <script> |
+ the Step 5 coverage map, written to <path> |
+ Step 5 for <script>, with these changes accepted from the coverage
+ map in <path>: <changes> |
+ corrections to Step <n> for <script>: <findings and allowed paths> |
+ the final acceptance checks |
+ marking issue249 done in TODO.txt>
+Review round: <n, for a reviewer, or for a coding agent answering a
+ review; otherwise none>
 
 Before you change anything, read prompts/agent-session.md,
 prompts/projects/docker-basics-update.md and prompts/commit.md and
-follow them. Read "Order of work", "Sub-agents", and the Step sections
-for your task.
+follow them. Read "Order of work", "Sub-agents", and the step
+sections for your task.
 
-Co-Authored line: <line from the user>
-
+Co-Authored line: <line from the user, for a coding agent>
 Coordination record: docker/basics/docker-basics-update-run-improvements.md
-Starting branch and HEAD: <branch and hash>
-Pre-existing work to preserve: <paths and relevant baseline details, or none>
-Deferred checks assigned to this task: <checks and why they are due, or none>
+Explanation file: <path>
+Changes that existed before this work, to leave alone: <paths, or none>
+Deferred checks due in this task: <checks, or none>
+Manager decisions for this task: <decisions, or none>
 
 Earlier work that affects your task:
-<commits and shared-file changes from earlier reports, for example a
-change to docker-build-flask-test-utilities.sh made for
-13-docker-build-flask.sh, or "none">
+<commits and shared-file changes, for example a change to
+docker-build-flask-test-utilities.sh made for 13-docker-build-flask.sh,
+or "none">
 
 When you finish, or if you must stop, reply with the report described
-in "Sub-agents: The sub-agent's report".
+in "Sub-agents: Reports".
 ```
 
 ### Rules for sub-agents
 
 - Do only the task named in your prompt. Do not start work on another
-  script or step. Checking affected callers is permitted; changing
-  them requires an explicit correction assignment from the manager.
-  Follow the deferral rules when those callers are not yet runnable.
+  script or step. You may run the tests of other scripts that use a
+  file you changed, but do not change those scripts.
 - Do not start sub-agents of your own.
-- Follow the resume rules in "Order of work" for your task. An
-  earlier sub-agent may have stopped part way through.
-- Commit each step and write its explanation file as described in
-  "Order of work". The coverage-map sub-agent makes no commits and
-  writes no explanation files; it writes only the map. The final
-  validation sub-agent writes the acceptance explanation and makes
-  no commits. A separate completion assignment changes and commits
-  only TODO.txt and records its evidence in that explanation.
-- Make routine implementation choices within the task and document
-  them. If manager review or a scope decision is needed, report it
-  to the manager. If a permission limit or unavailable prerequisite
-  prevents the task, stop before the affected action and report the
-  exact blocker. Do not ask the user directly.
-- Keep long command output out of your report. Put the details in the
+- If you need a decision listed in "When to stop and ask", do not guess
+  and do not ask the user. Stop before the change that needs it, and
+  put the question in your report.
+- Keep long output out of your report. Put the details in the
   explanation file.
 
-### The sub-agent's report
+### Reports
 
-Reply concisely using this report. Group repeated information, but
-do not omit required evidence merely to fit a line limit:
+Keep a report to at most about 15 lines; the coverage-map report may
+add one line per script for the proposed changes. A coding agent or a
+validation agent replies:
 
 ```
 Task: <task from the prompt>
-Steps implemented: <script, step, commit hash or N/A and reason, first line>
-Validation: <passed checks, implemented with checks pending, or not applicable>
-Explanation files written: <file names>
-Coverage map: <path, for the coverage-map task only>
-Proposed changes: <for the coverage-map task only: additions,
-  consolidations and deferrals, naming each script and rationale;
-  include scripts for which no change is proposed>
-Shared files changed: <file, and the other scripts that use it>
-Checks run: <commands, results, tested HEAD and log paths>
-Deferred checks: <caller, check, reason, and when it becomes runnable>
-Checks skipped: <check, reason, and whether it is essential>
-Manager decisions needed: <scope or review decisions, or "none">
-Permission or external blockers: <policy or failed prerequisite, or "none">
-Uncommitted changes: <files, and why they were left, or "none">
+Status: <ready for review | committed | passed | failed | stopped>
+Commit: <hash and first line, or N/A and the reason>
+Explanation file: <path>
+Shared files changed: <file, and the other scripts that use it, or none>
+Deferred checks: <caller, check, and when it can run, or none>
+Checks skipped: <check, reason, and whether it is essential, or none>
+Questions for the user: <questions, or none>
 ```
 
-### Checking a sub-agent's work
+A reviewer replies:
 
-After each sub-agent finishes:
+```
+Task: <task from the prompt>
+Round: <n>
+Verdict: <APPROVED, tree <hash> | CHANGES REQUIRED, <number> findings>
+Manager decisions needed: <decisions, or none>
+Questions for the user: <questions, or none>
+```
 
-1. Verify the task commits, labels, attribution, complete diffs and
-   allowed paths. For an `N/A` commit, verify the no-change or
-   not-applicable decision instead of requiring an empty commit.
-2. Read the changed files and relevant callers. Check teaching
-   objectives, explanations, factual support, licensing, error paths,
-   ownership, cleanup and the requirements for that particular step.
-   Steps 1 and 2 intentionally have narrower checks than Step 3.
-3. Read the explanation and inspect the test evidence. Confirm which
-   revision ran, that assertions prove the lesson's claims, and that
-   failures or skips were not hidden. Rerun a relevant check when
-   the evidence is missing, inconsistent or invalidated by changes.
-4. Compare `git status`, the index and changed paths against the
-   baseline and assignment. Confirm that unrelated user work is
-   preserved and all remaining task edits are explained. Ignored
-   explanation files and the coordination record remain uncommitted.
-5. Record shared-file changes, every affected caller, deferred checks
-   and the review outcome in the coordination record. Include them
-   in later assignments that use those files. Review a coverage map
-   against the actual lessons, not just the report's summary.
+### Checking a finished task
 
-Return ordinary defects to a sub-agent with concrete findings and an
-explicit correction scope. Have it fix, retest and commit the
-correction with the original step label and append the evidence to
-that step's explanation. Review the result before advancing. Resolve
-routine design and curriculum questions yourself.
+After the coding agent commits, check that:
 
-For a tool failure, try a fresh sub-agent with the same task and the
-recovery evidence. If the required tool remains unavailable, report
-the external blocker and incomplete work; do not implement the task
-yourself or declare it finished. Ask the user for permission only
-when a necessary action exceeds the authority described above.
+1. `git log -1` has the step label in its first line and ends with the
+   Co-Authored line.
+2. `git rev-parse 'HEAD^{tree}'` prints the tree in the reviewer's
+   last round, and `git diff --cached --quiet` succeeds.
+3. `git status` shows no changes other than the coordination record,
+   the explanation files and the changes that existed at the start.
+4. The explanation file has the commit hash.
+
+For a task with `N/A` in place of a commit, check instead that HEAD did
+not change and that the reviewer approved the reason.
+
+Record the result, any shared-file changes with their callers, and the
+deferred checks in the coordination record. Include them in the
+prompts of the later tasks that need them. If a check fails, give the
+task back to its coding agent. If a report has questions for the user,
+ask the user and wait.
+
+If a sub-agent stops without finishing and without a question, for
+example because of an error, start one new sub-agent for the same role
+and task, and tell it to resume. If that one also fails, stop and tell
+the user.
 
 ## Automated tests
 
@@ -659,33 +736,26 @@ interactive path.
 
 ### Regression checks across scripts
 
-There are initially no tutorial drivers in tests/. Create them as
-their tutorials reach Steps 3 and 4. Do not require a driver for a
-later, unrepaired caller before its turn in the sequence.
+There are initially no tutorial drivers in tests/. Each script's
+driver is written in its Step 3, or in its Step 4 for a placeholder or
+for a tutorial that cannot run as a whole until Step 4.
 
-When changing a shared helper or build context:
+When you change a shared helper or build context:
 
-1. Find every caller, including 00-*.sh through 08-*.sh and the test
-   harness. Review compatibility and run focused checks of the
-   changed behavior and failure paths immediately. Use temporary
-   checks if needed; do not expand the assigned implementation scope.
-2. Run existing runnable caller tests now. If a later caller lacks
-   its driver or still has unfinished examples, record the exact
-   caller, shared change, outstanding regression and the point when
-   it becomes runnable in the explanation and coordination record.
-   This is validation pending, not a pass and not a reason to stop
-   the workflow for a user decision.
-3. The manager assigns deferred checks when the caller's driver and
-   repair are complete. A sub-agent may test other callers but may
-   not modify their tutorials without a correction assignment.
-4. For affected earlier tutorials, run any existing tests. If none
-   exist, the manager assigns a supplemental driver in tests/ or a
-   focused temporary check that covers the changed shared behavior.
-   Do not modify 00-*.sh through 08-*.sh or execute an installation
-   tutorial to test a helper. Record the scope of that evidence.
-5. Run the final regression pass after the last implementation
-   change. Every deferred essential check must then pass, or final
-   acceptance remains blocked.
+1. Find every caller with `git grep`, including 00-*.sh through
+   08-*.sh and the files in tests/. Check that each caller still works
+   with the change, and test the changed behavior, including its
+   failure paths, with focused temporary checks where needed.
+2. Run the driver of every caller that has one.
+3. A caller later in the order may not have a driver yet. Record a
+   deferred check in the explanation and in your report: the caller,
+   the change, and the check to run. The manager adds it to that
+   caller's Step 3 or Step 4 task, which runs it with the new driver.
+   A deferred check is not a pass.
+4. 00-*.sh through 08-*.sh have no drivers and are outside this
+   update. Check their use of the changed file with focused temporary
+   checks, not by running the installation tutorial. Do not write
+   drivers for them or change them. Record what the checks covered.
 
 ## Step 1: Copyright Update
 
@@ -902,46 +972,45 @@ rather than copying every implementation detail of 02-*.sh.
   surviving a killed Docker client, and SIGKILL, which cannot run cleanup.
   Provide commands to inspect leftovers before the reader removes them.
 
-### Images intentionally retained for later lessons
+### The image that script 15 keeps
 
-Script 15 retains its successfully built and verified PostgreSQL
-image for later lessons. Other tutorials remove their demonstration
-images unless their explanation identifies a specific later use.
-Retaining a base image or documented build cache is a separate matter.
+Script 15 keeps the postgres-test image that it builds, for later
+lessons. Other tutorials remove the images they build, unless their
+explanation names a later use. Base images and BuildKit cache are a
+separate matter, described above.
 
-- Make the normal path repeatable when a retained image is present.
-  Record provenance on images built by these examples, including a
-  fingerprint of the relevant build inputs and arguments. Reuse an
-  existing retained image only after its provenance, architecture
-  and required runtime behavior match the lesson's expectations.
-  A matching tag or version string alone is not enough.
-- Leave a validated reused image, its tags and id unchanged. If an
-  occupied tag does not identify a compatible tutorial image, preserve
-  it and build with an unused demonstration tag. Print and pass the
-  actual selected tag to helpers and callers; do not overwrite an
-  unrelated image to preserve a preferred name.
-- Register cleanup immediately for a newly built image. Cancel that
-  cleanup for deliberate retention only after the image passes its
-  checks and the lesson reaches its documented successful handoff.
-  A reused image is never owned by the current run's cleanup.
-- Drivers must cover both an initially absent demonstration image
-  and reuse of a compatible retained image, comparing the reused
-  image's id and tags before and after. Include the incompatible-tag
-  preservation case where it applies. Use normal, documented user
-  configuration for selecting a demonstration tag if needed; do not
-  add a test mode. A driver may run the tutorial twice using distinct
-  terminal names to test creation followed by reuse. When it requests
-  an initially absent, test-owned tag, it may remove that newly built
-  fixture after asserting the tutorial's retention and reuse behavior.
-  Register that cleanup by the verified image identity. Never remove
-  a retained image that existed before the driver started.
-- Declare each intentionally retained image that remains after driver
-  teardown in `keeps-image`, and record its actual tag and id in the
-  explanation. The metadata accepts exact names, not patterns: use
-  declared fixed tags or remove test-owned variable tags after their
-  retention checks. The repeated normal scenario must succeed with
-  retention enabled. A `keeps-image` declaration permits retention;
-  it does not waive reuse checks or preservation of existing resources.
+A second run of script 15 finds the image that the first run kept. So
+the rule against reusing an existing resource needs an exception,
+one that still protects an image the reader made:
+
+- Give the image a fixed label in its Dockerfile, such as
+  `LABEL docker-basics.tutorial=15-docker-build-postgres-test`, so that
+  the tutorial can tell its own image from another image with the same
+  name.
+- If postgres-test exists with that label and the host's architecture,
+  reuse it. Say that an earlier run built it, skip the build, and show
+  the command that removes it so that the next run builds it again.
+  Then check the image as usual. Never remove or retag it.
+- If postgres-test exists without that label, or for another
+  architecture, stop with a conflict message, as for any other name
+  conflict.
+- Later scripts that use the postgres-test image follow the same rule,
+  and build it if it is absent. Say in each explanation whether the
+  script keeps an image that it built.
+- The driver lists `keeps-image: postgres-test`, and lists the
+  conflict and interrupt scenarios before normal. `all` then runs
+  conflict and interrupt while the name is free, builds the image in
+  the first normal run, and reuses it in the repeated normal run. In
+  the conflict scenario, the driver tags another image as
+  postgres-test and checks that the tutorial stops and leaves it alone.
+- Before you run script 15's driver, and after you change its
+  Dockerfile or the files it copies, remove a postgres-test image that
+  has the label, if no container uses it, with
+  `docker image rm postgres-test`. Do this outside the driver, before
+  the runner starts, so that the runner does not see a removed
+  resource. This is the only existing resource that a sub-agent may
+  remove: script 15 made it, and the test builds it again. Never
+  remove a postgres-test image without the label; stop and ask.
 
 ### Services, ports and host configuration
 
@@ -1270,7 +1339,7 @@ Preserve the current script filenames and numbers.
 
 Validate each completed tutorial as a whole, including its existing
 examples. Commit the changes for each script separately from its Step 3
-changes, then create its Step 4 explanation file using the filename rule
+changes, and complete its Step 4 explanation file using the filename rule
 above, for example `10-docker-logs-04-improvements.md`. Describe what was
 completed and how it was verified. Never commit the explanation file.
 
@@ -1278,8 +1347,9 @@ completed and how it was verified. Never commit the explanation file.
 
 After the repairs and baseline completion, use your judgment to identify
 what else each tutorial should teach. Propose the additions in the
-coverage map, which the manager reviews and accepts before any are
-made, as described in "Sub-agents". Then implement the accepted changes; do
+coverage map. A reviewer checks the map and the manager accepts it
+before any change is made, as described in "Sub-agents: The coverage
+map". Then implement the accepted changes; do
 not stop at a list of recommendations. This is a curriculum review,
 not a requirement to demonstrate every Docker option or add material to
 every script. Apply Step 3's teaching, correctness and validation standards
@@ -1372,7 +1442,7 @@ coverage review, while preserving each script's stated purpose.
   by consolidation. Run the relevant Step 3 checks for new or changed
   examples and recheck any callers affected by shared-file changes.
 - For each script, commit its Step 5 changes separately from earlier steps,
-  then create its explanation file, for example
+  and complete its explanation file, for example
   `25-docker-compose-networking-05-improvements.md`. State the topics added,
   why they belong here, which other lessons cover related concepts, any
   duplication removed, and validation results. If no addition is justified,
@@ -1381,79 +1451,72 @@ coverage review, while preserving each script's stated purpose.
 
 ## Final acceptance
 
-The manager assigns a sub-agent to validate the finished series after
-Phase 3. This is a validation task, not authority to make unreviewed
-implementation changes. The manager sends defects to an implementation
-sub-agent with an explicit script, original step and correction scope.
-Corrections use that step's commit label and append evidence to its
-explanation. Recheck the affected tutorials and every caller or
-assertion invalidated by a correction before accepting the result.
+After Phase 3, the manager starts a validation agent to check the
+finished series, and a reviewer to check its results, in a review
+loop. The validation agent does not change tutorials, helpers or
+drivers. For each defect it finds, the manager starts a coding agent
+and a reviewer to correct the script and step that the defect belongs
+to. The correction uses that step's commit label and adds to that
+step's explanation. The validation agent then checks again everything
+the correction can affect.
 
-The final validation sub-agent writes
+The validation agent writes
 docker/basics/docker-basics-update-final-improvements.md. Never commit
-this file. Include a matrix with one row for each of the 19 target
-scripts, including both scripts numbered 10 and both numbered 18.
-Record implementation commits, final tested revision, driver,
-applicable scenarios, results, evidence paths, retained resources and
-outstanding limitations. Include affected earlier callers separately.
+this file. It holds a table with one row for each of the 19 scripts:
+the script's commits, the revision at which its tests last passed, its
+driver, the scenarios run and their results, the log paths, the
+resources it keeps, and its limitations. List the checks of callers in
+00-*.sh through 08-*.sh separately.
 
 Final acceptance requires all of the following:
 
-- All five steps are accounted for for every target script, with
-  truthful no-change or not-applicable decisions where needed. The
-  manager has reviewed each implementation, correction and coverage
-  decision. No placeholder or required incomplete example remains.
-- Run `bash -n` on all changed shell files. Run ShellCheck if
-  available, handle applicable findings and document narrow
-  suppressions. Apply the referenced Python or Javascript validation
-  policies to any source created or changed in those languages.
-- Run `tests/run-tutorial-test.sh <script> all` sequentially for every
-  target script in its final implemented form. Every required normal
-  run and applicable interrupt, continue and conflict scenario must
-  pass, including the runner's repeated normal run. Include the
-  supplemental preservation, retained-image reuse and fixture checks.
-  A scenario omitted as inapplicable needs a recorded reason.
-- Close every deferred essential check, including shared-file
-  regressions for earlier tutorials. All evidence must apply to the
-  final source state. A changed dependency invalidates checks that
-  relied on its previous behavior, even if its caller did not change.
-- Review the finished series together for duplicated explanations,
-  contradictions, broken paths or references, undocumented retained
-  resources, circular dependencies and coverage gaps. Verify that
-  script 20 teaches static hosting and leaves the future Compose
-  proxy-and-web-service lesson outside this task.
-- Verify cleanup and preservation using both the runner and the
-  supplemental assertions. Audit the final repository diff against
-  the initial baseline: only authorized paths and task-owned changes
-  may be committed, unrelated work must remain intact, the index
-  must be empty, and no explanation or coordination file may appear
-  in a task commit. Account for untracked files and runtime leftovers.
+- Every script has an explanation file for each of the five steps,
+  with a commit or a reason for `N/A`, and a reviewer's approval. No
+  placeholder or unfinished example remains.
+- `bash -n` passes for every changed shell file. If ShellCheck is
+  installed, each of its findings is fixed or its narrow suppression is
+  explained. Source in other languages follows the policies that
+  prompts/agent-session.md refers to.
+- `tests/run-tutorial-test.sh <script> all` has passed for every
+  script, one at a time, at its final revision, including the
+  supplemental assertions and the repeated normal run. A scenario that
+  a driver leaves out has a recorded reason.
+- Every deferred check has passed.
+- The series has been read as a whole for repeated explanations,
+  contradictions, broken paths or references, kept resources that are
+  not documented, and lessons that depend on each other in a circle.
+  Script 20 teaches static hosting only.
+- The index is empty, and `git status` shows only the changes that
+  existed at the start, the explanation files and the coordination
+  record. No commit of this work changes a path outside docker/basics
+  other than TODO.txt.
 
-Distinguish implementation completion from verified completion. An
-essential skipped, failed, missing or deferred check blocks verified
-completion. Optional checks, such as a foreign-platform runtime test
-without emulation, may remain explicitly unverified when the baseline
-permits it. Document other distributions, architectures and daemon
-modes as untested; do not make their absence a reason to claim they
-were verified or to reduce support.
+A test result still counts at the final revision if none of its inputs
+has changed since it passed. The inputs are the script, its driver,
+the files it sources, builds or copies, and the two files in tests/.
+Check with `git diff --quiet <tested-commit> HEAD -- <inputs>`, and
+record the inputs you compared. If any of them changed, run the test
+again.
 
-If essential verification is blocked, continue any independent work
-within scope, then report what is implemented, the exact blocker,
-checks attempted and the work still required. Keep issue249 active
-and do not mark it done. Request additional user permission only when
-a necessary next action is restricted by the session policies.
+A skipped, failed, missing or deferred essential check blocks
+acceptance. An optional check that a baseline allows to be left out,
+such as running a foreign-platform image without emulation, may stay
+unverified if the acceptance file says so. Report other distributions,
+CPU architectures and daemon modes as untested.
 
-Only after the manager accepts the full validation evidence, assign
-a sub-agent to mark issue249-docker-basics done in TODO.txt following
-prompts/todo.md. Preserve its active asterisk as that policy specifies
-and leave other issues unchanged. Commit that change separately with
-the subject prefix `issue249-docker-basics: Step 5:` and the supplied
-attribution, using the normal commit procedure. Record the final
-commit in the acceptance explanation; a TODO-only completion commit
-does not require repeating unchanged tutorial tests.
+If acceptance is blocked, finish any independent work, then report
+what is done, the exact blocker, the checks tried and the work left.
+Do not mark issue249 done.
 
-The manager's final report names the completed scripts and commit
-range, summarizes validation results and intentional retained
-resources, links the acceptance explanation and reports any optional
-untested cases. Claim verified completion only when these acceptance
-criteria have been met.
+After the reviewer approves the acceptance file and the manager
+accepts it, a coding agent marks issue249-docker-basics done in
+TODO.txt, following prompts/todo.md, and leaves the other issues
+alone. A reviewer checks the change. Commit it on its own, with a
+first line that starts `issue249-docker-basics: Step 5:`, since it
+completes the last step. Record the commit in the acceptance file.
+This commit does not need the tutorial tests to be run again.
+
+The manager's final report names the scripts done and the commit
+range, summarizes the test results and the resources the tutorials
+keep, gives the path of the acceptance file, and lists the cases that
+were not tested.
