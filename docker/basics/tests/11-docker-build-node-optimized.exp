@@ -1,0 +1,142 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 11-docker-build-node-optimized.exp: Verify binary runtime and sizes
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 1800
+source [file join [file dirname [info script]] tutorial-test.tcl]
+
+# Compare content, type, mode and ownership, including ignored additions.
+# Workflow explanation files are intentionally outside the fixture set.
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
+    find node-test node-test2 -printf '%p %m %u %g %y\n' | sort
+    find node-test node-test2 -type f -exec sha256sum {} + | sort
+    sha256sum 11-docker-build-node-optimized.sh bash-utilities.sh
+  } bash $basics]
+}
+set fixtures_before [fixture_state]
+set base_before ""
+if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
+  set base_before [host_command docker image inspect almalinux:10-minimal]
+}
+set native_arch [host_command docker version --format {{{.Server.Arch}}}]
+set context ""
+switch -- [scenario] {
+  conflict {
+    # Guard every fixture target before any tag/build can overwrite it.
+    set fixture "docker-basics-node-optimized-test-[pid]"
+    foreach tag [list node-test2 node-test2-repository-baseline $fixture] {
+      if {[host_command docker image ls --quiet $tag] ne ""} {
+        fail "Refusing conflict fixture: image name $tag already exists."
+      }
+    }
+    if {[host_command docker container ls --all --quiet \
+        --filter {name=^/docker-basics-node-optimized$}] ne ""} {
+      fail {Refusing conflict fixture: container docker-basics-node-optimized already exists.}
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" |
+        docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    set image_before [host_command docker image inspect --format \
+      { {{.Id}} {{json .Config}} {{json .RootFS}} } $fixture]
+    # Exercise both image-name conflicts, comparing full inspect state.
+    foreach tag {node-test2 node-test2-repository-baseline} {
+      host_command docker image tag $fixture $tag
+      cleanup_on_host docker image rm $tag
+      set tag_before [host_command docker image inspect $tag]
+      start_terminal conflict-$tag bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in conflict-$tag "Image name $tag already exists."
+      finish_terminal conflict-$tag 1
+      if {[host_command docker image inspect $tag] ne $tag_before} {
+        fail "conflicting image $tag changed"
+      }
+      host_command docker image rm $tag
+      cancel_cleanup_on_host
+    }
+    set id [host_command docker container create --name docker-basics-node-optimized \
+      $fixture /sentinel]
+    cleanup_on_host docker container rm --force $id
+    set container_before [host_command docker container inspect $id]
+    start_tutorial
+    wait_for {Container name docker-basics-node-optimized already exists.}
+    finish_tutorial 1
+    # Full inspect covers identity, config, running state and networks.
+    if {[host_command docker container inspect $id] ne $container_before} {
+      fail {conflicting container changed}
+    }
+    host_command docker container rm $id
+    cancel_cleanup_on_host
+    if {[host_command docker image inspect --format \
+        { {{.Id}} {{json .Config}} {{json .RootFS}} } $fixture] ne $image_before} {
+      fail {driver fixture image changed}
+    }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  interrupt {
+    # Interrupt at a deterministic pause after the image and context exist.
+    start_tutorial
+    set context [lindex [wait_for_regexp {Temporary build workspace: ([^\r\n]+)}] 1]
+    wait_for -time 900 {Press ENTER to verify both runtime installations...}
+    press_ctrl_c
+    finish_tutorial 130
+  }
+  normal {
+    start_tutorial
+    set context [lindex [wait_for_regexp {Temporary build workspace: ([^\r\n]+)}] 1]
+    wait_for {Accepted complete Node.js archive: node-v22.11.0-linux-}
+    wait_for "Verified native base architecture: $native_arch"
+    answer_pause -time 900 {Press ENTER to verify both runtime installations...}
+    set node_arch $native_arch
+    if {$native_arch eq "amd64"} {set node_arch x64}
+    wait_for "Verified binary runtime: v22.11.0, process.arch=$node_arch"
+    wait_for_regexp [format {Verified repository runtime: v22\.[0-9]+\.[0-9]+, process.arch=%s} $node_arch]
+    set binary_size [lindex [wait_for_regexp {Measured binary-distribution image: ([0-9]+) bytes.}] 1]
+    set repository_size [lindex [wait_for_regexp {Measured repository-install baseline: ([0-9]+) bytes.}] 1]
+    set saving [lindex [wait_for_regexp {Repository minus binary distribution: (-?[0-9]+) bytes.}] 1]
+    if {$binary_size <= 0 || $repository_size <= 0 || $saving != $repository_size - $binary_size} {
+      fail {invalid image-size measurements}
+    }
+    answer_pause {Press ENTER to remove both demonstration images...}
+    wait_for {Lesson complete; owned containers, images and temporary files removed.}
+    finish_tutorial 0
+  }
+}
+if {$context ne "" && [file exists $context]} {
+  fail "temporary build context remains: $context"
+}
+if {[fixture_state] ne $fixtures_before} {
+  fail {tutorial directory, context content, permissions or ownership changed}
+}
+if {$base_before ne "" &&
+    [host_command docker image inspect almalinux:10-minimal] ne $base_before} {
+  fail {pre-existing base image changed}
+}
+send_log "Supplemental context, fixture and existing-base preservation assertions passed.\n"
