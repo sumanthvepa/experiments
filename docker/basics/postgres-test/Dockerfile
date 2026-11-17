@@ -29,13 +29,13 @@
 # The purpose of this Docker image is to explore the initialization
 # and startup of a postgres database server.
 
-# Use the almalinux:9-minimal image as the base image
-FROM almalinux:9-minimal
+# Use the almalinux:10-minimal image as the base image
+FROM almalinux:10-minimal
 
 ARG ARCH_SUFFIX='amd64'
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This is a demo image to show how to set up a PostgreSQL server on almalinux:9-minimal"
+LABEL org.opencontainers.image.description="This is a demo image to show how to set up a PostgreSQL server on almalinux:10-minimal"
 
 
 # Install basic editing tools to help with debugging
