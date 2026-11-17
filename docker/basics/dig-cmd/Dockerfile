@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
 # dig-cmd/Dockerfile: Exploratory Docker file to create a
-# dig installation the is executed using CMD
+# dig installation that is executed using CMD
 #
 # Copyright (C) 2024-26 Sumanth Vepa.
 #
@@ -20,7 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# Exploratory Docker file to create a dig installation the is executed
+# Exploratory Docker file to create a dig installation that is executed
 # using CMD
 
 FROM almalinux:10-minimal
@@ -29,26 +29,13 @@ LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
 LABEL org.opencontainers.image.description="This is a demo image that runs dig using the CMD directive"
 
 
-# The RUN command runs specific command in the image. Each RUN command
-# will result in a new layer in the union filesystem that comprises
-# the image.
-RUN microdnf -y install bind-utils
+# RUN installs bind-utils (which supplies dig) while building the image.
+# This filesystem change adds a layer. CMD changes startup configuration
+# without adding filesystem contents. Clean package metadata in this layer.
+RUN microdnf -y install bind-utils && microdnf clean all
 
-# The CMD command specifes what command to run when the image is
-# started. Each element in the list should correspond to one argument
-# typed on the command line. If a command line has multiple words that
-# are quoted, then you should include those multple words in one
-# element surround by quotes: "hello world".
-
-# If multiple CMD commands are present only the last one applies.
-
-# The CMD command is not executed when the image is built. It is only
-# executed when the container is started.
-
-# The CMD command can be overridden by passing a command to the
-# docker run command. For example, if the CMD command is ["dig"] and
-# you run the container with the command docker run dig-cmd
-# then the dig command will be executed. If you run the container with
-# the command docker run dig-cmd ls -l then the ls -l command will be
-# executed.
+# Exec form is a JSON array: one string per argument, with no implicit
+# shell expansion. Only the last CMD applies; it runs at container startup.
+# With no ENTRYPOINT, words after the image replace this entire command:
+# docker container run --rm dig-cmd ls -l starts ls -l, not dig ls -l.
 CMD ["dig"]
