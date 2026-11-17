@@ -4,7 +4,7 @@
 # flask-test/entrypoint.sh: Entry point script to start gunicorn
 # to run a Flask application.
 #
-# Copyright (C) 2024-25 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
