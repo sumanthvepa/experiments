@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
 # node-test/Dockerfile: Exploratory Docker file to create a
-# python installation running on almalinux:9-minimal
+# python installation running on almalinux:10-minimal
 #
 # Copyright (C) 2024-26 Sumanth Vepa.
 #
@@ -21,12 +21,12 @@
 # -------------------------------------------------------------------
 
 # This Dockerfile creates a python installation running on
-# almalinux:9-minimal. 
+# almalinux:10-minimal.
 
-FROM almalinux:9-minimal
+FROM almalinux:10-minimal
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This is a demo image that runs Python on almalinux:9-minimal"
+LABEL org.opencontainers.image.description="This is a demo image that runs Python on almalinux:10-minimal"
 
 # Most of the time want the latest available package version
 # for python. The default version of python in almalinux:9-minimal
