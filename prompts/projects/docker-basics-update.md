@@ -216,12 +216,12 @@ When you start or resume work:
    commit's diff, and to rerun the checks whose results are lost. Do
    not invent test results.
 4. If a task's last verdict is APPROVED but the task is not finished,
-   check staged changes against the starting HEAD and approved tree,
-   with no unstaged changes in the task's files. For a task with no
-   commit, use the checks in "Approvals without a commit" instead.
-   If the checks pass, finish without another review, even if approval
-   came in round 7. If not, return the task for review: never commit
-   on an old verdict.
+   check that HEAD is still the task's starting HEAD, that the task's
+   files have no unstaged changes, and that `git write-tree` matches
+   the approved tree. For a task with no commit, use the checks in
+   "Approvals without a commit" instead. If the checks pass, finish
+   without another review, even if approval came in round 7. If not,
+   return the task for review: never commit on an old verdict.
 5. If the last verdict is CHANGES REQUIRED, continue the review loop.
    A restart does not reset the round count.
 6. Continue with the next unfinished task in the order above, and
@@ -244,8 +244,13 @@ keeps it current. It records:
   that changed, with the other scripts that use them
 - the commands and checks run, their results, and the paths of their
   logs. For a tutorial test, record the output of `git write-tree`
-  when it ran. After the commit, that is the commit's tree, and
-  "Final acceptance" can reuse the result.
+  when it ran, and record that, just before it ran,
+  `git diff --quiet -- <inputs>` succeeded and
+  `git ls-files --others -- <inputs>` printed nothing, with the
+  inputs described in "Final acceptance". Staged changes are expected
+  then; unstaged changes and untracked or ignored files are not.
+  After the commit, the tree is the commit's tree, and "Final
+  acceptance" can reuse the result.
 - anything the tutorial leaves behind, its limitations, the checks
   that could not be run and why, and the deferred checks
 - after the commit, the commit hash, or `N/A` and the reason
@@ -1567,10 +1572,10 @@ and the two files in tests/. Both of these checks must pass:
   does not compare untracked or ignored files, so an input with such
   a file is not known to be unchanged.
 
-Record the inputs you compared. The status check must also be clean
-before the test runs; record that with its result. If either check
-fails, or the earlier clean status is not known, run the test again,
-with the tests of the scripts that depend on it.
+Record the inputs you compared. If either check fails, or the result
+does not record the checks made before the test, as described in
+"Explanation files", run the test again, with the tests of the
+scripts that depend on it.
 
 A skipped, failed, missing or deferred essential check blocks
 acceptance. An optional check that a baseline allows to be left out,
