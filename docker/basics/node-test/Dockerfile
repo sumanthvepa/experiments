@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
 # node-test/Dockerfile: Exploratory Docker file to create a
-# node installation running on almalinux:9-minimal
+# node installation running on almalinux:10-minimal
 #
 # Copyright (C) 2024-26 Sumanth Vepa.
 #
@@ -21,7 +21,7 @@
 # -------------------------------------------------------------------
 
 # This Dockerfile creates a node installation running on
-# almalinux:9-minimal. It's not the smallest image size, but
+# almalinux:10-minimal. It's not the smallest image size, but
 # it's a good daily use development image. It's probably okay
 # to use this image for production as well.
 
@@ -32,7 +32,7 @@
 # used to copy the nodejs binaries to the image.
 
 # This is the first stage.
-FROM almalinux:9-minimal AS unoptimized
+FROM almalinux:10-minimal AS unoptimized
 
 # The ARG command a build-time variable that is used to pass
 # variables from the docker build command to the Dockerfile.
@@ -60,7 +60,7 @@ RUN microdnf -y install nodejs \
 FROM scratch
 
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This is a demo image to show how to set up Node.js on almalinux:9-minimal"
+LABEL org.opencontainers.image.description="This is a demo image to show how to set up Node.js on almalinux:10-minimal"
 
 # This copies the entire filesystem from the unoptimized stage
 # to the optimized stage as a single layer. This will reduce
