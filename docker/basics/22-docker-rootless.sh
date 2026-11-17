@@ -4,7 +4,7 @@
 # 22-docker-rootless.sh: Explore using docker as a not root user 
 # and as a non-root program within the container
 #
-# Copyright (C) 2024-25 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
