@@ -216,12 +216,12 @@ When you start or resume work:
    commit's diff, and to rerun the checks whose results are lost. Do
    not invent test results.
 4. If a task's last verdict is APPROVED but the task is not finished,
-   check that HEAD is still the task's starting HEAD, that the task's
-   files have no unstaged changes, and that `git write-tree`, or the
-   digest for the coverage map or acceptance file, matches the
-   approval. If they all match, finish the task without another
-   review, even if the approval came in round 7. If not, return the
-   task for review: never commit on an old verdict.
+   check staged changes against the starting HEAD and approved tree,
+   with no unstaged changes in the task's files. For a task with no
+   commit, use the checks in "Approvals without a commit" instead.
+   If the checks pass, finish without another review, even if approval
+   came in round 7. If not, return the task for review: never commit
+   on an old verdict.
 5. If the last verdict is CHANGES REQUIRED, continue the review loop.
    A restart does not reset the round count.
 6. Continue with the next unfinished task in the order above, and
@@ -359,8 +359,8 @@ For each task:
    - CHANGES REQUIRED, with numbered findings. Each finding names the
      file and line, the requirement in these instructions or the
      defect, and what would satisfy it.
-3. After CHANGES REQUIRED, the coding agent fixes each finding, reruns
-   the affected checks, stages the files again, and adds
+3. After CHANGES REQUIRED, the coding agent fixes each finding, stages
+   the files again, reruns the affected checks, and adds
    `#### Response` under that round, saying what it did about each
    finding. If it disagrees with a finding, it says why there, and
    the reviewer decides in the next round.
@@ -629,8 +629,8 @@ then comment lines that the runner reads:
   it deliberately keeps for a later tutorial, or a base image that it
   pulls. A name without a tag means name:latest. One line per image.
   The drivers for 09-*.sh through 25-*.sh do not use it, because those
-  tutorials leave nothing behind, as described in "Leaving Docker as
-  it was".
+  tutorials remove the images they build or pull, as described in
+  "Leaving Docker as it was".
 - `firewall-port` names a TCP port the tutorial may open. One line per
   port. Checking a port needs sudo without a password; without it,
   the runner skips the test.
@@ -1003,8 +1003,8 @@ rather than copying every implementation detail of 02-*.sh.
 
 - Identify every resource the tutorial creates or changes: image tags,
   containers, volumes, networks, generated files, downloads, firewall rules
-  and credentials. State where each one is removed. A run must leave
-  Docker as it was, as described in "Leaving Docker as it was".
+  and credentials. State where each one is removed. Build cache is
+  exempt, as described in "Leaving Docker as it was".
 - Before building or tagging, check for conflicting image names. Before
   creating named volumes or networks, check that they do not already
   exist. Container creation must fail safely on a name conflict. Stop with
@@ -1034,8 +1034,7 @@ rather than copying every implementation detail of 02-*.sh.
 - Leave existing images, including base images, and user data and other
   workloads alone. Avoid daemon-wide prune commands, deleting every
   container based on an image, or forcibly replacing names to make a
-  rerun succeed. Pruning build cache records by id, as described in
-  "Leaving Docker as it was", is not a daemon-wide prune.
+  rerun succeed.
 - Explain recovery from partial runs, including name conflicts, containers
   surviving a killed Docker client, and SIGKILL, which cannot run cleanup.
   Provide commands to inspect leftovers before the reader removes them.
@@ -1047,10 +1046,10 @@ of its commands. They may run the tutorials in any order, and days or
 months apart. So each tutorial must stand on its own in what it does,
 although it may assume the concepts that earlier lessons teach:
 
-- It leaves Docker as it was before it ran. It removes every image,
-  container, volume, network and builder that it created, on the
-  normal path, after an error and after Ctrl-C. No tutorial keeps a
-  resource for a later one.
+- Apart from build cache, it leaves Docker as it was before it ran.
+  It removes every image, container, volume, network and builder that
+  it created, on the normal path, after an error and after Ctrl-C.
+  No tutorial keeps a resource for a later one.
 - It is idempotent: a second run, straight away or months later,
   behaves like the first.
 - It does not depend on any resource that another tutorial created.
@@ -1064,29 +1063,16 @@ although it may assume the concepts that earlier lessons teach:
   This covers base images in FROM lines, images that a tutorial runs
   directly, such as nginx or registry, and the BuildKit image that a
   docker-container builder pulls.
-- It removes the build cache that its own builds add, and no other.
-  Before its first build, it saves the ids of the cache records that
-  already exist, with `docker buildx du --format '{{.ID}}'`. Cleanup,
-  after the images are removed, lists the records again and prunes
-  each new one with `docker builder prune --force --filter id=<id>`.
-  Before each prune, it checks with `docker buildx du --filter id=<id>`
-  that the filter selects exactly that one record. If it does not, it
-  prunes nothing more and prints a warning, so that a filter Docker
-  does not understand can never remove the reader's own cache. Never
-  run a prune without an id filter. A tutorial that creates its own
-  docker-container builder removes that builder's cache by removing
-  the builder. Explain that each build adds cache records, show them
-  with `docker buildx du`, and say that the reader's own cache is left
-  alone, except that a build the reader runs elsewhere during the
-  tutorial could have its new records removed too.
+- Build cache may remain. Do not prune it or track cache record ids
+  for cleanup. Removing a builder created by the lesson remains part
+  of normal resource cleanup; no separate cache cleanup is required.
 - A resource that already exists with a name the tutorial uses is a
   conflict, as described above: stop, and leave it as it is.
 
 The runner checks most of this for images, containers, volumes,
 networks and builders. Drivers for these tutorials do not list
-`keeps-image`. The runner does not record build cache, so the driver
-of a tutorial that builds saves the cache record ids before the run
-and checks that they are the same afterwards.
+`keeps-image`. Drivers do not compare build cache before and after
+the run; cache growth is not a test failure.
 
 ### Services, ports and host configuration
 
@@ -1561,9 +1547,9 @@ Final acceptance requires all of the following:
   a driver leaves out has a recorded reason.
 - Every deferred check has passed.
 - The series has been read as a whole for repeated explanations,
-  contradictions, broken paths or references, resources left behind,
-  a tutorial that depends on a resource another one created, and
-  lessons that depend on each other in a circle.
+  contradictions, broken paths or references, unexpected resources
+  left behind, a tutorial that depends on a resource another one
+  created, and lessons that depend on each other in a circle.
   Script 20 teaches static hosting only.
 - The index is empty, and `git status` shows only the changes that
   existed at the start, the explanation files and the coordination
@@ -1581,8 +1567,10 @@ and the two files in tests/. Both of these checks must pass:
   does not compare untracked or ignored files, so an input with such
   a file is not known to be unchanged.
 
-Record the inputs you compared. If either check fails, run the test
-again, with the tests of the scripts that depend on it.
+Record the inputs you compared. The status check must also be clean
+before the test runs; record that with its result. If either check
+fails, or the earlier clean status is not known, run the test again,
+with the tests of the scripts that depend on it.
 
 A skipped, failed, missing or deferred essential check blocks
 acceptance. An optional check that a baseline allows to be left out,
