@@ -30,8 +30,8 @@
 # The purpose of this Docker image is to explore the initialization
 # and startup of a postgres database server.
 
-# Use the almalinux:9-minimal image as the base image
-FROM almalinux:9-minimal
+# Use the almalinux:10-minimal image as the base image
+FROM almalinux:10-minimal
 
 ARG ARCH_SUFFIX='amd64'
 
