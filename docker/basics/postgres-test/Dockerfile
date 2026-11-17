@@ -3,7 +3,7 @@
 # postgres-test/Dockerfile: Creates an unoptimized Docker image
 # that runs a postgres database server.
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
