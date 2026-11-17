@@ -59,30 +59,58 @@ the host's architecture, with
 If it is not arm64, stop and report it: an image for another
 platform would make every build run under emulation.
 
-## When to stop and ask
+At startup, verify the actual host, architecture, daemon mode, image
+store, Docker/Buildx/Compose versions and required tools rather than
+assuming this description is current. Check passwordless sudo with
+`sudo --non-interactive true` before tests that need it. Record the
+observed configuration in the coordination record. If the base image
+is absent, allow the normal native-platform pull and check its
+architecture afterward; absence is not an architecture mismatch.
+Do not install missing prerequisites or reconfigure the host.
 
-Stop and ask the user, rather than decide yourself, before you:
+## Authority and limits
 
-- remove an example or a feature from a tutorial or helper, or drop
-  support for an operating system, distribution or CPU architecture.
-  Package names and paths differ between distributions, so a failure
-  on one is a reason to fix it, not to drop it.
-- change the behavior of a file that 00-*.sh through 08-*.sh also use,
-  such as bash-utilities.sh, firewall-utilities.sh or the
-  docker-basics-nginx build context. Find their callers with
-  `git grep`. Adding a function that the existing callers do not use
-  does not count.
-- choose between options these instructions leave open, such as
-  whether 20-docker-build-website.sh gets a working reverse proxy or
-  is described as static hosting.
-- consolidate, move or remove existing material in Step 5, or change
-  what a lesson teaches, unless the user approved that change in the
-  coverage map.
-- do anything that needs root privileges or credentials you do not
-  have, or that would change host or daemon settings.
+Complete all five steps without planned user approvals. The single
+startup question for commit attribution is required as described in
+"Committing"; do not repeat it for each task. The manager
+reviews and approves the coverage map and routine implementation and
+curriculum decisions. Explain those decisions in the relevant
+explanation files; do not ask the user to choose between ordinary
+ways of meeting these requirements.
 
-Sub-agents do not ask the user directly. They stop and put the
-question in their report, as described in "Sub-agents".
+- You may replace unsafe or misleading examples and consolidate
+  duplicated material while preserving each lesson's purpose, useful
+  demonstrations and the coverage responsibilities below. Do not
+  silently discard a difficult example or reduce existing operating
+  system, distribution or CPU architecture support to make tests pass.
+  Package names and paths differ between distributions; fix those
+  differences rather than dropping support.
+- You may change shared helpers and build contexts, including ones
+  used by 00-*.sh through 08-*.sh, when needed for this task. Find all
+  callers with `git grep`, preserve their intended behavior, and
+  validate them under "Regression checks across scripts". The earlier
+  tutorials themselves remain outside the implementation scope.
+- Temporary firewall changes made through firewall-utilities.sh for
+  the tutorial ports are authorized, using available root privileges
+  or passwordless sudo. Query and restore the original state as
+  described in Step 3. This does not authorize package installation,
+  persistent host configuration changes, daemon reconfiguration,
+  context switching, or changes to SELinux or emulation settings.
+- Follow prompts/agent-session.md and its referenced policies, with
+  only the exceptions explicitly granted at the start of this file.
+  If a necessary action exceeds that authority, prepare the concrete
+  proposed change and ask for the permission that policy requires.
+  Name the policy and explain which action it prevents.
+- If required tools, access or infrastructure are unavailable, report
+  the exact blocker, the checks attempted and the work left. Never
+  claim that missing access or a skipped essential check is success.
+  Do not ask for a routine design decision to resolve an implementation
+  defect; investigate and correct it within the authorized scope.
+
+Sub-agents report permission questions or external blockers to the
+manager, rather than asking the user directly. The manager resolves
+ordinary decisions and defects autonomously. A genuine blocker must
+be reported honestly even when no additional permission can fix it.
 
 ## Order of work
 
@@ -95,10 +123,13 @@ Process the scripts in the order that `ls` lists them in docker/basics:
 1. Steps 1 and 2 for every script. Finish Step 1 for all the scripts,
    then Step 2 for all the scripts.
 2. Steps 3 and 4, one script at a time. For each script, finish Step 3,
-   then Step 4 if it applies, before you start the next script.
-3. Step 5, after every script has finished Step 4. Make the coverage
-   map for the whole series first, then make each script's Step 5
-   changes in the same order.
+   then Step 4 or its not-applicable explanation, before you start
+   the next script.
+3. Step 5, after every script has finished Step 4 or recorded that it
+   does not apply. Make and review the coverage map for the whole
+   series first, then make each script's Step 5 changes in the same
+   order. Finish with "Final acceptance", including the full-series
+   validation pass.
 
 After each step for each script, commit that script's changes and then
 write its explanation file. NEVER commit an explanation file.
@@ -113,17 +144,66 @@ commit message, for example:
 
 `issue249-docker-basics: Step 3: Make 17-docker-inspect.sh stop on errors ...`
 
-A step is finished for a script when its explanation file exists. When
-you start or resume work:
+A step is implemented when its changes, if any, are committed and its
+explanation records the evidence below. It is verified only when its
+applicable required checks have passed and the manager has reviewed
+the work. An explanation file's existence alone proves neither.
+Permitted deferred checks leave a step implemented with validation
+pending; they must be closed before final acceptance.
 
-1. Look at the explanation files in docker/basics to find the last
-   finished step for each script. Continue from the next step in the
-   order above.
-2. Run `git log --oneline`. If a step's commit exists but its
-   explanation file does not, write the explanation file first.
-3. Run `git status`. If there are uncommitted changes in docker/basics,
-   they belong to the step that was interrupted. Check and finish that
-   step before you start a new one.
+### Starting and resuming safely
+
+The manager maintains an uncommitted coordination record at
+docker/basics/docker-basics-update-run-improvements.md. Its name is
+covered by the existing ignore rule for explanation files. This
+record is coordination work, not a tutorial implementation step.
+
+1. At the first start, record the branch, initial HEAD, full
+   `git status`, staged and unstaged changes, and relevant untracked
+   files before any task changes. Record enough path and diff or
+   checksum information to distinguish pre-existing work from this
+   task. Do not record credentials. Require an empty index before
+   starting commits. Do not unstage, stash, reset or commit unrelated
+   work to obtain one.
+2. Preserve pre-existing unrelated working-tree changes. If they
+   overlap a file this task must modify, establish which changes
+   belong to the user before proceeding with that file. If ownership
+   cannot be established from the record and history, report the
+   blocker instead of treating the changes as yours.
+3. Update the record with each assigned task, its starting HEAD and
+   paths, resulting commits, manager review, deferred checks and the
+   next task. Keep the accepted coverage map or its recovery details
+   there as described in Step 5. Do not commit this record.
+4. On resume, compare the current branch, history, index and worktree
+   with the record, explanation files and actual diffs. Do not assume
+   that every uncommitted change belongs to an interrupted step.
+   Resolve discrepancies before staging anything. Never switch
+   branches or overwrite another person's work to recreate old state.
+5. Use `git log --oneline` to locate task commits. If a commit exists
+   without its explanation, assign a sub-agent to reconstruct the
+   explanation from its diff and available evidence. Rerun checks
+   whose results cannot be recovered; do not invent test results.
+   If the coordination record is missing, reconstruct it from history
+   and verified evidence before continuing. Ask only when an ownership
+   or permission limit prevents safe reconstruction.
+6. Verify that explanation files refer to reachable commits and still
+   describe the code. Changed shared files can invalidate earlier
+   checks. Resume the next unfinished task in the required order,
+   carrying forward every outstanding regression check.
+
+Each explanation records the script and step, status (implemented,
+validation pending, verified, or not applicable), commit hash or
+`N/A` with the reason no commit was needed, and the HEAD against which
+checks ran. Include changed supporting files, commands and results,
+log paths or relevant output, intentionally retained resources,
+limitations and deferred checks. Record manager review in the
+coordination record. Append correction commits and later validation
+results instead of erasing the original evidence.
+
+For a step with no changes, including an inapplicable Step 4, write
+the explanation with `N/A` for the commit and a reason. An inapplicable
+Step 4 counts as processed for the phase transition. Do not fabricate
+a commit hash or make an empty commit.
 
 Create each explanation file in docker/basics/. The format of an
 explanation filename is:
@@ -136,11 +216,28 @@ explanations unique even when two scripts have the same number.
 
 ### Committing
 
+Before starting the first sub-agent, the manager asks the user once
+for the exact Co-Authored line or lines to use, in the format of
+commit.template. Obtain the attribution for every model and effort
+level planned for the workflow in that one startup question. Store
+the answer in the coordination record and pass the appropriate line
+to each sub-agent. Use those lines throughout; do not infer new
+attribution or ask again per step or sub-agent. Keep subsequent
+sub-agent model and effort choices consistent with the supplied
+attribution. On recovery, reuse the recorded answer.
+
 Make every commit in this order:
 
 1. Stage only the files of this step, by explicit path:
    `git add -- <file> ...`. Never use `git add -A`, `git add .` or
    `git add --force`.
+   First confirm the index is empty. After staging, inspect the entire
+   `git diff --cached` and `git diff --cached --name-status`, and run
+   `git diff --cached --check`. Every staged change must belong to
+   this task and step and obey the scope restrictions. Explicit-path
+   staging does not exclude unrelated changes already in the index
+   or unrelated edits within the same file. Resolve ownership before
+   staging; stop if an unrelated staged change appears.
 2. Write a new commit message file following prompts/commit.md, even
    though no one has asked you for one. prefix.txt is empty, so the
    file is msg at the top of the repository, not in docker/basics.
@@ -149,18 +246,25 @@ Make every commit in this order:
 4. Commit with `git commit --file=<top of the repository>/msg`.
 5. Run `git log -1` and check that the first line has the step label
    and that the message ends with the Co-Authored line.
+   Verify the committed paths and diff against the reviewed staged
+   changes, and confirm the index is empty afterward. Compare the
+   remaining worktree changes with the recorded baseline.
 
 ## Sub-agents
 
-You are the manager agent. Your job is to start sub-agents, check
-their work and report to the user. Do not do the work of any step
-yourself, and do not read the tutorials, Dockerfiles or helpers beyond
-what you need to check a sub-agent's work.
+The coordinating agent is the manager. An agent explicitly assigned
+a sub-agent task follows the worker rules below instead. The
+manager starts sub-agents, reviews their work and reports to the
+user. Do not implement or correct a tutorial step yourself. Read the
+tutorials, Dockerfiles, helpers, tests and evidence needed for a
+substantive review. Maintaining the coordination record and making
+review decisions are manager responsibilities.
 
 You must be able to start sub-agents. If your tool has no way to start
-one, or a sub-agent fails to start, stop. Tell the user that you cannot
-start sub-agents, what you tried and the error you got. Do not do the
-work yourself in its place.
+one, report that blocker and stop. If starting one fails, retry once
+as described under "Checking a sub-agent's work". If that also fails,
+report what you tried and the error. Do not do the work yourself in
+its place.
 
 ### What the manager does
 
@@ -169,21 +273,28 @@ work yourself in its place.
   explanation file or finishing an interrupted step, start a
   sub-agent for that task and tell it to resume. Do not do it
   yourself.
-- Before you start the first sub-agent of a session, ask the user for
-  the Co-Authored line or lines to use in commit messages, in the
-  format of commit.template. Give each sub-agent the line that matches
-  the model and effort level it runs with.
+- Resolve and record commit attribution once at startup, as described
+  in "Committing", and pass it to every sub-agent.
 - In Phase 1, start one sub-agent for Steps 1 and 2 for all the
   scripts.
 - In Phase 2, start one sub-agent per script for Steps 3 and 4.
 - In Phase 3, start one sub-agent to make the coverage map for the
-  whole series. Tell it to write the map to a temporary file, and give
-  it the path. Show the user the proposed additions from its report,
-  and wait for the user to approve or change them. Then start one
-  sub-agent per script for Step 5, and give each one the path of the
-  map, the name of its script and the additions the user approved for
-  it. If the map file is missing when you resume Phase 3, start a new
-  sub-agent to make it again, and ask the user to approve it again.
+  whole series. Give it the path of a temporary working map. Review
+  the actual coverage, proposed additions, consolidations and
+  deferrals against the audience, lesson boundaries and scope.
+  Request corrections from the sub-agent where needed, then accept
+  the map yourself. Preserve the accepted map, its revision and your
+  rationale in the uncommitted coordination record. Report the
+  decisions as progress without waiting for user approval. Start one
+  sub-agent per script for Step 5 and give it the accepted map and
+  its assigned changes. If the working map is lost, recover it from
+  the record; if the evidence is insufficient, have a sub-agent
+  reconstruct it and review it again yourself.
+- Carry deferred regression checks between tasks. Assign them as
+  soon as their callers can be tested, and finish with a sub-agent
+  assigned the full-series checks in "Final acceptance". Route any
+  defects back to an implementation sub-agent, review the correction
+  and repeat the affected validation before acceptance.
 - Run one sub-agent at a time. Wait for it to finish and check its
   work before you start the next one. Never run two sub-agents at
   once. They share one Docker daemon, one git index, the host
@@ -201,7 +312,10 @@ You are working in docker/basics of this repository. Your task is:
  Steps 3 and 4 for <script> |
  the Phase 3 coverage map, written to <path> |
  Step 5 for <script>, using the coverage map in <path> and these
- additions approved by the user: <additions>>
+ manager-accepted changes: <changes> |
+ corrections for <script, step, review findings and allowed paths> |
+ final acceptance checks for the whole series |
+ record verified completion in TODO.txt>
 
 Before you change anything, read prompts/agent-session.md,
 prompts/projects/docker-basics-update.md and prompts/commit.md and
@@ -209,6 +323,11 @@ follow them. Read "Order of work", "Sub-agents", and the Step sections
 for your task.
 
 Co-Authored line: <line from the user>
+
+Coordination record: docker/basics/docker-basics-update-run-improvements.md
+Starting branch and HEAD: <branch and hash>
+Pre-existing work to preserve: <paths and relevant baseline details, or none>
+Deferred checks assigned to this task: <checks and why they are due, or none>
 
 Earlier work that affects your task:
 <commits and shared-file changes from earlier reports, for example a
@@ -222,35 +341,46 @@ in "Sub-agents: The sub-agent's report".
 ### Rules for sub-agents
 
 - Do only the task named in your prompt. Do not start work on another
-  script or step.
+  script or step. Checking affected callers is permitted; changing
+  them requires an explicit correction assignment from the manager.
+  Follow the deferral rules when those callers are not yet runnable.
 - Do not start sub-agents of your own.
 - Follow the resume rules in "Order of work" for your task. An
   earlier sub-agent may have stopped part way through.
 - Commit each step and write its explanation file as described in
   "Order of work". The coverage-map sub-agent makes no commits and
-  writes no explanation files; it writes only the map.
-- If you need a decision from the user, such as those listed in
-  "When to stop and ask", do not guess and do not ask the user
-  directly. Stop before making the change that needs the decision,
-  and put the question in your report.
+  writes no explanation files; it writes only the map. The final
+  validation sub-agent writes the acceptance explanation and makes
+  no commits. A separate completion assignment changes and commits
+  only TODO.txt and records its evidence in that explanation.
+- Make routine implementation choices within the task and document
+  them. If manager review or a scope decision is needed, report it
+  to the manager. If a permission limit or unavailable prerequisite
+  prevents the task, stop before the affected action and report the
+  exact blocker. Do not ask the user directly.
 - Keep long command output out of your report. Put the details in the
   explanation file.
 
 ### The sub-agent's report
 
-Reply with this report, in at most about 40 lines:
+Reply concisely using this report. Group repeated information, but
+do not omit required evidence merely to fit a line limit:
 
 ```
 Task: <task from the prompt>
-Steps finished: <script, step, commit hash, first line of commit message>
+Steps implemented: <script, step, commit hash or N/A and reason, first line>
+Validation: <passed checks, implemented with checks pending, or not applicable>
 Explanation files written: <file names>
 Coverage map: <path, for the coverage-map task only>
-Proposed additions: <for the coverage-map task only: one line per
-  addition, naming its script and what it teaches, and one line per
-  script for which no addition is proposed>
+Proposed changes: <for the coverage-map task only: additions,
+  consolidations and deferrals, naming each script and rationale;
+  include scripts for which no change is proposed>
 Shared files changed: <file, and the other scripts that use it>
-Checks not run: <check, and why>
-Questions for the user: <questions, or "none">
+Checks run: <commands, results, tested HEAD and log paths>
+Deferred checks: <caller, check, reason, and when it becomes runnable>
+Checks skipped: <check, reason, and whether it is essential>
+Manager decisions needed: <scope or review decisions, or "none">
+Permission or external blockers: <policy or failed prerequisite, or "none">
 Uncommitted changes: <files, and why they were left, or "none">
 ```
 
@@ -258,21 +388,37 @@ Uncommitted changes: <files, and why they were left, or "none">
 
 After each sub-agent finishes:
 
-1. Run `git log --oneline` and confirm a commit with the right step
-   label for each step the report lists.
-2. Confirm that the explanation file exists for each finished step,
-   or that the coverage map exists.
-3. Run `git status` and confirm there are no uncommitted changes in
-   docker/basics, unless the report explains them.
-4. Note any shared-file changes in the report. Include them in the
-   prompt of every later sub-agent whose task uses those files.
+1. Verify the task commits, labels, attribution, complete diffs and
+   allowed paths. For an `N/A` commit, verify the no-change or
+   not-applicable decision instead of requiring an empty commit.
+2. Read the changed files and relevant callers. Check teaching
+   objectives, explanations, factual support, licensing, error paths,
+   ownership, cleanup and the requirements for that particular step.
+   Steps 1 and 2 intentionally have narrower checks than Step 3.
+3. Read the explanation and inspect the test evidence. Confirm which
+   revision ran, that assertions prove the lesson's claims, and that
+   failures or skips were not hidden. Rerun a relevant check when
+   the evidence is missing, inconsistent or invalidated by changes.
+4. Compare `git status`, the index and changed paths against the
+   baseline and assignment. Confirm that unrelated user work is
+   preserved and all remaining task edits are explained. Ignored
+   explanation files and the coordination record remain uncommitted.
+5. Record shared-file changes, every affected caller, deferred checks
+   and the review outcome in the coordination record. Include them
+   in later assignments that use those files. Review a coverage map
+   against the actual lessons, not just the report's summary.
 
-If the report has questions for the user, or a check fails, stop.
-Tell the user what happened and wait for their answer before starting
-the next sub-agent. If a sub-agent stopped without finishing and
-without questions, for example because of an error, start one new
-sub-agent for the same task and tell it to resume. If that one also
-fails, stop and ask the user.
+Return ordinary defects to a sub-agent with concrete findings and an
+explicit correction scope. Have it fix, retest and commit the
+correction with the original step label and append the evidence to
+that step's explanation. Review the result before advancing. Resolve
+routine design and curriculum questions yourself.
+
+For a tool failure, try a fresh sub-agent with the same task and the
+recovery evidence. If the required tool remains unavailable, report
+the external blocker and incomplete work; do not implement the task
+yourself or declare it finished. Ask the user for permission only
+when a necessary action exceeds the authority described above.
 
 ## Automated tests
 
@@ -292,9 +438,12 @@ docker/basics/tests/:
   comments at its top describe each procedure.
 
 Do not create another runner, and do not change these two files. If
-one of them stops you from testing a tutorial, or gives a wrong
-result, stop and put the problem in your report as a question for
-the user.
+one of them cannot exercise or verify something, first use the
+supplemental driver assertions described below. Report the harness
+limitation and the additional evidence. If no permitted check can
+establish an essential result, record an unresolved validation
+blocker; do not weaken the assertion, edit the harness or claim a
+pass. A manager decision within scope does not require user approval.
 
 What you write is the driver: `<script-basename>.exp` in
 docker/basics/tests/, the Expect script that runs one tutorial, for
@@ -315,6 +464,11 @@ terminal or another CPU architecture. A driver that needs one of them
 checks for it first, for example with `host_command_succeeds`, and
 calls `skip` with the reason if it is missing. Do not install
 anything.
+
+Perform skip checks before creating resources or changing files.
+The runner does not compare before/after snapshots when a driver
+exits with 77. Do not use `skip` to escape a failed assertion or a
+failure after setup; clean up and fail instead.
 
 ### Writing a driver
 
@@ -438,13 +592,15 @@ switch -- [scenario] {
 ### What the runner checks
 
 For each scenario, the runner runs the driver from a new, empty
-working directory. It records the containers, images, volumes,
-networks and buildx builders, and the state of each `firewall-port`,
-before and after the run. The scenario fails if:
+working directory. It records container ids and names, image ids and
+tags, volume names, network ids and names, buildx builder names, and
+the state of each `firewall-port`. Except for skipped scenarios, it
+compares these records before and after the run. The scenario fails if:
 
 - the driver fails, or exits with a status other than 0 or 77
 - the run left a resource behind, other than a `keeps-image` image
-- a resource that existed before the run was changed or removed
+- a recorded identity, name or tag that existed before the run
+  disappeared or changed
 - the tutorial left files in its working directory
 - the scenario ran longer than its time limit
 
@@ -462,12 +618,74 @@ running.
 
 ### What the tests do not cover
 
+The snapshots do not prove that existing resources are unchanged.
+They do not record container running state, volume contents, network
+membership or builder configuration and selection. Volume and
+builder records do not even include a unique resource id. The file
+check covers only the initial empty working directory, not the
+tutorial's own directory, other host paths or temporary directories.
+The runner also does not compare resource snapshots after a skip.
+
+Add focused supplemental assertions to the existing drivers:
+
+- For a conflict or reuse scenario, save the relevant resource id,
+  configuration and state before the tutorial, and compare them
+  afterward. Check running state or network membership when the
+  tutorial could affect it. For a volume, use a sentinel with known
+  contents in a driver-owned fixture where relevant. Verify it is
+  unchanged. Do not write sentinels into the reader's existing data.
+- Check repository fixtures the tutorial can touch, including their
+  contents and relevant permissions, and detect new files in the
+  relevant directories. Check the tutorial directory even though
+  the runner starts elsewhere. Do not include coordination records
+  or explanation files that the development workflow intentionally
+  writes outside the tutorial run.
+- Check builder selection and configuration when demonstrating
+  Buildx, and explicitly verify cleanup of tutorial-owned temporary
+  paths or other resources the runner does not observe. Capture
+  paths from stable runtime messages where necessary.
+- Compare only state that the lesson promises to preserve. Put
+  assertions in the driver before it reports success, not solely in
+  exit cleanup, whose diagnostic output does not establish a pass.
+  Keep these checks in the existing driver; do not create a second
+  runner or add test-only paths to the tutorial.
+
 The tests cannot make failures happen inside a tutorial, such as a
 readiness timeout. Where practical, test such a failure with a
 temporary change to the tutorial. Check with `git diff` that you have
 undone it before you commit. Record in the explanation file how you
 tested it, or that you could not. Also record that no person ran the
 interactive path.
+
+### Regression checks across scripts
+
+There are initially no tutorial drivers in tests/. Create them as
+their tutorials reach Steps 3 and 4. Do not require a driver for a
+later, unrepaired caller before its turn in the sequence.
+
+When changing a shared helper or build context:
+
+1. Find every caller, including 00-*.sh through 08-*.sh and the test
+   harness. Review compatibility and run focused checks of the
+   changed behavior and failure paths immediately. Use temporary
+   checks if needed; do not expand the assigned implementation scope.
+2. Run existing runnable caller tests now. If a later caller lacks
+   its driver or still has unfinished examples, record the exact
+   caller, shared change, outstanding regression and the point when
+   it becomes runnable in the explanation and coordination record.
+   This is validation pending, not a pass and not a reason to stop
+   the workflow for a user decision.
+3. The manager assigns deferred checks when the caller's driver and
+   repair are complete. A sub-agent may test other callers but may
+   not modify their tutorials without a correction assignment.
+4. For affected earlier tutorials, run any existing tests. If none
+   exist, the manager assigns a supplemental driver in tests/ or a
+   focused temporary check that covers the changed shared behavior.
+   Do not modify 00-*.sh through 08-*.sh or execute an installation
+   tutorial to test a helper. Record the scope of that evidence.
+5. Run the final regression pass after the last implementation
+   change. Every deferred essential check must then pass, or final
+   acceptance remains blocked.
 
 ## Step 1: Copyright Update
 
@@ -484,6 +702,13 @@ no other change in this step.
   one in the commit of the first script, in the order of work, that
   uses it, and list it in that script's explanation file. Do not
   update files that only 00-*.sh through 08-*.sh use.
+- Apply this only to first-party source. Preserve vendored or copied
+  code and its original notices, including the NodeSource setup
+  script. For a first-party supporting source file without a license
+  header, add the template with the 2026 notice, as required by
+  prompts/license-headers.md. Adding such missing headers is an
+  exception to changing only the notice; do not reformat existing
+  headers or change implementation behavior in this step.
 - 10-docker-logs.sh, 23-docker-buildx.sh, 24-docker-compose-basics.sh
   and 25-docker-compose-networking.sh have no notice, so they have no
   start year. Add the header from prompts/copyleft-template.txt with
@@ -677,6 +902,47 @@ rather than copying every implementation detail of 02-*.sh.
   surviving a killed Docker client, and SIGKILL, which cannot run cleanup.
   Provide commands to inspect leftovers before the reader removes them.
 
+### Images intentionally retained for later lessons
+
+Script 15 retains its successfully built and verified PostgreSQL
+image for later lessons. Other tutorials remove their demonstration
+images unless their explanation identifies a specific later use.
+Retaining a base image or documented build cache is a separate matter.
+
+- Make the normal path repeatable when a retained image is present.
+  Record provenance on images built by these examples, including a
+  fingerprint of the relevant build inputs and arguments. Reuse an
+  existing retained image only after its provenance, architecture
+  and required runtime behavior match the lesson's expectations.
+  A matching tag or version string alone is not enough.
+- Leave a validated reused image, its tags and id unchanged. If an
+  occupied tag does not identify a compatible tutorial image, preserve
+  it and build with an unused demonstration tag. Print and pass the
+  actual selected tag to helpers and callers; do not overwrite an
+  unrelated image to preserve a preferred name.
+- Register cleanup immediately for a newly built image. Cancel that
+  cleanup for deliberate retention only after the image passes its
+  checks and the lesson reaches its documented successful handoff.
+  A reused image is never owned by the current run's cleanup.
+- Drivers must cover both an initially absent demonstration image
+  and reuse of a compatible retained image, comparing the reused
+  image's id and tags before and after. Include the incompatible-tag
+  preservation case where it applies. Use normal, documented user
+  configuration for selecting a demonstration tag if needed; do not
+  add a test mode. A driver may run the tutorial twice using distinct
+  terminal names to test creation followed by reuse. When it requests
+  an initially absent, test-owned tag, it may remove that newly built
+  fixture after asserting the tutorial's retention and reuse behavior.
+  Register that cleanup by the verified image identity. Never remove
+  a retained image that existed before the driver started.
+- Declare each intentionally retained image that remains after driver
+  teardown in `keeps-image`, and record its actual tag and id in the
+  explanation. The metadata accepts exact names, not patterns: use
+  declared fixed tags or remove test-owned variable tags after their
+  retention checks. The repeated normal scenario must succeed with
+  retention enabled. A `keeps-image` declaration permits retention;
+  it does not waive reuse checks or preservation of existing resources.
+
 ### Services, ports and host configuration
 
 - Replace unbounded polling and arbitrary startup sleeps with bounded
@@ -788,13 +1054,20 @@ and its supporting files against the requirements above.
     and its prompt, and the device-code flow, in comments only.
   - If login to the local registry does not work over plain HTTP
     without changing daemon settings or trusting a certificate on
-    the host, stop and report it as a question for the user.
+    the host, report an external validation blocker. Do not change
+    those settings or request an ordinary design decision; continue
+    independent work and leave this essential check unresolved.
 - `20-docker-build-website.sh`: remove the dependency on
-  `darkness2.milestone42.com:5000`. Reconcile the reverse-proxy claim with
-  the actual Dockerfile and nginx configuration: either supply a working
-  local backend and exercise the proxy, or describe the example as static
-  hosting. Verify the expected content, fix the Flask success message,
-  bound the readiness loop, and add container/image/firewall cleanup.
+  `darkness2.milestone42.com:5000` and the unused FLASK_HOST setting.
+  Make this lesson exclusively about packaging and serving a static
+  website with nginx. Supply the local content and nginx configuration
+  that its Dockerfile needs, explain how they are copied into the image,
+  and verify the actual page and a referenced static asset. Correct the
+  reverse-proxy claim and Flask success message, bound the readiness
+  loop, and add container/image/firewall cleanup. Do not add a backend
+  service or a reverse proxy. A future lesson will connect a proxy and
+  a web service in separate containers with Compose; that work is
+  outside this update, including Step 5.
 - `21-docker-networking.sh` and `22-docker-rootless.sh`: correct misleading
   existing explanations; complete their unfinished examples in Step 4.
   In particular, distinguish a user-defined bridge from an
@@ -820,11 +1093,16 @@ and its supporting files against the requirements above.
   because its examples intentionally contain literal shell expressions.
 - Test the tutorial with its driver, as described in "Automated
   tests", running `run-tutorial-test.sh <script> all`. Write or
-  update the driver and commit it with the tutorial. For a
-  placeholder tutorial with nothing to run, write the driver in
-  Step 4. Recheck affected callers when changing shared helpers, by
-  running their tests. Do not claim untested distributions,
-  architectures or daemon modes as verified.
+  update the driver and commit it with the tutorial once the whole
+  tutorial is runnable. For a placeholder, write the driver in
+  Step 4. For a partly implemented tutorial whose incomplete section
+  prevents a whole run, use focused temporary checks of the existing
+  independent examples in Step 3 and explicitly defer its full driver
+  and whole-tutorial run to Step 4. Do not implement the missing
+  material early, make a driver silently bypass it, or report a
+  partial run as a whole-tutorial pass. Recheck shared-file callers
+  under "Regression checks across scripts". Do not claim untested
+  distributions, architectures or daemon modes as verified.
 - In the Step 3 explanation file, describe the teaching improvements,
   behavior fixes and supporting-file changes. Record the commands/checks
   run, their results, resources intentionally retained, and any limitations
@@ -838,9 +1116,9 @@ resource ownership, cleanup and validation to all new demonstrations.
 Preserve the current script filenames and numbers.
 
 - Replace the placeholder in `10-docker-logs.sh` with a working tutorial
-  on `docker container logs`.
+  on `docker container logs`, using the baseline below.
 - Replace the placeholder in `23-docker-buildx.sh` with a working tutorial
-  on `docker buildx`.
+  on `docker buildx`, using the baseline below.
 - Complete the network-inspection example marked TODO in
   `17-docker-inspect.sh`, including creation and removal of its demo network.
 - Finish the application-network example in `21-docker-networking.sh`.
@@ -857,6 +1135,72 @@ Preserve the current script filenames and numbers.
   and 08-*.sh, not just executable commands.
 - The optional investigation of a fully static Node.js binary in script
   11 is outside this completion step; leave it identified as future work.
+
+### Baseline for 10-docker-logs.sh
+
+- Explain that container logs expose output captured from the main
+  process's stdout and stderr, subject to the configured logging
+  driver. Use a small local demonstration that emits distinctive,
+  predictable messages to both streams. Do not allocate a TTY that
+  merges the streams while claiming to demonstrate their distinction.
+  Verify claims and options against the official
+  [logs reference](https://docs.docker.com/reference/cli/docker/container/logs/).
+- Demonstrate complete retrieval, `--tail`, `--timestamps` and
+  `--since`, with checks of the included and excluded markers.
+  Derive time boundaries from observed timestamps or controlled
+  events rather than assuming arbitrary sleeps establish ordering.
+  Explain that application files inside a container are not
+  automatically included, and output from a separate `docker exec`
+  attachment is not the main process's log stream.
+- Demonstrate `--follow` while new output is produced, then stop the
+  stream with Ctrl-C and continue the lesson. Synchronize the driver
+  with output proving the stream started. Verify that stopping the
+  client did not stop the container, then show logs remain readable
+  after the container itself has stopped and before its removal.
+- Inspect or explain the logging-driver dependency and any relevant
+  limitation without changing daemon settings. Keep logging-driver
+  configuration, rotation administration and external log collection
+  as comments or deferred material unless needed for these examples.
+- Validate the complete normal run, interruption cleanup and applicable
+  conflict behavior. Use the standard script structure, pause prompts,
+  ownership and visible cleanup rather than a bare command catalogue.
+
+### Baseline for 23-docker-buildx.sh
+
+- Check Buildx and explain how a builder, its driver and its output
+  differ from the Dockerfile build fundamentals in script 08. Inspect
+  existing builders, then create a uniquely named disposable
+  docker-container builder for this lesson. Pass its name explicitly
+  with `--builder`; do not select it as the reader's default. Register
+  cleanup before bootstrapping it, and verify that the original
+  selection and existing builders are unchanged afterward. Follow
+  the official [driver guide](https://docs.docker.com/build/builders/drivers/).
+- Build a small native-platform example, load a single-platform result
+  into the local image store with `--load`, run it and check its output
+  and platform. Explain why a successful build with the chosen driver
+  does not by itself make a runnable image appear in the local store.
+  Contrast loading with an explicit exported artifact, using the
+  [exporter guide](https://docs.docker.com/build/exporters/).
+- Demonstrate `--platform` and build a linux/arm64 and linux/amd64
+  result into a temporary OCI archive. Inspect its index and platform
+  manifests to prove both target platforms are present. Explain
+  manifest lists or indexes, architecture-specific manifests and the
+  limits of loading multi-platform results into the test host's
+  classic image store. Do not change the image store or daemon.
+- Explain emulation versus native execution and build-platform versus
+  target-platform inputs when used. Prefer a small example that can
+  produce both outputs without executing foreign-platform build
+  instructions. A foreign-platform runtime check is optional when
+  emulation is unavailable; the native run, multi-platform export and
+  metadata checks remain essential. Follow the official
+  [multi-platform guide](https://docs.docker.com/build/building/multi-platform/).
+- Keep all demonstrations local. Do not require registry credentials,
+  a remote push or installation of emulation. Explain a push workflow
+  in comments if useful. Remove the lesson's builder and its owned
+  containers, volumes, tags and archives; preserve pre-existing
+  builders and caches. Declare any newly pulled base or BuildKit image
+  intentionally kept by the test. Verify cleanup, repeatability and
+  interruption behavior with the driver.
 
 ### Baseline for 24-docker-compose-basics.sh
 
@@ -934,8 +1278,8 @@ completed and how it was verified. Never commit the explanation file.
 
 After the repairs and baseline completion, use your judgment to identify
 what else each tutorial should teach. Propose the additions in the
-coverage map, which the user approves before any are made, as
-described in "Sub-agents". Then implement the approved additions; do
+coverage map, which the manager reviews and accepts before any are
+made, as described in "Sub-agents". Then implement the accepted changes; do
 not stop at a list of recommendations. This is a curriculum review,
 not a requirement to demonstrate every Docker option or add material to
 every script. Apply Step 3's teaching, correctness and validation standards
@@ -950,15 +1294,20 @@ to all additions.
 - Make a brief coverage map before editing: for each script, identify its
   learning objectives, concepts already taught, prerequisites, and proposed
   additions. Check the actual examples, not just filenames or headings.
-  Keep the working map in temporary notes and summarize the relevant
-  decisions in each script's Step 5 explanation; no separate permanent
-  curriculum file is required.
+  Keep the working map in temporary notes, and preserve the
+  manager-accepted revision and rationale in the ignored coordination
+  record so a lost temporary file does not lose the decisions.
+  Summarize the relevant decisions in each script's Step 5 explanation;
+  no separate committed curriculum file is required.
 - For each candidate addition, ask what practical task or common mistake
   it addresses, whether it belongs in this script, whether another script
   already teaches it, and how a reader can observe and verify it. Prioritize
   missing concepts needed to use or understand the existing examples.
   Omit unrelated advanced material and document why deferred topics do not
   belong in this pass. The static-Node.js investigation remains future work.
+  The separate Compose lesson connecting a reverse proxy and a web
+  service also remains future work; do not add it to script 20 or
+  introduce it elsewhere as a Step 5 expansion.
 
 ### Give each concept one primary teaching location
 
@@ -981,7 +1330,7 @@ coverage review, while preserving each script's stated purpose.
 | 18-docker-save-load.sh | Image archives, save/load verification and distinctions from container filesystem export/import. |
 | 18-docker-stats.sh | Interpreting resource metrics and their limitations, beyond the introductory display in script 04. |
 | 19-docker-login-logout.sh | Registry authentication, credential handling and logout. |
-| 20-docker-build-website.sh | Static website packaging and nginx configuration; reverse proxying if that example is implemented. |
+| 20-docker-build-website.sh | Static website packaging, nginx configuration and verification of served pages and assets. Reverse proxying belongs to a future lesson. |
 | 21-docker-networking.sh | Docker CLI network configuration, discovery, connectivity, publication and isolation. |
 | 22-docker-rootless.sh | Docker access privileges, container process identity, USER/gosu and the distinction from a rootless daemon. |
 | 23-docker-buildx.sh | Buildx builders, build outputs, platform selection and multi-platform workflows, extending script 08. |
@@ -1029,3 +1378,82 @@ coverage review, while preserving each script's stated purpose.
   duplication removed, and validation results. If no addition is justified,
   explain the coverage decision without making cosmetic changes or an
   empty commit merely to satisfy this step. Never commit explanation files.
+
+## Final acceptance
+
+The manager assigns a sub-agent to validate the finished series after
+Phase 3. This is a validation task, not authority to make unreviewed
+implementation changes. The manager sends defects to an implementation
+sub-agent with an explicit script, original step and correction scope.
+Corrections use that step's commit label and append evidence to its
+explanation. Recheck the affected tutorials and every caller or
+assertion invalidated by a correction before accepting the result.
+
+The final validation sub-agent writes
+docker/basics/docker-basics-update-final-improvements.md. Never commit
+this file. Include a matrix with one row for each of the 19 target
+scripts, including both scripts numbered 10 and both numbered 18.
+Record implementation commits, final tested revision, driver,
+applicable scenarios, results, evidence paths, retained resources and
+outstanding limitations. Include affected earlier callers separately.
+
+Final acceptance requires all of the following:
+
+- All five steps are accounted for for every target script, with
+  truthful no-change or not-applicable decisions where needed. The
+  manager has reviewed each implementation, correction and coverage
+  decision. No placeholder or required incomplete example remains.
+- Run `bash -n` on all changed shell files. Run ShellCheck if
+  available, handle applicable findings and document narrow
+  suppressions. Apply the referenced Python or Javascript validation
+  policies to any source created or changed in those languages.
+- Run `tests/run-tutorial-test.sh <script> all` sequentially for every
+  target script in its final implemented form. Every required normal
+  run and applicable interrupt, continue and conflict scenario must
+  pass, including the runner's repeated normal run. Include the
+  supplemental preservation, retained-image reuse and fixture checks.
+  A scenario omitted as inapplicable needs a recorded reason.
+- Close every deferred essential check, including shared-file
+  regressions for earlier tutorials. All evidence must apply to the
+  final source state. A changed dependency invalidates checks that
+  relied on its previous behavior, even if its caller did not change.
+- Review the finished series together for duplicated explanations,
+  contradictions, broken paths or references, undocumented retained
+  resources, circular dependencies and coverage gaps. Verify that
+  script 20 teaches static hosting and leaves the future Compose
+  proxy-and-web-service lesson outside this task.
+- Verify cleanup and preservation using both the runner and the
+  supplemental assertions. Audit the final repository diff against
+  the initial baseline: only authorized paths and task-owned changes
+  may be committed, unrelated work must remain intact, the index
+  must be empty, and no explanation or coordination file may appear
+  in a task commit. Account for untracked files and runtime leftovers.
+
+Distinguish implementation completion from verified completion. An
+essential skipped, failed, missing or deferred check blocks verified
+completion. Optional checks, such as a foreign-platform runtime test
+without emulation, may remain explicitly unverified when the baseline
+permits it. Document other distributions, architectures and daemon
+modes as untested; do not make their absence a reason to claim they
+were verified or to reduce support.
+
+If essential verification is blocked, continue any independent work
+within scope, then report what is implemented, the exact blocker,
+checks attempted and the work still required. Keep issue249 active
+and do not mark it done. Request additional user permission only when
+a necessary next action is restricted by the session policies.
+
+Only after the manager accepts the full validation evidence, assign
+a sub-agent to mark issue249-docker-basics done in TODO.txt following
+prompts/todo.md. Preserve its active asterisk as that policy specifies
+and leave other issues unchanged. Commit that change separately with
+the subject prefix `issue249-docker-basics: Step 5:` and the supplied
+attribution, using the normal commit procedure. Record the final
+commit in the acceptance explanation; a TODO-only completion commit
+does not require repeating unchanged tutorial tests.
+
+The manager's final report names the completed scripts and commit
+range, summarizes validation results and intentional retained
+resources, links the acceptance explanation and reports any optional
+untested cases. Claim verified completion only when these acceptance
+criteria have been met.
