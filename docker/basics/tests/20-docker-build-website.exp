@@ -1,0 +1,179 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 20-docker-build-website.exp: Verify packaged static website
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# firewall-port: 8080
+# time-limit: 2400
+# No streaming example deliberately continues on Ctrl-C; continue is N/A.
+source [file join [file dirname [info script]] tutorial-test.tcl]
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find website-test -printf '%p %m %u %g %y\n' | sort
+    find website-test -type f -exec sha256sum {} + | sort
+    stat --format='%n %a %u %g' 20-docker-build-website.sh bash-utilities.sh firewall-utilities.sh \
+      tests/20-docker-build-website.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    sha256sum 20-docker-build-website.sh bash-utilities.sh firewall-utilities.sh \
+      tests/20-docker-build-website.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    find /tmp -maxdepth 1 -name 'docker-basics-website.*' -printf '%p %m %u %g %y\n' | sort
+  } bash $basics]
+}
+proc free_port {} {
+  host_command python3 -c {import socket
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(('127.0.0.1', 8080))}
+}
+proc verify_live {} {
+  global basics
+  host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    docker container inspect website-test | jq -e '
+      .[0].State.Running and
+      .[0].HostConfig.PortBindings["80/tcp"] == [{"HostIp":"127.0.0.1","HostPort":"8080"}] and
+      (.[0].Mounts | length) == 0 and
+      (.[0].Config.Env | any(startswith("FLASK_HOST=")) | not)' >/dev/null
+    docker container exec website-test nginx -t
+    docker container exec website-test cat /usr/share/nginx/html/index.html | cmp website-test/index.html -
+    docker container exec website-test cat /usr/share/nginx/html/style.css | cmp website-test/style.css -
+    docker container exec website-test cat /etc/nginx/nginx.conf | cmp website-test/nginx.conf -
+    test "$(curl --noproxy '*' --fail --silent --show-error --max-time 3 http://127.0.0.1:8080/)" = "$(cat website-test/index.html)"
+    test "$(curl --noproxy '*' --fail --silent --show-error --max-time 3 http://127.0.0.1:8080/style.css)" = "$(cat website-test/style.css)"
+    test "$(curl --noproxy '*' --silent --show-error --max-time 3 --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8080/absent)" = 404
+    curl --noproxy '*' --fail --silent --show-error --max-time 3 --head http://127.0.0.1:8080/style.css | tr -d '\r' | grep -qi '^Content-Type: text/css'
+    grep -Fq 'href="/style.css"' website-test/index.html
+    docker container exec website-test nginx -v
+  } bash $basics
+}
+set fixtures_before [fixture_state]
+set images [lsort -unique [host_command docker image ls --all --quiet --no-trunc]]
+set image_state {}
+foreach id $images { dict set image_state $id [host_command docker image inspect $id] }
+set networks [host_command docker network ls --quiet --no-trunc]
+set network_state {}
+foreach id $networks { dict set network_state $id [host_command docker network inspect $id] }
+proc firewall_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    source "$1/firewall-utilities.sh"
+    query_tcp_port 8080
+    if command -v firewall-cmd >/dev/null && sudo --non-interactive firewall-cmd --state >/dev/null 2>&1; then
+      sudo --non-interactive firewall-cmd --list-all-zones
+    fi
+  } bash $basics]
+}
+set firewall_before [firewall_state]
+switch -- [scenario] {
+  normal {
+    free_port
+    start_tutorial
+    answer_pause -time 1200 {Press ENTER to serve the packaged website...}
+    wait_for {Verified website page: HTTP 200 and exact packaged index.html content.}
+    wait_for {Verified referenced stylesheet: HTTP 200 and exact packaged style.css content.}
+    wait_for {Press ENTER to remove the website examples...}
+    verify_live
+    type_line {}
+    wait_for {Lesson complete; owned website resources removed.}
+    finish_tutorial 0
+  }
+  interrupt {
+    free_port
+    start_tutorial
+    answer_pause -time 1200 {Press ENTER to serve the packaged website...}
+    wait_for {Verified referenced stylesheet: HTTP 200 and exact packaged style.css content.}
+    wait_for {Press ENTER to remove the website examples...}
+    verify_live
+    press_ctrl_c
+    finish_tutorial 130
+  }
+  conflict {
+    set fixture "docker-basics-website-fixture-[pid]"
+    foreach tag [list website-test:latest $fixture] {
+      if {[host_command docker image ls --quiet $tag] ne ""} { fail "Fixture image $tag already exists." }
+    }
+    if {[host_command docker container ls --all --quiet --filter {name=^/website-test$}] ne ""} {
+      fail {Fixture container website-test already exists.}
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" | docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    host_command docker image tag $fixture website-test:latest
+    cleanup_on_host docker image rm website-test:latest
+    set before [host_command docker image inspect website-test:latest]
+    start_terminal image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in image-conflict {Image name website-test already exists.}
+    finish_terminal image-conflict 1
+    if {[host_command docker image inspect website-test:latest] ne $before} { fail {Conflicting image changed.} }
+    host_command docker image rm website-test:latest
+    cancel_cleanup_on_host
+    set fixture_before [host_command docker image inspect $fixture]
+    if {[host_command docker container ls --all --quiet --filter {name=^/website-test$}] ne ""} {
+      fail {Fixture container appeared before setup.}
+    }
+    set id [host_command docker container create --name website-test $fixture /sentinel]
+    cleanup_on_host docker container rm --force $id
+    set before [host_command docker container inspect $id]
+    start_terminal container-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in container-conflict {Container name website-test already exists.}
+    finish_terminal container-conflict 1
+    if {[host_command docker container inspect $id] ne $before} { fail {Conflicting container changed.} }
+    host_command docker container rm $id
+    cancel_cleanup_on_host
+    free_port
+    # Hold a real loopback listener; leave it running until refusal is proved.
+    start_terminal listener python3 -u -c {import socket
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(('127.0.0.1', 8080)); s.listen()
+    print('Listener owns port 8080', flush=True)
+    input()}
+    wait_for -in listener {Listener owns port 8080}
+    start_terminal port-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in port-conflict {Loopback port 8080 is unavailable; leave its owner alone.}
+    finish_terminal port-conflict 1
+    host_command python3 -c {import socket
+with socket.create_connection(('127.0.0.1', 8080), 3): pass}
+    type_line -in listener {}
+    finish_terminal listener 0
+    if {[host_command docker image inspect $fixture] ne $fixture_before} { fail {Fixture image changed.} }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+}
+if {[fixture_state] ne $fixtures_before} { fail {Context, modes, source or temporary files changed.} }
+foreach id $images {
+  if {[host_command docker image inspect $id] ne [dict get $image_state $id]} { fail "Original image $id changed." }
+}
+foreach id $networks {
+  if {[host_command docker network inspect $id] ne [dict get $network_state $id]} { fail "Original network $id changed." }
+}
+if {[firewall_state] ne $firewall_before} {
+  fail {Host firewall configuration changed.}
+}
+send_log "Supplemental content/runtime/configuration/preservation assertions passed.\n"

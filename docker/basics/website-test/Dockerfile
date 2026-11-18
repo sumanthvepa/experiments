@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
 # website-test/Dockerfile: Exploratory Docker file to create a
-# nginix server hosting a simple website running on almalinux:10-minimal
+# nginx server hosting a simple website running on almalinux:10-minimal
 #
 # Copyright (C) 2024-26 Sumanth Vepa.
 #
@@ -20,46 +20,24 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# This Dockerfile creates an nginx server running a simple website
-# almalinux:10-minimal
+# Start with a native Linux base and install nginx in the image, not host.
 FROM almalinux:10-minimal
-
-# The MAINTAINER command is deprecated. It sets the author of
-# field in image metadata. Instead use LABEL command to set
-# metadata. The LABEL command is more flexible and can be used
-# to set other metadata as well.
-# MAINTAINER Sumanth Vepa <svepa@milestone42.com>
-
-# The LABEL command is used to add metadata to the image.
-# This metadata can be used to search for images in a registry.
-# See 10-docker-inspect.sh for how view and use this metadata.
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This is a demo image to show how to set up a website frontend running on nginx."
+LABEL org.opencontainers.image.description="A packaged static website served by nginx."
+RUN microdnf -y install nginx && microdnf clean all
 
-# The RUN command runs specific command in the image.
-# Each RUN command will result in a new layer in the
-# union filesystem that comprises the image.
-RUN microdnf -y install nginx
+# COPY source paths are relative to the website-test build context.
+# /etc/nginx/nginx.conf replaces the distribution's configuration; the
+# document root contains our page and its referenced stylesheet.
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY index.html style.css /usr/share/nginx/html/
+# Make read permissions explicit, independent of source checkout modes.
+RUN chmod 644 /etc/nginx/nginx.conf /usr/share/nginx/html/index.html /usr/share/nginx/html/style.css \
+    && nginx -t
 
-# This specifies what signal docker should send to the
-# process running in the container when
-# docker container stop is called from the host.
-# This can be overridden on the command line with -s option
-# passed to docker container stop.
-# See 02-docker-container-basics.sh for examples of using
-# -s
+# Docker stop sends SIGQUIT for graceful nginx shutdown. EXPOSE documents
+# the listening TCP port; publication is chosen when creating a container.
 STOPSIGNAL SIGQUIT
-
-# This is essentially a form of documentation for the reader of the
-# Dockerfile telling them that the process in the container will
-# listen on the given port, in this case port 80. You can be more
-# general simply saying 80 instead of 80/tcp. Doing so will open the
-# port for both TCP and UDP traffic.
 EXPOSE 80/tcp
-
-# The CMD command specifes what command to run when the image is
-# started. Each element in the list should correspond to one argument
-# typed on the command line. If a command line has multiple words that
-# are quoted, then you should include those multple words in one
-# element of # the list like with "daemon off;" below.
+# Exec form keeps nginx as PID 1. Foreground mode keeps the container alive.
 CMD ["nginx", "-g", "daemon off;"]
