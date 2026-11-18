@@ -1,0 +1,392 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 19-docker-login-logout.exp: Verify isolated local registry authentication
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 1800
+source [file join [file dirname [info script]] tutorial-test.tcl]
+
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+set real_docker [host_command which docker]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
+    stat --format='%n %a %u %g' 19-docker-login-logout.sh tests/19-docker-login-logout.exp bash-utilities.sh
+    sha256sum 19-docker-login-logout.sh tests/19-docker-login-logout.exp bash-utilities.sh
+  } bash $basics]
+}
+set fixtures_before [fixture_state]
+set originals [dict create]
+foreach image {nginx hello-world registry:3} {
+  if {[host_command docker image ls --quiet $image] ne ""} {
+    dict set originals $image [host_command docker image inspect $image]
+  }
+}
+# Guard every fixture name/port before any setup. Never overwrite a tag.
+set fixture "docker-basics-login-fixture-[pid]:demo"
+foreach image [list docker-basics-login-payload:demo 127.0.0.1:5500/demo/payload:demo $fixture] {
+  if {[host_command docker image ls --quiet $image] ne ""} {
+    fail "Refusing fixture: image $image already exists."
+  }
+}
+if {[host_command docker container ls --all --quiet --filter {name=^/docker-basics-login-registry$}] ne ""} {
+  fail {Refusing fixture: registry container name already exists.}
+}
+host_command python3 -c {
+import socket
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(('127.0.0.1', 5500))
+}
+
+# Controlled reader config and helper executables. Record atime after
+# deliberately making it old: any CLI read updates it under relatime too.
+# Never touch or inspect the real reader's configuration or credentials.
+set private [host_command mktemp --directory --tmpdir docker-login-driver.XXXXXX]
+cleanup_on_host rm --recursive --force -- $private
+host_command mkdir $private/config $private/bin
+set config [open $private/config/config.json w]
+puts $config {{"auths":{"example.invalid":{"auth":"c2VudGluZWw="}},"credsStore":"reader-sentinel","credHelpers":{"127.0.0.1:5500":"reader-sentinel"}}}
+close $config
+host_command chmod 600 $private/config/config.json
+host_command touch -a -d 2000-01-01 $private/config/config.json
+set config_atime [host_command stat --format=%X $private/config/config.json]
+set helper [open $private/bin/helper w]
+puts $helper {#!/bin/bash}
+puts $helper {printf 'HELPER INVOKED\n' >> "$TEST_HELPER_LOG"}
+puts $helper {exit 91}
+close $helper
+host_command chmod 700 $private/bin/helper
+foreach name {pass docker-credential-pass docker-credential-secretservice docker-credential-reader-sentinel} {
+  host_command ln --symbolic helper $private/bin/$name
+}
+# A process wrapper injects actual Docker failures without editing any
+# running input. It keeps argv and stdin intact except for the explicitly
+# tested bad-password login; every other operation delegates unchanged.
+set wrapper [open $private/bin/docker w]
+puts $wrapper {#!/bin/bash}
+puts $wrapper {set -u}
+puts $wrapper {args=("$@"); op="${*:3}"}
+puts $wrapper {real=$TEST_REAL_DOCKER}
+puts $wrapper {
+case "${TEST_FAILURE:-}:$op" in
+  readiness:'container start '*)
+    "$real" "${args[@]}" || exit $?
+    "$real" --config "$DOCKER_CONFIG" container stop docker-basics-login-registry >/dev/null || exit $?
+    exit 0 ;;
+  login:'login '*)
+    # Consume the demonstration password without printing it, then use a
+    # deliberately wrong value on stdin to elicit a real registry 401.
+    IFS= read -r ignored
+    printf 'intentionally-invalid\n' | "$real" "${args[@]}"
+    exit $? ;;
+  push:'image push '*)
+    if [[ -f "$TEST_DRIVER_PRIVATE/push-seen" ]]; then
+      /usr/bin/mkdir "$TEST_DRIVER_PRIVATE/empty-config"
+      printf '{"auths":{}}\n' > "$TEST_DRIVER_PRIVATE/empty-config/config.json"
+      args[1]="$TEST_DRIVER_PRIVATE/empty-config"
+    else
+      : > "$TEST_DRIVER_PRIVATE/push-seen"
+    fi ;;
+  logout:'logout '*)
+    /usr/bin/chmod 500 "$DOCKER_CONFIG"
+    "$real" "${args[@]}"
+    status=$?
+    /usr/bin/chmod 700 "$DOCKER_CONFIG"
+    exit "$status" ;;
+esac
+"$real" "${args[@]}"
+status=$?
+if [[ $status == 0 ]]; then
+  case "${TEST_INTERRUPT:-}:$op" in
+    setup:'container cp '*|login:'login '*|push:'image push '*)
+      printf 'Driver interruption checkpoint: %s\n' "$TEST_INTERRUPT" >&2
+      /usr/bin/sleep 60 ;;
+  esac
+fi
+exit "$status"
+}
+close $wrapper
+host_command chmod 700 $private/bin/docker
+set reader_path "$private/bin:$env(PATH)"
+set helper_before [host_command bash -c {
+  find "$1/bin" -printf '%P %m %u %g %y %l\n' | sort
+  find "$1/bin" -type f -exec sha256sum {} + | sort
+} bash $private]
+
+proc launch {name {failure ""} {interrupt ""}} {
+  global private reader_path env real_docker
+  start_terminal $name env DOCKER_CONFIG=$private/config PATH=$reader_path \
+    TEST_HELPER_LOG=$private/helper-used TEST_REAL_DOCKER=$real_docker \
+    TEST_FAILURE=$failure TEST_INTERRUPT=$interrupt TEST_DRIVER_PRIVATE=$private \
+    bash -- $env(TUTORIAL_TEST_TUTORIAL)
+}
+proc get_work {name} {
+  set work [lindex [wait_for_regexp -in $name {Owned temporary directory: ([^\r\n]+)}] 1]
+  if {[host_command stat --format=%a $work] ne "700"} { fail {temporary directory is not 0700} }
+  return $work
+}
+proc check_private {work} {
+  foreach dir [list $work/config $work/no-helpers $work/payload] {
+    if {[host_command stat --format=%a $dir] ne "700"} { fail {private subdirectory is not 0700} }
+  }
+  foreach path [list $work/htpasswd $work/config/config.json] {
+    if {[host_command stat --format=%a $path] ne "600"} { fail {private credential file is not 0600} }
+  }
+}
+proc begin_registry {name} {
+  set work [get_work $name]
+  answer_pause -in $name -time 900 {Press ENTER to create the authenticated loopback registry...}
+  set id [lindex [wait_for_regexp -in $name {Owned registry container: ([0-9a-f]{64})}] 1]
+  set volumes [host_command docker container inspect --format \
+    {{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}}{{"\n"}}{{end}}{{end}}} $id]
+  if {$volumes eq ""} { fail {registry has no owned data volume} }
+  check_private $work
+  return [list $work $id $volumes]
+}
+proc verify_removed {state} {
+  lassign $state work id volumes
+  if {[file exists $work]} { fail "private files remain: $work" }
+  if {[host_command_succeeds docker container inspect $id]} { fail {owned registry remains} }
+  foreach volume [split $volumes \n] {
+    if {$volume ne "" && [host_command_succeeds docker volume inspect $volume]} {
+      fail {owned registry data volume remains}
+    }
+  }
+}
+# Reuse a driver-owned registry base for supplemental runs, while checking
+# the lesson preserves its FULL inspect data. The first normal run above
+# still exercises tutorial-owned pull/removal from an absent baseline.
+proc cache_registry {} {
+  global private real_docker registry_snapshot registry_owned
+  set registry_owned 0
+  if {[host_command docker image ls --quiet registry:3] eq ""} {
+    host_command mkdir $private/registry-config $private/no-helpers
+    host_command env PATH=$private/no-helpers $real_docker --config $private/registry-config image pull registry:3
+    set registry_owned 1
+    cleanup_on_host $real_docker --config $private/registry-config image rm registry:3
+  }
+  set registry_snapshot [host_command docker image inspect registry:3]
+}
+proc release_registry {} {
+  global private real_docker registry_snapshot registry_owned
+  if {[host_command docker image inspect registry:3] ne $registry_snapshot} {
+    fail {pre-existing registry base full metadata changed}
+  }
+  if {$registry_owned} {
+    host_command $real_docker --config $private/registry-config image rm registry:3
+    cancel_cleanup_on_host
+  }
+}
+proc login_steps {name} {
+  wait_for -in $name {Verified anonymous HTTP 401 and authenticated HTTP 200.}
+  answer_pause -in $name {Press ENTER to push before login (expect authentication denial)...}
+  wait_for -in $name {Verified push denied before-login}
+  wait_for -in $name {Verified repository absent before login (HTTP 404).}
+  answer_pause -in $name {Press ENTER to login using the demonstration password on stdin...}
+}
+proc push_steps {name} {
+  wait_for -in $name {Decoded username: tutorial; password: [REDACTED]; exact match verified.}
+  answer_pause -in $name {Press ENTER to push after login...}
+}
+
+switch -- [scenario] {
+  normal {
+    launch normal
+    set state [begin_registry normal]
+    lassign $state work id volumes
+    login_steps normal
+    set mapping [host_command docker container port $id 5000/tcp]
+    if {$mapping ne "127.0.0.1:5500"} { fail {registry is not loopback-only} }
+    # Inspect only the private demonstration config. Never print its auth.
+    wait_for -in normal {Decoded username: tutorial; password: [REDACTED]; exact match verified.}
+    host_command jq --exit-status {has("credsStore") | not} $work/config/config.json
+    check_private $work
+    # Decode only in memory and check the captured terminal log. The
+    # plaintext demonstration password must never reach terminal output.
+    host_command python3 -c {
+import base64, json, pathlib, sys
+config = json.loads(pathlib.Path(sys.argv[1]).read_text())
+secret = base64.b64decode(config['auths']['127.0.0.1:5500']['auth']).decode().split(':', 1)[1]
+assert secret not in pathlib.Path(sys.argv[2]).read_text()
+} $work/config/config.json $env(TUTORIAL_TEST_LOG)
+    answer_pause -in normal {Press ENTER to push after login...}
+    wait_for -in normal {Verified registry now contains demo/payload:demo (HTTP 200).}
+    # Assert actual registry storage exists before cleanup, beyond snapshots.
+    host_command docker container exec $id test -d /var/lib/registry/docker/registry/v2/repositories/demo/payload
+    answer_pause -in normal {Press ENTER to logout and push again (expect authentication denial)...}
+    wait_for -in normal {Verified push denied after-logout}
+    wait_for -in normal {Verified logout removed local auth; registry content is unchanged.}
+    host_command jq --exit-status {(.auths["127.0.0.1:5500"].auth // "") == ""} $work/config/config.json
+    answer_pause -in normal {Press ENTER to remove our registry, data, images and private files...}
+    finish_terminal normal 0
+    verify_removed $state
+
+    cache_registry
+    # All four real failure paths use independent immutable wrapper inputs.
+    foreach failure {readiness login push logout} {
+      launch failure-$failure $failure
+      set state [begin_registry failure-$failure]
+      if {$failure eq "readiness"} {
+        wait_for -in failure-$failure -time 180 {Registry readiness/authentication failed}
+      } else {
+        login_steps failure-$failure
+        if {$failure eq "login"} {
+          wait_for -in failure-$failure {Local HTTP login failed: external validation blocker}
+        } else {
+          push_steps failure-$failure
+          if {$failure eq "push"} {
+            wait_for -in failure-$failure {Authenticated push failed.}
+          } else {
+            wait_for -in failure-$failure {Verified registry now contains demo/payload:demo (HTTP 200).}
+            answer_pause -in failure-$failure {Press ENTER to logout and push again (expect authentication denial)...}
+            # Docker 29 can return zero when saving the erased config
+            # fails. The tutorial must detect the surviving auth entry.
+            wait_for -in failure-$failure {Logout left an auth entry.}
+          }
+        }
+      }
+      finish_terminal failure-$failure 1
+      verify_removed $state
+    }
+    release_registry
+  }
+  interrupt {
+    # Interrupt real in-progress cp/login/push commands after their side
+    # effects, not just read prompts. Cleanup must handle partial stages.
+    cache_registry
+    foreach stage {setup login push} {
+      launch interrupt-$stage "" $stage
+      set state [begin_registry interrupt-$stage]
+      if {$stage ne "setup"} {
+        login_steps interrupt-$stage
+        if {$stage eq "push"} { push_steps interrupt-$stage }
+      }
+      wait_for -in interrupt-$stage "Driver interruption checkpoint: $stage"
+      press_ctrl_c -in interrupt-$stage
+      finish_terminal interrupt-$stage 130
+      verify_removed $state
+    }
+    release_registry
+  }
+  conflict {
+    # Own a tiny fixture, never retag nginx/hello-world or registry:3.
+    host_command bash -c {
+      set -euo pipefail
+      tar --create --files-from /dev/null --file - | docker image import - "$1"
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    host_command docker image tag $fixture docker-basics-login-payload:demo
+    cleanup_on_host docker image rm docker-basics-login-payload:demo
+    set before [host_command docker image inspect docker-basics-login-payload:demo]
+    launch image-conflict
+    set work [get_work image-conflict]
+    wait_for -in image-conflict {Image name docker-basics-login-payload:demo already exists.}
+    finish_terminal image-conflict 1
+    if {[file exists $work]} { fail {conflict left private files} }
+    if {[host_command docker image inspect docker-basics-login-payload:demo] ne $before} {
+      fail {conflicting image metadata changed}
+    }
+    host_command docker image rm docker-basics-login-payload:demo
+    cancel_cleanup_on_host
+    host_command docker image tag $fixture 127.0.0.1:5500/demo/payload:demo
+    cleanup_on_host docker image rm 127.0.0.1:5500/demo/payload:demo
+    set before [host_command docker image inspect 127.0.0.1:5500/demo/payload:demo]
+    launch push-tag-conflict
+    set work [get_work push-tag-conflict]
+    wait_for -in push-tag-conflict {Image name 127.0.0.1:5500/demo/payload:demo already exists.}
+    finish_terminal push-tag-conflict 1
+    if {[file exists $work]} { fail {push-tag conflict left private files} }
+    if {[host_command docker image inspect 127.0.0.1:5500/demo/payload:demo] ne $before} {
+      fail {conflicting registry-qualified tag metadata changed}
+    }
+    host_command docker image rm 127.0.0.1:5500/demo/payload:demo
+    cancel_cleanup_on_host
+    set id [host_command docker container create --network none --name docker-basics-login-registry $fixture /sentinel]
+    cleanup_on_host docker container rm --force --volumes $id
+    set before [host_command docker container inspect $id]
+    launch container-conflict
+    set work [get_work container-conflict]
+    wait_for -in container-conflict {Container name docker-basics-login-registry already exists.}
+    finish_terminal container-conflict 1
+    if {[file exists $work]} { fail {conflict left private files} }
+    if {[host_command docker container inspect $id] ne $before} {
+      fail {conflicting container metadata or state changed}
+    }
+    host_command docker container rm --volumes $id
+    cancel_cleanup_on_host
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+    # An actual host listener owns the port; tutorial must preserve it.
+    start_terminal port-holder python3 -u -c {
+import socket, time
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(('127.0.0.1', 5500))
+    s.listen()
+    print('Port fixture listening')
+    time.sleep(120)
+}
+    wait_for -in port-holder {Port fixture listening}
+    launch port-conflict
+    set work [get_work port-conflict]
+    wait_for -in port-conflict {Host port 127.0.0.1:5500 is busy.}
+    finish_terminal port-conflict 1
+    if {[file exists $work]} { fail {port conflict left private files} }
+    host_command python3 -c {
+import socket
+with socket.create_connection(('127.0.0.1', 5500), timeout=2):
+    pass
+}
+    press_ctrl_c -in port-holder
+    finish_terminal port-holder 130
+  }
+}
+# Reader sentinel was never read, rewritten, chmodded, or delegated to a
+# helper, including Linux automatic discovery. Check atime BEFORE reading.
+if {[host_command stat --format=%X $private/config/config.json] ne $config_atime} {
+  fail {reader sentinel config was read}
+}
+if {[host_command stat --format=%a $private/config/config.json] ne "600"} {
+  fail {reader sentinel config permissions changed}
+}
+set config [open $private/config/config.json r]
+set config_text [string trim [read $config]]
+close $config
+if {$config_text ne {{"auths":{"example.invalid":{"auth":"c2VudGluZWw="}},"credsStore":"reader-sentinel","credHelpers":{"127.0.0.1:5500":"reader-sentinel"}}}} {
+  fail {reader sentinel config contents changed}
+}
+if {[file exists $private/helper-used]} { fail {reader credential helper was invoked} }
+set helper_after [host_command bash -c {
+  find "$1/bin" -printf '%P %m %u %g %y %l\n' | sort
+  find "$1/bin" -type f -exec sha256sum {} + | sort
+} bash $private]
+if {$helper_after ne $helper_before} { fail {helper fixture contents or modes changed} }
+if {[fixture_state] ne $fixtures_before} { fail {tutorial directory or fixture contents/modes changed} }
+dict for {image before} $originals {
+  if {[host_command docker image inspect $image] ne $before} { fail "existing $image full metadata changed" }
+}
+host_command rm --recursive --force -- $private
+cancel_cleanup_on_host
+send_log "Config/helper noninvocation, private modes, data/temp cleanup, fixture and original image preservation passed.\n"
