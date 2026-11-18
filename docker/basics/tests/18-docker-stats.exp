@@ -1,0 +1,169 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 18-docker-stats.exp: Verify scoped metrics, streaming and preservation
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 1800
+source [file join [file dirname [info script]] tutorial-test.tcl]
+
+# The runner observes resource identities. Also compare relevant repo
+# content, types, modes and ownership, including ignored additions.
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
+    find flask-test -printf '%p %m %u %g %y\n' | sort
+    find flask-test -type f -exec sha256sum {} + | sort
+    stat --format='%n %a %u %g' tests/18-docker-stats.exp
+    sha256sum 18-docker-stats.sh tests/18-docker-stats.exp docker-build-flask-test-utilities.sh bash-utilities.sh
+  } bash $basics]
+}
+set before [fixture_state]
+set base_before ""
+if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
+  set base_before [host_command docker image inspect almalinux:10-minimal]
+}
+
+# Return only after the stats command has printed an owned data row,
+# rather than synchronizing on its prompt or table header alone.
+proc exercise_stream {} {
+  answer_pause -time 900 {Press ENTER to start the Flask container...}
+  wait_for {Verified Flask HTTP JSON: {"flask_test":"works"}}
+  set id [lindex [wait_for_regexp {Owned stats container: ([0-9a-f]{64})}] 1]
+  set actual [host_command docker container inspect --format {{{.Id}}} stats-test]
+  if {$id ne $actual} { fail {owned container identity differs from Docker} }
+  set mapping [host_command docker container port $id 5000/tcp]
+  if {$mapping ne "127.0.0.1:5000"} { fail {HTTP publish is not loopback only} }
+  # Complete the deferred shared-context runtime regression from lesson13.
+  if {[host_command docker container exec $id id -u] ne "2500"} {
+    fail {Flask process does not use uid2500}
+  }
+  host_command docker container exec $id python -c {
+import sys, importlib.metadata as m
+assert sys.version_info[:2] == (3, 12)
+assert sys.prefix == '/opt/flask/production-venv'
+assert m.version('Flask') == '3.1.1'
+import gunicorn
+}
+  host_command docker container exec $id bash -c {
+    set -euo pipefail
+    test "$HOME" = /opt/flask
+    test -w "$HOME"
+    test -x /usr/bin/false
+  }
+  host_command docker container exec $id python -m pip --no-cache-dir check
+  set server_log [host_command bash -c {docker container logs "$1" 2>&1} bash $id]
+  if {[string match {*Control server error:*} $server_log]} {
+    fail {Gunicorn control socket error}
+  }
+  answer_pause {Press ENTER to sample the owned container...}
+  wait_for {Verified one metrics row with owned identity, memory and running tasks.}
+  answer_pause {Press ENTER to stream the owned container; Ctrl-C once after a data row...}
+  wait_for {MEM USAGE / LIMIT}
+  # Full ID plus name and numeric CPU percentage proves a live data row.
+  wait_for_regexp [format {%s +stats-test +[0-9]+\.[0-9]+%%} $id]
+  press_ctrl_c
+  wait_for {Verified stats stream ended; owned Flask service still running and serving HTTP.}
+  if {[host_command docker container inspect --format {{{.State.Running}}} $id] ne "true"} {
+    fail {interrupting stats stopped the owned service}
+  }
+  return $id
+}
+
+switch -- [scenario] {
+  conflict {
+    # Guard EVERY fixture name before setup; never overwrite a real tag.
+    set fixture "docker-basics-stats-fixture-[pid]"
+    foreach tag [list flask-test $fixture] {
+      if {[host_command docker image ls --quiet $tag] ne ""} {
+        fail "Refusing fixture: image name $tag already exists."
+      }
+    }
+    if {[host_command docker container ls --all --quiet \
+        --filter {name=^/stats-test$}] ne ""} {
+      fail {Refusing fixture: container stats-test already exists.}
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" |
+        docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    set image_before [host_command docker image inspect --format \
+      { {{.Id}} {{json .Config}} {{json .RootFS}} } $fixture]
+    host_command docker image tag $fixture flask-test
+    cleanup_on_host docker image rm flask-test
+    set tag_before [host_command docker image inspect flask-test]
+    start_terminal image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in image-conflict {Image name flask-test already exists.}
+    finish_terminal image-conflict 1
+    if {[host_command docker image inspect flask-test] ne $tag_before} {
+      fail {conflicting image metadata changed}
+    }
+    host_command docker image rm flask-test
+    cancel_cleanup_on_host
+    set id [host_command docker container create --network none --name stats-test $fixture /sentinel]
+    cleanup_on_host docker container rm --force $id
+    set container_before [host_command docker container inspect $id]
+    start_tutorial
+    wait_for {Container name stats-test already exists.}
+    finish_tutorial 1
+    if {[host_command docker container inspect $id] ne $container_before} {
+      fail {conflicting container full metadata or state changed}
+    }
+    host_command docker container rm $id
+    cancel_cleanup_on_host
+    if {[host_command docker image inspect --format \
+        { {{.Id}} {{json .Config}} {{json .RootFS}} } $fixture] ne $image_before} {
+      fail {fixture image content or metadata changed}
+    }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  interrupt {
+    # Check the restored INT trap after ending a real stats stream.
+    start_tutorial
+    exercise_stream
+    wait_for {Press ENTER to stop the service and clean up...}
+    press_ctrl_c
+    finish_tutorial 130
+  }
+  normal {
+    # Normal covers stream continuation completely; no duplicate
+    # continue scenario is required by the harness contract.
+    start_tutorial
+    exercise_stream
+    answer_pause {Press ENTER to stop the service and clean up...}
+    wait_for {Lesson complete; owned container and added images removed.}
+    finish_tutorial 0
+  }
+}
+if {[fixture_state] ne $before} {
+  fail {tutorial directory, context content, permissions or ownership changed}
+}
+if {$base_before ne "" &&
+    [host_command docker image inspect almalinux:10-minimal] ne $base_before} {
+  fail {full pre-existing base image metadata changed}
+}
+send_log "Supplemental repo/context metadata and existing-base preservation assertions passed.\n"
