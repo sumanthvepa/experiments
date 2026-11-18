@@ -28,7 +28,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 # normal exit, errors, Ctrl-C (130) and SIGTERM (143).
 source ./bash-utilities.sh
 
-echo '17-docker-inspect: inspect image configuration and container state'
+echo '17-docker-inspect: inspect images, containers and networks'
 # Host: bash /path/to/17-docker-inspect.sh
 # Needs Bash, jq, Docker/Buildx, a local Linux daemon and network access
 # to Docker Hub/AlmaLinux repositories. No host packages are installed.
@@ -44,6 +44,8 @@ DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
 IMAGE=docker-basics-nginx
+NETWORK=docker-basics-inspect-network
+NETWORK_ID=
 BASE=almalinux:10-minimal
 RUN_TOKEN="inspect-$$-$RANDOM"
 OWNER_LABEL=io.github.svepa.docker-basics.inspect-run
@@ -56,6 +58,32 @@ for NAME in nginx-test-container "$IMAGE"; do
   [[ -z $EXISTING ]] || die "Container name $NAME already exists." \
     "Inspect it with docker container inspect $NAME before removing it."
 done
+
+EXISTING=$(docker network ls --quiet --filter "name=^$NETWORK$")
+[[ -z $EXISTING ]] || die "Network name $NETWORK already exists." \
+  "Inspect it with docker network inspect $NETWORK before removing an unwanted network."
+
+# Prefer the ID returned by create. Only before that assignment completes
+# (including an interrupted create) discover the exact name and verify its label.
+# A missing network is harmless (cleanup is registered before creation).
+# Never disconnect unknown endpoints: Docker refuses removal while in use.
+remove_owned_network() {
+  local existing owner network_id=${NETWORK_ID:-} filter="name=^$NETWORK$"
+  if [[ -n $network_id ]]; then filter="id=$network_id"; fi
+  existing=$(docker network ls --quiet --no-trunc --filter "$filter") || return $?
+  [[ -n $existing ]] || return 0
+  [[ $existing != *$'\n'* ]] || {
+    echo "Refusing ambiguous network name $NETWORK; inspect it manually." >&2
+    return 1
+  }
+  network_id=$existing
+  owner=$(docker network inspect --format "{{index .Labels \"$OWNER_LABEL\"}}" "$network_id") || return $?
+  [[ $owner == "$RUN_TOKEN" ]] || {
+    echo "Refusing to remove changed network $NETWORK; inspect it manually." >&2
+    return 1
+  }
+  docker network rm "$network_id" || return $?
+}
 
 # Remove a tag acquired only after the absence check above. Register before
 # pull/build so a client interrupted just after acquiring the tag is covered.
@@ -126,6 +154,11 @@ docker image inspect "$IMAGE" | jq -e '
 ' >/dev/null
 echo 'Verified image command, exposed port, stop signal and description label.'
 read -r -p 'Press ENTER to start nginx and inspect its runtime state...'
+
+# Register the future network before either container: reverse cleanup must
+# remove their endpoints before the network, even if interrupted in section 5.
+# The unique label prevents touching a same-name network owned by someone else.
+cleanup_add inspect-network remove_owned_network
 
 # 2. A running container has its own identity and mutable runtime state
 # Separate create/start lets cleanup register the returned container ID
@@ -215,19 +248,72 @@ SELECTED_CONTAINER=$(docker inspect --type=container --format '{{.Id}}' "$IMAGE"
    $SELECTED_IMAGE != "$SELECTED_CONTAINER" ]] || die 'Resource-type disambiguation did not select the expected IDs.'
 printf 'Explicit image ID: %s\nExplicit container ID: %s\n' "$SELECTED_IMAGE" "$SELECTED_CONTAINER"
 echo 'Verified --type disambiguation and explicit subcommand selection.'
+read -r -p 'Press ENTER to create a network and inspect its metadata...'
+
+# 5. Inspect a network's configuration and its current endpoint membership
+# Create our own bridge instead of changing the daemon's built-in bridge.
+# --driver selects the network implementation; the ownership label is network
+# metadata (.Labels), unlike an image/container's .Config.Labels. Let Docker
+# allocate an available subnet: addresses and IDs are observations, not constants.
+NETWORK_ID=$(docker network create --driver bridge --label "$OWNER_LABEL=$RUN_TOKEN" "$NETWORK")
+echo "JSON metadata of the network $NETWORK (one-element array):"
+docker inspect --type=network "$NETWORK" | jq .
+# A network has .Driver, .Scope and .IPAM, rather than image process defaults
+# or container .State. Explicit --type=network or network inspect avoids name
+# ambiguity. The Go template's json function also works on nested network data.
+echo 'Network address-management configuration (.IPAM):'
+docker network inspect --format '{{json .IPAM}}' "$NETWORK_ID" | jq .
+# Driver=bridge and Scope=local describe a single-daemon bridge. IPAM.Driver
+# identifies address management; IPAM.Config lists allocated Subnet/Gateway.
+# Internal restricts external access when true; it is false here by default.
+# None of these fields alone proves HTTP readiness or connectivity; lesson 21
+# owns network configuration/connectivity. Here we only observe membership.
+docker network inspect "$NETWORK_ID" | jq -e --arg name "$NETWORK" \
+  --arg id "$NETWORK_ID" --arg label "$OWNER_LABEL" --arg owner "$RUN_TOKEN" '
+  length == 1 and .[0].Name == $name and .[0].Id == $id and
+  .[0].Driver == "bridge" and .[0].Scope == "local" and
+  (.[0].Internal | not) and .[0].Labels[$label] == $owner and
+  .[0].IPAM.Driver == "default" and
+  (.[0].IPAM.Config | any(.Subnet != null and .Gateway != null)) and
+  (.[0].Containers | length) == 0
+' >/dev/null
+echo 'Verified local bridge configuration and initially empty membership.'
+# Reuse the original container after its stopped-state inspection. Starting
+# then connecting it gives this network one live endpoint without a new image
+# or container. Its existing default-bridge attachment is left intact.
+docker container start "$ID"
+docker network connect "$NETWORK_ID" "$ID"
+echo 'Live network endpoints (.Containers, keyed by container ID):'
+docker network inspect --format '{{json .Containers}}' "$NETWORK_ID" | jq .
+# EndpointID names this attachment, not the container or network. IPv4Address
+# includes a prefix length. The container view stores IPAddress separately.
+docker network inspect "$NETWORK_ID" | jq -e --arg id "$ID" '
+  (.[0].Containers | length) == 1 and
+  .[0].Containers[$id].Name == "nginx-test-container" and
+  (.[0].Containers[$id].EndpointID | length) > 0 and
+  (.[0].Containers[$id].IPv4Address | contains("/"))
+' >/dev/null
+echo 'The same attachment from the container (.NetworkSettings.Networks):'
+docker container inspect --format '{{json .NetworkSettings.Networks}}' "$ID" | jq .
+docker container inspect "$ID" | jq -e --arg network "$NETWORK" --arg id "$NETWORK_ID" '
+  .[0].State.Running and .[0].NetworkSettings.Networks[$network].NetworkID == $id and
+  (.[0].NetworkSettings.Networks[$network].IPAddress | length) > 0
+' >/dev/null
+echo 'Verified live endpoint membership in both network and container inspection.'
 read -r -p 'Press ENTER to remove the inspection examples...'
 
-# To inspect a network
-# TODO: Create a network for inspection
-# docker inspect --type=network bridge
-
-# 5. Visible cleanup removes only this run's containers and image tags
-# Remove containers before the image they reference. Keep fallbacks until
+# 6. Visible cleanup removes only this run's containers, network and image tags
+# Remove containers before their network and image. Keep fallbacks until
 # each removal succeeds; a base that existed at startup is left untouched.
 docker container rm "$AMBIGUOUS_ID"
 cleanup_cancel inspect-ambiguous
+docker container stop "$ID"
 docker container rm "$ID"
 cleanup_cancel inspect-container
+docker network inspect "$NETWORK_ID" | jq -e '.[0].Containers | length == 0' >/dev/null
+remove_owned_network
+cleanup_cancel inspect-network
+echo 'Verified endpoints removed before owned network removal.'
 remove_owned_image "$IMAGE:latest"
 cleanup_cancel inspect-image
 if [[ $BASE_CREATED == yes ]]; then
@@ -239,10 +325,15 @@ echo 'Lesson complete; owned inspection resources removed.'
 # Inspect suspected leftovers first:
 # docker container inspect nginx-test-container docker-basics-nginx
 # docker image inspect docker-basics-nginx almalinux:10-minimal
-# Then remove only confirmed lesson-owned containers by ID and tags by name:
+# docker network inspect docker-basics-inspect-network
+# Then remove only confirmed lesson-owned containers/networks by ID and image tags:
 # docker container rm --force ID
 # docker image rm docker-basics-nginx:latest
+# docker network rm NETWORK_ID  # only after its confirmed owned endpoints are removed
 # References:
 # https://docs.docker.com/reference/cli/docker/inspect/
 # https://docs.docker.com/engine/containers/run/
 # https://pkg.go.dev/text/template
+# https://docs.docker.com/reference/cli/docker/network/inspect/
+# https://docs.docker.com/reference/cli/docker/network/create/
+# https://docs.docker.com/reference/cli/docker/network/rm/
