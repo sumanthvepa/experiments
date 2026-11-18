@@ -66,13 +66,44 @@ foreach type {image container network volume} {
 }
 proc begin_lesson {terminal} {
   global env
-  start_terminal $terminal bash -- $env(TUTORIAL_TEST_TUTORIAL)
+  start_terminal $terminal env COMPOSE24_MESSAGE=Reader-message-never-print \
+    COMPOSE24_UNUSED=Reader-sentinel-never-print bash -- $env(TUTORIAL_TEST_TUTORIAL)
   set match [wait_for_regexp -in $terminal {Compose project: (compose24-[0-9]+-[0-9]+)}]
   set project [lindex $match 1]
   set match [wait_for_regexp -in $terminal {Compose file: (/tmp/docker-basics-compose24\.[A-Za-z0-9]+/compose.yaml)}]
   set file [lindex $match 1]
   wait_for -in $terminal {Press ENTER to build and start this Compose project...}
+  verify_config $project $file
   return [list $project $file]
+}
+# Resolve the actual generated model independently; compare all other fields
+# so interpolation cannot silently change build, publication or ownership.
+proc verify_config {project file} {
+  host_command bash -c {
+    set -euo pipefail
+    project=$1 file=$2
+    scratch=${file%/*}
+    envfile=$scratch/interpolation.env
+    test "$(stat --format=%a "$scratch")" = 700
+    test "$(stat --format=%a "$envfile")" = 600
+    test "$(stat --format=%u "$envfile")" = "$UID"
+    test "$(cat "$envfile")" = $'COMPOSE24_MESSAGE=From the interpolation file\nCOMPOSE24_UNUSED=Interpolation only sentinel'
+    rg --fixed-strings 'LESSON: "${COMPOSE24_MESSAGE:-Compose basics}"' "$file"
+    compose_model() {
+      env --unset=COMPOSE24_MESSAGE --unset=COMPOSE24_UNUSED \
+        COMPOSE_REMOVE_ORPHANS=false COMPOSE_IGNORE_ORPHANS=true \
+        "$@" docker compose --project-name "$project" --file "$file" \
+        --project-directory "$scratch" --env-file "$envfile" config --format json
+    }
+    default=$(compose_model env COMPOSE24_MESSAGE=)
+    selected=$(compose_model env)
+    override=$(compose_model env COMPOSE24_MESSAGE='Independent shell value')
+    jq -e '.services.web.environment == {"LESSON":"Compose basics"}' <<<"$default" >/dev/null
+    jq -e '.services.web.environment == {"LESSON":"From the interpolation file"}' <<<"$selected" >/dev/null
+    jq -e '.services.web.environment == {"LESSON":"Independent shell value"}' <<<"$override" >/dev/null
+    test "$(jq -S 'del(.services.web.environment)' <<<"$default")" = "$(jq -S 'del(.services.web.environment)' <<<"$selected")"
+    test "$(jq -S 'del(.services.web.environment)' <<<"$override")" = "$(jq -S 'del(.services.web.environment)' <<<"$selected")"
+  } bash $project $file
 }
 proc verify_live {project file} {
   global basics
@@ -80,12 +111,22 @@ proc verify_live {project file} {
     set -euo pipefail
     cd "$1"
     project=$2 file=$3
-    id=$(docker compose --project-name "$project" --file "$file" --env-file /dev/null ps --all --quiet web)
+    id=$(env --unset=COMPOSE24_MESSAGE --unset=COMPOSE24_UNUSED \
+      docker compose --project-name "$project" --file "$file" \
+      --project-directory "${file%/*}" --env-file "${file%/*}/interpolation.env" ps --all --quiet web)
     docker container inspect "$id" | jq --exit-status --arg project "$project" '
       .[0] | .State.Running and .Config.Labels["com.docker.compose.project"] == $project and
       .Config.Labels["com.docker.compose.service"] == "web" and
       .HostConfig.PortBindings["80/tcp"] == [{"HostIp":"127.0.0.1","HostPort":"8084"}] and
-      (.Mounts | length) == 0 and (.Config.Env | index("LESSON=Compose basics") != null)' >/dev/null
+      (.Mounts | length) == 0 and (.Config.Env | index("LESSON=From the interpolation file") != null) and
+      (.Config.Env | all(.[]; startswith("COMPOSE24_UNUSED=") | not))' >/dev/null
+    test "$(docker container exec "$id" printenv LESSON)" = 'From the interpolation file'
+    absence=$(docker container exec "$id" sh -c '
+      if printenv COMPOSE24_UNUSED; then exit 42; else
+        result=$?; test "$result" -eq 1 || exit "$result"
+        printf "%s" absent
+      fi')
+    test "$absence" = absent
     docker container exec "$id" test -e /tmp/exec-marker
     docker container exec "$id" cat /usr/share/nginx/html/index.html | cmp website-test/index.html -
     test "$(curl --noproxy '*' --fail --silent --show-error --max-time 3 http://127.0.0.1:8084/)" = "$(cat website-test/index.html)"
@@ -148,8 +189,9 @@ switch -- [scenario] {
     lassign [begin_lesson tutorial] project file
     type_line {}
     wait_for -time 1800 {Verified HTTP 200 and exact packaged index.html content.}
-    wait_for {exec environment: Compose basics}
-    wait_for {run environment: Compose basics; separate writable layer}
+    wait_for {Verified runtime LESSON=From the interpolation file; unreferenced sentinel absent.}
+    wait_for {exec environment: From the interpolation file}
+    wait_for {run environment: From the interpolation file; separate writable layer}
     wait_for {Verified exec retained its marker; run --rm used a separate container and removed it.}
     wait_for {Press ENTER to compare stop, start and down...}
     verify_live $project $file
@@ -176,4 +218,11 @@ dict for {type states} $original_state {
   dict for {id state} $states {
     if {[host_command docker $type inspect $id] ne $state} { fail "Original $type $id metadata/state changed." }
   }
+}
+# Ambient values supplied to the tutorial must never appear in its output.
+set lesson_log [open $env(TUTORIAL_TEST_LOG) r]
+set lesson_output [read $lesson_log]
+close $lesson_log
+foreach secret {Reader-message-never-print Reader-sentinel-never-print} {
+  if {[string first $secret $lesson_output] >= 0} { fail {Ambient exercise value leaked into output.} }
 }

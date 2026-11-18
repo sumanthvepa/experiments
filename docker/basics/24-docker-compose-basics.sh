@@ -81,6 +81,12 @@ NETWORK_ID=
 SCRATCH=$(mktemp --directory --tmpdir 'docker-basics-compose24.XXXXXXXX')
 cleanup_add compose-files rm --recursive --force -- "$SCRATCH"
 FILE="$SCRATCH/compose.yaml"
+ENV_FILE="$SCRATCH/interpolation.env"
+# These names belong to this exercise. Unset inherited values only in this
+# lesson process; the reader's shell and configuration files are unchanged.
+unset COMPOSE24_MESSAGE COMPOSE24_UNUSED
+# The directory is private (mktemp's 0700); make its env file private too.
+(umask 077; : > "$ENV_FILE")
 printf 'Compose project: %s\nCompose file: %s\n' "$PROJECT" "$FILE"
 
 # Every project command uses precisely this file/project, including cleanup.
@@ -91,7 +97,7 @@ printf 'Compose project: %s\nCompose file: %s\n' "$PROJECT" "$FILE"
 compose() {
   BUILDX_CONFIG="$SCRATCH/buildx" COMPOSE_REMOVE_ORPHANS=false COMPOSE_IGNORE_ORPHANS=true \
     docker compose --project-name "$PROJECT" --file "$FILE" \
-    --project-directory "$SCRATCH" --env-file /dev/null "$@"
+    --project-directory "$SCRATCH" --env-file "$ENV_FILE" "$@"
 }
 
 # Check both generated names and project-labelled resources before setup.
@@ -220,10 +226,13 @@ remove_image() {
 }
 
 assert_empty_project
-# A here-document writes YAML into our private directory. Python JSON string
-# quoting is also valid YAML quoting, including spaces in the context path.
+# Here-documents write YAML into our private directory. Unquoted YAML
+# expands host Bash variables (image/port/ownership) now. Quoted 'YAML'
+# preserves the dollar expression for Compose to resolve later. Python JSON
+# string quoting is also valid YAML quoting, including spaces in the context.
 CONTEXT=$(python3 -c 'import json, os; print(json.dumps(os.path.abspath("website-test")))')
-cat > "$FILE" <<YAML
+{
+cat <<YAML
 services:
   web:
     image: "$IMAGE"
@@ -232,8 +241,12 @@ services:
       labels:
         $OWNER_LABEL: "$RUN_TOKEN"
     command: ["nginx", "-g", "daemon off;"]
+YAML
+cat <<'YAML'
     environment:
-      LESSON: "Compose basics"
+      LESSON: "${COMPOSE24_MESSAGE:-Compose basics}"
+YAML
+cat <<YAML
     ports:
       - "127.0.0.1:$PORT:80"
     labels:
@@ -243,6 +256,7 @@ networks:
     labels:
       $OWNER_LABEL: "$RUN_TOKEN"
 YAML
+} > "$FILE"
 # 1. An application is the whole configured workload; this one contains one
 # service, web. A service is a repeatable container definition. A project
 # is a particular named instance: -p/--project-name isolates its containers
@@ -256,9 +270,32 @@ YAML
 # labels mark ownership, including the default network. Build fundamentals
 # belong to 08, static content to 20, and volumes/storage to 05 and 06.
 # No version: field is needed by the current Compose Specification.
-echo 'Validate and display the resolved service configuration:'
+# Compose interpolation happens before containers exist. ${NAME:-default}
+# uses the default when NAME is unset or empty. CLI --env-file supplies
+# interpolation values; a shell value takes precedence. It does not inject
+# every file entry into a container: environment above explicitly maps only
+# COMPOSE24_MESSAGE to LESSON. Service env_file: instead supplies container
+# variables; see lesson 07 for runtime environment values.
+# config --format json displays the resolved model as JSON; jq -e checks
+# the expected value and fails the lesson if the comparison is false.
+echo 'Resolve config with no message: expect LESSON=Compose basics.'
 compose config --quiet
-compose config
+CONFIG=$(compose config --format json)
+printf '%s\n' "$CONFIG"
+jq -e '.services.web.environment.LESSON == "Compose basics"' <<<"$CONFIG" >/dev/null
+cat > "$ENV_FILE" <<'ENV'
+COMPOSE24_MESSAGE=From the interpolation file
+COMPOSE24_UNUSED=Interpolation only sentinel
+ENV
+echo 'Resolve config with the owned env file: expect LESSON=From the interpolation file.'
+CONFIG=$(compose config --format json)
+printf '%s\n' "$CONFIG"
+jq -e '.services.web.environment == {"LESSON": "From the interpolation file"}' <<<"$CONFIG" >/dev/null
+echo 'Resolve config with a command-scoped shell value: expect LESSON=Shell override.'
+CONFIG=$(COMPOSE24_MESSAGE='Shell override' compose config --format json)
+printf '%s\n' "$CONFIG"
+jq -e '.services.web.environment == {"LESSON": "Shell override"}' <<<"$CONFIG" >/dev/null
+echo 'Verified default < env file < shell precedence; service commands now use the file value.'
 read -r -p 'Press ENTER to build and start this Compose project...'
 assert_empty_project
 # BuildKit resolves the native FROM into its cache. We do not explicitly
@@ -309,6 +346,29 @@ verify_http() {
   echo 'Verified HTTP 200 and exact packaged index.html content.'
 }
 verify_http
+# Check the actual container, rather than assuming config proves runtime.
+RUNTIME_ENV=$(docker container inspect --format '{{json .Config.Env}}' "$SERVICE_ID")
+jq -e 'index("LESSON=From the interpolation file") != null and
+  all(.[]; startswith("COMPOSE24_UNUSED=") | not)' <<<"$RUNTIME_ENV" >/dev/null
+LESSON_VALUE=$(compose exec -T web printenv LESSON)
+[[ $LESSON_VALUE == 'From the interpolation file' ]] || die 'Runtime LESSON differs from the selected file value.'
+# printenv returns 1 for an absent key. Require an in-container marker too:
+# a failed Docker client returning 1 must never count as expected absence.
+# The single quotes defer status/$? expansion to the container shell.
+# shellcheck disable=SC2016
+if ABSENCE=$(compose exec -T web sh -c '
+  if printenv COMPOSE24_UNUSED; then
+    exit 42
+  else
+    status=$?
+    test "$status" -eq 1 || exit "$status"
+    printf "%s\n" "printenv confirmed COMPOSE24_UNUSED absent"
+  fi'); then
+  [[ $ABSENCE == 'printenv confirmed COMPOSE24_UNUSED absent' ]] || die 'Missing container absence confirmation.'
+else
+  die 'Could not confirm the sentinel is absent from the container.'
+fi
+echo 'Verified runtime LESSON=From the interpolation file; unreferenced sentinel absent.'
 # 2. logs reads service stdout/stderr. exec uses the existing web container;
 # -T disables an interactive terminal so the command is usable in a script.
 compose logs --no-color --tail 5 web
@@ -372,10 +432,13 @@ echo 'Compose lesson complete; owned project, image and temporary files removed.
 # docker container ls --all --filter label=com.docker.compose.project=PROJECT
 # docker network ls --filter label=com.docker.compose.project=PROJECT
 # docker image inspect PROJECT-web:lesson
-# docker compose --project-name PROJECT --file FILE down
+# docker compose --project-name PROJECT --file FILE --project-directory SCRATCH --env-file ENV_FILE down
 # Never blindly remove orphans or reader volumes. Retain changed resources
 # for inspection. Build cache may remain; do not prune unrelated resources.
 # References (current plugin syntax; checked against Compose 5.7.0):
+# https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
+# https://docs.docker.com/reference/compose-file/interpolation/
+# https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/
 # https://docs.docker.com/reference/compose-file/services/
 # https://docs.docker.com/compose/how-tos/project-name/
 # https://docs.docker.com/reference/cli/docker/compose/run/
