@@ -1,0 +1,179 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 24-docker-compose-basics.exp: Verify Compose lifecycle and preservation
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# firewall-port: 8084
+# time-limit: 2400
+# No stream continues after Ctrl-C; continue is inapplicable.
+source [file join [file dirname [info script]] tutorial-test.tcl]
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find website-test -printf '%p %m %u %g %y\n' | sort
+    find website-test -type f -exec sha256sum {} + | sort
+    stat --format='%n %a %u %g' 24-docker-compose-basics.sh bash-utilities.sh firewall-utilities.sh \
+      tests/24-docker-compose-basics.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    sha256sum 24-docker-compose-basics.sh bash-utilities.sh firewall-utilities.sh \
+      tests/24-docker-compose-basics.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    find /tmp -maxdepth 1 -name 'docker-basics-compose24.*' -printf '%p %m %u %g %y\n' | sort
+  } bash $basics]
+}
+proc config_state {} {
+  return [host_command bash -c {
+    set -euo pipefail
+    config=${DOCKER_CONFIG:-$HOME/.docker}
+    bxconfig=${BUILDX_CONFIG:-$config/buildx}
+    for path in "$config" "$bxconfig"; do
+      if [[ -d $path ]]; then
+        { find "$path" -printf '%p %m %u %g %y\n' | sort
+          find "$path" -type f -exec sha256sum {} + | sort; } | sha256sum
+      fi
+    done
+    docker context show
+    docker buildx ls --format '{{json .}}' | jq --exit-status --slurp --raw-output '[.[] | select(.Current) | .Name] | unique | select(length == 1) | .[0]'
+  }]
+}
+set fixtures_before [fixture_state]
+set config_before [config_state]
+set original_state {}
+foreach type {image container network volume} {
+  set ids [host_command docker $type ls --quiet {*}[expr {$type eq "container" ? {--all --no-trunc} : {}}]]
+  foreach id [lsort -unique $ids] {
+    dict set original_state $type $id [host_command docker $type inspect $id]
+  }
+}
+proc begin_lesson {terminal} {
+  global env
+  start_terminal $terminal bash -- $env(TUTORIAL_TEST_TUTORIAL)
+  set match [wait_for_regexp -in $terminal {Compose project: (compose24-[0-9]+-[0-9]+)}]
+  set project [lindex $match 1]
+  set match [wait_for_regexp -in $terminal {Compose file: (/tmp/docker-basics-compose24\.[A-Za-z0-9]+/compose.yaml)}]
+  set file [lindex $match 1]
+  wait_for -in $terminal {Press ENTER to build and start this Compose project...}
+  return [list $project $file]
+}
+proc verify_live {project file} {
+  global basics
+  host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    project=$2 file=$3
+    id=$(docker compose --project-name "$project" --file "$file" --env-file /dev/null ps --all --quiet web)
+    docker container inspect "$id" | jq --exit-status --arg project "$project" '
+      .[0] | .State.Running and .Config.Labels["com.docker.compose.project"] == $project and
+      .Config.Labels["com.docker.compose.service"] == "web" and
+      .HostConfig.PortBindings["80/tcp"] == [{"HostIp":"127.0.0.1","HostPort":"8084"}] and
+      (.Mounts | length) == 0 and (.Config.Env | index("LESSON=Compose basics") != null)' >/dev/null
+    docker container exec "$id" test -e /tmp/exec-marker
+    docker container exec "$id" cat /usr/share/nginx/html/index.html | cmp website-test/index.html -
+    test "$(curl --noproxy '*' --fail --silent --show-error --max-time 3 http://127.0.0.1:8084/)" = "$(cat website-test/index.html)"
+    test "$(curl --noproxy '*' --silent --show-error --max-time 3 --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8084/missing)" = 404
+    test "$(docker container ls --all --quiet --filter "label=com.docker.compose.project=$project" | wc -l)" = 1
+    network=$(docker network ls --quiet --filter "label=com.docker.compose.project=$project")
+    docker network inspect "$network" | jq --exit-status --arg id "$id" '.[0].Containers | keys == [$id]' >/dev/null
+  } bash $basics $project $file
+}
+switch -- [scenario] {
+  conflict {
+    set fixture "compose24-fixture-[pid]:test"
+    if {[host_command docker image ls --quiet $fixture] ne ""} { fail {Fixture image exists.} }
+    host_command bash -c {
+      set -euo pipefail
+      tar --create --files-from /dev/null | docker image import - "$1"
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    # Inject collisions after the configuration-inspection pause, before any
+    # build/up. The repeated setup guard must preserve exact fixture state.
+    foreach type {network container volume image} {
+      lassign [begin_lesson "conflict-$type"] project file
+      switch -- $type {
+        network {
+          set target [host_command docker network create "${project}_default"]
+          cleanup_on_host docker network rm $target
+          set message {Generated default network name already exists}
+        }
+        container {
+          set target [host_command docker container create --name "${project}-web-1" $fixture /sentinel]
+          cleanup_on_host docker container rm --force $target
+          set message {Generated service container name already exists}
+        }
+        volume {
+          set target [host_command docker volume create --label "com.docker.compose.project=$project" "${project}_sentinel"]
+          cleanup_on_host docker volume rm $target
+          set message "Compose project $project already has volume resources"
+        }
+        image {
+          set target "${project}-web:lesson"
+          host_command docker image tag $fixture $target
+          cleanup_on_host docker image rm $target
+          set message "Image name $target already exists"
+        }
+      }
+      set before [host_command docker $type inspect $target]
+      type_line -in "conflict-$type" {}
+      wait_for -in "conflict-$type" $message
+      finish_terminal "conflict-$type" 1
+      if {[host_command docker $type inspect $target] ne $before} { fail "Conflicting $type changed." }
+      # test -e is expected to fail after the owned temporary path is removed.
+      if {[host_command_succeeds test -e [file dirname $file]]} { fail {Temporary configuration survived conflict.} }
+      if {$type eq "container"} { host_command docker container rm $target } else { host_command docker $type rm $target }
+      cancel_cleanup_on_host
+    }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  normal - interrupt {
+    lassign [begin_lesson tutorial] project file
+    type_line {}
+    wait_for -time 1800 {Verified HTTP 200 and exact packaged index.html content.}
+    wait_for {exec environment: Compose basics}
+    wait_for {run environment: Compose basics; separate writable layer}
+    wait_for {Verified exec retained its marker; run --rm used a separate container and removed it.}
+    wait_for {Press ENTER to compare stop, start and down...}
+    verify_live $project $file
+    if {[scenario] eq "interrupt"} {
+      press_ctrl_c
+      finish_tutorial 130
+    } else {
+      type_line {}
+      wait_for {Observed stop: same container retained (stopped); same default network retained.}
+      wait_for {Observed start: same container and marker retained; HTTP service ready again.}
+      wait_for {Press ENTER to remove this Compose project...}
+      verify_live $project $file
+      type_line {}
+      wait_for {Observed down: service/run containers and default network removed; built image retained.}
+      wait_for {Compose lesson complete; owned project, image and temporary files removed.}
+      finish_tutorial 0
+    }
+    if {[host_command_succeeds test -e [file dirname $file]]} { fail {Temporary configuration survived cleanup.} }
+  }
+}
+if {[fixture_state] ne $fixtures_before} { fail {Original data, source, modes or temporary inventory changed.} }
+if {[config_state] ne $config_before} { fail {Docker/Buildx configuration or selection changed.} }
+dict for {type states} $original_state {
+  dict for {id state} $states {
+    if {[host_command docker $type inspect $id] ne $state} { fail "Original $type $id metadata/state changed." }
+  }
+}
