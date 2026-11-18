@@ -89,27 +89,13 @@ echo 'network has been created.'
 docker network ls
 echo
 
-# We will now create the database container image, if it does not
-# already exist.
-# The script relies on the variables and utility functions defined
-# in docker-build-postgres-test-utilities.sh and psql-utilities.sh 
-# We source those scripts to get access to those variables and functions.
-source ./docker-build-postgres-test-utilities.sh
-source ./psql-utilities.sh
+# Build and own our PostgreSQL image; the helper refuses existing names
+# and removes only its own resources on EXIT. The networking placeholder
+# below remains for this lesson's later completion step.
+source "$(dirname "${BASH_SOURCE[0]}")/docker-build-postgres-test-utilities.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/psql-utilities.sh"
 POSTGRES_IMAGE_NAME="postgres-test"
-POSTGRES_IMAGE_ID=$(docker image ls --quiet $POSTGRES_IMAGE_NAME)
-if [[ -z "$POSTGRES_IMAGE_ID" ]]; then
-  echo "Image does NOT exist"
-  download_and_build_postgres_test_image $POSTGRES_IMAGE_NAME "${POSTGRES_IMAGE_NAME}-test"
-  EXIT_CODE=$?
-  if [[ $EXIT_CODE -ne 0 ]]; then
-    echo "Failed to build the $POSTGRES_IMAGE_NAME image. Exiting."
-    exit $EXIT_CODE
-  fi
-  echo "$POSTGRES_IMAGE_NAME image built successfully"
-else
-  echo "$POSTGRES_IMAGE_NAME image already exists with ID: $POSTGRES_IMAGE_ID"
-fi
+download_and_build_postgres_test_image "$POSTGRES_IMAGE_NAME" "${POSTGRES_IMAGE_NAME}-test" || exit $?
 
 # Then, we create the backend container image, if it does not
 # already exist.

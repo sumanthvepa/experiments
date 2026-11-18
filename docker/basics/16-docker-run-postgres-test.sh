@@ -21,11 +21,12 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit $?
 echo '16-docker-run-postgres-test.sh'
 
 # This script runs the postgres-test Docker image that was built
-# using 14-docker-build-postgres-test.sh. (It will build the image
-# if it does not exist.)
+# using 15-docker-build-postgres-test.sh. This run builds and owns its
+# own image; the helper refuses existing image/container names.
 
 # The script relies on the variables and utility functions defined
 # in docker-build-postgres-test-utilities.sh. We source that
@@ -107,14 +108,12 @@ echo
 
 # Start the container detached. This returns control to this shell
 # script while the container start postgres in the background.
-# The container will be automatically removed when it is stopped.
-# (bacause we passed the --rm option to docker container run)
+# The shared helper registers cleanup by its created ID before start.
+# EXIT removes this run's container even if a later command fails.
 POSTGRES_PASSWORD='postgres'
-docker container run --detach --rm --publish 5432:5432 --env POSTGRES_PASSWORD=$POSTGRES_PASSWORD --name='postgres-test-test' postgres-test
-if [[ $? -ne 0 ]]; then
-  echo "Failed to start the postgres-test-test container"
-  exit 1
-fi
+POSTGRES_CONTAINER_ID=$(docker container create --publish 5432:5432 --env "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" --name=postgres-test-test postgres-test) || exit $?
+register_postgres_test_container "$POSTGRES_CONTAINER_ID" postgres-test-test
+docker container start "$POSTGRES_CONTAINER_ID" || exit $?
 
 # Wait for the container to start the postgres service
 
@@ -208,5 +207,5 @@ else
 fi
 
 # Clean up the container and image
-clean_up_existing_container
-clean_up_existing_image
+clean_up_existing_container || exit $?
+clean_up_existing_image || exit $?

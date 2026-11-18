@@ -28,7 +28,9 @@ echo '18-docker-save-load'
 # the necessary commands to build the image.
 # We source the script to make the commands available in the current
 # shell and then run the commands to build the image.
-source docker-build-postgres-test-utilities.sh
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit $?
+source ./docker-build-postgres-test-utilities.sh
+postgres_test_architecture || exit $?
 
 if [[ $ARCH_SUFFIX == 'amd64' ]]; then
   IMAGE_NAME='postgres-test:linux-amd64'
@@ -44,7 +46,7 @@ fi
 # Clean up any existing tarballs
 rm -f $TARBALL_NAME
 
-download_and_build_postgres_test_image $IMAGE_NAME
+download_and_build_postgres_test_image "$IMAGE_NAME"
 EXIT_CODE=$?
 if [[ $EXIT_CODE -ne 0 ]]; then
   echo "Failed to build the postgres-test image"
@@ -66,13 +68,17 @@ ls -l $TARBALL_NAME
 
 # For the purposes of illustration, we will delete the image from the
 # local machine and then load it back from the tarball.
-docker image rm $IMAGE_NAME
+clean_up_existing_image "$IMAGE_NAME" || exit $?
 
 # Check that the image is deleted
 docker image ls -a
 
 # Load the image from the tarball
-docker load -i $TARBALL_NAME
+# The saved tag was just removed by this run. Register before load:
+# an interrupted load may restore it before the client returns.
+POSTGRES_TEST_OWNED_IMAGE=$IMAGE_NAME
+cleanup_add postgres-test-image remove_postgres_owned_tag "$IMAGE_NAME"
+docker load -i "$TARBALL_NAME" || exit $?
 
 
 # Check that the image has been recreated
@@ -93,7 +99,7 @@ docker image ls -a
 # See 18-docker-manifest-create.sh for more details.
 
 # Clean up image
-docker image rm $IMAGE_NAME
+clean_up_existing_image "$IMAGE_NAME" || exit $?
 
 # Clean up tarball
 rm -f $TARBALL_NAME
