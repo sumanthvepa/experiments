@@ -1,0 +1,156 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 17-docker-inspect.exp: Verify existing structured inspection examples
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 2400
+# Step 3 covers the existing executable examples. The commented network
+# TODO remains pending: extend this same driver when Step 4 implements it.
+source [file join [file dirname [info script]] tutorial-test.tcl]
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
+    find docker-basics-nginx -printf '%p %m %u %g %y\n' | sort
+    find docker-basics-nginx -type f -exec sha256sum {} + | sort
+    sha256sum 17-docker-inspect.sh 08-docker-build-basics.sh bash-utilities.sh firewall-utilities.sh \
+      tests/17-docker-inspect.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    find /tmp -maxdepth 1 -name 'docker-basics-inspect.*' -printf '%p %m %u %g %y\n' | sort
+  } bash $basics]
+}
+set fixtures_before [fixture_state]
+# The runner records IDs/tags; full inspection adds config/metadata checks
+# for every original image. No original image is retagged by these tests.
+set original_images [host_command docker image ls --quiet --no-trunc]
+set original_images [lsort -unique $original_images]
+set original_state {}
+foreach id $original_images { dict set original_state $id [host_command docker image inspect $id] }
+set native_arch [host_command docker version --format {{{.Server.Arch}}}]
+switch -- [scenario] {
+  conflict {
+    set fixture "docker-basics-inspect-fixture-[pid]"
+    foreach tag [list docker-basics-nginx:latest $fixture] {
+      if {[host_command docker image ls --quiet $tag] ne ""} { fail "Fixture image $tag already exists." }
+    }
+    foreach name {nginx-test-container docker-basics-nginx} {
+      if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} {
+        fail "Fixture container $name already exists."
+      }
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" | docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    host_command docker image tag $fixture docker-basics-nginx:latest
+    cleanup_on_host docker image rm docker-basics-nginx:latest
+    set before [host_command docker image inspect docker-basics-nginx:latest]
+    start_terminal image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in image-conflict {Image name docker-basics-nginx already exists.}
+    finish_terminal image-conflict 1
+    if {[host_command docker image inspect docker-basics-nginx:latest] ne $before} {
+      fail {Conflicting image configuration/state changed.}
+    }
+    host_command docker image rm docker-basics-nginx:latest
+    cancel_cleanup_on_host
+    # Intentional tagging changes LastTagTime; baseline after our changes.
+    set image_before [host_command docker image inspect $fixture]
+    foreach name {nginx-test-container docker-basics-nginx} {
+      # Recheck each fixture immediately before creation.
+      if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} {
+        fail "Fixture container $name appeared before setup."
+      }
+      set id [host_command docker container create --name $name $fixture /sentinel]
+      cleanup_on_host docker container rm --force $id
+      set before [host_command docker container inspect $id]
+      start_terminal "container-$name" bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in "container-$name" "Container name $name already exists."
+      finish_terminal "container-$name" 1
+      if {[host_command docker container inspect $id] ne $before} {
+        fail "Conflicting container $name configuration/state changed."
+      }
+      host_command docker container rm $id
+      cancel_cleanup_on_host
+    }
+    if {[host_command docker image inspect $fixture] ne $image_before} { fail {Fixture image changed.} }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  interrupt {
+    start_tutorial
+    answer_pause -time 1200 {Press ENTER to start nginx and inspect its runtime state...}
+    wait_for {Verified nginx HTTP readiness: HTTP/1.1 200 OK}
+    wait_for {Press ENTER to stop nginx and compare its runtime state...}
+    # Interrupt only after running nginx and successful HTTP readiness.
+    press_ctrl_c
+    finish_tutorial 130
+  }
+  normal {
+    start_tutorial
+    wait_for -time 1200 "Verified native base architecture: $native_arch"
+    wait_for -time 1200 {Verified image command, exposed port, stop signal and description label.}
+    answer_pause {Press ENTER to start nginx and inspect its runtime state...}
+    wait_for {Verified nginx HTTP readiness: HTTP/1.1 200 OK}
+    wait_for {Verified container-only label; image configuration is unchanged.}
+    wait_for {Press ENTER to stop nginx and compare its runtime state...}
+    set id [host_command docker container inspect --format {{{.Id}}} nginx-test-container]
+    set image [host_command docker image inspect --format {{{.Id}}} docker-basics-nginx]
+    host_command bash -c {
+      set -euo pipefail
+      docker container inspect "$1" | jq -e --arg image "$2" '
+        .[0].Image == $image and .[0].State.Running and .[0].State.Pid > 0 and
+        .[0].Config.Labels["inspection.example"] == "container-only" and
+        (.[0].HostConfig.PortBindings | length) == 0' >/dev/null
+      docker container exec "$1" bash -ec 'test "$(cat /proc/1/comm)" = nginx; nginx -t'
+      docker image inspect docker-basics-nginx | jq -e '
+        (.[0] | has("State") | not) and
+        (.[0].Config.Labels | has("inspection.example") | not)' >/dev/null
+    } bash $id $image
+    type_line {}
+    wait_for {Verified stopped state; image ID and configuration still describe the same image.}
+    wait_for {Verified --type disambiguation and explicit subcommand selection.}
+    wait_for {Press ENTER to remove the inspection examples...}
+    host_command bash -c {
+      set -euo pipefail
+      docker container inspect "$1" | jq -e '
+        .[0].State.Status == "exited" and .[0].State.ExitCode == 0 and .[0].State.Pid == 0' >/dev/null
+      selected_image=$(docker inspect --type=image --format '{{.Id}}' docker-basics-nginx)
+      selected_container=$(docker inspect --type=container --format '{{.Id}}' docker-basics-nginx)
+      test "$selected_image" = "$2"
+      test "$selected_container" != "$selected_image"
+      docker container inspect "$selected_container" | jq -e '.[0].State.Status == "created"' >/dev/null
+      test "$(docker image inspect --format '{{.Id}}' docker-basics-nginx)" = "$selected_image"
+    } bash $id $image
+    type_line {}
+    wait_for {Lesson complete; owned inspection resources removed.}
+    finish_tutorial 0
+  }
+}
+if {[fixture_state] ne $fixtures_before} { fail {Context, modes, ownership, source or temporary files changed.} }
+foreach id $original_images {
+  if {[host_command docker image inspect $id] ne [dict get $original_state $id]} {
+    fail "Original image $id changed."
+  }
+}
+send_log "Supplemental fixture/configuration/runtime/preservation assertions passed.\n"
