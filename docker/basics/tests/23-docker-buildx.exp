@@ -1,0 +1,200 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 23-docker-buildx.exp: Verify Buildx outputs and preservation
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 2400
+# There is no continuing stream; Ctrl-C terminates this lesson.
+source [file join [file dirname [info script]] tutorial-test.tcl]
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+# Fail prerequisites before any fixture/resource creation.
+foreach command {{docker buildx version} {jq --version} {tar --version} {timeout --version}} {
+  if {![host_command_succeeds {*}$command]} { skip "Missing prerequisite: $command" }
+}
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find buildx-test -printf '%p %m %u %g %y\n' | sort
+    find buildx-test -type f -exec sha256sum {} + | sort
+    stat --format='%n %a %u %g' 23-docker-buildx.sh bash-utilities.sh firewall-utilities.sh \
+      tests/23-docker-buildx.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    sha256sum 23-docker-buildx.sh bash-utilities.sh firewall-utilities.sh \
+      tests/23-docker-buildx.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    find /tmp -maxdepth 1 -name 'docker-basics-buildx.*' -printf '%p %m %u %g %y\n' | sort
+  } bash $basics]
+}
+# Compare configuration by path/mode/digest, never disclose credential bytes.
+proc configuration_state {} {
+  return [host_command bash -c {
+    set -euo pipefail
+    config=${DOCKER_CONFIG:-$HOME/.docker}
+    bxconfig=${BUILDX_CONFIG:-$config/buildx}
+    for path in "$config" "$bxconfig"; do
+      if [[ -d $path ]]; then
+        { find "$path" -printf '%p %m %u %g %y\n' | sort
+          find "$path" -type f -exec sha256sum {} + | sort; } | sha256sum
+      fi
+    done
+    docker context show
+    docker buildx ls --format '{{json .}}' | jq --exit-status --slurp --raw-output '[.[] | select(.Current) | .Name] | unique | select(length == 1) | .[0]'
+  }]
+}
+set fixtures_before [fixture_state]
+set configuration_before [configuration_state]
+set builders_before {}
+foreach builder [host_command docker buildx ls --format {{{.Name}}}] {
+  dict set builders_before $builder [host_command docker buildx --builder $builder inspect]
+}
+set caches_before {}
+foreach builder [dict keys $builders_before] {
+  # Hash cache records privately. LastUsedAt is relative display text;
+  # it changes as time passes. Compare every other field, including IDs,
+  # creation times, parents, size, mutability and usage counts.
+  dict set caches_before $builder [host_command bash -c {
+    set -euo pipefail
+    docker buildx --builder "$1" du --format '{{json .}}' | jq --compact-output --sort-keys 'del(.LastUsedAt)' | sort | sha256sum
+  } bash $builder]
+}
+set original_state {}
+foreach type {image container network volume} {
+  set ids [host_command docker $type ls --quiet {*}[expr {$type eq "container" ? {--all --no-trunc} : {}}]]
+  foreach id [lsort -unique $ids] {
+    dict set original_state $type $id [host_command docker $type inspect $id]
+  }
+}
+proc verify_outputs {scratch builder} {
+  host_command bash -c {
+    set -euo pipefail
+    scratch=$1 builder=$2
+    test -s "$scratch/multi-platform.tar"
+    BUILDX_CONFIG="$scratch/buildx" docker buildx --builder "$builder" ls --format '{{json .}}' | jq --slurp --exit-status --arg name "$builder" 'any(.[]; .Name == $name and .Driver == "docker-container")'
+    test "$(docker image inspect --format '{{.Os}}/{{.Architecture}}' sample-buildx-native)" = "linux/$3"
+    test "$(docker container logs sample-buildx-native)" = "buildx-demo:$4"
+    test "$(docker container inspect --format '{{.State.ExitCode}}' sample-buildx-native)" = 0
+    index=$(jq --raw-output '.manifests[0].digest' "$scratch/oci/index.json")
+    path="$scratch/oci/blobs/sha256/${index#sha256:}"
+    test "$(jq --raw-output '[.manifests[].platform | .os + "/" + .architecture] | sort | join(",")' "$path")" = linux/amd64,linux/arm64
+    for arch in arm64 amd64; do
+      manifest=$(jq --raw-output --arg arch "$arch" '.manifests[] | select(.platform.architecture == $arch) | .digest' "$path")
+      config=$(jq --raw-output '.config.digest' "$scratch/oci/blobs/sha256/${manifest#sha256:}")
+      jq --exit-status --arg arch "$arch" '.architecture == $arch and .os == "linux" and .config.Labels["org.docker-basics.target"] == ("linux/" + $arch)' "$scratch/oci/blobs/sha256/${config#sha256:}"
+    done
+  } bash $scratch $builder $::native_arch $::native_uname
+}
+set arch [host_command docker info --format {{{.Architecture}}}]
+switch -- $arch {
+  aarch64 - arm64 { set native_arch arm64; set native_uname aarch64 }
+  x86_64 - amd64 { set native_arch amd64; set native_uname x86_64 }
+  default { skip "Unsupported daemon architecture: $arch" }
+}
+switch -- [scenario] {
+  conflict {
+    set fixture "buildx-fixture-[pid]"
+    set fixture_builder "buildx-existing-[pid]"
+    # Guard every resource before creating ANY fixture.
+    foreach name [list sample-buildx-native sample-buildx-foreign $fixture] {
+      if {[host_command docker image ls --quiet "$name:latest"] ne ""} { fail "Fixture image $name exists." }
+      if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} { fail "Fixture container $name exists." }
+    }
+    if {[lsearch -exact [host_command docker buildx ls --format {{{.Name}}}] $fixture_builder] >= 0} { fail "Fixture builder exists." }
+    if {[host_command docker container ls --all --quiet --filter "name=^/buildx_buildkit_${fixture_builder}0$"] ne ""} { fail "Fixture builder container exists." }
+    if {[host_command docker volume ls --quiet --filter "name=^buildx_buildkit_${fixture_builder}0_state$"] ne ""} { fail "Fixture builder cache volume exists." }
+    host_command docker buildx create --name $fixture_builder --driver docker-container
+    cleanup_on_host docker buildx --builder $fixture_builder rm $fixture_builder
+    set builder_before [host_command docker buildx --builder $fixture_builder inspect]
+    # Import a private empty filesystem: no default-builder cache mutation.
+    host_command bash -c {set -euo pipefail; tar --create --files-from /dev/null | docker image import --platform "linux/$2" - "$1"} bash $fixture $native_arch
+    cleanup_on_host docker image rm $fixture
+    foreach name {sample-buildx-native sample-buildx-foreign} {
+      if {[host_command docker image ls --quiet "$name:latest"] ne ""} { fail "Fixture image $name appeared." }
+      host_command docker image tag $fixture $name
+      cleanup_on_host docker image rm $name
+      set before [host_command docker image inspect $name]
+      start_terminal "$name-image" bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in "$name-image" "Image name $name already exists."
+      finish_terminal "$name-image" 1
+      if {[host_command docker image inspect $name] ne $before} { fail "Conflicting image changed." }
+      host_command docker image rm $name
+      cancel_cleanup_on_host
+      if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} { fail "Fixture container $name appeared." }
+      set id [host_command docker container create --name $name --platform "linux/$native_arch" $fixture /sentinel]
+      cleanup_on_host docker container rm --force $id
+      set before [host_command docker container inspect $id]
+      start_terminal "$name-container" bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in "$name-container" "Container name $name already exists."
+      finish_terminal "$name-container" 1
+      if {[host_command docker container inspect $id] ne $before} { fail "Conflicting container changed." }
+      host_command docker container rm $id
+      cancel_cleanup_on_host
+    }
+    if {[host_command docker buildx --builder $fixture_builder inspect] ne $builder_before} { fail "Existing fixture builder changed." }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+    host_command docker buildx --builder $fixture_builder rm $fixture_builder
+    cancel_cleanup_on_host
+  }
+  normal - interrupt {
+    start_tutorial
+    set match [wait_for_regexp {Private Buildx workspace: (/tmp/docker-basics-buildx\.[A-Za-z0-9]+)}]
+    set scratch [lindex $match 1]
+    set match [wait_for_regexp -time 900 {Builder ready: ([a-z0-9-]+) \(docker-container\)}]
+    set builder [lindex $match 1]
+    answer_pause {Press ENTER to build and load one native-platform image...}
+    wait_for -time 900 "Verified runtime sample-buildx-native: buildx-demo:$native_uname (exit 0)"
+    wait_for "Verified native loaded platform: linux/$native_arch"
+    answer_pause {Press ENTER to export and inspect both target platforms...}
+    wait_for -time 900 {Verified OCI platform linux/arm64:}
+    wait_for {Verified OCI platform linux/amd64:}
+    wait_for "Verified two-platform OCI artifact: $scratch/multi-platform.tar"
+    wait_for {Press ENTER to check foreign runtime support without installing emulation...}
+    verify_outputs $scratch $builder
+    if {[scenario] eq "interrupt"} {
+      press_ctrl_c
+      finish_tutorial 130
+    } else {
+      type_line {}
+      # The host has working emulation; require an actual foreign run here.
+      set foreign_uname [expr {$native_arch eq "arm64" ? "x86_64" : "aarch64"}]
+      wait_for -time 900 "Verified runtime sample-buildx-foreign: buildx-demo:$foreign_uname (exit 0)"
+      answer_pause {Press ENTER to remove the Buildx examples and archive...}
+      wait_for {Buildx lesson complete; original builder selection preserved and owned resources removed.}
+      finish_tutorial 0
+    }
+    if {[file exists $scratch]} { fail "Private workspace remains: $scratch" }
+    if {[host_command docker container ls --all --quiet --filter "name=^/buildx_buildkit_${builder}0$"] ne ""} { fail "BuildKit container remains." }
+    if {[host_command docker volume ls --quiet --filter "name=^buildx_buildkit_${builder}0_state$"] ne ""} { fail "BuildKit cache volume remains." }
+  }
+}
+if {[fixture_state] ne $fixtures_before} { fail "Source, modes or temporary paths changed." }
+if {[configuration_state] ne $configuration_before} { fail "Original configuration or selection changed." }
+dict for {builder before} $builders_before {
+  if {[host_command docker buildx --builder $builder inspect] ne $before} { fail "Original builder $builder changed." }
+  set cache [host_command bash -c {set -euo pipefail; docker buildx --builder "$1" du --format '{{json .}}' | jq --compact-output --sort-keys 'del(.LastUsedAt)' | sort | sha256sum} bash $builder]
+  if {$cache ne [dict get $caches_before $builder]} { fail "Original builder cache changed." }
+}
+dict for {type states} $original_state {
+  dict for {id before} $states {
+    if {[host_command docker $type inspect $id] ne $before} { fail "Original $type $id changed." }
+  }
+}
+send_log "Buildx native/OCI/runtime, cleanup, configuration/cache and preservation assertions passed.\n"
