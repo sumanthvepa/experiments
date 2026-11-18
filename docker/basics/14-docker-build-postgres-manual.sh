@@ -22,175 +22,170 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '14-docker-build-postgres-manual.sh'
+# Strict Bash stops failed commands, unset inputs and failed pipelines.
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+# die reports fatal errors; cleanup_add/cancel restore owned resources.
+source ./bash-utilities.sh
 
-# This script creates a Postgres Docker image that has postgres
-# installed, but not started. The user is expected to start the
-# Postgres service manually by running the setup script inside
-# the container.
-
-# The setup script is copied to the image during the build process.
-
-# See the instructions at the end of this script on how to use
-# the Postgres Docker image that is created here.
-
-# We need to know the architecture of the CPU that the script is
-# running on so that we can download the appropriate Postgres
-# RPM and gosu binary.
+echo '14-docker-build-postgres-manual: initialize and start PostgreSQL manually'
+# Host: Bash, Docker/Buildx, curl, sha256sum, ss and the core utilities below.
+# Needs network access to Docker Hub, PGDG and AlmaLinux repositories;
+# missing gosu assets also need GitHub. No host psql or package install.
+# Run by path from any directory. Use a local Linux Docker daemon.
+# Lessons 08/09 explain builds and CMD. Here CMD is bash, so installing
+# database packages alone starts neither a cluster nor a database server.
+# No bind mounts: host SELinux labels do not apply. Other distributions,
+# CPUs, rootless/userns-remap and SELinux-enabled daemons are untested.
+for TOOL in cat docker curl sha256sum ss uname mktemp cp rm mkdir dirname sleep; do
+  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
+done
+docker info >/dev/null
+docker buildx version >/dev/null
 CPU_ARCHITECTURE=$(uname -m)
+case $CPU_ARCHITECTURE in
+  x86_64) ARCH_SUFFIX=amd64; GOSU_SHA=bbc4136d03ab138b1ad66fa4fc051bafc6cc7ffae632b069a53657279a450de3;;
+  aarch64|arm64) CPU_ARCHITECTURE=aarch64; ARCH_SUFFIX=arm64; GOSU_SHA=c3805a85d17f4454c23d7059bcb97e1ec1af272b90126e79ed002342de08389b;;
+  *) die "Unsupported CPU architecture: $CPU_ARCHITECTURE (need x86_64 or aarch64).";;
+esac
+DAEMON_ARCH=$(docker version --format '{{.Server.Arch}}')
+DAEMON_OS=$(docker version --format '{{.Server.Os}}')
+[[ $DAEMON_ARCH == "$ARCH_SUFFIX" && $DAEMON_OS == linux ]] || die 'Use a local Linux daemon matching the host CPU.'
+EXISTING=$(docker image ls --quiet postgres-manual)
+[[ -z $EXISTING ]] || die 'Image name postgres-manual already exists. Inspect it with docker image ls postgres-manual.'
+EXISTING=$(docker container ls --all --quiet --filter 'name=^/postgres-manual-test$')
+[[ -z $EXISTING ]] || die 'Container name postgres-manual-test already exists. Inspect it with docker container inspect postgres-manual-test.'
+LISTENERS=$(ss --tcp --listening --no-header 'sport = :5432')
+[[ -z $LISTENERS ]] || die 'Host port 5432 is occupied; inspect its owner without stopping it.'
 
-echo "CPU architecture as reported by 'uname -m' is $CPU_ARCHITECTURE"
-
-# Determine the architecture suffix to be used to
-# get the appropriate Postgres RPM and gosu binary distribution
-if [[ "$CPU_ARCHITECTURE" == "x86_64" ]]; then
-  ARCH_SUFFIX='amd64'
-elif [[ "$CPU_ARCHITECTURE" == "aarch64" ]]; then
-  ARCH_SUFFIX='arm64'
+# Cleanup helpers check their failures because cleanup runs in a conditional.
+# Images are removed only when this run acquired their previously absent tag.
+remove_owned_image() {
+  local existing
+  existing=$(docker image ls --quiet "$1") || return $?
+  if [[ -n $existing ]]; then docker image rm "$1" || return $?; fi
+}
+# 1. Prepare downloads in an owned context; never modify repository fixtures.
+CONTEXT=$(mktemp --directory --tmpdir docker-basics-postgres-manual.XXXXXXXX)
+cleanup_add postgres-context rm -rf -- "$CONTEXT"
+cp -a postgres-manual/. "$CONTEXT/"
+mkdir -p "$CONTEXT/$ARCH_SUFFIX"
+# The bundled RPMs configure EL10. Refresh configuration only in the
+# temporary copy, preserving the standalone repository context. The RPM is
+# noarch, but each URL configures repositories for the chosen CPU.
+REPO_URL="https://download.postgresql.org/pub/repos/yum/reporpms/EL-10-$CPU_ARCHITECTURE/pgdg-redhat-repo-latest.noarch.rpm"
+echo "Downloading EL10 PGDG repository RPM: $REPO_URL"
+curl --fail --location --silent --show-error --connect-timeout 15 --max-time 120 \
+  "$REPO_URL" --output "$CONTEXT/$ARCH_SUFFIX/pgdg-redhat-repo-latest.noarch.rpm"
+GOSU="$CONTEXT/$ARCH_SUFFIX/gosu-$ARCH_SUFFIX"
+if [[ ! -f $GOSU ]]; then
+  curl --fail --location --silent --show-error --connect-timeout 15 --max-time 120 \
+    "https://github.com/tianon/gosu/releases/download/1.17/gosu-$ARCH_SUFFIX" --output "$GOSU"
 fi
+if [[ ! -f $GOSU.asc ]]; then
+  curl --fail --location --silent --show-error --connect-timeout 15 --max-time 120 \
+    "https://github.com/tianon/gosu/releases/download/1.17/gosu-$ARCH_SUFFIX.asc" --output "$GOSU.asc"
+fi
+# Pin the binary to the bundled 1.17 checksum, including fallback downloads.
+# Merely downloading .asc is not signature verification. For independent
+# upstream authentication use the key/fingerprint and GPG instructions at
+# https://github.com/tianon/gosu/blob/1.17/INSTALL.md in a private keyring.
+printf '%s  %s\n' "$GOSU_SHA" "$GOSU" | sha256sum --check
 
-# Download the postgres RPM from the postgres repository if it
-# not present in the postgres-manual directory. Note that even
-# though the rpm itself is not architecture-specific, the
-# it's GPG signature is, and the downloaded file should be
-# saved to an architecture-specific directory. Hence the ${ARCH_SUFFIX}
-# in the path for POSTGRES_REPO_RPM.
-POSTGRES_REPO_RPM="./postgres-manual/${ARCH_SUFFIX}/pgdg-redhat-repo-latest.noarch.rpm"
-POSTGRES_REPO_RPM_URL="https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${CPU_ARCHITECTURE}/pgdg-redhat-repo-latest.noarch.rpm"
-if [[ ! -f $POSTGRES_REPO_RPM ]]; then
-  echo "${POSTGRES_REPO_RPM}  not found"
-  # Create architecture-specific download directory
-  mkdir -p ./postgres-manual/${ARCH_SUFFIX}
-  echo "Downloading from postgres repository"
-  echo "URL: $POSTGRES_REPO_RPM_URL"
-  curl -fsSL $POSTGRES_REPO_RPM_URL -o $POSTGRES_REPO_RPM
-  if [[ $? -ne 0 ]]; then
-    echo "Failed to download the Postgres repository RPM"
-    exit 1
+# 2. Build PGDG's PG16 package layout, without obsolete EL9 module commands.
+EXISTING=$(docker image ls --quiet almalinux:10-minimal)
+if [[ -z $EXISTING ]]; then
+  # Register before pull: an interrupted pull may have acquired the tag.
+  cleanup_add postgres-base remove_owned_image almalinux:10-minimal
+  docker image pull almalinux:10-minimal
+fi
+BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' almalinux:10-minimal)
+[[ $BASE_ARCH == "$ARCH_SUFFIX" ]] || die "Base architecture $BASE_ARCH differs from host $ARCH_SUFFIX."
+echo "Verified native base architecture: $BASE_ARCH"
+cleanup_add postgres-image remove_owned_image postgres-manual
+docker image build --tag postgres-manual --build-arg "ARCH_SUFFIX=$ARCH_SUFFIX" "$CONTEXT"
+echo 'PostgreSQL image built; CMD is a shell, no database server yet.'
+
+# 3. Manually inspect, initialize and start the database in that shell image.
+# Only host loopback is published; do not open a firewall port. PostgreSQL
+# must listen on * inside the container for Docker forwarding to reach it.
+# These are disposable demonstration credentials, never real passwords.
+export POSTGRES_PASSWORD='postgres-demo-only'
+CONTAINER_ID=$(docker container create --interactive --tty \
+  --name postgres-manual-test --publish 127.0.0.1:5432:5432 \
+  --env POSTGRES_PASSWORD --env DOCKER_POSTGRES_DEBUG=1 postgres-manual)
+cleanup_add postgres-container docker container rm --force "$CONTAINER_ID"
+docker container start "$CONTAINER_ID"
+cat <<'INSTRUCTIONS'
+The container is running bash, not PostgreSQL. Inspect it in a shell:
+  postgres --version
+  printf '%s\n' "${PGDATA:-not set until setup}"
+Then type: exit 0
+We will invoke setup-postgres.sh manually with docker exec next.
+You may also set POSTGRES_PASSWORD inside the shell with export, or pass
+--env POSTGRES_PASSWORD at creation. Use DOCKER_POSTGRES_DEBUG=1 to show
+initialization stages; debug output never prints the password. For example:
+  DOCKER_POSTGRES_DEBUG=1 /usr/local/bin/setup-postgres.sh
+or export DOCKER_POSTGRES_DEBUG=1 before manually invoking setup-postgres.sh.
+INSTRUCTIONS
+read -r -p 'Press ENTER to inspect the uninitialized container shell...'
+docker container exec --interactive --tty --env 'PS1=manual-postgres> ' "$CONTAINER_ID" /bin/bash --norc
+read -r -p 'Press ENTER to initialize the database manually...'
+# bash mode initializes without leaving the server running. With stdin
+# closed its inspection shell exits immediately; interactive callers can
+# inspect the initialized files before starting the server themselves.
+docker container exec "$CONTAINER_ID" /usr/local/bin/setup-postgres.sh bash < /dev/null
+# pg_isready returns 2 for no response. Other statuses, including Docker
+# errors, are failures rather than proof that initialization stopped it.
+if docker container exec "$CONTAINER_ID" pg_isready --host=127.0.0.1 --timeout=1 --quiet; then
+  die 'Initialization unexpectedly left a PostgreSQL server running.'
+else
+  STATUS=$?
+  [[ $STATUS == 2 ]] || die "Post-initialization readiness check failed: $STATUS."
+fi
+echo 'Manual initialization finished; no server is running.'
+# Default/postgres mode starts the actual server; flags are passed as argv.
+# Detached exec lets this terminal perform the independent readiness check.
+docker container exec --detach "$CONTAINER_ID" /usr/local/bin/setup-postgres.sh postgres -c 'log_min_messages=warning'
+READY=0
+for ((ATTEMPT=1; ATTEMPT<=30; ATTEMPT++)); do
+  if docker container exec "$CONTAINER_ID" pg_isready --host=127.0.0.1 --timeout=1 --quiet; then
+    READY=1; break
+  else
+    STATUS=$?
+    [[ $STATUS == 1 || $STATUS == 2 ]] || die "PostgreSQL readiness command failed: $STATUS."
   fi
-fi
-
-# Download gosu for the given architecture if it is not present in the
-# postgres-manual directory.
-GOSU_BINARY="./postgres-manual/${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX}"
-GOSU_BINARY_URL="https://github.com/tianon/gosu/releases/download/1.17/gosu-${ARCH_SUFFIX}"
-GOSU_SIGNATURE="./postgres-manual/${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX}.asc"
-GOSU_SIGNATURE_URL="https://github.com/tianon/gosu/releases/download/1.17/gosu-${ARCH_SUFFIX}.asc"
-
-if [[ ! -f $GOSU_BINARY ]]; then
-  echo "${GOSU_BINARY} not found"
-  # Create architecture-specific download directory
-  mkdir -p ./postgres-manual/${ARCH_SUFFIX}
-  echo "Downloading gosu from the official repository"
-  echo "URL: $GOSU_BINARY_URL"
-  curl -fsSL $GOSU_BINARY_URL -o $GOSU_BINARY
-  if [[ $? -ne 0 ]]; then
-    echo "Failed to download the gosu binary"
-    exit 1
-  fi
-  curl -fsSL $GOSU_SIGNATURE_URL -o $GOSU_SIGNATURE
-  if [[ $? -ne 0 ]]; then
-    echo "Failed to download the gosu signature"
-    exit 1
-  fi
-fi
-
-# Remove any previous image if it exists
-IMAGE_EXISTS=$(docker image ls --quiet postgres-manual)
-if [[ ! -z $IMAGE_EXISTS ]]; then
-  echo "Removing existing postgres-manual image"
-  docker image rm postgres-manual
-fi
-
-# Now we can build the Postgres Docker image
-docker build --tag postgres-manual --build-arg ARCH_SUFFIX=${ARCH_SUFFIX} ./postgres-manual
-if [[ $? -ne 0 ]]; then
-  echo "Failed to build the Postgres Docker image"
-  exit 1
-fi
-
-# Give the user instructions on how to use this postgres docker image
-echo "Postgres Docker image built successfully"
-echo
-echo "We can now run the image and start the Postgres service manually"
-echo "You need to define the POSTGRES_PASSWORD environment variable to"
-echo "be able to start the postgres service manually within the"
-echo "container. This an be done by passing the environment variable"
-echo "to the docker container run command as shown below:"
-echo
-echo "docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' postgres-manual"
-echo
-echo "You can also set it within the container after you've been "
-echo "dropped into the shell."
-echo
-echo "export POSTGRES_PASSWORD='postgres'"
-echo
-echo "or whatever password you want to set"
-echo
-echo "Once you're inside the container, you can start the Postgres "
-echo "service by running the following command:"
-echo
-echo "/usr/local/bin/setup-postgres.sh"
-echo
-echo "This script will properly initialize the Postgres database and"
-echo "start the Postgres service. You can pass options to it that it"
-echo "will in turn pass to the postgres command."
-echo "If you are trying to troubleshoot the script, you an run it"
-echo "with the DOCKER_POSTGRES_DEBUG environment variable set to"
-echo "1 as follows:"
-echo
-echo "DOCKER_POSTGRES_DEBUG=1 /usr/local/bin/setup-postgres.sh"
-echo
-echo Alternatively, you can export the environment variable
-echo
-echo "export DOCKER_POSTGRES_DEBUG=1"
-echo "/usr/local/bin/setup-postgres.sh"
-echo
-echo "Finally, you can set the POSTGRES_PASSWORD environment variable"
-echo "when running the container as shown below:"
-echo
-echo "docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' --env DOCKER_POSTGRES_DEBUG=1 postgres-manual"
-echo
-echo "Note, that to connect to the database, you will have to connect"
-echo "to the container on port 5432. Since we're publishing the port"
-echo "5432 of the container to the host, you can connect to the "
-echo "database from the host machine using the IP address/name of the"
-echo "host machine."
-echo
-echo "The password for the postgres user is the value of the"
-echo "POSTGRES_PASSWORD environment variable that you set when"
-echo "running the container."
-echo
-echo "You need to have the psql client installed on the machine from "
-echo "which you want to connect to the Postgres database. See "
-echo "databases/postgres/01-install-postgress-client.sh in this"
-echo "repository for instructions on how to install the psql client."
-echo
-echo "The psql command to connect to the Postgres database is as"
-echo "follows:"
-echo
-echo "psql --host=$(hostname -f) --username=postgres --password"
-echo
-echo "You will be prompted for the password that you set in the"
-echo "POSTGRES_PASSWORD environment variable. If you want to connect "
-echo "non-interactively, you can pass the password as an environment "
-echo "variable PGPASSWORD to the psql command as follows:"
-echo
-echo "PGPASSWORD='postgres' psql --host=$(hostname -f) --username=postgres"
-echo
-echo "See https://stackoverflow.com/questions/6405127/how-do-i-specify-a-password-to-psql-non-interactively"
-echo "for more information on how to connect to the Postgres database"
-echo "non-interactively."
-echo
-echo "To stop the Postgres server, you'll have to issue a stop command"
-echo "from outside the container from a different terminal on the host"
-echo
-echo "docker container stop postgres-manual-test"
-echo
-
-docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' --name='postgres-manual-test' postgres-manual
-
-# Clean up by removing the docker image
-echo
-echo "Cleaning up the postgres-manual image"
-docker image rm postgres-manual
+  sleep 1
+done
+[[ $READY == 1 ]] || die 'PostgreSQL readiness timed out (30 attempts, 1s timeout/delay).'
+# TCP plus password verifies authentication as well as the initialized DB.
+RESULT=$(docker container exec --env PGPASSWORD="$POSTGRES_PASSWORD" "$CONTAINER_ID" \
+  psql --no-psqlrc --set ON_ERROR_STOP=1 --host=127.0.0.1 --username=postgres \
+  --dbname=postgres --tuples-only --no-align --command 'SELECT current_user, current_database(), 6 * 7;')
+[[ $RESULT == 'postgres|postgres|42' ]] || die "Unexpected manual database result: $RESULT"
+echo "Verified manual PostgreSQL TCP query: $RESULT"
+cat <<'CLIENT'
+From a host with psql installed, use the published loopback port:
+  psql --host=127.0.0.1 --port=5432 --username=postgres --password
+The prompt asks for the demonstration password set above. For unattended
+local tests PGPASSWORD can be set in the environment, for example:
+  PGPASSWORD='postgres-demo-only' psql --host=127.0.0.1 --username=postgres
+Prefer a protected
+password file for real credentials (PostgreSQL libpq documentation).
+setup-postgres.sh also accepts postgres flags, --version, --describe-config,
+custom POSTGRES_USER/DB, PGDATA, POSTGRES_DIST_DIR, POSTGRES_INITDB_ARGS,
+POSTGRES_INITDB_WALDIR and POSTGRES_HOST_AUTH_METHOD. See its help.
+CLIENT
+read -r -p 'Press ENTER to stop PostgreSQL and remove lesson resources...'
+# Stop the exec-started server explicitly before stopping PID1 (bash).
+docker container exec "$CONTAINER_ID" gosu postgres pg_ctl -D /var/lib/pgsql/16/data -m fast -w -t 30 stop
+docker container stop "$CONTAINER_ID"
+docker container rm "$CONTAINER_ID"
+cleanup_cancel postgres-container
+remove_owned_image postgres-manual
+cleanup_cancel postgres-image
+echo 'Lesson complete; owned container, images and temporary context removed on exit.'
+# EXIT also removes a newly pulled base and the context; build cache remains.
+# SIGKILL cannot run traps. Inspect leftovers (docker container inspect
+# postgres-manual-test; docker image ls postgres-manual) before removing
+# only resources you can identify as this run's. Never prune other work.
