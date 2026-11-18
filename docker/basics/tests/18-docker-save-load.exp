@@ -27,6 +27,9 @@ set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
 set native_arch [host_command docker version --format {{{.Server.Arch}}}]
 set tag "postgres-test:linux-$native_arch"
 set name postgres-save-load-test
+set imported "postgres-filesystem:linux-$native_arch"
+set export_name postgres-filesystem-export-test
+set import_name postgres-filesystem-import-test
 proc fixture_state {} {
   global basics
   return [host_command bash -c {
@@ -89,6 +92,36 @@ with tarfile.open(path) as archive:
       test "$(cat /var/lib/pgsql/16/data/PG_VERSION)" = 16
       test -f /var/lib/pgsql/16/data/.docker-postgres-initialized
     }
+    answer_pause {Press ENTER to compare a stopped container filesystem...}
+    set filesystem_tar [lindex [wait_for_regexp {Verified stopped filesystem archive: ([^\r\n]+)}] 1]
+    host_command python3 -c {
+import os, stat, sys, tarfile
+path = sys.argv[1]
+assert stat.S_IMODE(os.stat(os.path.dirname(path)).st_mode) == 0o700
+assert stat.S_IMODE(os.stat(path).st_mode) == 0o600
+with tarfile.open(path) as archive:
+    assert archive.extractfile('tutorial-filesystem-marker').read() == b'filesystem marker: 42\n'
+    assert 'manifest.json' not in archive.getnames()
+    assert 'var/lib/pgsql/16/data/PG_VERSION' not in archive.getnames()
+    } $filesystem_tar
+    if {[host_command docker container inspect --format {{{.State.Status}} {{.State.ExitCode}}} $export_name] ne "exited 0"} {
+      fail {Filesystem source was not stopped cleanly.}
+    }
+    answer_pause {Press ENTER to import the filesystem under a separate tag...}
+    wait_for {Verified imported filesystem marker bytes; startup defaults were not transferred.}
+    host_command python3 -c {
+import json, subprocess, sys, tarfile, io
+original, imported, name = sys.argv[1:]
+a, b = [json.loads(subprocess.check_output(['docker','image','inspect',t]))[0] for t in (original, imported)]
+assert a['Config']['Entrypoint'] == ['docker-entrypoint.sh'] and a['Config']['Cmd'] == ['postgres']
+assert not b['Config'].get('Entrypoint') and not b['Config'].get('Cmd')
+assert a['Id'] != b['Id'] and b['RepoTags'] == [imported]
+c = json.loads(subprocess.check_output(['docker','container','inspect',name]))[0]
+assert c['State']['Status'] == 'exited' and c['State']['ExitCode'] == 0
+assert c['Config']['Entrypoint'] == ['/bin/bash'] and not c['Mounts']
+with tarfile.open(fileobj=io.BytesIO(subprocess.check_output(['docker','container','cp',name+':/tutorial-filesystem-marker','-']))) as archive:
+    assert archive.extractfile(archive.getmembers()[0]).read() == b'filesystem marker: 42\n'
+    } $tag $imported $import_name
     answer_pause {Press ENTER to remove the restored image and archive...}
     wait_for {Lesson complete; restored container, image tag and temporary archive removed.}
     finish_tutorial 0
@@ -101,24 +134,35 @@ with tarfile.open(path) as archive:
     type_line ""
     set archive [lindex [wait_for_regexp {Verified nonempty tar archive: ([^\r\n]+)}] 1]
     load_image $identity
-    wait_for {Press ENTER to run PostgreSQL from the restored image...}
+    answer_pause {Press ENTER to run PostgreSQL from the restored image...}
+    answer_pause {Press ENTER to compare a stopped container filesystem...}
+    answer_pause {Press ENTER to import the filesystem under a separate tag...}
+    wait_for {Verified imported filesystem marker bytes; startup defaults were not transferred.}
+    wait_for {Press ENTER to remove the restored image and archive...}
     press_ctrl_c
     finish_tutorial 130
     if {[file exists [file dirname $archive]]} { fail {Interrupted archive directory remains.} }
   }
   conflict {
     set fixture "docker-basics-save-load-fixture-[pid]"
-    foreach image [list $tag $fixture] {
+    foreach image [list $tag $imported $fixture] {
       if {[host_command docker image ls --quiet $image] ne ""} { fail "Fixture image $image already exists." }
     }
-    if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} {
-      fail "Fixture container $name already exists."
+    foreach candidate [list $name $export_name $import_name] {
+      if {[host_command docker container ls --all --quiet --filter "name=^/$candidate$"] ne ""} {
+        fail "Fixture container $candidate already exists."
+      }
     }
+    # Register before import: even a failed client may have made the tag.
+    cleanup_on_host bash -c {
+      set -euo pipefail
+      existing=$(docker image ls --quiet "$1")
+      if [[ -n $existing ]]; then docker image rm "$1"; fi
+    } bash $fixture
     host_command bash -c {
       set -euo pipefail
-      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" | docker image build --tag "$1" -
+      tar --create --files-from /dev/null | docker image import --change "LABEL test.owner=$1" - "$1"
     } bash $fixture
-    cleanup_on_host docker image rm $fixture
     host_command docker image tag $fixture $tag
     cleanup_on_host docker image rm $tag
     set image_before [host_command docker image inspect $tag]
@@ -139,6 +183,36 @@ with tarfile.open(path) as archive:
     host_command docker container rm $id
     cancel_cleanup_on_host
     if {[host_command docker image inspect $fixture] ne $fixture_before} { fail {Fixture image changed.} }
+    foreach candidate [list $export_name $import_name] {
+      set id [host_command docker container create --name $candidate $fixture /sentinel]
+      cleanup_on_host docker container rm --force $id
+      set before [host_command docker container inspect $id]
+      start_terminal conflict-$candidate bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in conflict-$candidate "Container name $candidate already exists."
+      finish_terminal conflict-$candidate 1
+      if {[host_command docker container inspect $id] ne $before} { fail "Conflict $candidate changed." }
+      host_command docker container rm $id
+      cancel_cleanup_on_host
+    }
+    # Import a separate fixture: adding a tag to $fixture would update its
+    # Metadata.LastTagTime, defeating its full-inspect preservation check.
+    cleanup_on_host bash -c {
+      set -euo pipefail
+      existing=$(docker image ls --quiet "$1")
+      if [[ -n $existing ]]; then docker image rm "$1"; fi
+    } bash $imported
+    host_command bash -c {
+      set -euo pipefail
+      tar --create --files-from /dev/null | docker image import --change "LABEL test.owner=$1" - "$1"
+    } bash $imported
+    set before [host_command docker image inspect $imported]
+    start_terminal import-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in import-conflict "Image name $imported already exists."
+    finish_terminal import-conflict 1
+    if {[host_command docker image inspect $imported] ne $before} { fail {Import tag conflict changed.} }
+    host_command docker image rm $imported
+    cancel_cleanup_on_host
+    if {[host_command docker image inspect $fixture] ne $fixture_before} { fail {Fixture changed after new conflicts.} }
     host_command docker image rm $fixture
     cancel_cleanup_on_host
   }
