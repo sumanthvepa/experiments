@@ -28,70 +28,46 @@ FROM almalinux:10-minimal
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
 LABEL org.opencontainers.image.description="This is a demo image that runs a Flask application on almalinux:10-minimal"
 
-# Most of the time want the latest available package version
-# for python. The default version of python in almalinux:9-minimal
-# is 3.9, which is quite old. However, later versions of python
-# are available in the almalinux:9-minimal repositories with
-# specific version numbers. For example, python3.12 is available
-# in the almalinux:9-minimal repositories. So we will install
-# that.
-
-# Also note the clean up.
-
-# Finally note that we are creating symbolic links to the python3.12
-# and pip3.12 binaries as python3, python and pip3, pip respectively.
-# This is to make it easier to use the python interpreter and the
-# pip package manager.
-RUN microdnf install -y python3.12 python3.12-pip \
+# AlmaLinux 10 defaults to Python 3.12. See lesson 12 for RPM paths.
+# Keep package-owned /usr/bin paths intact; the venv provides python/pip.
+# shadow-utils supplies groupadd/useradd. The existing coreutils false
+# executable denies logins without assuming nologin is installed.
+RUN microdnf install -y python3 python3-pip shadow-utils \
     && microdnf clean all \
-    && ln -s /usr/bin/python3.12 /usr/bin/python3 \
-    && ln -s /usr/bin/pip3.12 /usr/bin/pip3 \
-    && ln -s /usr/bin/python3.12 /usr/bin/python \
-    && ln -s /usr/bin/pip3.12 /usr/bin/pip
-
-# Create a user and group for running the Flask application.
-RUN groupadd --gid=2500 flask
-RUN useradd --uid=2500 --gid=flask --no-create-home --shell=/usr/sbin/nologin flask
-
-# Create the directory structure for the Flask application.
-RUN mkdir -p /opt/flask
-RUN chown -R flask:flask /opt/flask
+    && python3 -c "import sys; assert sys.version_info[:2] == (3, 12)" \
+    && python3 -m pip --version \
+    && test -x /usr/bin/false \
+    && groupadd --gid=2500 flask \
+    && useradd --uid=2500 --gid=flask --no-create-home --shell=/usr/bin/false flask \
+    && mkdir -p /opt/flask \
+    && chown flask:flask /opt/flask
 
 WORKDIR /opt/flask
 USER flask
+# Gunicorn and Python tooling may write user state below HOME. This
+# application directory is owned by flask; no host home is mounted.
+ENV HOME=/opt/flask
 ENV FLASK_APP="flask_test.flask_test:app"
 ENV FLASK_PORT=5000
 ENV FLASK_DEBUG=0
 ENV VIRTUAL_ENV=/opt/flask/production-venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Install the entrypoint script for the Flask application.
+# venv isolates app dependencies from RPM-managed Python. Install as the
+# runtime user; python -m pip selects the venv's installer unambiguously.
+RUN python3 -m venv "$VIRTUAL_ENV" \
+    && python -m pip install --no-cache-dir --upgrade pip \
+    && python -m pip install --no-cache-dir gunicorn
+COPY --chown=flask:flask production-requirements.txt /opt/flask/
+# Install the project's pinned requirements, rather than a separate Flask
+# version. Gunicorn serves the WSGI application and is not an app import.
+RUN python -m pip install --no-cache-dir --requirement production-requirements.txt \
+    && python -m pip check
 COPY --chown=flask:flask entrypoint.sh /opt/flask/entrypoint.sh
-
-# Create a virtual environment for the Flask application.
-RUN python3.12 -m venv $VIRTUAL_ENV
-# Upgrade pip to the latest version in the virtual environment.
-RUN pip3.12 install --no-cache-dir --upgrade pip
-RUN pip3.12 install --no-cache-dir gunicorn # Install gunicorn to serve the Flask application.
-
-# Copy production-requirements.txt into the container and install the
-# required packages.
-COPY --chown=flask:flask production-requirements.txt /opt/flask
-# Now install the requirements for the flask application
-# DO NOT install flask directly, as it might not match the
-# one in the requirements.txt file. In general, it is a good
-# idea to install all the requirements from the project's
-# requirements.txt file. Gunicorn is the only exception
-# as the app does not directly depend on it.
-RUN pip3.12 install --no-cache-dir --requirement production-requirements.txt
-
-# Finally, copy the Flask application code into the container.
-RUN mkdir -p /opt/flask/flask_test
-RUN chown -R flask:flask /opt/flask/flask_test
 COPY --chown=flask:flask flask_test /opt/flask/flask_test
 
-# We use an entrypoint script to start the Flask application.
-# This script will use the environment variables passed to it (either
-# the default values or the ones set by the user when creating the
-# container) to start the Flask application using gunicorn or flask.
+# CMD starts the script in exec form. It chooses Gunicorn or the Flask
+# development server from FLASK_DEBUG and exec replaces the shell with it.
+# Arguments passed directly to the script are executed instead; ordinary
+# Docker arguments after the image replace this CMD (see lesson 09).
 CMD ["/opt/flask/entrypoint.sh"]

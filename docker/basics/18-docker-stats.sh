@@ -31,18 +31,16 @@ echo '18-docker-stats'
 # We use the flask-test image to demonstrate the docker stats command.
 # So we need to source the utilities script that provides functions
 # building and running the flask-test images.
-source ./docker-build-flask-test-utilities.sh
+source "$(dirname "${BASH_SOURCE[0]}")/docker-build-flask-test-utilities.sh"
 
 # First we need to build the flask-test image
-build_flask_test_image
-if [[ $? -ne 0 ]]; then
+if ! build_flask_test_image; then
   echo "Failed to build the flask-test image. Exiting."
   exit 1
 fi
 
 # Now start a test container using the flask-test image.
-run_flask_test_container stats-test 5000
-if [[ $? -ne 0 ]]; then
+if ! run_flask_test_container stats-test 5000; then
   echo "Failed to run the flask-test container. Exiting."
   exit 1
 fi
@@ -62,7 +60,6 @@ docker container stats --no-stream
 docker container stats --no-stream stats-test
 
 # Finally stop and remove the test container and its image.
-docker container stop stats-test
-docker wait stats-test
-docker container rm stats-test
-docker image rm flask-test
+stop_and_remove_flask_test_container
+remove_flask_owned_image flask-test
+cleanup_cancel flask-image
