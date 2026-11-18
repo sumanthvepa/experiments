@@ -20,95 +20,151 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-echo '21-docker-networking'
+# Strict Bash propagates failed commands, unset variables and failed pipelines.
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+# The build helper imports die and owned EXIT/INT/TERM cleanup from
+# bash-utilities.sh. Call its build function directly, so registrations
+# remain in this shell. The psql helper returns one executable path.
+source ./docker-build-postgres-test-utilities.sh
+source ./psql-utilities.sh
 
-# In order to make containers work and communcate with the world and
-# each other Docker provides a networking stack. You might have had
-# glimpse of thise in previous explorations where you saw that Docker
-# had modified iptables on the host to allow containers to communicate
-# with the world.
+echo '21-docker-networking: inspect networks and attach PostgreSQL to a bridge'
+# Host: bash /path/to/21-docker-networking.sh
+# Requires Bash, Docker/Buildx, jq, a host psql client and the native Linux
+# build/download tools from lesson 15. Internet access supplies the base,
+# PGDG repository and packages. No host package installation, sudo, host
+# mount or firewall-cmd change is needed. Docker manages publishing rules.
+# Tested on native arm64/rootful Linux Docker; other hosts/modes untested.
+for TOOL in docker jq dirname; do
+  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
+done
+PSQL_BINARY=$(psql_binary_path)
+"$PSQL_BINARY" --version
+docker info >/dev/null
+NETWORK=sample
+NETWORK_ID=
+CONTAINER=sample-db
+IMAGE=postgres-test
+OWNER_LABEL=io.github.svepa.docker-basics.networking-run
+RUN_TOKEN="networking-$$-$RANDOM"
+# Retain readable names for inspection. Refuse conflicts rather than reuse
+# or delete a reader's resources; never assume a familiar name is disposable.
+EXISTING=$(docker network ls --quiet --filter "name=^$NETWORK$")
+[[ -z $EXISTING ]] || die "Network name $NETWORK already exists. Inspect it with docker network inspect $NETWORK."
+# The helper checks both the image tag and future container name before
+# downloading/building; do this before creating the network as well.
 
-# In this script we wille explore how to use docker's networking
-# capabilities to create networks, place containers on those
-# networks, and allow them to communicate with each other. And 
-# isolate them from the world if needed.
-
-echo 'Docker has a few built-in networks that it creates by default:'
-# You can see the list of networks by running docker network ls
-# In general docker network is the command to manage networks in Docker.
-# Like container, and image, the network command has subcommands
-# like ls, create, inspect, rm, etc.
-docker network ls 
-# Btw, ls is a synoynm for list so you can also run docker network list
-echo
-
-echo 'The default network is the bridge network. This is the network that'
-echo 'containers are placed on by default when you run a container without'
-echo 'specifying a network. You can see the details of the bridge network:'
-# by running docker network inspect bridge
-docker network inspect bridge
-echo
-
-echo 'Another network that is created by default is the host network.'
-echo 'The host network is a special network that allows containers to'
-echo 'share the host network stack. This means that containers on the host'
-echo 'network can communicate with the host and with each other using the'
-echo 'host network interfaces. You can see the details of the host network:'
-# by running docker network inspect host
-docker network inspect host
-echo
-
-echo 'The third network that is created by default is the none network.'
-echo 'The none network is a special network that allows containers to'
-echo 'have no network connectivity. This means that containers on the none'
-echo 'network cannot communicate with the host or with each other. You can'
-echo 'see the details of the none network:'
-docker network inspect none
-echo
-
-echo 'You can create your own networks using the docker network create command.'
-echo 'For example, let us say you want to create an isolated network for an'
-echo 'application that you are developing. Suppose that application, we call'
-echo 'sample, has three components: a frontend website, a backend web service,'
-echo 'and a database.'
-
-echo 'Let us create a network for this application that we will call'
-echo 'sample. We will use the bridge driver for this network.'
-echo 'The bridge driver is the default driver for Docker networks.'
-echo 'The bridge driver creates a private internal network on your host'
-echo 'that allows containers to communicate with each other.'
-docker network create --driver bridge sample
-echo
-
-echo 'You can now see the details of the sample network'
-docker network inspect sample
-echo
-
-echo 'You can also see the list of networks again to see that the sample'
-echo 'network has been created.'
+# 1. Built-in networks on this Linux daemon
+# docker network manages networks; ls (an alias of list) shows their IDs,
+# names, drivers and scope. Output also includes networks other users made.
+# Docker commonly manages firewall rules for bridging/NAT; the details vary
+# with daemon/firewall configuration. Do not edit those rules for this lesson.
+echo 'Built-in and user-created networks:'
 docker network ls
-echo
+# Without --network, ordinary docker run/create uses the default bridge.
+# inspect returns JSON metadata; addresses and options vary across hosts.
+echo 'Default bridge: containers use it when no network is specified.'
+docker network inspect bridge
+# Linux host mode shares the host network namespace: no separate container
+# IP, and --publish is ignored. Applications can conflict with host ports.
+echo 'Host network: shares the Linux host network namespace.'
+docker network inspect host
+# none supplies only loopback, rather than a connection to other containers
+# or the host. This does not remove non-network channels such as mounts.
+echo 'None network: only the container loopback interface.'
+docker network inspect none
 
-# Build and own our PostgreSQL image; the helper refuses existing names
-# and removes only its own resources on EXIT. The networking placeholder
-# below remains for this lesson's later completion step.
-source "$(dirname "${BASH_SOURCE[0]}")/docker-build-postgres-test-utilities.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/psql-utilities.sh"
-POSTGRES_IMAGE_NAME="postgres-test"
-download_and_build_postgres_test_image "$POSTGRES_IMAGE_NAME" "${POSTGRES_IMAGE_NAME}-test" || exit $?
+# 2. A user-defined bridge and its existing database example
+# The advertised sample application will have a frontend, backend and DB.
+# TODO (Step 4): implement the missing frontend/backend application and
+# verify its inter-container requests. This existing portion only starts
+# and verifies its database; it does not claim a working three-tier app.
+# Unlike the default bridge, user-defined bridges provide name/alias DNS
+# between attached containers. A normal bridge permits outbound traffic
+# through the host by default; "user-defined" does NOT mean --internal.
+# --internal on network create explicitly restricts external connectivity.
+# Optional syntax (not executed here):
+# docker network create --driver bridge --internal sample-internal
+# Internal networks are not an authorization boundary against the host.
+# The application connectivity/isolation demonstrations belong to Step 4.
+download_and_build_postgres_test_image "$IMAGE" "$CONTAINER"
+read -r -p 'Press ENTER to create the sample bridge and start its database...'
 
-# Then, we create the backend container image, if it does not
-# already exist.
-PYTHON_FLASK_IMAGE_ID=$(docker image ls --quiet sample-flask)
+# Prefer create's returned ID. Before the assignment completes, cleanup may
+# discover the exact name but must verify our unique label. Do not disconnect
+# unknown endpoints: network rm correctly refuses a network still in use.
+remove_owned_network() {
+  local existing owner network_id=${NETWORK_ID:-} filter="name=^$NETWORK$"
+  if [[ -n $network_id ]]; then filter="id=$network_id"; fi
+  existing=$(docker network ls --quiet --no-trunc --filter "$filter") || return $?
+  [[ -n $existing ]] || return 0
+  [[ $existing != *$'\n'* ]] || { echo "Refusing ambiguous network $NETWORK." >&2; return 1; }
+  network_id=$existing
+  owner=$(docker network inspect --format "{{index .Labels \"$OWNER_LABEL\"}}" "$network_id") || return $?
+  [[ $owner == "$RUN_TOKEN" ]] || { echo "Refusing changed network $NETWORK." >&2; return 1; }
+  docker network rm "$network_id" || return $?
+}
+# Register before create to cover interruption after the daemon creates it;
+# container registration below runs first during reverse-order cleanup.
+cleanup_add networking-network remove_owned_network
+NETWORK_ID=$(docker network create --driver bridge --label "$OWNER_LABEL=$RUN_TOKEN" "$NETWORK")
+echo 'Created ordinary user-defined bridge (Internal=false):'
+docker network inspect "$NETWORK_ID"
+docker network inspect "$NETWORK_ID" | jq -e '
+  .[0].Driver == "bridge" and .[0].Scope == "local" and
+  (.[0].Internal | not) and (.[0].Containers | length) == 0' >/dev/null
+docker network ls
 
+# Use the local image actually built above, with its required demo password.
+# --network selects this bridge; --name provides a readable DNS/CLI name.
+# Split create/start registers ownership by immutable ID before startup.
+# No fixed host port: --publish 127.0.0.1::5432 asks Docker for a free port,
+# reachable only on this host. EXPOSE alone would not publish a host port.
+# Environment values are visible in inspect; these are disposable credentials.
+export POSTGRES_PASSWORD='networking-demo-only'
+DB_ID=$(docker container create --name "$CONTAINER" --network "$NETWORK_ID" \
+  --publish 127.0.0.1::5432 --env POSTGRES_PASSWORD "$IMAGE")
+register_postgres_test_container "$DB_ID" "$CONTAINER"
+docker container start "$DB_ID"
+# The unchanged helper bounds TCP readiness (30 one-second probes/delays),
+# checks stopped containers and propagates Docker failures.
+wait_for_postgres_test "$DB_ID"
+HOST_BINDING=$(docker container port "$DB_ID" 5432/tcp)
+[[ $HOST_BINDING =~ ^127\.0\.0\.1:([0-9]+)$ ]] || die "Unexpected published endpoint: $HOST_BINDING"
+HOST_PORT=${BASH_REMATCH[1]}
+printf 'Host PostgreSQL endpoint: 127.0.0.1:%s\n' "$HOST_PORT"
+# Argument arrays retain real argv boundaries. Ignore personal psql settings,
+# disallow password prompts, and fail on SQL errors. PGPASSWORD applies only
+# to this command; for real credentials prefer .pgpass (lesson 16).
+PSQL_COMMAND=("$PSQL_BINARY" --no-psqlrc --no-password --set ON_ERROR_STOP=1
+  --host=127.0.0.1 --port="$HOST_PORT" --username=postgres --dbname=postgres)
+RESULT=$(PGCONNECT_TIMEOUT=5 PGPASSWORD="$POSTGRES_PASSWORD" "${PSQL_COMMAND[@]}" \
+  --tuples-only --no-align --command "SELECT 'sample-db-ready';")
+[[ $RESULT == sample-db-ready ]] || die "Unexpected database result: $RESULT"
+echo "Verified sample database query: $RESULT"
+# Inspect both sides of the live endpoint instead of assuming --network
+# succeeded. The IP is assigned by Docker and can change each run.
+docker network inspect "$NETWORK_ID" | jq -e --arg id "$DB_ID" --arg name "$CONTAINER" '
+  (.[0].Containers | length) == 1 and .[0].Containers[$id].Name == $name and
+  (.[0].Containers[$id].IPv4Address | contains("/"))' >/dev/null
+docker container inspect "$DB_ID" | jq -e --arg network "$NETWORK" --arg id "$NETWORK_ID" '
+  .[0].State.Running and .[0].NetworkSettings.Networks[$network].NetworkID == $id and
+  (.[0].NetworkSettings.Networks | length) == 1' >/dev/null
+echo 'Verified database membership in the sample bridge.'
+echo 'Frontend/backend and application communication are unfinished (Step 4).'
+read -r -p 'Press ENTER to stop the database and remove the sample bridge...'
 
-
-echo 'Now, let us run a few containers on this network.'
-echo 'We will run a frontend container, a backend container, and a database'
-echo 'container. We will use the nginx image for the frontend, the'
-echo 'flask image for the backend, and the postgres image for the database.'
-echo 'We will also use the --network option to specify that these containers'
-echo 'should be placed on the sample network that we just created.'
-echo 'We will also use the --name option to give these containers'
-echo 'names so that we can refer to them easily.'
-docker run -d --name sample-db --network sample postgres:latest
+# 3. Remove endpoints before their network, then the owned image
+# The image's SIGINT shuts PostgreSQL down cleanly; check its process status.
+docker container stop "$DB_ID"
+STATUS=$(docker container wait "$DB_ID")
+[[ $STATUS == 0 ]] || die "PostgreSQL shutdown failed: $STATUS."
+clean_up_existing_container
+remove_owned_network
+cleanup_cancel networking-network
+clean_up_existing_image
+echo 'Existing networking examples complete; owned resources removed.'
+# EXIT removes the owned temporary build context and a base pulled by this
+# run. Ctrl-C/TERM return 130/143 with cleanup. SIGKILL cannot run traps:
+# inspect identified leftovers manually; never prune unrelated resources.
