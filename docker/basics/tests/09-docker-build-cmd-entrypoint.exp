@@ -39,6 +39,13 @@ proc fixture_state {} {
   } bash $basics]
 }
 set fixtures_before [fixture_state]
+proc assert_combined_image {} {
+  set actual [host_command docker image inspect --format \
+    {{{json .Config.Entrypoint}} {{json .Config.Cmd}}} printf-defaults]
+  if {$actual ne {["/usr/bin/printf","value=<%s>\\n"] ["default argument"]}} {
+    fail "combined image settings differ: $actual"
+  }
+}
 # A pre-existing base's id AND full configuration must survive every case.
 set base_before ""
 if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
@@ -52,7 +59,7 @@ switch -- [scenario] {
     # Refuse occupied names before building or tagging any fixture. The
     # runner can reach conflict after another scenario fails on these names;
     # tagging first would overwrite the reader's image before we inspect it.
-    foreach tag [list dig-cmd dig-entrypoint $fixture] {
+    foreach tag [list dig-cmd dig-entrypoint printf-defaults $fixture] {
       if {[host_command docker image ls --quiet $tag] ne ""} {
         fail "Refusing conflict fixture: image name $tag already exists."
       }
@@ -65,7 +72,7 @@ switch -- [scenario] {
     cleanup_on_host docker image rm $fixture
     set image_before [host_command docker image inspect --format \
       { {{.Id}} {{json .Config}} {{json .RootFS}} } $fixture]
-    foreach tag {dig-cmd dig-entrypoint} {
+    foreach tag {dig-cmd dig-entrypoint printf-defaults} {
       host_command docker image tag $fixture $tag
       cleanup_on_host docker image rm $tag
       set tag_before [host_command docker image inspect $tag]
@@ -105,6 +112,14 @@ switch -- [scenario] {
     wait_for -time 900 {Press ENTER to compare the commands...}
     press_ctrl_c
     finish_tutorial 130
+    # Also interrupt after the child image has been built: it must be
+    # removed before its parent images. Keep the original early case.
+    start_terminal combined bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    answer_pause -in combined -time 900 {Press ENTER to compare the commands...}
+    wait_for -in combined -time 900 {Press ENTER to compare default and replacement arguments...}
+    assert_combined_image
+    press_ctrl_c -in combined
+    finish_terminal combined 130
   }
   normal {
     start_tutorial
@@ -123,6 +138,14 @@ switch -- [scenario] {
     wait_for {Verified expected failure: start returned 1; missing executable recorded as 127.}
     wait_for {6. Override ENTRYPOINT explicitly: ls -l runs instead of dig.}
     wait_for {Actual command: ls ["-l"]}
+    answer_pause -time 900 {Press ENTER to compare default and replacement arguments...}
+    assert_combined_image
+    wait_for {No runtime arguments: CMD supplies one default argument with a space.}
+    wait_for {Actual command: /usr/bin/printf ["value=<%s>\\n","default argument"]}
+    wait_for_regexp {\r\nvalue=<default argument>\r\nVerified exact printf output and exit 0\.\r\n}
+    wait_for {One quoted runtime argument replaces CMD; the ENTRYPOINT format stays.}
+    wait_for {Actual command: /usr/bin/printf ["value=<%s>\\n","replacement argument"]}
+    wait_for_regexp {\r\nvalue=<replacement argument>\r\nVerified exact printf output and exit 0\.\r\n}
     answer_pause {Press ENTER to remove the demonstration images...}
     wait_for {Lesson complete; owned containers and images removed.}
     finish_tutorial 0

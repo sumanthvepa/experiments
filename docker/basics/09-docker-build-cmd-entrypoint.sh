@@ -43,7 +43,7 @@ docker info >/dev/null
 
 # Protect names before pulling or building anything. A tag is a reference
 # to an image; building with an existing tag would move that reference.
-for IMAGE in dig-cmd dig-entrypoint; do
+for IMAGE in dig-cmd dig-entrypoint printf-defaults; do
   EXISTING=$(docker image ls --quiet "$IMAGE")
   [[ -z $EXISTING ]] || die "Image name $IMAGE already exists. Inspect it with" \
     "docker image ls $IMAGE; remove unwanted tags with docker image rm $IMAGE:TAG."
@@ -109,11 +109,17 @@ read -r -p 'Press ENTER to compare the commands...'
 # even if the Docker client is killed. Inspect Path/Args before starting:
 # these describe the actual command, rather than just its printed output.
 # A single name is reused only after this run's prior container is removed.
-# expected-kind: ok, dns (optional resolver), dig-error, or missing-command.
+# expected-kind: ok, dns (optional resolver), dig-error, missing-command,
+# or printf. For printf, the next argument is the exact expected output,
+# including its newline, before the docker-create arguments.
 demonstrate() {
   local kind=$1 expected_path=$2 expected_args=$3
-  local id actual status state error
+  local id actual status state error output expected_output=''
   shift 3
+  if [[ $kind == printf ]]; then
+    expected_output=$1
+    shift
+  fi
   printf 'Creating: docker container create --name docker-basics-dig'
   printf ' %q' "$@"
   printf '\n'
@@ -125,7 +131,15 @@ demonstrate() {
   echo "Actual command: $actual"
   [[ $actual == "$expected_path $expected_args" ]] || die 'Unexpected startup command.'
   status=0
-  docker container start --attach "$id" || status=$?
+  if [[ $kind == printf ]]; then
+    # Command substitution removes trailing newlines. Append a marker only
+    # after start succeeds, so the comparison retains every output byte
+    # without hiding a Docker failure. Remove the marker for display.
+    output=$(docker container start --attach "$id" && printf '.') || status=$?
+    printf '%s' "${output%.}"
+  else
+    docker container start --attach "$id" || status=$?
+  fi
   # A signal is never a harmless DNS failure or an expected negative example.
   if [[ $status -ge 128 ]]; then
     exit "$status"
@@ -149,6 +163,11 @@ demonstrate() {
         die "Docker did not complete the command: $status, $state, $error"
       case $kind in
         ok) [[ $status -eq 0 ]] || die "Expected success; got $status." ;;
+        printf)
+          [[ $status -eq 0 ]] || die "Expected printf success; got $status."
+          [[ $output == "$expected_output." ]] || die 'Unexpected printf output.'
+          echo 'Verified exact printf output and exit 0.'
+          ;;
         dig-error)
           [[ $status -eq 1 ]] || die "Expected dig usage error (1); got $status."
           echo 'Verified expected failure: dig rejects -l (1).'
@@ -199,16 +218,58 @@ demonstrate missing-command www.google.com '[]' dig-cmd www.google.com
 
 # --entrypoint is a Docker option, so it comes BEFORE the image name.
 # It selects a different executable; the words after the image are its args.
-# With both ENTRYPOINT ["dig"] and CMD ["example.com"], CMD would supply
-# default arguments; run-time words would replace those defaults. Our
-# ENTRYPOINT-only Dockerfile deliberately leaves CMD empty.
+# Our ENTRYPOINT-only Dockerfile deliberately leaves CMD empty. The next
+# example adds CMD defaults to an exec-form ENTRYPOINT.
 echo '6. Override ENTRYPOINT explicitly: ls -l runs instead of dig.'
 demonstrate ok ls '["-l"]' --entrypoint ls dig-entrypoint -l
+
+# Observe how CMD supplies defaults to ENTRYPOINT, and how runtime words
+# REPLACE those defaults. Reuse this run's image: printf is already in its
+# filesystem, so this adds no package installation or DNS request.
+# A quoted here-document sends a Dockerfile on standard input (-), without
+# host expansion or a temporary build context. JSON doubles the backslash
+# so printf receives \n in its fixed format and prints a newline.
+# Reserve cleanup before building: a failed/interrupted build client might
+# already have published the tag. Remove it only if it actually exists.
+remove_defaults_image() {
+  local image_id
+  image_id=$(docker image ls --quiet printf-defaults:latest) || return $?
+  if [[ -n $image_id ]]; then
+    docker image rm printf-defaults:latest || return $?
+  fi
+}
+echo '7. Combined ENTRYPOINT and CMD: defaults versus replacement arguments.'
+cleanup_add defaults-image remove_defaults_image
+docker image build --tag printf-defaults - <<'DOCKERFILE'
+FROM dig-entrypoint:latest
+ENTRYPOINT ["/usr/bin/printf", "value=<%s>\\n"]
+CMD ["default argument"]
+DOCKERFILE
+DEFAULTS_CONFIG=$(docker image inspect --format \
+  '{{json .Config.Entrypoint}} {{json .Config.Cmd}}' printf-defaults)
+echo "Combined image settings: $DEFAULTS_CONFIG"
+[[ $DEFAULTS_CONFIG == '["/usr/bin/printf","value=<%s>\\n"] ["default argument"]' ]] || \
+  die "Unexpected combined settings: $DEFAULTS_CONFIG"
+read -r -p 'Press ENTER to compare default and replacement arguments...'
+
+# The fixed format stays in ENTRYPOINT. CMD supplies ONE default argument,
+# including its space. Host quotes keep the replacement ONE argument too;
+# the quotes themselves are removed by Bash before Docker receives it.
+# If defaults were appended instead of replaced, printf would print two
+# values. If the space split an argument, it would also print two lines.
+echo 'No runtime arguments: CMD supplies one default argument with a space.'
+demonstrate printf /usr/bin/printf '["value=<%s>\\n","default argument"]' \
+  $'value=<default argument>\n' printf-defaults
+echo 'One quoted runtime argument replaces CMD; the ENTRYPOINT format stays.'
+demonstrate printf /usr/bin/printf '["value=<%s>\\n","replacement argument"]' \
+  $'value=<replacement argument>\n' printf-defaults 'replacement argument'
 read -r -p 'Press ENTER to remove the demonstration images...'
 
 # Visible normal cleanup teaches removal; the EXIT cleanup remains armed
 # until each removal succeeds. A pre-existing base image is never removed.
 echo 'Removing demonstration images...'
+docker image rm printf-defaults:latest
+cleanup_cancel defaults-image
 docker image rm dig-entrypoint:latest
 cleanup_cancel entrypoint-image
 docker image rm dig-cmd:latest
@@ -223,6 +284,7 @@ echo 'Lesson complete; owned containers and images removed.'
 # docker container inspect docker-basics-dig
 # docker image ls dig-cmd
 # docker image ls dig-entrypoint
+# docker image ls printf-defaults
 # Then remove only resources you have confirmed belong to that run, using
 # docker container rm --force ID and docker image rm NAME:TAG. A killed
 # Docker client can leave a container running; cleanup by id handles this
