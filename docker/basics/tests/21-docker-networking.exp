@@ -1,7 +1,7 @@
 #!/usr/bin/expect -f
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 21-docker-networking.exp: Verify existing bridge and database examples
+# 21-docker-networking.exp: Verify the complete standalone networking lesson
 #
 # Copyright (C) 2026 Sumanth Vepa.
 #
@@ -22,8 +22,8 @@
 
 # scenarios: normal interrupt conflict
 # time-limit: 2400
-# Covers existing Step 3 examples. The missing application and its completed
-# whole-tutorial coverage remain Step 4. Ctrl-C exits; no continue scenario.
+# Covers the complete application plus the preserved built-in/DB examples.
+# Ctrl-C exits; no stream continues after it, so continue is inapplicable.
 source [file join [file dirname [info script]] tutorial-test.tcl]
 set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
 proc fixture_state {} {
@@ -32,8 +32,8 @@ proc fixture_state {} {
     set -euo pipefail
     cd "$1"
     find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
-    find postgres-test -printf '%p %m %u %g %y\n' | sort
-    find postgres-test -type f -exec sha256sum {} + | sort
+    find postgres-test networking-test -printf '%p %m %u %g %y\n' | sort
+    find postgres-test networking-test -type f -exec sha256sum {} + | sort
     sha256sum 21-docker-networking.sh psql-utilities.sh docker-build-postgres-test-utilities.sh \
       bash-utilities.sh firewall-utilities.sh tests/21-docker-networking.exp \
       tests/run-tutorial-test.sh tests/tutorial-test.tcl
@@ -87,14 +87,81 @@ proc check_live_database {} {
     [[ $(docker network inspect "$network") == "$before" ]]
   } bash $basics
 }
+proc check_live_application {failure_checks} {
+  host_command bash -c {
+    set -euo pipefail
+    frontend=$(docker container inspect --format '{{.Id}}' sample-frontend)
+    backend=$(docker container inspect --format '{{.Id}}' sample-backend)
+    db=$(docker container inspect --format '{{.Id}}' sample-app-db)
+    network=$(docker network inspect --format '{{.Id}}' sample)
+    data=$(docker network inspect --format '{{.Id}}' sample-data)
+    binding=$(docker container port "$frontend" 8080/tcp)
+    [[ $binding =~ ^127\.0\.0\.1:([0-9]+)$ ]]
+    url="http://127.0.0.1:${BASH_REMATCH[1]}/"
+    request() {
+      curl --noproxy '*' --fail --silent --show-error --connect-timeout 2 --max-time 8 "$url"
+    }
+    [[ $(request) == 'frontend -> backend -> database-ready' ]]
+    [[ $(docker container exec "$frontend" curl --noproxy '*' --fail --silent \
+      --show-error --connect-timeout 2 --max-time 8 http://backend:8080/) == 'backend -> database-ready' ]]
+    [[ $(docker container exec "$backend" env PGCONNECT_TIMEOUT=3 psql \
+      --no-psqlrc --no-password --set ON_ERROR_STOP=1 --host=database \
+      --username=postgres --dbname=postgres --tuples-only --no-align \
+      --command "SELECT 'database-ready';") == database-ready ]]
+    docker network inspect "$network" "$data" | jq -e --arg f "$frontend" --arg b "$backend" --arg d "$db" '
+      (.[0].Internal | not) and .[1].Internal and
+      (.[0].Containers | keys | sort) == ([$f, $b] | sort) and
+      (.[1].Containers | keys | sort) == ([$d, $b] | sort)' >/dev/null
+    docker container inspect "$db" "$backend" | jq -e '
+      all(.[]; (.HostConfig.PortBindings | length) == 0)' >/dev/null
+    docker container inspect "$frontend" "$db" "$backend" | jq -e '
+      (.[0].NetworkSettings.Networks | keys) == ["sample"] and
+      (.[1].NetworkSettings.Networks | keys) == ["sample-data"] and
+      (.[2].NetworkSettings.Networks | keys | sort) == ["sample", "sample-data"]' >/dev/null
+    ip=$(docker container inspect --format '{{(index .NetworkSettings.Networks "sample-data").IPAddress}}' "$db")
+    if docker container exec "$frontend" timeout 5 getent ahostsv4 database; then exit 1; else [[ $? == 2 ]]; fi
+    for host in database "$ip"; do
+      if docker container exec "$frontend" pg_isready --host="$host" --timeout=2; then exit 1; else
+        [[ $? == 2 ]]
+      fi
+    done
+    if [[ $1 == 1 ]]; then
+      # Real bad request, downstream SQL failure and service-DNS failure.
+      [[ $(curl --noproxy '*' --silent --show-error --connect-timeout 2 --max-time 8 \
+        --output /dev/null --write-out '%{http_code}' "${url}missing") == 404 ]]
+      docker container stop "$db"
+      [[ $(curl --noproxy '*' --silent --show-error --connect-timeout 2 --max-time 10 \
+        --output /dev/null --write-out '%{http_code}' "$url") == 503 ]]
+      docker container start "$db"
+      ready=false
+      for ((i=0; i<30; i++)); do
+        if docker container exec "$db" pg_isready --host=127.0.0.1 --timeout=1 --quiet; then ready=true; break; fi
+        sleep 1
+      done
+      [[ $ready == true ]]
+      [[ $(request) == 'frontend -> backend -> database-ready' ]]
+      docker network disconnect "$network" "$backend"
+      [[ $(curl --noproxy '*' --silent --show-error --connect-timeout 2 --max-time 10 \
+        --output /dev/null --write-out '%{http_code}' "$url") == 503 ]]
+      docker network connect --alias backend "$network" "$backend"
+      [[ $(request) == 'frontend -> backend -> database-ready' ]]
+      # Positive control proves the denied IP is an actual listening DB.
+      docker network connect "$data" "$frontend"
+      docker container exec "$frontend" pg_isready --host="$ip" --timeout=2
+      docker network disconnect "$data" "$frontend"
+      if docker container exec "$frontend" pg_isready --host="$ip" --timeout=2; then exit 1; else [[ $? == 2 ]]; fi
+      [[ $(request) == 'frontend -> backend -> database-ready' ]]
+    fi
+  } bash $failure_checks
+}
 set native_arch [host_command docker version --format {{{.Server.Arch}}}]
 switch -- [scenario] {
   conflict {
     set fixture "docker-basics-networking-fixture-[pid]"
-    foreach tag [list postgres-test $fixture] {
+    foreach tag [list postgres-test sample-network-app $fixture] {
       if {[host_command docker image ls --quiet $tag] ne ""} { fail "Fixture image $tag already exists." }
     }
-    foreach name [list sample-db "$fixture-endpoint"] {
+    foreach name [list sample-db sample-frontend sample-backend sample-app-db "$fixture-endpoint"] {
       if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} {
         fail "Fixture container $name already exists."
       }
@@ -116,6 +183,15 @@ switch -- [scenario] {
     if {[host_command docker image inspect postgres-test] ne $before} { fail {Conflicting image changed.} }
     host_command docker image rm postgres-test
     cancel_cleanup_on_host
+    host_command docker image tag $fixture sample-network-app
+    cleanup_on_host docker image rm sample-network-app
+    set before [host_command docker image inspect sample-network-app]
+    start_terminal app-image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in app-image-conflict {Image name sample-network-app already exists.}
+    finish_terminal app-image-conflict 1
+    if {[host_command docker image inspect sample-network-app] ne $before} { fail {Application image conflict changed.} }
+    host_command docker image rm sample-network-app
+    cancel_cleanup_on_host
     # Our own tag operation changes LastTagTime; baseline afterward.
     set image_before [host_command docker image inspect $fixture]
     set id [host_command docker container create --name sample-db $fixture /sentinel]
@@ -127,28 +203,41 @@ switch -- [scenario] {
     if {[host_command docker container inspect $id] ne $before} { fail {Conflicting container changed.} }
     host_command docker container rm $id
     cancel_cleanup_on_host
+    foreach name {sample-frontend sample-backend sample-app-db} {
+      set id [host_command docker container create --name $name $fixture /sentinel]
+      cleanup_on_host docker container rm --force $id
+      set before [host_command docker container inspect $id]
+      start_terminal $name-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in $name-conflict "Container name $name already exists."
+      finish_terminal $name-conflict 1
+      if {[host_command docker container inspect $id] ne $before} { fail "Conflicting $name changed." }
+      host_command docker container rm $id
+      cancel_cleanup_on_host
+    }
     # A foreign network with an endpoint and nondefault settings survives.
     if {[host_command docker network ls --quiet --filter {name=^sample$}] ne ""} {
       fail {Fixture network appeared before creation.}
     }
-    set network [host_command docker network create --driver bridge --internal \
-      --label test.owner=$fixture --opt com.docker.network.bridge.enable_icc=false sample]
-    cleanup_on_host docker network rm $network
-    set endpoint [host_command docker container create --name "$fixture-endpoint" --network $network $fixture /sentinel]
-    cleanup_on_host docker container rm --force $endpoint
-    set before [host_command docker network inspect $network]
-    set endpoint_before [host_command docker container inspect $endpoint]
-    start_terminal network-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
-    wait_for -in network-conflict {Network name sample already exists.}
-    finish_terminal network-conflict 1
-    if {[host_command docker network inspect $network] ne $before ||
-        [host_command docker container inspect $endpoint] ne $endpoint_before} {
-      fail {Conflicting network or endpoint changed.}
+    foreach netname {sample sample-data} {
+      set network [host_command docker network create --driver bridge --internal \
+        --label test.owner=$fixture --opt com.docker.network.bridge.enable_icc=false $netname]
+      cleanup_on_host docker network rm $network
+      set endpoint [host_command docker container create --name "$fixture-endpoint" --network $network $fixture /sentinel]
+      cleanup_on_host docker container rm --force $endpoint
+      set before [host_command docker network inspect $network]
+      set endpoint_before [host_command docker container inspect $endpoint]
+      start_terminal $netname-network-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in $netname-network-conflict "Network name $netname already exists."
+      finish_terminal $netname-network-conflict 1
+      if {[host_command docker network inspect $network] ne $before ||
+          [host_command docker container inspect $endpoint] ne $endpoint_before} {
+        fail {Conflicting network or endpoint changed.}
+      }
+      host_command docker container rm $endpoint
+      cancel_cleanup_on_host
+      host_command docker network rm $network
+      cancel_cleanup_on_host
     }
-    host_command docker container rm $endpoint
-    cancel_cleanup_on_host
-    host_command docker network rm $network
-    cancel_cleanup_on_host
     if {[host_command docker image inspect $fixture] ne $image_before} { fail {Fixture image changed.} }
     host_command docker image rm $fixture
     cancel_cleanup_on_host
@@ -156,10 +245,13 @@ switch -- [scenario] {
   interrupt {
     start_tutorial
     answer_pause -time 1200 {Press ENTER to create the sample bridge and start its database...}
-    wait_for {Verified sample database query: sample-db-ready}
     wait_for {Verified database membership in the sample bridge.}
-    wait_for {Press ENTER to stop the database and remove the sample bridge...}
-    check_live_database
+    answer_pause {Press ENTER to replace the database example with the application...}
+    wait_for -time 1200 {Verified application request: frontend -> backend -> database-ready}
+    wait_for {Verified service discovery: frontend -> backend and backend -> database.}
+    wait_for {Verified isolation: frontend cannot resolve/reach DB; only frontend publishes HTTP.}
+    wait_for {Press ENTER to stop the application and remove its networks...}
+    check_live_application 0
     press_ctrl_c
     finish_tutorial 130
   }
@@ -171,11 +263,16 @@ switch -- [scenario] {
     wait_for {PostgreSQL TCP readiness verified.}
     wait_for {Verified sample database query: sample-db-ready}
     wait_for {Verified database membership in the sample bridge.}
-    wait_for {Frontend/backend and application communication are unfinished (Step 4).}
-    wait_for {Press ENTER to stop the database and remove the sample bridge...}
+    wait_for {Press ENTER to replace the database example with the application...}
     check_live_database
     type_line {}
-    wait_for {Existing networking examples complete; owned resources removed.}
+    wait_for -time 1200 {Verified application request: frontend -> backend -> database-ready}
+    wait_for {Verified service discovery: frontend -> backend and backend -> database.}
+    wait_for {Verified isolation: frontend cannot resolve/reach DB; only frontend publishes HTTP.}
+    wait_for {Press ENTER to stop the application and remove its networks...}
+    check_live_application 1
+    type_line {}
+    wait_for {Networking tutorial complete; owned resources removed.}
     finish_tutorial 0
   }
 }
@@ -185,4 +282,4 @@ dict for {type states} $original_state {
     if {[host_command docker $type inspect $id] ne $before} { fail "Original $type $id changed." }
   }
 }
-send_log "Existing bridge/database runtime and preservation assertions passed.\n"
+send_log "Complete networking application runtime/failure/preservation assertions passed.\n"
