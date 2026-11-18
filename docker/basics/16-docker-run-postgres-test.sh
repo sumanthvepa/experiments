@@ -21,191 +21,119 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-cd "$(dirname "${BASH_SOURCE[0]}")" || exit $?
-echo '16-docker-run-postgres-test.sh'
-
-# This script runs the postgres-test Docker image that was built
-# using 15-docker-build-postgres-test.sh. This run builds and owns its
-# own image; the helper refuses existing image/container names.
-
-# The script relies on the variables and utility functions defined
-# in docker-build-postgres-test-utilities.sh. We source that
-# script to get access to those variables and functions.
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
 source ./docker-build-postgres-test-utilities.sh
 source ./psql-utilities.sh
 
-# Call the function download_and_build_postgres_test_image to download
-# the necessary files and build the image. If the return value of this
-# function is non-zero, then the image build failed. Clean up and exit
-# with the returned error code.
+echo '16-docker-run-postgres-test.sh: connect from the host and exercise SQL'
+# Host: bash /path/to/16-docker-run-postgres-test.sh
+# Requires the same local Linux Docker/Buildx/native CPU and download tools
+# as lesson 15, plus a host psql client. Set PSQL_BINARY to an executable
+# path when it is outside PATH and the standard locations. No host package
+# installation, mount, sudo or firewall change is performed by this lesson.
+# Native arm64/rootful Docker is tested; other host/daemon modes are untested.
+# Check the client before downloading or building anything.
+if ! PSQL_BINARY=$(psql_binary_path); then
+  die 'Could not find an executable psql client. Install the PostgreSQL client or set PSQL_BINARY to its path.'
+fi
+printf 'Host psql client: %s\n' "$PSQL_BINARY"
+"$PSQL_BINARY" --version
+
+# 1. Build the automated image from lesson 15, then publish its server
+# This run builds/owns its own image. The helper refuses existing image
+# and container names; it never removes someone else's resources.
 download_and_build_postgres_test_image
-EXIT_CODE=$?
-if [[ $EXIT_CODE -ne 0 ]]; then
-  clean_up_existing_container
-  clean_up_existing_image
-  exit $EXIT_CODE
-fi
+read -r -p 'Press ENTER to start PostgreSQL with a published host port...'
 
-echo
-echo "We can now run the image to start the Postgres service."
-echo
-echo "You need to define the POSTGRES_PASSWORD environment variable to"
-echo "in order for the postgres service to start wihin the container"
-echo "This an be done by passing the environment variable to the"
-echo "docker container run command as shown below:"
-echo
-echo "docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' postgres-test"
-echo
-echo "You can also set it within the container after you've been "
-echo "dropped into the shell."
-echo
-echo "export POSTGRES_PASSWORD='postgres'"
-echo
-echo "or whatever password you want to set"
-echo
-echo "If you are trying to troubleshoot the container, you an run it"
-echo "with the DOCKER_POSTGRES_DEBUG environment variable set to"
-echo "1 as follows:"
-echo
-echo "docker container run --interactive --tty --rm --publish 5432:5432 --env POSTGRES_PASSWORD='postgres' --env DOCKER_POSTGRES_DEBUG=1 postgres-test"
-echo
-echo "Note, that to connect to the database, you will have to connect"
-echo "to the container on port 5432. Since we're publishing the port"
-echo "5432 of the container to the host, you can connect to the "
-echo "database from the host machine using the IP address/name of the"
-echo "host machine."
-echo
-echo "The password for the postgres user is the value of the"
-echo "POSTGRES_PASSWORD environment variable that you set when"
-echo "running the container."
-echo
-echo "You need to have the psql client installed on the machine from "
-echo "which you want to connect to the Postgres database. See "
-echo "databases/postgres/01-install-postgress-client.sh in this"
-echo "repository for instructions on how to install the psql client."
-echo
-echo "The psql command to connect to the Postgres database is as"
-echo "follows:"
-echo
-echo "psql --host=$(hostname -f) --username=postgres --password"
-echo
-echo "You will be prompted for the password that you set in the"
-echo "POSTGRES_PASSWORD environment variable. If you want to connect "
-echo "non-interactively, you can pass the password as an environment "
-echo "variable PGPASSWORD to the psql command as follows:"
-echo
-echo "PGPASSWORD='postgres' psql --host=$(hostname -f) --username=postgres"
-echo
-echo "See https://stackoverflow.com/questions/6405127/how-do-i-specify-a-password-to-psql-non-interactively"
-echo "for more information on how to connect to the Postgres database"
-echo "non-interactively."
-echo
-echo "To stop the Postgres server, you'll have to issue a stop command"
-echo "from outside the container from a different terminal on the host"
-echo
-echo "docker container stop postgres-test-test"
-echo
-
-# Start the container detached. This returns control to this shell
-# script while the container start postgres in the background.
-# The shared helper registers cleanup by its created ID before start.
-# EXIT removes this run's container even if a later command fails.
-POSTGRES_PASSWORD='postgres'
-POSTGRES_CONTAINER_ID=$(docker container create --publish 5432:5432 --env "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" --name=postgres-test-test postgres-test) || exit $?
+# Docker chooses a free host port. Bind only loopback so this disposable
+# database is reachable on this host without exposing it to the network.
+# The container still listens on 5432. A fixed mapping such as
+# --publish 127.0.0.1:5432:5432 fails when that host port is already in use.
+# --env NAME copies an exported host value. These are demonstration-only
+# credentials; Docker inspection exposes environment values. PostgreSQL
+# recommends a password file for repeated real client use (see docs below).
+export POSTGRES_PASSWORD='postgres-demo-only'
+POSTGRES_CONTAINER_ID=$(docker container create --name postgres-test-test \
+  --publish 127.0.0.1::5432 --env POSTGRES_PASSWORD \
+  --env DOCKER_POSTGRES_DEBUG=1 postgres-test)
 register_postgres_test_container "$POSTGRES_CONTAINER_ID" postgres-test-test
-docker container start "$POSTGRES_CONTAINER_ID" || exit $?
+docker container start "$POSTGRES_CONTAINER_ID"
+# pg_isready checks TCP to exclude the initializer's socket-only server.
+# The helper bounds attempts and checks stopped containers/Docker errors.
+# Readiness alone does not prove authentication or a successful SQL query.
+wait_for_postgres_test "$POSTGRES_CONTAINER_ID"
+HOST_BINDING=$(docker container port "$POSTGRES_CONTAINER_ID" 5432/tcp)
+[[ $HOST_BINDING =~ ^127\.0\.0\.1:([0-9]+)$ ]] || die "Unexpected published endpoint: $HOST_BINDING"
+HOST_PORT=${BASH_REMATCH[1]}
+printf 'Host PostgreSQL endpoint: 127.0.0.1:%s\n' "$HOST_PORT"
 
-# Wait for the container to start the postgres service
+# 2. Connect with the host psql client using real argument boundaries
+# An array preserves paths with spaces and each complete SQL statement.
+# --no-psqlrc ignores personal settings, --no-password prevents unattended
+# password prompts, ON_ERROR_STOP makes SQL failures return nonzero.
+# PGPASSWORD applies only to this command, with no eval or shell expansion
+# of the password. It can be visible in process environments; use .pgpass
+# for real work: https://www.postgresql.org/docs/current/libpq-pgpass.html
+PSQL_COMMAND=("$PSQL_BINARY" --no-psqlrc --no-password --set ON_ERROR_STOP=1
+  --host=127.0.0.1 --port="$HOST_PORT" --username=postgres)
+run_sql() {
+  local database=$1 sql=$2
+  printf 'SQL in %s: %s\n' "$database" "$sql" >&2
+  PGPASSWORD="$POSTGRES_PASSWORD" "${PSQL_COMMAND[@]}" --dbname="$database" --command "$sql"
+}
+run_sql postgres 'CREATE DATABASE testdb;'
+echo 'Test database created successfully.'
+run_sql testdb 'CREATE TABLE testtable (id SERIAL PRIMARY KEY, name VARCHAR(255));'
+echo 'Test table created successfully.'
+run_sql testdb "INSERT INTO testtable (name) VALUES ('test');"
+echo 'Data inserted successfully.'
+run_sql testdb 'SELECT id, name FROM testtable;'
+# A formatted SELECT is readable; a separate exact result proves the
+# intended row and value, rather than treating client exit zero as proof.
+RESULT=$(PGPASSWORD="$POSTGRES_PASSWORD" "${PSQL_COMMAND[@]}" --dbname=testdb \
+  --tuples-only --no-align --command 'SELECT id, name FROM testtable ORDER BY id;')
+[[ $RESULT == '1|test' ]] || die "Unexpected testtable result: $RESULT"
+echo "Verified host PostgreSQL row: $RESULT"
 
-# The way we check to see if the postgres service has started is by
-# running the pg_isready command in the container. You cannot use
-# docker run, to run a command in a running container, since there
-# already a command running in the container (the postgres service).
-# Docker exec command allows you to another command in a running
-# container. It seems to work by forking PID 1 in the container
-# again to create a second process that runs the command you want.
+# 3. Manual access and troubleshooting (run while paused below)
+# docker exec creates another process in a RUNNING container. It does not
+# fork PID1; docker run creates a NEW container from an image instead.
+# The in-container client needs no published port. Its password-authenticated
+# TCP query uses the container environment, with the password kept out of argv.
+echo 'Manual in-container SQL (in another terminal):'
+cat <<'COMMANDS'
+docker container exec postgres-test-test bash -c 'PGPASSWORD="$POSTGRES_PASSWORD" psql --no-psqlrc --no-password --host=127.0.0.1 --username=postgres --dbname=testdb --command "SELECT id, name FROM testtable;"'
+COMMANDS
+printf 'Manual host connection: psql --host=127.0.0.1 --port=%s --username=postgres --dbname=testdb --password\n' "$HOST_PORT"
+# That command prompts for the demonstration password above. To supply it
+# non-interactively for this disposable example:
+printf "PGPASSWORD='postgres-demo-only' psql --host=127.0.0.1 --port=%s --username=postgres --dbname=testdb\n" "$HOST_PORT"
+# The running server used DOCKER_POSTGRES_DEBUG=1; inspect its nonsecret
+# startup diagnostics using docker container logs postgres-test-test.
+# For a separate foreground debug session AFTER this lesson exits, build
+# again with lesson 15's helper or the documented Dockerfile command, then:
+# export POSTGRES_PASSWORD='postgres-demo-only'
+# docker container run --interactive --tty --rm --publish 127.0.0.1::5432 \
+#   --env POSTGRES_PASSWORD --env DOCKER_POSTGRES_DEBUG=1 postgres-test
+# From another terminal use docker container stop <its-name-or-ID>.
+# To troubleshoot initialization in a shell instead:
+# docker container run --interactive --tty --rm --entrypoint bash postgres-test
+# export POSTGRES_PASSWORD='postgres-demo-only'
+# docker-entrypoint.sh bash
+# This initializes and opens bash without leaving a server running. Start
+# it explicitly with: exec gosu postgres postgres -D /var/lib/pgsql/16/data
+# A shell export affects only its container, not an already running server.
+read -r -p 'Press ENTER to stop PostgreSQL and remove lesson resources...'
 
-# The pg_isready command returns 0 if the postgres service is ready
-# to accept connections and non-zero otherwise. We can use this
-# information to determine if the postgres service has started.
-
-# The while loop below keeps checking if the postgres service has
-# started by running the pg_isready command in the container every
-# 2 seconds. The loop exits when the pg_isready command returns 0
-
-echo "Waiting for the postgres service to start..."
-IS_POSTGRES_SERVER_READY=1
-while [[  $IS_POSTGRES_SERVER_READY -ne 0 ]]; do
-  sleep 25
-  docker container exec postgres-test-test /usr/pgsql-16/bin/pg_isready
-  IS_POSTGRES_SERVER_READY=$?
-done
-echo "Postgres service has started successfully"
-
-# The postgres service has started. We can now connect to the
-# database using the psql client and create a test database
-# and a test table in it.
-
-# First check if the psql client is installed on the host machine
-echo "Checking if the psql client is installed on the host machine"
-PSQL_BINARY=$(psql_binary_path)
-if [[ $? -ne 0 ]]; then
-  echo "Could not find the psql client binary on this system."
-  echo "Please install the psql client or set the environment variable"
-  echo "PSQL_BINARY to the path of the psql client binary."
-  exit 1
-fi
-echo "psql client found at $PSQL_BINARY"
-
-# Now we can exercise the Postgres server
-# We do a deep nested if-else block to create the database, create a table
-# check if the table was created successfully, insert data into the table
-# and finally select the data from the table.
-# This is done so that if a prior step fails, then the next step
-# is not executed, and the script goes to the end where clean up is done.
-
-# Now create a test database on the Postgres server
-echo "Creating a test database on the Postgres server"
-PSQL_COMMAND="PGPASSWORD=$POSTGRES_PASSWORD  $PSQL_BINARY --host=$(hostname -f) --username=postgres "
-CREATE_DATABASE_COMMAND="$PSQL_COMMAND --dbname=postgres --command=\"CREATE DATABASE testdb;\""
-echo $CREATE_DATABASE_COMMAND
-eval $CREATE_DATABASE_COMMAND
-if [[ $? -eq 0 ]]; then
-  echo "Test database created successfully"
-  # Now create a test table in the test database
-  echo "Creating a test table in the test database"
-  CREATE_TABLE_COMMAND="$PSQL_COMMAND --dbname=testdb --command=\"CREATE TABLE testtable (id SERIAL PRIMARY KEY, name VARCHAR(255));\""
-  echo $CREATE_TABLE_COMMAND
-  eval $CREATE_TABLE_COMMAND
-  if [[ $? -eq 0 ]]; then
-    echo "Test table created successfully"
-    # Now insert some data into the test table
-    echo "Inserting data into the test table"
-    INSERT_DATA_COMMAND="$PSQL_COMMAND --dbname=testdb --command=\"INSERT INTO testtable (name) VALUES ('test');\""
-    echo $INSERT_DATA_COMMAND
-    eval $INSERT_DATA_COMMAND
-    if [[ $? -eq 0 ]]; then
-      echo "Data inserted successfully"
-      # Now select the data from the test table
-      echo "Selecting data from the test table"
-      SELECT_DATA_COMMAND="$PSQL_COMMAND --dbname=testdb --command=\"SELECT name FROM testtable;\""
-      echo $SELECT_DATA_COMMAND
-      eval $SELECT_DATA_COMMAND
-      if [[ $? -eq 0 ]]; then
-        echo "Data selected successfully"
-      else
-        echo "Failed to select data from the test table"
-      fi
-    else
-      echo "Failed to insert data into the test table"
-    fi
-  else
-    echo "Failed to create the test table"
-  fi
-else
-  echo "Failed to create the test database"
-fi
-
-# Clean up the container and image
-clean_up_existing_container || exit $?
-clean_up_existing_image || exit $?
+# 4. Graceful shutdown and owned cleanup, also covered by EXIT/INT/TERM
+# postgres is PID1 and the image's STOPSIGNAL SIGINT shuts it down cleanly.
+docker container stop "$POSTGRES_CONTAINER_ID"
+STATUS=$(docker container wait "$POSTGRES_CONTAINER_ID")
+[[ $STATUS == 0 ]] || die "PostgreSQL shutdown failed: $STATUS."
+clean_up_existing_container
+clean_up_existing_image
+echo 'Lesson complete; owned PostgreSQL resources removed on exit.'
+# EXIT removes only this run's temporary context and any base it pulled.
+# Build cache may remain. Ctrl-C returns 130. SIGKILL cannot run traps:
+# inspect identified leftovers before removing by ID/tag; never prune.
