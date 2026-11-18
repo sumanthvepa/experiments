@@ -1,0 +1,165 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 22-docker-rootless.exp: Verify USER, gosu and owned-resource cleanup
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 2400
+# Ctrl-C ends this lesson; no stream continues, so continue is inapplicable.
+source [file join [file dirname [info script]] tutorial-test.tcl]
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find rootless-test postgres-test -printf '%p %m %u %g %y\n' | sort
+    find rootless-test postgres-test -type f -exec sha256sum {} + | sort
+    stat --format='%n %a %u %g' 22-docker-rootless.sh bash-utilities.sh firewall-utilities.sh \
+      tests/22-docker-rootless.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    sha256sum 22-docker-rootless.sh bash-utilities.sh firewall-utilities.sh \
+      tests/22-docker-rootless.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    find /tmp -maxdepth 1 -name 'docker-basics-identity.*' -printf '%p %m %u %g %y\n' | sort
+  } bash $basics]
+}
+set fixtures_before [fixture_state]
+set original_state {}
+foreach type {image container network volume} {
+  set ids [host_command docker $type ls --quiet {*}[expr {$type eq "container" ? {--all --no-trunc} : {}}]]
+  foreach id [lsort -unique $ids] {
+    dict set original_state $type $id [host_command docker $type inspect $id]
+  }
+}
+proc verify_live {name mode} {
+  host_command bash -c {
+    set -euo pipefail
+    name=$1 mode=$2
+    if [[ $mode == direct ]]; then config=10001:10001; directory=prepared; else config=0:0; directory=runtime; fi
+    docker container inspect "$name" | jq -e --arg config "$config" '
+      .[0].State.Running and .[0].Config.User == $config and
+      .[0].HostConfig.NetworkMode == "none" and (.[0].Mounts | length) == 0 and
+      (.[0].HostConfig.PortBindings | length) == 0' >/dev/null
+    docker container exec --user 0:0 "$name" bash -ec '
+      while read -r key real effective saved filesystem rest; do
+        case $key in Uid:|Gid:) test "$real:$effective:$saved:$filesystem" = 10001:10001:10001:10001;; esac
+      done < /proc/1/status
+      test "$(cat /proc/1/comm)" = sleep'
+    docker container exec --user 10001:10001 "$name" bash -ec '
+      test "$(id -u):$(id -g)" = 10001:10001
+      test "$(stat --format=%u:%g:%a /demo/$1)" = 10001:10001:700
+      test "$(stat --format=%u:%g /demo/$1/message)" = 10001:10001
+      test ! -w /root
+      test ! -e /root/forbidden' bash "$directory"
+    if [[ $mode == direct ]]; then
+      test "$(docker container exec "$name" id -u)" = 10001
+      docker container exec --user 0:0 "$name" bash -ec '
+        test "$(stat --format=%u:%g:%a /demo/runtime)" = 0:0:700
+        test ! -e /demo/runtime/forbidden
+        test ! -e /demo/runtime/seed
+        test "$(cat /demo/prepared/message)" = "written by USER"'
+      if docker container exec "$name" bash -c 'echo blocked > /demo/runtime/driver-denied'; then exit 1; else test "$?" = 1; fi
+    else
+      test "$(docker container exec "$name" id -u)" = 0
+      docker container exec --user 10001:10001 "$name" bash -ec '
+        test "$(cat /demo/runtime/seed)" = "initialized by root"
+        test "$(stat --format=%u:%g /demo/runtime/seed)" = 10001:10001
+        test "$(cat /demo/runtime/message)" = "written after gosu"'
+      logs=$(docker container logs "$name")
+      [[ $logs == *'Initializer identity: uid=0 gid=0 pid=1'* ]]
+      [[ $logs == *'Application identity: uid=10001 gid=10001 pid=1 mode=gosu'* ]]
+      [[ $logs == *'Root initialized seed; runtime directory before: 0:0:700.'* ]]
+    fi
+    # Actual failed write under the explicitly dropped identity, Docker still live.
+    if docker container exec --user 10001:10001 "$name" bash -c 'echo blocked > /root/driver-denied'; then exit 1; else test "$?" = 1; fi
+    test "$(docker container inspect --format '{{.State.Running}}' "$name")" = true
+  } bash $name $mode
+}
+switch -- [scenario] {
+  conflict {
+    set fixture "docker-basics-identity-fixture-[pid]"
+    foreach name [list identity-user identity-gosu $fixture] {
+      if {[host_command docker image ls --quiet "$name:latest"] ne ""} { fail "Fixture image $name exists." }
+      if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} { fail "Fixture container $name exists." }
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" | docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    foreach name {identity-user identity-gosu} {
+      # Guard each tag/container immediately before setup as well.
+      if {[host_command docker image ls --quiet "$name:latest"] ne ""} { fail "Fixture image $name appeared." }
+      host_command docker image tag $fixture $name
+      cleanup_on_host docker image rm $name
+      set before [host_command docker image inspect $name]
+      start_terminal "$name-image-conflict" bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in "$name-image-conflict" "Image name $name already exists."
+      finish_terminal "$name-image-conflict" 1
+      if {[host_command docker image inspect $name] ne $before} { fail "Conflicting image $name changed." }
+      host_command docker image rm $name
+      cancel_cleanup_on_host
+      if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} { fail "Fixture container $name appeared." }
+      set id [host_command docker container create --name $name $fixture /sentinel]
+      cleanup_on_host docker container rm --force $id
+      set before [host_command docker container inspect $id]
+      start_terminal "$name-container-conflict" bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in "$name-container-conflict" "Container name $name already exists."
+      finish_terminal "$name-container-conflict" 1
+      if {[host_command docker container inspect $id] ne $before} { fail "Conflicting container $name changed." }
+      host_command docker container rm $id
+      cancel_cleanup_on_host
+    }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  interrupt - normal {
+    start_tutorial
+    answer_pause -time 1200 {Press ENTER to compare USER and root-owned directory permissions...}
+    wait_for {identity-user configured USER: 10001:10001}
+    wait_for {identity-user PID 1 identity:}
+    wait_for {Verified USER: non-root PID 1 writes prepared data and cannot initialize root-owned data.}
+    wait_for {Press ENTER to initialize as root and execute the application with gosu...}
+    verify_live identity-user direct
+    type_line {}
+    wait_for {identity-gosu configured USER: 0:0}
+    wait_for {identity-gosu PID 1 identity:}
+    wait_for {gosu default docker exec UID: 0; the existing PID 1 UID is 10001.}
+    wait_for {Verified gosu: root initialized data, then non-root PID 1 wrote it successfully.}
+    wait_for {These container process demonstrations do not test or configure a rootless daemon.}
+    wait_for {Press ENTER to remove the identity examples...}
+    verify_live identity-user direct
+    verify_live identity-gosu gosu
+    if {[scenario] eq "interrupt"} {
+      press_ctrl_c
+      finish_tutorial 130
+    } else {
+      type_line {}
+      wait_for {Identity lesson complete; owned resources removed.}
+      finish_tutorial 0
+    }
+  }
+}
+if {[fixture_state] ne $fixtures_before} { fail {Original data, source, modes or temporary context inventory changed.} }
+dict for {type states} $original_state {
+  dict for {id before} $states {
+    if {[host_command docker $type inspect $id] ne $before} { fail "Original $type $id changed." }
+  }
+}
+send_log "Completed USER/gosu identity, permissions and preservation assertions passed.\n"
