@@ -4,10 +4,10 @@
 # creation of a postgres container. This one requires manual
 # invocation of a setup script inside the container.
 #
-# Copyright (C) 2024-25 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License a
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
@@ -30,38 +30,31 @@
 # The purpose of this Docker image is to explore the initialization
 # and startup of a postgres database server.
 
-# Use the almalinux:9-minimal image as the base image
-FROM almalinux:9-minimal
+# Use the almalinux:10-minimal image as the base image
+FROM almalinux:10-minimal
 
-ARG ARCH_SUFFIX='amd64'
+# Require the caller to choose; never silently copy an amd64 executable.
+ARG ARCH_SUFFIX
+RUN test "$ARCH_SUFFIX" = amd64 || test "$ARCH_SUFFIX" = arm64
 
-# Install basic editing tools to help with debugging
-RUN microdnf -y install vim zstd procps-ng iproute
+# EL10 uses ordinary PostgreSQL packages, not EL8/9 module streams.
+# We choose PGDG's versioned PG16 packages and /usr/pgsql-16 paths.
+# The tutorial supplies a fresh EL10 repository RPM in a temporary context.
+COPY ${ARCH_SUFFIX}/pgdg-redhat-repo-latest.noarch.rpm /tmp/pgdg.rpm
+COPY ${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX} /usr/local/bin/gosu
+RUN chmod 0755 /usr/local/bin/gosu \
+    && rpm -i /tmp/pgdg.rpm \
+    && microdnf -y --disablerepo='pgdg*' --enablerepo=pgdg-common --enablerepo=pgdg16 install \
+         postgresql16-server tzdata vim zstd gzip xz procps-ng iproute \
+    && microdnf clean all \
+    && rm /tmp/pgdg.rpm \
+    && test -f /usr/share/zoneinfo/Asia/Kolkata \
+    && /usr/local/bin/gosu postgres /usr/pgsql-16/bin/postgres --version
 
-# Disable the version of postgres that comes bundled with the OS
-RUN microdnf -y module disable postgresql
-
-# Copy the latest postgres repository rpm to the root directory
-COPY  ${ARCH_SUFFIX}/pgdg-redhat-repo-latest.noarch.rpm /
-
-# Copy gosu to /usr/local/bin.
-# This will be needed by the setup-postgres.sh script
-COPY  ${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX} /usr/local/bin/gosu
-RUN chmod +x /usr/local/bin/gosu
-
-# Install the postgres repository
-RUN rpm -i pgdg-redhat-repo-latest.noarch.rpm
-
-# Install the postgresql16-server package
-RUN microdnf -y install postgresql16-server
-
-# Copy the experimental setup and initialization scripts
-# for the postgres database server to the /usr/local/bin directory
-COPY setup-postgres.sh /usr/local/bin/setup-postgres.sh
-COPY initialize-postgres.sh /usr/local/bin/initialize-postgres.sh
-
+COPY --chmod=0755 setup-postgres.sh initialize-postgres.sh /usr/local/bin/
+RUN mkdir -p /docker-entrypoint-initdb.d
+ENV PATH="/usr/pgsql-16/bin:${PATH}"
 STOPSIGNAL SIGINT
 EXPOSE 5432
-
-# Set the default command to launch a bash shell
+# No entrypoint: the reader explicitly invokes setup-postgres.sh.
 CMD ["/bin/bash"]

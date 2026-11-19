@@ -1,0 +1,215 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 25-docker-compose-networking.exp: Verify Compose topology and preservation
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 2400
+# No continuing stream is used. Dynamic loopback publication requires no
+# firewalld changes; preservation assertions cover daemon/config/source state.
+source [file join [file dirname [info script]] tutorial-test.tcl]
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    # Detect files created beside the lesson/driver as well as fixture edits.
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%p %m %u %g %y\n' | sort
+    find tests -maxdepth 1 -printf '%p %m %u %g %y\n' | sort
+    find website-test -printf '%p %m %u %g %y\n' | sort
+    find website-test -type f -exec sha256sum {} + | sort
+    stat --format='%n %a %u %g' 25-docker-compose-networking.sh bash-utilities.sh firewall-utilities.sh \
+      tests/25-docker-compose-networking.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    sha256sum 25-docker-compose-networking.sh bash-utilities.sh firewall-utilities.sh \
+      tests/25-docker-compose-networking.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    find /tmp -maxdepth 1 -name 'docker-basics-compose25.*' -printf '%p %m %u %g %y\n' | sort
+  } bash $basics]
+}
+proc config_state {} {
+  return [host_command bash -c {
+    set -euo pipefail
+    config=${DOCKER_CONFIG:-$HOME/.docker}
+    bxconfig=${BUILDX_CONFIG:-$config/buildx}
+    for path in "$config" "$bxconfig"; do
+      if [[ -d $path ]]; then
+        { find "$path" -printf '%p %m %u %g %y\n' | sort
+          find "$path" -type f -exec sha256sum {} + | sort; } | sha256sum
+      fi
+    done
+    docker context show
+    docker buildx ls --format '{{json .}}' | jq --exit-status --slurp --raw-output \
+      '[.[] | select(.Current) | .Name] | unique | select(length == 1) | .[0]'
+  }]
+}
+set fixtures_before [fixture_state]
+set config_before [config_state]
+set original_state {}
+foreach type {image container network volume} {
+  set ids [host_command docker $type ls --quiet {*}[expr {$type in {container image} ? {--all --no-trunc} : {}}]]
+  foreach id [lsort -unique $ids] {
+    dict set original_state $type $id [host_command docker $type inspect $id]
+  }
+}
+proc begin_lesson {terminal} {
+  global env
+  start_terminal $terminal bash -- $env(TUTORIAL_TEST_TUTORIAL)
+  set match [wait_for_regexp -in $terminal {Compose project: (compose25-[0-9]+-[0-9]+)}]
+  set project [lindex $match 1]
+  set match [wait_for_regexp -in $terminal {Compose file: (/tmp/docker-basics-compose25\.[A-Za-z0-9]+/compose.yaml)}]
+  set file [lindex $match 1]
+  wait_for -in $terminal {Press ENTER to build and start the default-network example...}
+  return [list $project $file]
+}
+proc verify_live {project file phase} {
+  global basics
+  host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    project=$2 file=$3 phase=$4
+    compose() { docker compose --project-name "$project" --file "$file" --project-directory "${file%/*}" --env-file /dev/null "$@"; }
+    app=$(compose ps --all --quiet app)
+    front=$(compose ps --all --quiet frontend)
+    binding=$(compose port frontend 80)
+    [[ $binding =~ ^127\.0\.0\.1:[0-9]+$ ]]
+    curl --noproxy '*' --fail --silent --show-error --max-time 3 "http://$binding/" | cmp website-test/index.html -
+    docker container exec "$app" curl --noproxy '*' --fail --silent --show-error --max-time 3 http://frontend:80/ | cmp website-test/index.html -
+    docker container inspect "$app" | jq -e '.[0] | .State.Running and (.HostConfig.PortBindings | length) == 0 and (.Mounts | length) == 0' >/dev/null
+    if [[ $phase == default ]]; then
+      net=$(docker network ls --quiet --no-trunc --filter "label=com.docker.compose.project=$project")
+      docker network inspect "$net" | jq -e --arg app "$app" --arg front "$front" \
+        '.[0].Containers | keys == ([$app, $front] | sort)' >/dev/null
+      test "$(docker container ls --all --quiet --filter "label=com.docker.compose.project=$project" | wc -l)" = 2
+    else
+      backend=$(compose ps --all --quiet backend)
+      docker container inspect "$backend" | jq -e --arg network "${project}_backend" \
+        '.[0] | .State.Health.Status == "healthy" and (.NetworkSettings.Networks | keys) == [$network] and (.HostConfig.PortBindings | length) == 0' >/dev/null
+      docker container inspect "$app" | jq -e --arg a "${project}_backend" --arg b "${project}_frontend" \
+        '.[0].NetworkSettings.Networks | keys == ([$a, $b] | sort)' >/dev/null
+      docker container inspect "$front" | jq -e --arg network "${project}_frontend" \
+        '.[0] | (.NetworkSettings.Networks | keys) == [$network] and (.HostConfig.PortBindings | keys) == ["80/tcp"]' >/dev/null
+      test "$(docker container ls --all --quiet --filter "label=com.docker.compose.project=$project" | wc -l)" = 3
+      test "$(docker network ls --quiet --filter "label=com.docker.compose.project=$project" | wc -l)" = 2
+      docker container exec "$app" cat /tmp/dependency.html | cmp website-test/index.html -
+      docker container exec "$app" curl --noproxy '*' --fail --silent --show-error --max-time 3 http://backend:80/ | cmp website-test/index.html -
+      ip=$(docker container inspect --format "{{(index .NetworkSettings.Networks \"${project}_backend\").IPAddress}}" "$backend")
+      docker container exec "$app" curl --noproxy '*' --fail --silent --show-error --max-time 3 "http://$ip:80/" | cmp website-test/index.html -
+      status=0
+      docker container exec "$front" env RES_OPTIONS='timeout:1 attempts:1' timeout 5 getent ahostsv4 backend || status=$?
+      test "$status" = 2
+      for host in backend "$ip"; do
+        status=0
+        docker container exec "$front" curl --noproxy '*' --fail --silent --show-error --connect-timeout 1 --max-time 3 "http://$host:80/" || status=$?
+        if [[ $host == backend ]]; then [[ $status == 6 || $status == 28 ]]; else [[ $status == 7 || $status == 28 ]]; fi
+      done
+      docker container exec "$app" curl --noproxy '*' --fail --silent --show-error --max-time 3 http://backend:80/ | cmp website-test/index.html -
+    fi
+  } bash $basics $project $file $phase
+}
+switch -- [scenario] {
+  conflict {
+    # Independent imported fixture: never retag an original daemon image.
+    set fixture "compose25-fixture-[pid]:test"
+    if {[host_command docker image ls --quiet $fixture] ne ""} { fail {Fixture image exists.} }
+    host_command bash -c {set -euo pipefail; tar --create --files-from /dev/null | docker image import - "$1"} bash $fixture
+    cleanup_on_host docker image rm $fixture
+    foreach type {network container volume image} {
+      lassign [begin_lesson "conflict-$type"] project file
+      switch -- $type {
+        network {
+          set target [host_command docker network create "${project}_backend"]
+          cleanup_on_host docker network rm $target
+          set message "Generated network ${project}_backend already exists"
+        }
+        container {
+          set target [host_command docker container create --name "${project}-backend-1" $fixture /sentinel]
+          cleanup_on_host docker container rm --force $target
+          set message "Generated container ${project}-backend-1 already exists"
+        }
+        volume {
+          set target [host_command docker volume create --label "com.docker.compose.project=$project" "${project}_sentinel"]
+          cleanup_on_host docker volume rm $target
+          set message "Compose project $project already has volume resources"
+        }
+        image {
+          set target "${project}-http:lesson"
+          host_command docker image tag $fixture $target
+          cleanup_on_host docker image rm $target
+          set message "Image name $target already exists"
+        }
+      }
+      set before [host_command docker $type inspect $target]
+      type_line -in "conflict-$type" {}
+      wait_for -in "conflict-$type" $message
+      finish_terminal "conflict-$type" 1
+      if {[host_command docker $type inspect $target] ne $before} { fail "Conflicting $type changed." }
+      if {[host_command_succeeds test -e [file dirname $file]]} { fail {Temporary configuration survived conflict.} }
+      if {$type eq "container"} { host_command docker container rm $target } else { host_command docker $type rm $target }
+      cancel_cleanup_on_host
+    }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  normal - interrupt {
+    lassign [begin_lesson tutorial] project file
+    type_line {}
+    wait_for -time 1800 {Verified default discovery: app requested frontend:80 and received the packaged page.}
+    wait_for {Verified app localhost is its own namespace: no HTTP listener (curl status 7).}
+    wait_for {Verified default network membership by container IDs.}
+    wait_for {Press ENTER to replace the default network with frontend/backend networks...}
+    verify_live $project $file default
+    type_line {}
+    answer_pause {Press ENTER to observe the dependency health gate...}
+    wait_for {Observed health gate: backend starting; app has not started.}
+    # Inspect during the actual gate, not merely after successful startup.
+    host_command bash -c {
+      set -euo pipefail
+      project=$1 file=$2
+      compose() { docker compose --project-name "$project" --file "$file" --project-directory "${file%/*}" --env-file /dev/null "$@"; }
+      backend=$(compose ps --all --quiet backend)
+      test "$(docker container inspect --format '{{.State.Health.Status}}' "$backend")" = starting
+      app=$(compose ps --all --quiet app)
+      if [[ -n $app ]]; then test "$(docker container inspect --format '{{.State.Running}}' "$app")" = false; fi
+    } bash $project $file
+    if {[scenario] eq "interrupt"} {
+      # Interrupt while up is waiting on health: client plus partial project.
+      press_ctrl_c
+      finish_tutorial 130
+    } else {
+      wait_for {Verified service_healthy gate: app first-start request succeeded without retries.}
+      wait_for {Verified ready controls: app reaches frontend and backend by service name, and backend by IP.}
+      wait_for {Verified isolation: frontend cannot resolve backend or reach its known IP; app still can.}
+      wait_for {Verified topology by IDs: app joins both networks; only frontend publishes HTTP.}
+      wait_for {Press ENTER to remove this networking project...}
+      verify_live $project $file topology
+      type_line {}
+      wait_for {Compose networking complete; owned containers, networks, image and temporary files removed.}
+      finish_tutorial 0
+    }
+    if {[host_command_succeeds test -e [file dirname $file]]} { fail {Temporary configuration survived cleanup.} }
+  }
+}
+if {[fixture_state] ne $fixtures_before} { fail {Original fixture/source content, modes, owners or temporary inventory changed.} }
+if {[config_state] ne $config_before} { fail {Docker/Buildx configuration or selection changed.} }
+dict for {type states} $original_state {
+  dict for {id state} $states {
+    if {[host_command docker $type inspect $id] ne $state} { fail "Original $type $id metadata/state changed." }
+  }
+}

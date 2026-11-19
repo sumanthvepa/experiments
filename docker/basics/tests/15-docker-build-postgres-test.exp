@@ -1,0 +1,135 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 15-docker-build-postgres-test.exp: Verify automated PostgreSQL startup
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 2400
+source [file join [file dirname [info script]] tutorial-test.tcl]
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
+    find postgres-test -printf '%p %m %u %g %y\n' | sort
+    find postgres-test -type f -exec sha256sum {} + | sort
+    sha256sum 15-docker-build-postgres-test.sh docker-build-postgres-test-utilities.sh bash-utilities.sh
+    find /tmp -maxdepth 1 -name 'docker-basics-postgres-test.*' -printf '%p %m %u %g %y\n' | sort
+  } bash $basics]
+}
+set fixtures_before [fixture_state]
+set base_before ""
+if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
+  set base_before [host_command docker image inspect almalinux:10-minimal]
+}
+set native_arch [host_command docker version --format {{{.Server.Arch}}}]
+switch -- [scenario] {
+  conflict {
+    set fixture "docker-basics-postgres-test-fixture-[pid]"
+    foreach tag [list postgres-test $fixture] {
+      if {[host_command docker image ls --quiet $tag] ne ""} { fail "Fixture image $tag already exists." }
+    }
+    if {[host_command docker container ls --all --quiet --filter {name=^/postgres-test-test$}] ne ""} {
+      fail {Fixture container postgres-test-test already exists.}
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" | docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    host_command docker image tag $fixture postgres-test
+    cleanup_on_host docker image rm postgres-test
+    set image_before [host_command docker image inspect postgres-test]
+    start_terminal image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in image-conflict {Image name postgres-test already exists.}
+    finish_terminal image-conflict 1
+    if {[host_command docker image inspect postgres-test] ne $image_before} { fail {Conflicting image changed.} }
+    host_command docker image rm postgres-test
+    cancel_cleanup_on_host
+    # Our intentional tag add/remove updates LastTagTime. Baseline the
+    # fixture after those owned changes, before testing container conflict.
+    set fixture_before [host_command docker image inspect $fixture]
+    set id [host_command docker container create --name postgres-test-test $fixture /sentinel]
+    cleanup_on_host docker container rm --force $id
+    set container_before [host_command docker container inspect $id]
+    start_tutorial
+    wait_for {Container name postgres-test-test already exists.}
+    finish_tutorial 1
+    if {[host_command docker container inspect $id] ne $container_before} { fail {Conflicting container changed.} }
+    host_command docker container rm $id
+    cancel_cleanup_on_host
+    if {[host_command docker image inspect $fixture] ne $fixture_before} { fail {Fixture image changed.} }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  interrupt {
+    start_tutorial
+    answer_pause -time 1200 {Press ENTER to inspect the image startup contract...}
+    wait_for {Verified automated PostgreSQL TCP query: postgres|postgres|42}
+    wait_for {Press ENTER to stop PostgreSQL and remove lesson resources...}
+    press_ctrl_c
+    finish_tutorial 130
+  }
+  normal {
+    start_tutorial
+    wait_for "Verified native base architecture: $native_arch"
+    answer_pause -time 1200 {Press ENTER to inspect the image startup contract...}
+    wait_for_regexp {postgres \(PostgreSQL\) 16\.[0-9]+}
+    wait_for {Informational --version succeeded without database initialization.}
+    wait_for {PostgreSQL TCP readiness verified.}
+    wait_for {Verified automated PostgreSQL TCP query: postgres|postgres|42}
+    # Verify the default server really replaced the entrypoint as PID1,
+    # plus PGDG native packages, timezone data, directory ownership and SQL.
+    host_command docker container exec postgres-test-test /bin/bash -c {
+      set -euo pipefail
+      test "$(cat /proc/1/comm)" = postgres
+      test "$(stat -c %U /var/lib/pgsql/16/data)" = postgres
+      test "$(stat -c %a /var/lib/pgsql/16/data)" = 700
+      test "$(cat /var/lib/pgsql/16/data/PG_VERSION)" = 16
+      test -f /var/lib/pgsql/16/data/.docker-postgres-initialized
+      test -f /usr/share/zoneinfo/Asia/Kolkata
+      rpm -q postgresql16-server tzdata
+      gosu --version
+      test "$(ps -o user= -p 1 | tr -d ' ')" = postgres
+    }
+    set result [host_command docker container exec --env PGPASSWORD=postgres-demo-only \
+      postgres-test-test psql --no-psqlrc --set ON_ERROR_STOP=1 \
+      --host=127.0.0.1 --username=postgres --dbname=postgres \
+      --tuples-only --no-align --command {SHOW log_line_prefix;}]
+    if {$result ne "lesson 15: "} { fail "Quoted PostgreSQL option changed: <$result>" }
+    set logs [host_command bash -c {docker container logs postgres-test-test 2>&1}]
+    if {[string match {*postgres-demo-only*} $logs]} { fail {Debug leaked password.} }
+    set config [host_command docker image inspect --format \
+      {{{json .Config.Entrypoint}} {{json .Config.Cmd}} {{.Architecture}}} postgres-test]
+    set expected [format {%s %s %s} {["docker-entrypoint.sh"]} {["postgres"]} $native_arch]
+    if {$config ne $expected} { fail "Unexpected image startup contract: $config" }
+    answer_pause {Press ENTER to stop PostgreSQL and remove lesson resources...}
+    wait_for {Lesson complete; owned containers, images and temporary context removed on exit.}
+    finish_tutorial 0
+  }
+}
+if {[fixture_state] ne $fixtures_before} { fail {Context, modes, ownership or temporary files changed.} }
+if {$base_before ne "" &&
+    [host_command docker image inspect almalinux:10-minimal] ne $base_before} {
+  fail {Pre-existing base image changed.}
+}
+send_log "Supplemental context and existing-base preservation assertions passed.\n"

@@ -4,10 +4,10 @@
 # flask-test/entrypoint.sh: Entry point script to start gunicorn
 # to run a Flask application.
 #
-# Copyright (C) 2024-25 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License a
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
@@ -21,6 +21,8 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+set -euo pipefail
+
 # This entry point script looks at the values of various environment
 # variable and either runs flask or gunicorn to run the Flask
 # application specified by the FLASK_APP environment variable on the
@@ -33,11 +35,11 @@ if [[ $# -gt 0 ]]; then
 fi
 
 # Check if the FLASK_APP and FLASK_PORT environment variables are set.
-if [[ -z "$FLASK_APP" ]]; then
+if [[ -z "${FLASK_APP:-}" ]]; then
     echo "FLASK_APP environment variable is not set. Exiting."
     exit 1
 fi
-if [[ -z "$FLASK_PORT" ]]; then
+if [[ -z "${FLASK_PORT:-}" ]]; then
     echo "FLASK_PORT environment variable is not set. Exiting."
     exit 1
 fi
@@ -47,8 +49,8 @@ fi
 # Note the use of `exec` to replace the shell with the Flask or
 # Gunicorn process. This allows the Flask process to receive signals
 # directly, such as SIGTERM for graceful shutdown.
-if [[ "$FLASK_DEBUG" == "1" ]]; then
-  exec flask --app="$FLASK_APP" run --host=0.0.0.0 --port="$FLASK_PORT"
+if [[ "${FLASK_DEBUG:-0}" == "1" ]]; then
+  exec flask --app="${FLASK_APP:-}" run --host=0.0.0.0 --port="${FLASK_PORT:-}"
 else
-  exec gunicorn --workers=2 --bind=0.0.0.0:"$FLASK_PORT" "$FLASK_APP"
+  exec gunicorn --workers=2 --bind=0.0.0.0:"${FLASK_PORT:-}" "${FLASK_APP:-}"
 fi

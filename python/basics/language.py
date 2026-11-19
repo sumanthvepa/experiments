@@ -59,7 +59,7 @@ import context_managers
 print('Exploring Python')
 
 # This is the top-level driver code for a series of notes/tutorials
-# an exploration of the python language.
+# containing an exploration of the python language.
 
 # Project Setup
 # This project depends on some third party packages installed with
@@ -91,6 +91,13 @@ print('Exploring Python')
 # I use the env trampoline to find the python3 executable. This is
 # useful because it allows me to run the script on different systems
 # where python3 might be installed in different locations.
+
+# If you don't know what a shell trampoline is, it is a program that
+# runs another program. In this case, env is a shell trampoline
+# that runs the python3 executable. The reason we do this is because
+# the location of the python3 executable may vary from system to system.
+# By using env, we can find the python3 executable in the user's PATH,
+# and run it. This makes the script more
 
 # Encoding Declaration
 # The second line is the encoding declaration. This tells the python

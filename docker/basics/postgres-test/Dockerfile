@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# postgres-test/Dockerfile: Creates an unoptimized Docker image
-# that runs a postgres database server.
+# postgres-test/Dockerfile: Build a PostgreSQL image with automatic
+# initialization and startup through an entrypoint script.
 #
-# Copyright (C) 2024 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License a
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
@@ -20,55 +20,41 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-# This Dockerfile comes with postgres installed and a shell script
-# to initialize and start the postgres database server within
-# the container. However, this script is not run as an entrypoint
-# script or a command script. Instead the user is dropped into
-# a bash shell and can run the script manually.
+# ENTRYPOINT initializes an empty cluster and execs PostgreSQL automatically.
+# CMD supplies postgres; replacing CMD with bash initializes then opens a
+# shell without leaving the server running. Informational flags skip init.
+# This teaching image resembles selected official-image behaviors, but
+# does not implement _FILE variables or arbitrary command dispatch.
 
-# The purpose of this Docker image is to explore the initialization
-# and startup of a postgres database server.
+# Use the almalinux:10-minimal image as the base image
+FROM almalinux:10-minimal
 
-# Use the almalinux:9-minimal image as the base image
-FROM almalinux:9-minimal
-
-ARG ARCH_SUFFIX='amd64'
-
+# Require the caller to choose; never silently copy an amd64 executable.
 LABEL org.opencontainers.image.authors="Sumanth Vepa<svepa@milestone42.com>"
-LABEL org.opencontainers.image.description="This a demo image to show how to setup a postgres server on almalinux:9-minimal"
-LABEL org.opencontainers.image.url="docker://svepa@darkness2.milestone42.com:postgres-test"
-LABEL org.opencontainers.image.source="git://svepa@crystal:Documents/Repositories/experiments.git/docker/basics/postgres-test"
+LABEL org.opencontainers.image.description="This is a demo image to show how to set up a PostgreSQL server on almalinux:10-minimal"
 
+ARG ARCH_SUFFIX
+RUN test "$ARCH_SUFFIX" = amd64 || test "$ARCH_SUFFIX" = arm64
 
-# Install basic editing tools to help with debugging
-RUN microdnf -y install vim zstd procps-ng iproute
+# EL10 uses ordinary PostgreSQL packages, not EL8/9 module streams.
+# We choose PGDG's versioned PG16 packages and /usr/pgsql-16 paths.
+# The helper refreshes this EL10 RPM in a temporary context; both bundled
+# architecture variants also configure EL10 for standalone builds.
+COPY ${ARCH_SUFFIX}/pgdg-redhat-repo-latest.noarch.rpm /tmp/pgdg.rpm
+COPY ${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX} /usr/local/bin/gosu
+RUN chmod 0755 /usr/local/bin/gosu \
+    && rpm -i /tmp/pgdg.rpm \
+    && microdnf -y --disablerepo='pgdg*' --enablerepo=pgdg-common --enablerepo=pgdg16 install \
+         postgresql16-server tzdata vim zstd gzip xz procps-ng iproute \
+    && microdnf clean all \
+    && rm /tmp/pgdg.rpm \
+    && test -f /usr/share/zoneinfo/Asia/Kolkata \
+    && /usr/local/bin/gosu postgres /usr/pgsql-16/bin/postgres --version
 
-# Disable the version of postgres that comes bundled with the OS
-RUN microdnf -y module disable postgresql
-
-# Copy the latest postgres repository rpm to the root directory
-COPY  ${ARCH_SUFFIX}/pgdg-redhat-repo-latest.noarch.rpm /
-
-# Copy gosu to /usr/local/bin.
-# This will be needed by the setup-postgres.sh script
-COPY  ${ARCH_SUFFIX}/gosu-${ARCH_SUFFIX} /usr/local/bin/gosu
-RUN chmod +x /usr/local/bin/gosu
-
-# Install the postgres repository
-RUN rpm -i pgdg-redhat-repo-latest.noarch.rpm
-
-# Install the postgresql16-server package
-RUN microdnf -y install postgresql16-server
-
-# Copy the experimental setup and initialization scripts
-# for the postgres database server to the /usr/local/bin directory
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-COPY initialize-postgres.sh /usr/local/bin/initialize-postgres.sh
-
+COPY --chmod=0755 docker-entrypoint.sh initialize-postgres.sh /usr/local/bin/
+RUN mkdir -p /docker-entrypoint-initdb.d
+ENV PATH="/usr/pgsql-16/bin:${PATH}"
 STOPSIGNAL SIGINT
 EXPOSE 5432
-
-ENTRYPOINT [ "docker-entrypoint.sh" ]
-
-# Set the default command to start postgres
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["postgres"]

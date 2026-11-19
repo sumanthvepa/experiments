@@ -1,0 +1,233 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 17-docker-inspect.exp: Verify complete structured inspection lesson
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 2400
+# Covers all examples, including interruption with a live network endpoint.
+# No streaming command deliberately continues on Ctrl-C; no continue scenario.
+source [file join [file dirname [info script]] tutorial-test.tcl]
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
+    find docker-basics-nginx -printf '%p %m %u %g %y\n' | sort
+    find docker-basics-nginx -type f -exec sha256sum {} + | sort
+    sha256sum 17-docker-inspect.sh 08-docker-build-basics.sh bash-utilities.sh firewall-utilities.sh \
+      tests/17-docker-inspect.exp tests/run-tutorial-test.sh tests/tutorial-test.tcl
+    find /tmp -maxdepth 1 -name 'docker-basics-inspect.*' -printf '%p %m %u %g %y\n' | sort
+  } bash $basics]
+}
+set fixtures_before [fixture_state]
+# The runner records IDs/tags; full inspection adds config/metadata checks
+# for every original image. No original image is retagged by these tests.
+set original_images [host_command docker image ls --quiet --no-trunc]
+set original_images [lsort -unique $original_images]
+set original_state {}
+foreach id $original_images { dict set original_state $id [host_command docker image inspect $id] }
+set original_networks [host_command docker network ls --quiet --no-trunc]
+set network_state {}
+foreach id $original_networks { dict set network_state $id [host_command docker network inspect $id] }
+set network docker-basics-inspect-network
+proc check_live_network {} {
+  host_command bash -c {
+    set -euo pipefail
+    id=$(docker container inspect --format '{{.Id}}' nginx-test-container)
+    network_id=$(docker network inspect --format '{{.Id}}' docker-basics-inspect-network)
+    docker network inspect "$network_id" | jq -e --arg id "$id" '
+      .[0].Driver == "bridge" and .[0].Scope == "local" and
+      (.[0].Containers | length) == 1 and
+      .[0].Containers[$id].Name == "nginx-test-container" and
+      (.[0].Containers[$id].IPv4Address | contains("/")) and
+      (.[0].Labels["io.github.svepa.docker-basics.inspect-run"] | length) > 0' >/dev/null
+    docker container inspect "$id" | jq -e --arg network_id "$network_id" '
+      .[0].State.Running and
+      .[0].NetworkSettings.Networks["docker-basics-inspect-network"].NetworkID == $network_id and
+      (.[0].HostConfig.PortBindings | length) == 0' >/dev/null
+    # Removal must fail with an active endpoint, without changing any metadata.
+    before=$(docker network inspect "$network_id")
+    if docker network rm "$network_id" > /dev/null 2>&1; then
+      echo 'Network unexpectedly removable with a live endpoint.' >&2
+      exit 1
+    fi
+    test "$(docker network inspect "$network_id")" = "$before"
+  }
+}
+set native_arch [host_command docker version --format {{{.Server.Arch}}}]
+switch -- [scenario] {
+  conflict {
+    set fixture "docker-basics-inspect-fixture-[pid]"
+    foreach tag [list docker-basics-nginx:latest $fixture] {
+      if {[host_command docker image ls --quiet $tag] ne ""} { fail "Fixture image $tag already exists." }
+    }
+    foreach name [list nginx-test-container docker-basics-nginx "$fixture-endpoint"] {
+      if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} {
+        fail "Fixture container $name already exists."
+      }
+    }
+    if {[host_command docker network ls --quiet --filter "name=^$network$"] ne ""} {
+      fail "Fixture network $network already exists."
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" | docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    host_command docker image tag $fixture docker-basics-nginx:latest
+    cleanup_on_host docker image rm docker-basics-nginx:latest
+    set before [host_command docker image inspect docker-basics-nginx:latest]
+    start_terminal image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in image-conflict {Image name docker-basics-nginx already exists.}
+    finish_terminal image-conflict 1
+    if {[host_command docker image inspect docker-basics-nginx:latest] ne $before} {
+      fail {Conflicting image configuration/state changed.}
+    }
+    host_command docker image rm docker-basics-nginx:latest
+    cancel_cleanup_on_host
+    # Intentional tagging changes LastTagTime; baseline after our changes.
+    set image_before [host_command docker image inspect $fixture]
+    foreach name {nginx-test-container docker-basics-nginx} {
+      # Recheck each fixture immediately before creation.
+      if {[host_command docker container ls --all --quiet --filter "name=^/$name$"] ne ""} {
+        fail "Fixture container $name appeared before setup."
+      }
+      set id [host_command docker container create --name $name $fixture /sentinel]
+      cleanup_on_host docker container rm --force $id
+      set before [host_command docker container inspect $id]
+      start_terminal "container-$name" bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in "container-$name" "Container name $name already exists."
+      finish_terminal "container-$name" 1
+      if {[host_command docker container inspect $id] ne $before} {
+        fail "Conflicting container $name configuration/state changed."
+      }
+      host_command docker container rm $id
+      cancel_cleanup_on_host
+    }
+    # A configured foreign endpoint and nondefault network settings must survive.
+    if {[host_command docker network ls --quiet --filter "name=^$network$"] ne ""} {
+      fail "Fixture network $network appeared before setup."
+    }
+    set network_id [host_command docker network create --driver bridge --internal \
+      --label test.owner=$fixture --opt com.docker.network.bridge.enable_icc=false $network]
+    cleanup_on_host docker network rm $network_id
+    if {[host_command docker container ls --all --quiet --filter "name=^/$fixture-endpoint$"] ne ""} {
+      fail {Fixture endpoint appeared before setup.}
+    }
+    set endpoint [host_command docker container create --name "$fixture-endpoint" --network $network_id $fixture /sentinel]
+    cleanup_on_host docker container rm --force $endpoint
+    set before [host_command docker network inspect $network_id]
+    set endpoint_before [host_command docker container inspect $endpoint]
+    start_terminal network-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in network-conflict "Network name $network already exists."
+    finish_terminal network-conflict 1
+    if {[host_command docker network inspect $network_id] ne $before ||
+        [host_command docker container inspect $endpoint] ne $endpoint_before} {
+      fail {Conflicting network or unrelated endpoint changed.}
+    }
+    host_command docker container rm $endpoint
+    cancel_cleanup_on_host
+    host_command docker network rm $network_id
+    cancel_cleanup_on_host
+    if {[host_command docker image inspect $fixture] ne $image_before} { fail {Fixture image changed.} }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  interrupt {
+    start_tutorial
+    answer_pause -time 1200 {Press ENTER to start nginx and inspect its runtime state...}
+    wait_for {Verified nginx HTTP readiness: HTTP/1.1 200 OK}
+    wait_for {Press ENTER to stop nginx and compare its runtime state...}
+    # Interrupt only after running nginx and successful HTTP readiness.
+    press_ctrl_c
+    finish_tutorial 130
+    # Also exercise reverse dependency cleanup while the demo network is in use.
+    start_terminal network-interrupt bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    answer_pause -in network-interrupt -time 1200 {Press ENTER to start nginx and inspect its runtime state...}
+    answer_pause -in network-interrupt {Press ENTER to stop nginx and compare its runtime state...}
+    answer_pause -in network-interrupt {Press ENTER to create a network and inspect its metadata...}
+    wait_for -in network-interrupt {Verified live endpoint membership in both network and container inspection.}
+    wait_for -in network-interrupt {Press ENTER to remove the inspection examples...}
+    check_live_network
+    press_ctrl_c -in network-interrupt
+    finish_terminal network-interrupt 130
+  }
+  normal {
+    start_tutorial
+    wait_for -time 1200 "Verified native base architecture: $native_arch"
+    wait_for -time 1200 {Verified image command, exposed port, stop signal and description label.}
+    answer_pause {Press ENTER to start nginx and inspect its runtime state...}
+    wait_for {Verified nginx HTTP readiness: HTTP/1.1 200 OK}
+    wait_for {Verified container-only label; image configuration is unchanged.}
+    wait_for {Press ENTER to stop nginx and compare its runtime state...}
+    set id [host_command docker container inspect --format {{{.Id}}} nginx-test-container]
+    set image [host_command docker image inspect --format {{{.Id}}} docker-basics-nginx]
+    host_command bash -c {
+      set -euo pipefail
+      docker container inspect "$1" | jq -e --arg image "$2" '
+        .[0].Image == $image and .[0].State.Running and .[0].State.Pid > 0 and
+        .[0].Config.Labels["inspection.example"] == "container-only" and
+        (.[0].HostConfig.PortBindings | length) == 0' >/dev/null
+      docker container exec "$1" bash -ec 'test "$(cat /proc/1/comm)" = nginx; nginx -t'
+      docker image inspect docker-basics-nginx | jq -e '
+        (.[0] | has("State") | not) and
+        (.[0].Config.Labels | has("inspection.example") | not)' >/dev/null
+    } bash $id $image
+    type_line {}
+    wait_for {Verified stopped state; image ID and configuration still describe the same image.}
+    wait_for {Verified --type disambiguation and explicit subcommand selection.}
+    wait_for {Press ENTER to create a network and inspect its metadata...}
+    host_command bash -c {
+      set -euo pipefail
+      docker container inspect "$1" | jq -e '
+        .[0].State.Status == "exited" and .[0].State.ExitCode == 0 and .[0].State.Pid == 0' >/dev/null
+      selected_image=$(docker inspect --type=image --format '{{.Id}}' docker-basics-nginx)
+      selected_container=$(docker inspect --type=container --format '{{.Id}}' docker-basics-nginx)
+      test "$selected_image" = "$2"
+      test "$selected_container" != "$selected_image"
+      docker container inspect "$selected_container" | jq -e '.[0].State.Status == "created"' >/dev/null
+      test "$(docker image inspect --format '{{.Id}}' docker-basics-nginx)" = "$selected_image"
+    } bash $id $image
+    type_line {}
+    wait_for {Verified local bridge configuration and initially empty membership.}
+    wait_for {Verified live endpoint membership in both network and container inspection.}
+    wait_for {Press ENTER to remove the inspection examples...}
+    check_live_network
+    type_line {}
+    wait_for {Verified endpoints removed before owned network removal.}
+    wait_for {Lesson complete; owned inspection resources removed.}
+    finish_tutorial 0
+  }
+}
+if {[fixture_state] ne $fixtures_before} { fail {Context, modes, ownership, source or temporary files changed.} }
+foreach id $original_images {
+  if {[host_command docker image inspect $id] ne [dict get $original_state $id]} {
+    fail "Original image $id changed."
+  }
+}
+foreach id $original_networks {
+  if {[host_command docker network inspect $id] ne [dict get $network_state $id]} {
+    fail "Original network $id changed."
+  }
+}
+send_log "Supplemental fixture/configuration/runtime/preservation assertions passed.\n"

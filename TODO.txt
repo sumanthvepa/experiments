@@ -1,4 +1,10 @@
-*[DONE]issue243-python-starlette-01-cbrws-fix-tests-for-always-access-log: Update tests for always-on access logging
+*[DONE]issue249-docker-basics: Update the basics tutorial
+[DONE]issue248-prompts: Update the prompts system to match the milestone42 standard
+[DONE]issue247-docker-basics: Fix error in 20-docker-build-website.sh 
+[DONE]issue246-python-starlette-middleware: Explore python starlette middleware
+[DONE]issue245-scheme-hello: Hello world in scheme
+[DONE]issue244-python-basics-update: Update python basics notes
+[DONE]issue243-python-starlette-01-cbrws-fix-tests-for-always-access-log: Update tests for always-on access logging
 [DONE]issue242-python-starlette-01-cbrws-always-access-log: Always log requests and document uvicorn log config
 [DONE]issue241-python-starlette-01-cbrws-dev-run-script: Add a dev run script and logging configuration
 [DONE]issue240-python-starlette-01-cbrws-fix-mypy-test-helper-file-loader-typing: Replace Any-typed test helper file loader endpoint classes with a typed protocol

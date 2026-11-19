@@ -4,10 +4,10 @@
 # 02-docker-container-basics.sh: Explore basic docker container
 # commands.
 #
-# Copyright (C) 2024-25 Sumanth Vepa.
+# Copyright (C) 2024-26 Sumanth Vepa.
 #
 # This program is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License a
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
@@ -23,88 +23,122 @@
 
 echo '02-docker-container-basics'
 
+# Change to the directory of this script, so that the relative paths
+# used below, such as ./hello-world-nginx, work wherever the script is
+# run from. The exit stops the script if the cd fails.
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
+
 # To run a container image specify the name of the image. For example
 # you can run the docker hello world container image as follows:
 
 docker container run hello-world
 
-# The command above will download the hello-world container image from
-# the repository and run it. When the hello-world program exits, the
+# The command above will download the hello-world container image
+# from the Docker registry, if it is not already available locally,
+# and run it. When the hello-world program exits, the
 # container will stop.
 
 # However, the container will not be removed after it has
 # run. You can see all the containers, both running and stopped with:
-docker container ps -a
+docker container ps --all
 
 # Yes the command is deliberately reminiscent of the ps command
-# in the shell that shows processes. The -a option in this
-# case shows both running and stopped containers. Notice
-# that the hello world container is stopped.
+# in the shell that shows processes. The main name of the command is
+# actually docker container ls, and ps is an alias for it. The --all
+# option in this case shows both running and stopped containers.
+# Notice that the hello world container is stopped.
+docker container ls --all  # Same as ps
 
 # If you only want to see running containers don't use
-# the -a option
+# the --all option
 docker container ps
+docker container ls # Same as ps
 
 # To operate on an already created container you either need its
-# name or its id. Since we did not specify the name or id, we
+# name or its id. Since we did not specify the name or id,
 # when creating hello-world, we are using the following hack
 
 # The hack works as follows:
 # First grep for containers that are running the 'hello-world' image.
 # Then only use the first column of the output, as that is the container
 # id. Then only take the very first id, as that is the latest one created,
-# and is probably (although not guarenteed) the container that was created
+# and is probably (although not guaranteed) the container that was created
 # earlier. This value is stored in the shell variable.
-HELLO_WORLD_CONTAINER_ID=`docker container ps -a | grep 'hello-world' | awk '{print $1}' | head -n 1`
+HELLO_WORLD_CONTAINER_ID=$(docker container ps --all | grep 'hello-world' | awk '{print $1}' | head --lines=1)
 
 # Just print out the container id for reference
-echo $HELLO_WORLD_CONTAINER_ID
+echo "$HELLO_WORLD_CONTAINER_ID"
 
 # Then stop the container. In this case, this operation is not
 # required since the container is already stopped. Stop is an
 # idempotent command.
-docker container stop $HELLO_WORLD_CONTAINER_ID
+docker container stop "$HELLO_WORLD_CONTAINER_ID"
 
 # Notice that the command prints the id of the container that it just
-# stopped.
+# stopped. Stop is a blocking command, i.e. it won't return until
+# the container stops.
 
-# It is sometimes the case that the container will take some time to
-# stop. Attempting to remove a container that is still stopping will
-# result in an error. You can check if the container is still running
-# as follows. The code below will keep checking if the container is
-# still running, using container ps, every 10 seconds. The loop exits
-# when the container is no longer running.
-CONTAINER_EXISTS=$(docker container ps --quiet --all --filter name=$HELLO_WORLD_CONTAINER_ID)
-while [[ ! -z  $CONTAINER_EXISTS ]]; do
-  sleep 10
-  CONTAINER_EXISTS=$(docker container ps --quiet --all --filter name=$HELLO_WORLD_CONTAINER_ID)
-done
+# Sometimes you want to wait for a container that is running to
+# stop on its own (or have some other process stop it). In that
+# case use the wait command.
+docker container wait "$HELLO_WORLD_CONTAINER_ID"
+
+# Notice that in this case the wait returns immediately, because the
+# container has already stopped. So this is not quite an ideal
+# demonstration.
+
+# For a better demonstration, start a container that runs for a few
+# seconds. The sleep command given after the image name replaces the
+# default command of the image, and --detach returns control to the
+# terminal while the container continues to run. The wait command then
+# blocks until sleep exits and the container stops, about 5 seconds
+# later. It then prints the exit code of the container, in this case 0.
+docker container run \
+  --name 'wait-demo' \
+  --detach \
+  almalinux:10-minimal \
+  sleep 5
+docker container wait 'wait-demo'
+
+# The wait command does not remove the container, so clean it up.
+docker container rm 'wait-demo'
+
+
+# You could also wait for a container to stop by polling. But this is
+# absolutely not recommended. I've kept the code here in comments
+# because it shows how to do polling. Not because it is a good idea.
+#CONTAINER_IS_RUNNING=$(docker container ps --quiet --filter id=$HELLO_WORLD_CONTAINER_ID)
+#while [[ -n $CONTAINER_IS_RUNNING ]]; do
+#  sleep 10
+#  CONTAINER_IS_RUNNING=$(docker container ps --quiet --filter id=$HELLO_WORLD_CONTAINER_ID)
+#done
 
 # Finally you can remove a container with the rm command
-docker container rm $HELLO_WORLD_CONTAINER_ID
+docker container rm "$HELLO_WORLD_CONTAINER_ID"
 
-# rm too prints the ID of the comtainer of the command it just removed.
+# rm too prints the ID of the container it just removed.
 
-# There is a more reliable way to get the the container id of a container.
+# There is a more reliable way to get the container id of a container.
 # Use the cidfile option when running a container. The --cidfile option
-# will write the container id of the container to the file specifed,
+# will write the container id of the container to the file specified,
 # in this case hello-world.cid. However, the file must NOT exist
-# when the docker command is done. To ensure this we use rm -f
-# prior to invoking docker to remove the cidifle if it exists.
-# The -f option causes rm to ignore any errors.
+# when the docker command is started. To ensure this we use rm --force
+# prior to invoking docker to remove the cidfile if it exists.
+# The --force option causes rm to ignore missing files and never
+# prompt.
 
-rm -f './hello-world.cid'  # Remove the output of any previous runs
+rm --force './hello-world.cid'  # Remove the output of any previous runs
 docker container run --cidfile './hello-world.cid' hello-world
 
 # We can now use the cidfile to operate on the container
 HELLO_WORLD_CONTAINER_ID=$(cat ./hello-world.cid)
 
 # Now we can remove the container using docker rm
-docker container rm $HELLO_WORLD_CONTAINER_ID
+docker container rm "$HELLO_WORLD_CONTAINER_ID"
 
 # We can clean up hello-world.cid as it is a temporary
 # file.
-rm -f './hello-world.cid'
+rm --force './hello-world.cid'
 
 
 # But, by far, the best method for removing a container, is to give
@@ -113,10 +147,18 @@ rm -f './hello-world.cid'
 docker container run --name='hello-world-instance' hello-world
 
 # Then you can simply delete the container using its name
-docker container rm  'hello-world-instance'
+docker container rm 'hello-world-instance'
 
 # Note that this time the docker container rm command prints
 # the name of the container it just deleted.
+
+# If you don't need the container after it has run, pass the --rm
+# option to container run. Docker then removes the container as soon
+# as it exits, so there is nothing to clean up.
+docker container run --name='hello-world-instance' --rm hello-world
+
+# The container no longer exists, so this will not list it.
+docker container ps --all --filter name='hello-world-instance'
 
 
 # Hello World is a short lived container. The program it runs exits
@@ -124,23 +166,26 @@ docker container rm  'hello-world-instance'
 # a long time or even for ever. One such example would be a container
 # running a web server.
 
-# The following command runs an nginx webserver on port 9000 and mounts
-# the directory hello-world-docker located in the current directory
-# from the host to the standard location for HTML files for
-# nginx in the container. It also maps port 9000 on the host to port
-# 80 in the container. The program is detached from the the terminal
-# after it is started.
+# The following command runs an nginx webserver. The webserver runs
+# in the container on port 80, which docker maps to port 9000 on the
+# host. It also mounts the directory hello-world-nginx located in the
+# current directory from the host to the standard location for HTML
+# files for nginx in the container. The program is detached from the
+# terminal after it is started.
 
-# The --volume  option specifes which directory on the host to
+# The --volume option specifies which directory on the host to
 # mount at what location in the container. The format is
-# --volume host_location:container_location
+# --volume host_location:container_location[:ro] The optional
+# ro indicates to docker that the mount should be read only.
+# If the host location is missing, docker will create an
+# empty folder at the host location.
 
-# The --publish command on container run maps a port on the host 
+# The --publish command on container run maps a port on the host
 # to a port on the container. The format is
 # --publish host_port:container_port This results in traffic
 # arriving at the host port being forwarded to the container
 # port. IMPORTANT SECURITY NOTE: Docker manages iptables directly
-# to make the  port mapping work. This means that the port on the
+# to make the port mapping work. This means that the port on the
 # host is open to the network on which the host is connected. And
 # it will NOT SHOW UP in the output of the firewall-cmd command.
 
@@ -148,53 +193,70 @@ docker container rm  'hello-world-instance'
 # allowing the terminal to be used for other commands, while
 # the container continues to run in the background.
 
-# To make it easier to remmber that the container is running on an
-# external port, we will explictly add the port to the firewall. This
+# To make it easier to remember that the container is running on an
+# external port, we will explicitly add the port to the firewall. This
 # is not necessary, since docker manages iptables directly, but it is
 # a good practice to do so. Close the port after the container is
-# stopped. Also if the port is already registered as open in firewalld
-# then don't close it . The PORT_IS_ALREADY_ACCESSIBLE variable is
-# used to keep track of this.
+# stopped. Also if the port is already registered as open in the
+# firewall then don't close it . The PORT_IS_ALREADY_ACCESSIBLE
+# variable is used to keep track of this.
 
-# See 09-docker-networking for how to run a container that is only
+# See 21-docker-networking.sh for how to run a container that is only
 # accessible from the host.
-# The following commands to query and manipulate the firewall require
-# root privileges. We first need to check that we are running as root
-# and if so, then we can run the commands.
+# The functions in firewall-utilities.sh work with whichever firewall
+# is active on this machine. Querying and manipulating the firewall
+# requires root privileges, so the functions invoke sudo themselves.
+# query_tcp_port prints yes if the port is already open, and no if it
+# is not. It prints partial if only some of the firewall chains allow
+# the port, and then the script leaves the firewall alone. The file is
+# found in the directory of this script.
+source ./firewall-utilities.sh
+
 # $EUID is the effective user id of the user running the script.
-if [[ $EUID -eq 0 ]]; then
-  PORT_IS_ALREADY_ACCESSIBLE=$(firewall-cmd --zone=public --query-port=9000/tcp)
-  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-    firewall-cmd --zone=public --add-port=9000/tcp
-  fi
-else
+if [[ $EUID -ne 0 ]]; then
   echo "Querying the firewall and adding ports requires root privileges"
-  echo "The following commands will be invoked with sudo"
-  echo "firewall-cmd --zone=public --query-port=9000/tcp"
-  PORT_IS_ALREADY_ACCESSIBLE=$(sudo firewall-cmd --zone=public --query-port=9000/tcp)
-    if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-      echo "firewall-cmd --zone=public --add-port=9000/tcp"
-      sudo firewall-cmd --zone=public --add-port=9000/tcp
-  fi
+  echo "The firewall commands will be invoked with sudo"
+fi
+PORT_IS_ALREADY_ACCESSIBLE=$(query_tcp_port 9000)
+if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+  open_tcp_port 9000
 fi
 
+# The ./ in the host path is very important. A source that starts
+# with ./, ../ or / tells Docker that this is a bind mount, which is
+# what we want here. Without the ./, Docker would silently create a
+# named volume, and nginx would serve its default page and not our
+# files. The command in the comments below is a more robust version.
+# --mount states the type of mount, and fails if the host directory
+# does not exist. --volume silently creates an empty one.
 docker container run \
-  --name 'nginx-test'  \
+  --name 'nginx-test' \
   --volume ./hello-world-nginx:/usr/share/nginx/html:ro \
   --publish 9000:80 \
   --detach \
   nginx
 
+#docker container run \
+#  --name 'nginx-test' \
+#  --mount type=bind,source=./hello-world-nginx,target=/usr/share/nginx/html,readonly \
+#  --publish 9000:80 \
+#  --detach \
+#  nginx
+
 # Now running container ps will show the container as running
 docker container ps
 
-# Wait for 2 mins to allow for a browser to test the container
-echo 'Test that the contaner is working as expected by'
+# Wait until the container has been tested with a browser
+echo 'Test that the container is working as expected by'
 echo "visiting http://$(hostname -f):9000/."
-echo 'Will wait for 30 seconds before proceeding'
-sleep 30
 
-echo 'Okay. Cleaning up. Will stop the running nginix container and remove it...' 
+# The -p option prints the prompt before read waits for input. The
+# -r option stops read from treating a backslash as special. It makes
+# no difference here, since the input is not used, but ShellCheck
+# complains if it is missing.
+read -r -p 'Press ENTER when done...'
+
+echo 'Okay. Cleaning up. Will stop the running nginx container and remove it...'
 
 # Now stop the running container
 docker container stop 'nginx-test'
@@ -203,16 +265,8 @@ docker container stop 'nginx-test'
 docker container rm 'nginx-test'
 
 # Remember to close the port after you're done
-if [[ $EUID -eq 0 ]]; then
-  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-    firewall-cmd --zone=public --remove-port=9000/tcp
-  fi
-else
-  # use sudo if not running as root
-  if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
-    echo "firewall-cmd --zone=public --remove-port=9000/tcp"
-    sudo firewall-cmd --zone=public --remove-port=9000/tcp
-  fi
+if [ "$PORT_IS_ALREADY_ACCESSIBLE" == "no" ]; then
+  close_tcp_port 9000
 fi
 
 echo '... cleanup completed.'
@@ -220,36 +274,39 @@ echo '... cleanup completed.'
 
 # The previous two examples of docker containers demonstrated a
 # container running a program that terminates (hello-world,) and
-# container running a program that does not terminate. In
-# latter case the running container is detatched from the
-# terminal using --detach to enable use to continue using
-# the terminal. One can reattach to a running container.
+# container running a program that does not terminate. In the
+# latter case the running container is detached from the
+# terminal using --detach to enable us to continue using
+# the terminal. One can reattach to a running container
 # using docker container attach container-name/id.
 
 # The third case is an interactive program running in a
 # container. In this case, the user is provided with a
 # prompt. When the user 'exits' the program running in the container
-# is stopped, but can be resumed by attaching to the
-# container again. Examples of such a container include
+# ends, and the container stops. The container can be started and
+# attached to again, but the program starts afresh. Only the files
+# in the container are kept, not the memory of the program that
+# ended. Examples of such a container include
 # containers that run a shell such as bash. Or a container
 # that starts a programming language REPL.
 
 # To illustrate the use of interactive containers
 # we will launch an almalinux container that is
-# setup to run bash. This is normally the case for
+# set up to run bash. This is normally the case for
 # OS containers. They will run bash or some interactive
 # shell in the end.
-# The --interactive option keeps STDIN open (unlike detach
-# which will close it.)
-# --tty will allocate a pseudo-TTY allowing the the container
+# The --interactive option keeps STDIN of the container open and
+# connects it to the terminal. Without it, the program in the
+# container gets no input from the terminal.
+# --tty will allocate a pseudo-TTY allowing the container
 # to interact with the user via a terminal interface.
 # These two features are exactly what bash and many programming
-# languate REPLS need.
+# language REPLS need.
 
 echo 'Starting another container docker-basics-bash'
 echo 'Enter the following code at the bash prompt'
 echo 'ping -c 1 www.google.com'
-echo 'This will fail becuase the ping package is NOT installed'
+echo 'This will fail because the ping package is NOT installed'
 echo 'in this container.'
 echo 'To install the package, run the following command'
 echo 'microdnf -y install iputils'
@@ -262,7 +319,7 @@ docker container run \
   --name='docker-basics-bash' \
   --interactive \
   --tty \
-  almalinux:9-minimal
+  almalinux:10-minimal
 
 # The command above will drop you into the root bash shell running
 # within the container. When you try using 'ping' it won't work
@@ -286,7 +343,7 @@ docker container run \
 echo 'Now that the container is stopped you can start it again'
 echo 'and attach to it. This time when you run ping it works!'
 echo 'This is because it is the same container as before and'
-echo 'iputuils has already been installed. The text file test.txt'
+echo 'iputils has already been installed. The text file test.txt'
 echo 'is also present. You can check that with: cat ./test.txt'
 echo 'Finally, exit the bash shell, (which automatically stops'
 echo 'the container) with exit'
@@ -299,14 +356,14 @@ docker container attach 'docker-basics-bash'
 #
 # PING www.google.com (142.250.205.228) 56(84) bytes of data.
 # 64 bytes from maa05s28-in-f4.1e100.net (142.250.205.228): icmp_seq=1 ttl=116 time=47.8 ms
-# 
+#
 # --- www.google.com ping statistics ---
 # 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 # rtt min/avg/max/mdev = 47.779/47.779/47.779/0.000 ms
 
 # The test.txt file is also present
 # cat ./test.txt
-# Some test data'
+# Some test data
 
 # Now you can exit the container
 # exit
@@ -318,8 +375,8 @@ docker container rm 'docker-basics-bash'
 echo '...removed.'
 
 # If you start another container with the same name
-# it will not have the ping command or the text.txt file
-echo 'Creating another container with the almalinux:9-minimal image...'
+# it will not have the ping command or the test.txt file
+echo 'Creating another container with the almalinux:10-minimal image...'
 echo 'When you try ping now it will not work, because it is a different'
 echo 'container. test.txt will not exist either for the same reason.'
 echo 'When a container is destroyed, any read-write data that is not'
@@ -329,7 +386,7 @@ docker container run \
   --name='docker-basics-bash' \
   --interactive \
   --tty \
-  almalinux:9-minimal
+  almalinux:10-minimal
 
 # Now neither ping nor test.txt exists
 # ping -c 1 www.google.com
@@ -345,16 +402,16 @@ docker container run \
 echo 'Notice that the exit code you provide to bash is the same'
 echo 'exit code that docker command returns after it exits'
 echo 'Exit out of this restarted container using exit 13'
-# So attach again to the container.
-docker container start 'docker-basics-bash'
-docker container attach 'docker-basics-bash'
+# So start the container again. --attach and --interactive connect
+# it to the terminal, in one step instead of calling attach.
+docker container start --attach --interactive 'docker-basics-bash'
 
 # exit 13
 
 echo $? # prints 13
 echo 'Notice that the exit code was 13?'
 echo 'This is because the docker cli exits using the same exit code'
-echo 'as as given to it by terminating container process'
+echo 'as given to it by the terminating container process'
 
 # Finally lets just clean up 'docker-basics-bash'
 echo 'Finally, let us just remove docker-basics-bash...'
@@ -363,27 +420,27 @@ echo '...done.'
 
 
 # Relying on data stored in a container instance is not
-# good idea for data you don't want to lose.
+# a good idea for data you don't want to lose.
 
 # For packages like iputils and the ping binary,
-# where it is clear that the code expected to exist
+# where it is clear that the code is expected to exist
 # at the point the instance is created, the best
 # way to make this sort of stuff persistent is to
 # build a custom container image, and then start
-# that an instance of that image.
+# an instance of that image.
 
 # Docker build creates custom image. We will explore
 # docker build and custom images in much more detail
-# in 09-docker-build.sh
-docker build --tag docker-basics-ping -<<EOF
-FROM almalinux:9-minimal
+# in 08-docker-build-basics.sh
+docker image build --tag docker-basics-ping -<<EOF
+FROM almalinux:10-minimal
 RUN microdnf -y install iputils
 EOF
 
 # Now a container image named docker-basics-ping will
 # be available. You can see this with the docker image ls command
 # Docker image ls will be explored in more detail in
-# 03-docker-images.sh
+# 03-docker-image-basics.sh
 docker image ls
 
 # You can now instantiate a version of this container and
@@ -395,12 +452,12 @@ docker container run \
 
 # This creates a container instance with iputils already installed and
 # then runs it with the command ping -c 1 www.google.com. The command
-# is passed to bash within the container which executes it as  a shell
-# command. Note that no interactive or tty flag was required. Although,
-# having them would do no harm in this instance.
+# replaces the default command of the image, which is bash, and is run
+# directly, without a shell. Note that no interactive or tty flag was
+# required. Although, having them would do no harm in this instance.
 
 # We will explore passing parameters to containers in more detail
-# in 09-docker-build.sh
+# in 09-docker-build-cmd-entrypoint.sh
 
 # Also note that once the container has finished running and the
 # ping program exits the container is stopped. You can run the
@@ -408,43 +465,89 @@ docker container run \
 # you will need to attach its output to STDOUT of your
 # terminal using --attach option. This attaches the output
 # of the container to STDOUT. This is needed or otherwise
-# the output of the restarted container will be lost)
+# the output of the restarted container will be lost.
 # This will cause the ping command to be executed again.
 docker container start --attach 'docker-basics-ping'
 
-# If you did start and then attach, the ping program
+# If you had done start and then attach, the ping program
 # would have finished running by the time you attach
 # the containers output.
 
-# Anyway, clean up the container by stopping and removing it. First
-# ensure that it is stopped.
-docker container stop 'docker-basics-ping' 
+# Anyway, ensure that the container is stopped.
+docker container stop 'docker-basics-ping'
 
 
-# You can send a specific signal with the -s option to stop.
-# To see this let's restart the container
-docker container start --attach 'docker-basics-ping'
+# You can send a specific signal with the --signal option to stop.
+# To see this, start a container running a bash command that prints
+# a message and exits when it receives SIGUSR1. The sleep gives bash
+# time to set up the trap.
+docker container run \
+  --name 'docker-basics-signal' \
+  --detach \
+  almalinux:10-minimal \
+  bash -c 'trap "echo Received SIGUSR1; exit 0" SIGUSR1; while true; do sleep 1; done'
+sleep 3
 
-# Now lets send a specific signal to docker
-docker container stop --signal=SIGTERM 'docker-basics-ping'
+docker container stop --signal=SIGUSR1 'docker-basics-signal'
 
-# This will stop the container by sending the specified signal
-# to the process within it. In this case, specifying
-# the signal is unnecessary, since SIGTERM is the default
-# signal that the docker container stop command sends.
-# But you could send other signals, for example SIGQUIT.
+# The logs show that the program received the signal.
+docker container logs 'docker-basics-signal'
+docker container rm 'docker-basics-signal'
+
+# Without --signal, stop sends SIGTERM, unless the image sets a
+# different stop signal. The signal goes to the main process of the
+# container, which runs as PID 1.
+
+# IMPORTANT NOTE ON PID 1: Normally, a signal that a program does not
+# handle gets its default action. For SIGTERM that is to terminate
+# the program. PID 1 is the exception. If it dies, the kernel kills
+# every other process in the container. So to protect it, the kernel
+# discards any signal that PID 1 has no handler for. For example, ping
+# has no handler for SIGTERM, so as PID 1 it keeps running. After a
+# grace period, 10 seconds by default, docker sends SIGKILL, which
+# cannot be blocked, and ping dies with exit code 137 (128 + 9).
+# To avoid this, either handle the signal in the program, as the trap
+# above does, or use the --init option of container run. It runs a
+# small init program as PID 1, that passes signals on to your command.
+
+# To see --init at work, run ping as the command of a container with
+# the --init option. The sleep gives ping time to start. The top
+# command shows two processes. The first is docker-init, which is
+# PID 1 in the container, and the second is ping, which is its child.
+# The PIDs that top prints are the ones on the host.
+docker container run \
+  --init \
+  --name 'docker-basics-init' \
+  --detach \
+  docker-basics-ping \
+  ping www.google.com
+sleep 3
+docker container top 'docker-basics-init'
+
+# ping is not PID 1 now, so the signal that docker-init passes on to
+# it gets its default action. For SIGUSR1 that is to terminate the
+# program. So stop returns at once, and not after the grace period.
+docker container stop --signal=SIGUSR1 'docker-basics-init'
+
+# The exit code is 138, i.e. 128 + 10, where 10 is the number of
+# SIGUSR1 on Linux.
+# Use the container inspect command to examine the state of the
+# container. In this case the exit code.
+docker container inspect --format '{{.State.ExitCode}}' 'docker-basics-init'
+docker container rm 'docker-basics-init'
+
 # See 04-docker-kill-top-stats.sh for the related
 # command to send a signal to a running container without
 # necessarily stopping it.
 
 
-# Then remove the container
+# Finally, remove the container
 docker container rm 'docker-basics-ping'
 
 # As part of the clean up we will also remove the
 # image that we built earlier, so that this exploration
 # script can run multiple times. We will explore docker
-# image rm in more detail in 03-docker-images.sh
+# image rm in more detail in 03-docker-image-basics.sh
 docker image rm 'docker-basics-ping'
 
 echo
@@ -457,7 +560,7 @@ echo "The way to do this is to use the exec command"
 
 echo "Let's start an nginx container again"
 docker container run \
-  --name 'nginx-test'  \
+  --name 'nginx-test' \
   --volume ./hello-world-nginx:/usr/share/nginx/html:ro \
   --publish 9000:80 \
   --detach \
@@ -469,6 +572,12 @@ echo "shell in the container."
 echo
 echo "When you are done exploring the container exit the shell"
 docker container exec --interactive --tty 'nginx-test' /bin/bash
+
+
+echo "Note that leaving the shell started by exec does not stop the container."
+echo "You can verify this by checking that the website is still being"
+echo "served at http://$(hostname -f):9000/."
+read -r -p 'Press ENTER when done...'
 
 # Clean up, by stopping and removing the container
 docker container stop 'nginx-test'

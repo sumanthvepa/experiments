@@ -1,0 +1,161 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 09-docker-build-cmd-entrypoint.exp: Verify lesson 09 and preservation
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 1800
+source [file join [file dirname [info script]] tutorial-test.tcl]
+
+# Check the tutorial directory as well as both contexts, including ignored
+# additions and modes. Workflow explanations are deliberately excluded.
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %y\n' | sort
+    find dig-cmd dig-entrypoint -printf '%p %m %y\n' | sort
+    find dig-cmd dig-entrypoint -type f -exec sha256sum {} + | sort
+    sha256sum 09-docker-build-cmd-entrypoint.sh bash-utilities.sh
+  } bash $basics]
+}
+set fixtures_before [fixture_state]
+proc assert_combined_image {} {
+  set actual [host_command docker image inspect --format \
+    {{{json .Config.Entrypoint}} {{json .Config.Cmd}}} printf-defaults]
+  if {$actual ne {["/usr/bin/printf","value=<%s>\\n"] ["default argument"]}} {
+    fail "combined image settings differ: $actual"
+  }
+}
+# A pre-existing base's id AND full configuration must survive every case.
+set base_before ""
+if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
+  set base_before [host_command docker image inspect almalinux:10-minimal]
+}
+
+switch -- [scenario] {
+  conflict {
+    # A unique scratch image makes conflicts independent of registry access.
+    set fixture "docker-basics-dig-test-[pid]"
+    # Refuse occupied names before building or tagging any fixture. The
+    # runner can reach conflict after another scenario fails on these names;
+    # tagging first would overwrite the reader's image before we inspect it.
+    foreach tag [list dig-cmd dig-entrypoint printf-defaults $fixture] {
+      if {[host_command docker image ls --quiet $tag] ne ""} {
+        fail "Refusing conflict fixture: image name $tag already exists."
+      }
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" |
+        docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    set image_before [host_command docker image inspect --format \
+      { {{.Id}} {{json .Config}} {{json .RootFS}} } $fixture]
+    foreach tag {dig-cmd dig-entrypoint printf-defaults} {
+      host_command docker image tag $fixture $tag
+      cleanup_on_host docker image rm $tag
+      set tag_before [host_command docker image inspect $tag]
+      start_terminal $tag bash -- $env(TUTORIAL_TEST_TUTORIAL)
+      wait_for -in $tag "Image name $tag already exists."
+      finish_terminal $tag 1
+      if {[host_command docker image inspect $tag] ne $tag_before} {
+        fail "conflicting image $tag changed"
+      }
+      host_command docker image rm $tag
+      cancel_cleanup_on_host
+    }
+    set id [host_command docker container create --name docker-basics-dig \
+      $fixture /sentinel]
+    cleanup_on_host docker container rm --force $id
+    set container_before [host_command docker container inspect $id]
+    start_tutorial
+    wait_for {Container name docker-basics-dig already exists.}
+    finish_tutorial 1
+    # Full inspect includes id, configuration, running state and networks.
+    if {[host_command docker container inspect $id] ne $container_before} {
+      fail {conflicting container configuration or state changed}
+    }
+    host_command docker container rm $id
+    cancel_cleanup_on_host
+    if {[host_command docker image inspect --format \
+        { {{.Id}} {{json .Config}} {{json .RootFS}} } $fixture] ne $image_before} {
+      fail {driver fixture image changed}
+    }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  interrupt {
+    # Both images exist at the first pause: Ctrl-C must remove them, plus
+    # an absent-on-entry base, without relying on the driver's exit cleanup.
+    start_tutorial
+    wait_for -time 900 {Press ENTER to compare the commands...}
+    press_ctrl_c
+    finish_tutorial 130
+    # Also interrupt after the child image has been built: it must be
+    # removed before its parent images. Keep the original early case.
+    start_terminal combined bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    answer_pause -in combined -time 900 {Press ENTER to compare the commands...}
+    wait_for -in combined -time 900 {Press ENTER to compare default and replacement arguments...}
+    assert_combined_image
+    press_ctrl_c -in combined
+    finish_terminal combined 130
+  }
+  normal {
+    start_tutorial
+    wait_for -time 900 {Verified settings: CMD-only runs dig; ENTRYPOINT runs dig with no default arguments.}
+    answer_pause {Press ENTER to compare the commands...}
+    wait_for {1. No arguments: both images start dig.}
+    wait_for {Actual command: dig []}
+    wait_for {Actual command: dig []}
+    wait_for {2. CMD replacement: ls -l runs instead of dig.}
+    wait_for {Actual command: ls ["-l"]}
+    wait_for {Actual command: dig ["www.google.com","+time=2","+tries=1"]}
+    wait_for {Actual command: dig ["ls","-l"]}
+    wait_for {Invalid option: -l}
+    wait_for {Verified expected failure: dig rejects -l (1).}
+    wait_for {Actual command: www.google.com []}
+    wait_for {Verified expected failure: start returned 1; missing executable recorded as 127.}
+    wait_for {6. Override ENTRYPOINT explicitly: ls -l runs instead of dig.}
+    wait_for {Actual command: ls ["-l"]}
+    answer_pause -time 900 {Press ENTER to compare default and replacement arguments...}
+    assert_combined_image
+    wait_for {No runtime arguments: CMD supplies one default argument with a space.}
+    wait_for {Actual command: /usr/bin/printf ["value=<%s>\\n","default argument"]}
+    wait_for_regexp {\r\nvalue=<default argument>\r\nVerified exact printf output and exit 0\.\r\n}
+    wait_for {One quoted runtime argument replaces CMD; the ENTRYPOINT format stays.}
+    wait_for {Actual command: /usr/bin/printf ["value=<%s>\\n","replacement argument"]}
+    wait_for_regexp {\r\nvalue=<replacement argument>\r\nVerified exact printf output and exit 0\.\r\n}
+    answer_pause {Press ENTER to remove the demonstration images...}
+    wait_for {Lesson complete; owned containers and images removed.}
+    finish_tutorial 0
+  }
+}
+if {[fixture_state] ne $fixtures_before} {
+  fail {tutorial directory or build contexts changed}
+}
+if {$base_before ne "" &&
+    [host_command docker image inspect almalinux:10-minimal] ne $base_before} {
+  fail {pre-existing base image changed}
+}
+send_log "Supplemental fixture and existing-base preservation assertions passed.\n"

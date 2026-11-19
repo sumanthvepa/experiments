@@ -1,0 +1,378 @@
+*issue246-python-starlette-middleware: Explore python starlette middleware
+[DONE]issue245-scheme-hello: Hello world in scheme
+[DONE]issue244-python-basics-update: Update python basics notes
+[DONE]issue243-python-starlette-01-cbrws-fix-tests-for-always-access-log: Update tests for always-on access logging
+[DONE]issue242-python-starlette-01-cbrws-always-access-log: Always log requests and document uvicorn log config
+[DONE]issue241-python-starlette-01-cbrws-dev-run-script: Add a dev run script and logging configuration
+[DONE]issue240-python-starlette-01-cbrws-fix-mypy-test-helper-file-loader-typing: Replace Any-typed test helper file loader endpoint classes with a typed protocol
+[DONE]issue238-python-starlette-01-cbrws-refactor-class-hierarchy: Refactor the class hierarchy to be more intuitive and prepare it for use in a more general web service framework
+[DONE]issue239-python-starlette-01-cbrws-fix-pylint-warnings: Fix remaining pylint warnings in src and tests
+[DONE]issue237-python-starlette-01-cbrws-asgi-access-log-middleware: Replace AccessLogMiddleware BaseHTTPMiddleware with ASGI middleware
+[DONE]issue236-python-starlette-01-cbrws-link-header-item-typing: Use explicit LinkHeaderItem values for link header hooks
+[DONE]issue235-python-starlette-01-cbrws-schema-dir-contract: Replace schema directory attributes with a typed method contract
+[DONE]issue234-python-starlette-01-cbrws-literal-context-contract: Replace literal context attributes with typed method contracts
+[DONE]issue233-python-starlette-01-cbrws-profile-filename-contract: Replace profile filename attributes with typed method contracts
+[DONE]issue232-python-starlette-01-cbrws-response-media-type-contract: Replace response media type attributes with a typed method contract
+[DONE]issue231-python-starlette-01-cbrws-link-header-items-contract: Replace link header item attributes with a typed method contract
+[DONE]issue230-python-starlette-01-cbrws-allowed-methods-contract: Replace allowed methods attributes with a typed method contract
+[DONE]issue230-python-starlette-01-cbrws-supported-media-types-contract: Replace supported media type attributes with a typed method contract
+[DONE]issue229-python-starlette-01-cbrws-profile-head-duplication: Remove duplicated HEAD handling from ProfileEndpointBase
+[DONE]issue228-python-starlette-01-cbrws-relations-profile-schema-endpoint: Rewrite RelationsEndpoint to inherit from ProfileSchemaEndpoint
+[DONE]issue227-python-starlette-01-cbrws-fix-name-of-unittests-prompt: Fix the name of the unittest prompt to match the name used in the sessions.prompts file
+[DONE]issue226-python-starlette-01-cbrws-unify-profile-json-filename: Use one attribute for profile JSON and schema filenames
+[DONE]issue225-python-starlette-01-cbrws-cache-profile-templates-and-schemas: Cache static profile templates and schemas
+[DONE]issue224-python-starlette-01-cbrws-stop-leaking-request-data-into-url-generation: Stop leaking request-specific data into generated URLs
+[DONE]issue220-python-starlette-01-cbrws-pyproject-toml-and-production-deploy: Make pyproject.toml version independent and provide production deployment instructions
+[DONE]issue219-python-starlette-01-cbrws-defer-logging-config-to-uvicorn: Let uvicorn own logging configuration
+[DONE]issue218-python-starlette-01-cbrws-test-docs: Clarify unittest and editable install documentation
+[DONE]issue217-python-starlette-01-cbrws-hal-link-member-names: Use standard HAL link member names in the API response
+[DONE]issue216-python-starlette-01-cbrws-remove-wildcard-supported-media-type: Remove wildcard media type from 406 responses
+[DONE]issue215-python-starlette-01-cbrws-supported-media-types-negotiation: Use supported media types for response negotiation
+[DONE]issue214-python-starle1tte-01-cbrws-proxy-aware-urls: Make generated URLs proxy-aware
+[DONE]issue213-python-starlette-01-cbrws-fix-session-prompt: Fix typo in referring to unittest.prompt.
+[DONE]issue213-python-starlette-01-cbrws-add-todo-prompt: Add a prompt for creating TODO items for the project
+[DONE]issue212-python-starlette-01-cbrws-move-test-directory: Move the test directory to tests
+[DONE]issue211-python-starlette-01-cbrws-fix-pylintc: Fix incorrect paths in pylintrc
+[DONE]issue211-python-starlette-01-cbrws-polymorphic-response-media-type: Use endpoint response media type polymorphically
+[DONE]issue210-python-starlette-01-cbrws-profile-schema-validation: Replace runtime asserts with explicit validation errors
+[DONE]issue209-python-starlette-01-cbrws-not-found-problem-media-type: Return problem+json for 404 responses
+issue208-python-starlette-01-cbrws-optional-cors: Add optional CORS handling for public web services
+issue207-python-starlette-01-cbrws-container-deployment: Add container build and deployment support
+[DONE]issue206-python-starlette-01-cbrws-logging: Add configurable request and problem response logging
+[DONE]issue205-python-starlette-01-cbrws-configuration-management: Add environment-based application configuration
+[DONE]issue204-python-starlette-01-cbrws-pyproject-editable-install: Add pyproject metadata and document editable install workflow
+[DONE]issue203-python-starlette-01-cbrws-sync-test-load-helpers: Replace asyncio.run calls in tests with synchronous helper wrappers
+[DONE]issue202-python-starlette-01-cbrws-test-helper-endpoint-url: Let shared endpoint tests use each test class URL
+[DONE]issue201-python-starlette-01-cbrws-api-head-test-bug: Fix the /api HEAD test so it sends a HEAD request
+[DONE]issue200-python-starlette-01-cbrws-html-title-parser-test-helper: Move duplicated HTMLTitleParser test code into a shared helper
+[DONE]issue199-python-starlette-01-cbrws-debug-mode-config: Stop hardcoding debug mode in the Starlette application
+[DONE]issue198-python-starlette-01-cbrws-response-media-type-request: Remove the unused request parameter from response_media_type or use it for negotiation
+[DONE]issue197-python-starlette-01-cbrws-session-prompt: Create a session prompt with standing instructions for the agent in a session
+[DONE]issue196-python-starlette-01-cbrws-unify-endpoint-bases: Consolidate duplicated common behavior in CBRWSBaseEndpoint and ProfileEndpointBase
+[DONE]issue195-python-starlette-01-cbrws-relations-cache-bug: Stop caching request-specific rendered relation endpoint responses
+[DONE]issue194-python-starlette-01-cbrws-content-negotiation-bug: Replace substring Accept header checks with proper media type negotiation
+[DONE]issue193-python-starlette-01-cbrws-not-found-comment-bug: Correct the 404 Not Found handler comment
+[DONE]issue192-python-starlette-01-cbrws-link-header-bug: Fix the malformed describedBy Link header in CBRWSBaseEndpoint
+[DONE]issue191-python-starlette-01-cbrws-profile-base-class: Implement a base class for profile endpoints to reduce code duplication
+[DONE]issue190-python-starlette-01-cbrws-profile-schema: Implement a base class for profile schemas and use it for the /profiles/cbrws/v1 and /profiles/cnrws/rels/greeting endpoints
+[DONE]issue188-python-starlette-01-cbrws-readme-update: Add development notes to the README
+[DONE]issue187-python-starlette-01-cbrws-cbrws-profile-endpoint-tests: Add tests for the /profiles/cbrws endpoint
+[DONE]issue186-python-starlette-01-cbrws-profile-endpoint-tests: Add tests for the /profiles/ endpoint
+[DONE]issue185-python-starlette-01-cbrws-cbrws-profile-endpoint: Implement the /profiles/cbrws/ endpoint as a directory of profile families
+[DONE]issue18-python-starlette-01-cbrws-profile-endpoint: Implement the /profiles/ endpoint as a directory of profile families
+[DONE]issue183-python-starlette-01-cbrws-make-profile-endpoint-tests-robust: Check the actual content of the JSON and HTML responses
+[DONE]issue182-python-starlette-01-cbrws-use-title-in-templates: Wire template titles through the HTML context
+[DONE]issue181-python-starlette-01-cbrws-intellij-idea-workspace-remove: Reverse previous commit. workspace.xml should not be in git
+[DONE]issue180-python-starlette-01-cbrws-intellij-idea-workspace: Commit the changed workspace.xml file
+[DONE]issue179-python-starlette-01-cbrws-rename-profile-endpoint: Rename ProfileEndpoint to CBRWSV1ProfileEndpoint
+[DONE]issue179-python-starlette-01-cbrws-intellij-idea-project: Recreate the IntelliJ IDEA project to pickup update venv
+[DONE]issue178-python-starlette-01-cbrws-greeting-relation: Implement the greeting relation documentation URL
+issue177-python-starlette-01-update-readme: Update README
+[DONE]issue176-python-starlette-01-cbrws-unittest-prompt: Add instructions for agents to run unittests
+[DONE]issue175-python-starlette-01-cbrws-greeting-api: Add support for /api/greeting.
+[DONE]issue174-python-starlette-01-cbrws-ai-agent-supoort: Add AI agent support for this project
+[DONE]issue173-ai-agent-support: Add prompts and files needed for an AI agent to to work.
+[DONE]issue172-python-starlette-01-cbrws: Fix bug in url_utils.py
+[DONE]issue171-checkin-code-from-darkness2: Check in code from darkness2
+[DONE]issue170-docker-01-install-docker-fedora: Add script for Fedora install
+issue169-haykin-neuralnetworks-ch1: Notes and explorations for Haykin Neural Networks Chapter 1
+[DONE]issue168-commit-java-directory: Commit changes made to the java directory
+[DONE]issue167-commit-blender-directory: Commit changes made to the blender directory
+[DONE]issue166-commit-algorithms-directory: Commit changes made to the algorithms directory
+[DONE]issue165-commit-swift-directory: Commit changes made to the swift directory
+[DONE]issue164-commit-r-directory: Commit changes made to the r directory
+[DONE]issue163-commit-web-directory-changes: Commit changes made to the web directory
+[DONE]issue162-move-aiml-into-math-cs: Move aiml into the mathematics/computer-science/folder
+[DONE]issue161-cleanup-math-folder: Clean up the math folder
+[DONE]issue160-python-01-remote-idea-python: Remove obsolete suggestion-mode option from pylintrc
+[DONE]issue159-python-01-remote-idea-python: Fix bug in pylintrc path
+issue158-math-probability-feller-chapter1: Notes on Feller Chapter 1
+issue157-python-jupyter-01-r-lab-setup: Create a basic jupyter lab r lab server
+[DONE]issue156-web-00-boilerplate-start-server: Add an npm start command to package.json
+issue-155-python-packages3.sh: Add support for installing local packages
+issue154-python-starlette-01-class-based-routing:
+  A Python Starlette based web service that uses class based routing
+[DONE]issue153-python-jupyter-00-lab-setup: Create a basic jupyter lab server
+[DONE]issue-152-python-packages2.sh: Remove the need to create a symbolic link to the packages script in a project directory
+issue151-python-starlette-01-class-based-routing:
+  A hello world web service that uses class based routing and fully
+  implements a JSON web service including handling forbidden methods
+  and unknown URLs
+[DONE]issue150-python-starlette-00-hellows: A hello world web service using starlette
+[DONE]issue149-python-packages.sh: Use an env trampoline to use the default bash
+issue148-r-basics: Explore the basics of R
+issue147-python-standard-package-script:
+  Standardize the initial pacakge installation script
+issue146-python-parsec: Experimental standalone command line parser library
+[DONE]issue145-python-02-testing: Move project testing to 02-testing
+[DONE]issue144-python-testing: Add notes on how to create stub files
+[DONE]issue143-python-01-remote-idea-python:
+  Document the process of creating a remote IntelliJ IDEA project
+[DONE]issue142-03-centered-block:
+  Demonstrate the creation of vertically and horizontally centered block
+[DONE]issue141-02-svg-logo:
+  Demonstrate creation and use of an SVG logo
+[DONE]issue140-javascript-basics-08-express-server:
+  Update node packages and add linting support
+[DONE]issue139-01-stickey-footer:
+  Demonstrate the implementation of a sticky footer in CSS.
+[DONE]issue138-make-woff:
+  Scripts to convert TIFF font files to WOFF and WOFF2 formats
+issue137-web-fonts: Fonts for various web experiments
+[DONE]issue136-web-00-boilerplate: Create a basic website which just boilerplate
+[DONE]issue135-boilerplate-generator:
+  Create a script that generates a minimal boilerplate website
+issue134-javascript-basics-00setup:
+  Open issue exploring setup of a javascript/node project
+[DONE]issue133-macos-ip-forwarding: Explore ip forwarding on macOS
+[DONE]issue132-update-notes-remote-ssh-ide-vscode-on-macOS-sequoia: Update notes on using remote SSH in VSCode on macOS Sequoia
+[DONE]issue131-python-testing-v1: Explore use of test names with parametric tests
+[DONE]issue130-python-parse-drelithus-cmdline: Experimental parser for the dralithus command line
+[DONE][issue129] python-parseargs-update: Explore passing an argv list to the parser
+[DONE][issue128] python-text-file-io-update2: Explore reading a file line by line
+[issue127] samplews: A simple key value service used as an a sample to explore
+app deployment
+[issue126] db-postgres-name-value-store: Explore using postgres as a name value store
+[issue125] web-hello-world-dockerized: Create a dockerized hello world app
+[issue124] web-hello-world: Explore implementing a hello world app
+[issue123] web-d3js-trees: Explore d3js to display trees
+[issue122] web-html5boilerpplate: Explore html5 boilerplate
+[issue121] aiml-foundations-binary-classification: 
+  Explore using a single layer perceptron to do binary classification
+[DONE][issue120] ides-jetbrains-idea: Note on managing IDE update policy
+[DONE][issue119] python-testing: Explore unit testing in python
+[DONE][issue118] git-reset-hard-to-upstream-branch:
+  Explore the git command to reset a local branch to an upstream branch
+  dropping all commits on the local branch
+[DONE][issue117] cplusplus-makefile-template-update:
+  Update the Makefile template 
+[DONE][issue116] cplusplus-compiler-macros:
+  Print pre-defined macros for compiler checks within C++ code
+[DONE][issue115] cplusplus-project-initial-makefile-template:
+  An intial makefile template based on the latest iteration of a
+  project makefile.
+[DONE][issue114] cpluplus-unit-tests: Explore Boost Unit tests
+[DONE][issue113] cplusplus-build-all-makefile:
+  Makefile to build all projects in the cplusplus folder
+[DONE][issue112] userand-standardize-folder-structure:
+  Standardize the folder structure for the userand project
+[DONE][issue111] boost-upgrade-1-87-0:
+  Upgrade to boost 1.87.0
+[issue110] linux-kvm-ubuntu-setup: 
+  Explore setup of KVM on Ubuntu
+[DONE][issue109] linux-ubuntu-apt-phased-updates:
+  Notes on apt phased updates in Ubuntu
+[DONE][issue108] ides-vscode-remote-ssh:
+  Notes on how to open a remote SSH connection in VSCode
+[issue107] cplusplus-explore-modules:
+  Explore C++ modules
+[DONE][issue106] cplusplus-cwd:
+  Get the current working directory in C++
+[DONE][issue105] cplusplus-read-text-file:
+  Explore slurping text files
+[DONE][issue104] google-charts:
+  Explore google charts with a very simple example
+[DONE][issue103] swift-chatgptorg:
+  ChatGPT's (incorrect) implementation of the org program.
+[issue102] aoc-2024-day1-historian-hysteria-cpp:
+  Solution to the aoc 2024 day1 problem
+[DONE][issue101] swfit-org-result-builder:
+  Create org charts using result builders
+[DONE][issue100] swift-org:
+  A swift progam that prints a sample org chart
+[issue099] ios-hello-world:
+  The canonical Hello World program with explanations
+[issue098] swiftui-concepts: Explore SwiftUI design concepts
+[DONE][issue097] linux-explore-nss-wrapper-unset-env:
+  Unset the environment variables when the script is complete
+[DONE][issue096] swift-basics-notes-2: Improve notes
+[DONE][issue095] sorting-insertion-swift:
+  Swift implementation of insertion sort
+[DONE][issue094] swift-stdlibraries-array-sort:
+  Explore sorting on Arrays
+[DONE][issue093] swift-basics-notes-version:
+  Fix typos, set swift version to 6.0
+[DONE][issue092] python-basics-notest: Improve notes
+[DONE][issue091] bash-explore-user-whoami:
+  Explore getting the name of the current user in bash
+[DONE][issue090] python-flask-01-hellows:
+  A flask app that respond with JSON {"greeting": "hello"}
+[DONE][issue089] python-flask-00-hellows:
+  A simple hello web service that returns the string hello
+[DONE][issue088] linux-selinux-basics:
+  Move selinux exploration into the linux folder
+[DONE][issue087] linux-explore-nss-wrapper:
+  Explore cwrap's nss_wrapper feature
+[issue086] bash-basics: Explore bash basics
+[issue085] selinux-basics: Explore SELinux
+[issue084] java-textio:
+  Explore techniques for text I/O in Java
+[issue083] cplusplus-stdlibraries:
+  Explore the C++ standard library
+[DONE][issue083] sorting-insertion-cpp:
+  C++ implementation of insertion sort
+[DONE][issue082] sorting-insertion-java:
+  Java implementation of insertion sort
+[DONE][issue081] twosum-java:
+  Java solution to the leetcode twosum problem
+[DONE][issue081] algorithms-dir-structure:
+  Setup the directory structure of the algorithms folder
+[DONE][issue080] palindrome-java:
+  Java solution to the palindrom leetcode problem 
+[DONE][issue079] cplusplus-number-commas-update:
+  Enable all warnings with GCC on Linux
+  Switch to trailing-return style for functions
+[DONE][issue078] cplusplus-gcd-warnings-style:
+  Enable all warnings and use trailing return style
+[DONE][issue077] cplusplus-explore-printf-update:
+  Update Makefile and function declaration style in the code
+[DONE][issue076] palindrome-cpp:
+  C++ solution to the palindrome leetcode problem
+[DONE][issue075] cplusplus-lexical-cast-update:
+  Add CLion project support
+  Update lexical_cast to use boost 1.86.0
+  Make minor code improvements
+[DONE][issue074] cppproject-update: Upgrade to python 3.12
+[DONE][issue073] python-text-file-io-update:
+  Upgrade to using python 3.12, the latest packages, add copyleft
+[DONE][issue072] python-parseargs-update:
+  Upgrade to using python 3.12, the latest packages, add copyleft
+[DONE][issue071] python-hashof-update:
+  Upgrade to using python 3.12 and the latest packages
+[DONE][issue070] python-gcd-update:
+  Upgrade to using python 3.12 and the latest packages
+[DONE][issue069] cppproject-requirements: Add requirements.txt
+  Add a requirements.txt file for the project
+[DONE][issue068] python-args-update: Update to python 3.12
+[issue067] vercel-basics: A very simple vercel deployment
+[DONE][issue066] update-readme: Clarify purpose of this repository
+[DONE][issue065] python-text-file-io: Explore text file I/O on Python
+[DONE][issue064] vscode-settings-2: Update VSCode settings
+[issue063] docker-deployable-webserver:
+  Create a web-server that is deployable via docker
+[issue062] docker-basics:
+  Explore the basics of docker
+[DONE][issue061] twosum-cpp:
+  The leetcode twosum problem solved in a variety of programming
+  languages
+[DONE][issue060] swift-twosum: 
+  Explore creating packages and unit testing in swift 
+[DONE][issue059] swift-asyncs:
+  Explore asynchronous programming in Swift
+[DONE][issue058] javascript-basics-11-browser-interactions:
+  Explore alert, prompt and confirm Javascript functions
+[issue057] dart-basics: 
+  Explore the basics of the Dart Programming Language
+[DONE][issue056] dart-hello-upgrade-pubspec:
+  Upgrade dart hello pubspec.yaml
+[issue055] java-basics:
+  Explore basics of the Java programming language
+[DONE][issue054] aiml-pythorch: Update git ignore files
+[DONE][issue053] vscode-settings: VSCode settings for the repository
+[DONE][issue052] cplusplus-userand: Explore the rand function in C/C++
+[DONE][issue051] java-basics: Java21 upgrade instructions
+[DONE][issue050] kotlin: Add empty gitignore file
+[issue049] kotlin-basics:
+  Explore the basics of the kotlin programming language
+[DONE][issue048] kotlin-hello:
+  Hello World in Kotlin
+[DONE][issue047] dart-hello-gitignore:
+  Update gitignore to ignore more files/dirs
+[DONE][issue046] swift-shebang:
+  Demonstrate the use of #! for swift scripts
+[DONE][issue045] swift-gcd:
+  Compute the greatest common denominator of two positive numbers
+[DONE][issue044] swift-args:
+  Print command line arguments
+[DONE][issue043] swift-gitignore:
+  Add a gitignore file to the swift directory
+[issue042] swift-basics:
+  Explore the basics of the swift programming language
+[issue041] python-basics:
+  Explore the basics of the Python programming language
+[DONE][issue040] cplusplus-explore-printf:
+  Restrict places right of decimal point during print
+[DONE][issue039] cplusplus-number-commas:
+  Print number with locale specific seprarators
+[DONE][issue038] java-read-resources-upgrade-java21:
+  Upgrade to Java21
+[DONE][issue037] java-jackson-object-mapper-upgrade-java21:
+  Upgrade to Java 21
+[issue036] java-language-basics: Explore the basics of the Java
+  programming language
+[DONE][issue035] cplusplus-lexical-cast:
+  Create IDEA project and add strict warning checks
+[DONE][issue034] cplusplus-gcd: Fix typos in README
+[issue033] cplusplus-basics: Explore the C++ programming language.
+[DONE][issue032] javascript-basics-10-template-server:
+  A dynamic website site generated using the Nunjucks template engine
+[issue031] javascript-basics-language: Explore the basics
+  of the javascript language..
+[issue030] javscript-basics-reorder-lesson-numbers:
+  Reorder the lesson numbers to better reflect the order
+  in which the lessons should be learned.
+[DONE][issue029] java-basics-structure: Setup the
+  structure of the Java Language basics explorations
+[DONE][issue028] dart-hello:
+  The canonical 'Hello World' program for Dart
+[DONE][issue027] cplusplus-basics-setup:
+  Setup the C++ basics project to explore the C++
+  programming language.
+[DONE][issue026] javascript-basics-00a-setup:
+  Sample project showing how to setup/manage an NPM project.
+[DONE][issue025]aiml-pytorch-01-dataset:
+  Explore downloading a sample dataset
+[DONE][issue024]aiml-pytorch-00-check:
+  Write a Python script to check if pytorch is
+  working correctly on the machine.
+[DONE][issue023]aiml-restructure-directory:
+  Move openai and other ai/ml projects into the aiml directory
+[DONE][issue022] javascript-basics-06-static-server:
+  An express server that serves static files.
+[DONE][issue021] javascript-basics-05-json-server:
+  An interface/port configurable express server that returns a
+  greeting as a JSON response
+[DONE][issue020] javascript-basics-04-server: 
+  A interface/port configurable express server that returns
+  'Hello World' in plain text.
+[DONE][issue019] javascript-basics-03-server: 
+  A port configurable web server that returns 'Hello World' in plain
+  text.
+[DONE][issue018] javascript-basics-02-cli:
+  A CLI program that demonstrates the use of commander to get a
+  port number from the command line.
+[DONE][issue017] javascript-basics-01-args:
+  Print all the command line arguments
+[DONE][issue016] javascript-node-00-server:
+  A simple server that reutrns Hello World as plain text
+[DONE][issue015] python-parseargs:
+  A simple exploration of the argparse library
+[DONE][issue014] python-gcd-copyright:
+  Fix GPL notice on the file. Wrong program name
+[DONE][issue013] cppproject:
+  A script to create a cross-platform C++ project
+[DONE][issue012] cplusplus-gcd-cross-platform:
+  Make the GCD program buildable on all 3 major
+  platforms: Windows, Linux MacOS
+[DONE][issue011] cplusplus-gcd:
+  C++ program to find the greatest common divisor
+[DONE][issue010] cplusplus-lexical-cast:
+  C++ program showing use of lexical_cast
+[DONE][issue009] python-gcd:
+  Python progam to find the greatest common divisor
+[DONE][issue008] python-args: Print all the command line args
+[DONE][issue007] python-hashof:
+  Print the MD5 hash of the input
+[DONE][issue006] opeani-callgpt:
+  A python script that calls the OpenAI API
+[DONE][issue005] deterministic-ai-agent:
+  An AI agent that always returns the same answers to given question
+[DONE][issue004] jackson-object-mapper:
+  Serialize/deserialze classes without getter/setters or default constructors
+[DONE][issue003] jackson-object-mapper:
+  Use Jackson's Object Mapper to serialize and deserialize a complex
+  class.
+[DONE][issue002] publish-opensource:
+  Publish the repository as open source
+[DONE][issue001] java/read-resources:
+  Read files from the resources folder of a Java application JAR.

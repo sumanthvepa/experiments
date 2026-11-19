@@ -1,0 +1,136 @@
+#!/usr/bin/expect -f
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------
+# 10-docker-logs.exp: Verify log retrieval, filtering and interruption
+#
+# Copyright (C) 2026 Sumanth Vepa.
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+
+# scenarios: normal interrupt conflict
+# time-limit: 300
+source [file join [file dirname [info script]] tutorial-test.tcl]
+
+# The runner covers resource identities and the empty working directory.
+# Supplement it with repo content/mode/ownership and the tutorial's /tmp
+# capture directory, which are outside the runner's empty working folder.
+set basics [file dirname $env(TUTORIAL_TEST_TUTORIAL)]
+proc fixture_state {} {
+  global basics
+  return [host_command bash -c {
+    set -euo pipefail
+    cd "$1"
+    find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
+    sha256sum 10-docker-logs.sh bash-utilities.sh tests/10-docker-logs.exp
+  } bash $basics]
+}
+set before [fixture_state]
+set base_before ""
+if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
+  set base_before [host_command docker image inspect almalinux:10-minimal]
+}
+set scratch ""
+switch -- [scenario] {
+  conflict {
+    # Guard EVERY target before creating anything: no build/tag command
+    # may replace a real image, even the PID-specific fixture name.
+    set fixture "docker-basics-logs-sentinel-[pid]"
+    if {[host_command docker image ls --quiet $fixture] ne ""} {
+      fail "Refusing conflict fixture: image name $fixture already exists."
+    }
+    if {[host_command docker container ls --all --quiet \
+        --filter {name=^/docker-basics-logs$}] ne ""} {
+      fail {Refusing conflict fixture: container docker-basics-logs already exists.}
+    }
+    host_command bash -c {
+      set -euo pipefail
+      printf 'FROM scratch\nLABEL test.owner="%s"\n' "$1" |
+        docker image build --tag "$1" -
+    } bash $fixture
+    cleanup_on_host docker image rm $fixture
+    set image_before [host_command docker image inspect $fixture]
+    set id [host_command docker container create --network none \
+      --name docker-basics-logs $fixture /sentinel]
+    cleanup_on_host docker container rm --force $id
+    set container_before [host_command docker container inspect $id]
+    start_tutorial
+    wait_for {Container name docker-basics-logs already exists.}
+    finish_tutorial 1
+    if {[host_command docker container inspect $id] ne $container_before} {
+      fail {full conflicting container inspect changed}
+    }
+    host_command docker container rm $id
+    cancel_cleanup_on_host
+    if {[host_command docker image inspect $fixture] ne $image_before} {
+      fail {full driver fixture image inspect changed}
+    }
+    host_command docker image rm $fixture
+    cancel_cleanup_on_host
+  }
+  interrupt {
+    # A deterministic pause after both container and scratch exist.
+    start_tutorial
+    set scratch [lindex [wait_for_regexp {Temporary capture directory: ([^\r\n]+)}] 1]
+    wait_for {Press ENTER to retrieve stdout and stderr...}
+    press_ctrl_c
+    finish_tutorial 130
+  }
+  normal {
+    # Normal already exercises stream continuation, so a separate
+    # continue scenario would repeat the same complete run.
+    start_tutorial
+    set scratch [lindex [wait_for_regexp {Temporary capture directory: ([^\r\n]+)}] 1]
+    answer_pause {Press ENTER to retrieve stdout and stderr...}
+    wait_for {Verified separate stdout/stderr and absence of file/exec-only output.}
+    wait_for {Verified timestamps, tail and since include late markers and exclude early markers.}
+    answer_pause {Press ENTER to follow new output...}
+    # --tail 0 excludes replay; these markers prove fresh streaming.
+    wait_for_regexp {LIVE_STDOUT_[0-9]+}
+    wait_for_regexp {LIVE_STDERR_[0-9]+}
+    press_ctrl_c
+    wait_for {Verified container still running and main process produced AFTER_FOLLOW_MAIN.}
+    if {[host_command docker container inspect --format {{{.State.Running}}} \
+        docker-basics-logs] ne "true"} {
+      fail {container did not survive the logs client interrupt}
+    }
+    answer_pause {Press ENTER to stop the container and read retained logs...}
+    wait_for {Verified retained logs remain readable after a clean container stop.}
+    if {[host_command docker container inspect --format \
+        {{{.State.Status}} {{.State.ExitCode}}} docker-basics-logs] ne "exited 0"} {
+      fail {container stop was not clean}
+    }
+    set retained [host_command docker container logs docker-basics-logs]
+    foreach marker {EARLY_STDOUT LATE_STDOUT LIVE_STDOUT_ AFTER_FOLLOW_MAIN STOPPED_MAIN} {
+      if {[string first $marker $retained] < 0} {
+        fail "stopped container logs lack $marker"
+      }
+    }
+    answer_pause {Press ENTER to remove the owned resources...}
+    wait_for {Lesson complete; owned container, added base and temporary captures removed.}
+    finish_tutorial 0
+  }
+}
+if {$scratch ne "" && [file exists $scratch]} {
+  fail "temporary capture directory remains: $scratch"
+}
+if {[fixture_state] ne $before} {
+  fail {tutorial directory, source content, permissions or ownership changed}
+}
+if {$base_before ne "" &&
+    [host_command docker image inspect almalinux:10-minimal] ne $base_before} {
+  fail {full pre-existing base image inspect changed}
+}
+send_log "Supplemental repo, temporary directory and existing-base preservation assertions passed.\n"
