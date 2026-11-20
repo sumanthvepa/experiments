@@ -27,6 +27,13 @@ set -euo pipefail
 
 # Use the same error and cleanup helpers as 03-docker-image-basics.sh.
 source "$(dirname "${BASH_SOURCE[0]}")/bash-utilities.sh"
+die_if_not_docker_available
+die_if_docker_container_exists docker-basics-volume-writer \
+  docker-basics-volume-reader
+
+# The containers run almalinux:10-minimal. Keep it if you already have
+# it; if the lesson pulls it, remove it again at the end.
+pull_image_if_absent almalinux:10-minimal
 
 # Volume mounts
 
@@ -108,7 +115,7 @@ echo 'Now write some test data to the mounted volume:'
 echo '    cd /test/'
 echo "    echo 'Test data' > ./test.txt"
 echo '    exit 0'
-read -r -p 'Press ENTER to start the container...'
+read -r -p 'Press ENTER to continue...'
 
 # The shell exits with the status of the last command typed in it,
 # unless exit is given a number. docker container run then exits with
@@ -149,7 +156,7 @@ echo '    cat /test/test.txt'
 echo 'from inside the container. Notice that the data is still present.'
 echo 'Then leave the container with:'
 echo '    exit 0'
-read -r -p 'Press ENTER to start the container...'
+read -r -p 'Press ENTER to continue...'
 
 # Stop on every non-zero status, as above.
 SHELL_STATUS=0
@@ -368,9 +375,9 @@ docker volume ls
 # not run it, because it would remove volumes that it did not create.
 
 # If the script is interrupted while a container is running, the
-# container may survive and keep its volume in use. The exit trap
-# attempts volume cleanup, but it does not remove containers. A
-# forced kill (SIGKILL) cannot run the exit trap at all.
+# container may survive and keep its volume and image in use. The
+# exit trap attempts volume and image cleanup, but it does not remove
+# containers. A forced kill (SIGKILL) cannot run the exit trap at all.
 #
 # To recover, first list and inspect any surviving containers:
 #   docker container ls --all --filter 'name=^docker-basics-volume-'
@@ -381,6 +388,8 @@ docker volume ls
 #   docker container rm --force docker-basics-volume-reader
 #   docker volume rm docker-basics-test-volume \
 #     docker-basics-copy-volume docker-basics-nocopy-volume
+# If you did not have almalinux:10-minimal before the run, remove it:
+#   docker image rm almalinux:10-minimal
 # A command reports an error if that resource was already removed.
 # Inspect an existing container before removing it, because a name
 # conflict may involve a container from another run.
@@ -396,4 +405,5 @@ docker volume rm 'docker-basics-test-volume' \
 cleanup_cancel 'docker-basics-test-volume'
 cleanup_cancel 'docker-basics-copy-volume'
 cleanup_cancel 'docker-basics-nocopy-volume'
+remove_pulled_image almalinux:10-minimal
 echo '...cleanup completed.'

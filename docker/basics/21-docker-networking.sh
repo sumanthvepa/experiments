@@ -37,12 +37,12 @@ echo '21-docker-networking: inspect networks and run a three-container applicati
 # PGDG repository and packages. No host package installation, sudo, host
 # mount or firewall-cmd change is needed. Docker manages publishing rules.
 # Tested on native arm64/rootful Linux Docker; other hosts/modes untested.
-for TOOL in docker jq dirname curl sleep; do
+for TOOL in jq dirname curl sleep; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
 done
+die_if_not_docker_available
 PSQL_BINARY=$(psql_binary_path)
 "$PSQL_BINARY" --version
-docker info >/dev/null
 NETWORK=sample
 NETWORK_ID=
 DATA_NETWORK_ID=
@@ -60,12 +60,8 @@ EXISTING=$(docker network ls --quiet --filter "name=^$NETWORK$")
 # Check every future name before building or acquiring any resources.
 EXISTING=$(docker network ls --quiet --filter 'name=^sample-data$')
 [[ -z $EXISTING ]] || die 'Network name sample-data already exists.'
-for NAME in sample-frontend sample-backend sample-app-db; do
-  EXISTING=$(docker container ls --all --quiet --filter "name=^/$NAME$")
-  [[ -z $EXISTING ]] || die "Container name $NAME already exists."
-done
-EXISTING=$(docker image ls --quiet "$APP_IMAGE")
-[[ -z $EXISTING ]] || die "Image name $APP_IMAGE already exists."
+die_if_docker_container_exists sample-frontend sample-backend sample-app-db
+die_if_docker_image_exists "$APP_IMAGE"
 
 # 1. Built-in networks on this Linux daemon
 # docker network manages networks; ls (an alias of list) shows their IDs,
@@ -96,7 +92,7 @@ docker network inspect none
 # docker network create --driver bridge --internal sample-internal
 # Internal networks are not an authorization boundary against the host.
 download_and_build_postgres_test_image "$IMAGE" "$CONTAINER"
-read -r -p 'Press ENTER to create the sample bridge and start its database...'
+read -r -p 'Press ENTER to continue...'
 
 # Prefer create's returned ID. Before the assignment completes, cleanup may
 # discover the exact name but must verify our unique label. Do not disconnect
@@ -186,7 +182,7 @@ docker container inspect "$DB_ID" | jq -e --arg network "$NETWORK" --arg id "$NE
   .[0].State.Running and .[0].NetworkSettings.Networks[$network].NetworkID == $id and
   (.[0].NetworkSettings.Networks | length) == 1' >/dev/null
 echo 'Verified database membership in the sample bridge.'
-read -r -p 'Press ENTER to replace the database example with the application...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. A frontend -> backend -> database request across two bridges
 # First finish the original host-SQL example. The application DB below has
@@ -299,7 +295,7 @@ docker container inspect "$FRONTEND_ID" | jq -e '
   (.[0].NetworkSettings.Networks | keys) == ["sample"] and
   .[0].HostConfig.PortBindings["8080/tcp"][0].HostIp == "127.0.0.1"' >/dev/null
 echo 'Verified isolation: frontend cannot resolve/reach DB; only frontend publishes HTTP.'
-read -r -p 'Press ENTER to stop the application and remove its networks...'
+read -r -p 'Press ENTER to continue...'
 
 # 4. Remove endpoints before networks, then the images they used
 remove_app_container sample-frontend "$FRONTEND_ID"

@@ -28,6 +28,8 @@ set -euo pipefail
 
 # Use the same error and cleanup helpers as 03-docker-image-basics.sh.
 source "$(dirname "${BASH_SOURCE[0]}")/bash-utilities.sh"
+die_if_not_docker_available
+die_if_docker_container_exists docker-basics-nginx
 
 # The script uses curl on the host to find out when nginx is ready.
 # Check for it before creating anything.
@@ -35,6 +37,10 @@ if ! command -v curl >/dev/null; then
   die 'This script needs curl. Install it with the package manager' \
     'of your Linux distribution.'
 fi
+
+# The container runs the nginx image from Docker Hub. Keep it if you
+# already have it; if the lesson pulls it, remove it again at the end.
+pull_image_if_absent nginx
 
 # All the examples below use one nginx container, named
 # docker-basics-nginx.
@@ -192,7 +198,7 @@ docker container stats --no-stream 'docker-basics-nginx'
 # stats may return 0 or 130 after Ctrl-C. Accept either, but stop on
 # other errors even though this command is exempt from set -e.
 echo 'docker container stats will run until you press Ctrl-C.'
-read -r -p 'Press ENTER to start it...'
+read -r -p 'Press ENTER to continue...'
 trap ':' SIGINT
 STATS_STATUS=0
 docker container stats 'docker-basics-nginx' || STATS_STATUS=$?
@@ -230,4 +236,5 @@ docker container ps --all --filter name='docker-basics-nginx'
 echo 'Cleaning up...'
 docker container rm 'docker-basics-nginx'
 cleanup_cancel nginx-container
+remove_pulled_image nginx
 echo '...cleanup completed.'

@@ -38,9 +38,10 @@ echo '25-docker-compose-networking: discover services and verify network boundar
 # Tested on Fedora/arm64 rootful Docker with classic overlay2. Other hosts,
 # rootless, userns-remap and SELinux-enabled daemons have not been tested.
 (( BASH_VERSINFO[0] >= 4 )) || die 'This lesson needs Bash 4 or later.'
-for TOOL in docker jq python3 curl cmp mktemp rm dirname sleep cat kill; do
+for TOOL in jq python3 curl cmp mktemp rm dirname sleep cat kill; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
 done
+die_if_not_docker_available
 COMPOSE_VERSION=$(docker compose version --short)
 if [[ $COMPOSE_VERSION =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
   (( BASH_REMATCH[1] > 2 || (BASH_REMATCH[1] == 2 && (BASH_REMATCH[2] > 32 || (BASH_REMATCH[2] == 32 && BASH_REMATCH[3] >= 2))) )) || die 'This lesson requires Compose plugin 2.32.2+.'
@@ -48,16 +49,13 @@ else
   die "Cannot identify Compose plugin version: $COMPOSE_VERSION"
 fi
 printf 'Compose plugin: %s\n' "$COMPOSE_VERSION"
-docker info >/dev/null
 docker buildx version >/dev/null
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
 BASE=almalinux:10-minimal
 EXISTING=$(docker image ls --quiet "$BASE")
 if [[ -n $EXISTING ]]; then
-  BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-  [[ $BASE_ARCH == "$NATIVE_ARCH" ]] || die "Base architecture $BASE_ARCH differs from daemon $NATIVE_ARCH."
+  die_if_image_not_native "$BASE"
 fi
 
 PROJECT="compose25-$$-$RANDOM"
@@ -97,10 +95,8 @@ assert_empty_project() {
     fi
     [[ -z $ids ]] || { echo "ERROR: Compose project $PROJECT already has $type resources." >&2; return 1; }
   done
-  for name in frontend app backend; do
-    ids=$(docker container ls --all --quiet --filter "name=^/$PROJECT-$name-1$") || return $?
-    [[ -z $ids ]] || { echo "ERROR: Generated container $PROJECT-$name-1 already exists." >&2; return 1; }
-  done
+  die_if_docker_container_exists "$PROJECT-frontend-1" "$PROJECT-app-1" \
+    "$PROJECT-backend-1"
   for name in default frontend backend; do
     ids=$(docker network ls --quiet --filter "name=^${PROJECT}_$name$") || return $?
     [[ -z $ids ]] || { echo "ERROR: Generated network ${PROJECT}_$name already exists." >&2; return 1; }
@@ -283,13 +279,12 @@ YAML
 # Lessons 24/21 cover the lifecycle and bridge mechanics in detail.
 compose config --quiet
 compose config
-read -r -p 'Press ENTER to build and start the default-network example...'
+read -r -p 'Press ENTER to continue...'
 assert_empty_project
 cleanup_add compose-image remove_image
 compose build frontend
 IMAGE_ID=$(docker image inspect --format '{{.Id}}' "$IMAGE")
-BUILT_ARCH=$(docker image inspect --format '{{.Architecture}}' "$IMAGE")
-[[ $BUILT_ARCH == "$NATIVE_ARCH" ]] || die "Built architecture $BUILT_ARCH differs from daemon $NATIVE_ARCH."
+die_if_image_not_native "$IMAGE"
 cleanup_add compose-project cleanup_project
 assert_empty_project
 compose up --detach --no-build --pull never --wait --wait-timeout 60
@@ -308,7 +303,7 @@ docker network inspect "${NETWORK_IDS[default]}" | jq -e \
   --arg app "${SERVICE_IDS[app]}" --arg front "${SERVICE_IDS[frontend]}" \
   '.[0].Containers | keys == ([$app, $front] | sort)' >/dev/null
 echo 'Verified default network membership by container IDs.'
-read -r -p 'Press ENTER to replace the default network with frontend/backend networks...'
+read -r -p 'Press ENTER to continue...'
 cleanup_project
 cleanup_cancel compose-project
 SERVICE_IDS=() NETWORK_IDS=()
@@ -359,7 +354,7 @@ networks:
 YAML
 compose config --quiet
 compose config
-read -r -p 'Press ENTER to observe the dependency health gate...'
+read -r -p 'Press ENTER to continue...'
 cleanup_add compose-project cleanup_project
 # Run up in the background only so this host can observe its startup gate.
 # Save/wait for its status; register client termination before it can fail.
@@ -456,7 +451,7 @@ echo 'Verified topology by IDs: app joins both networks; only frontend publishes
 # Startup ordering is not continuous dependency supervision. A later backend
 # failure can break app connections; applications need bounded timeouts,
 # retry/reconnection policy and useful errors. depends_on does not repair it.
-read -r -p 'Press ENTER to remove this networking project...'
+read -r -p 'Press ENTER to continue...'
 cleanup_project
 cleanup_cancel compose-project
 REMAINING=$(docker container ls --all --quiet --filter "label=com.docker.compose.project=$PROJECT")

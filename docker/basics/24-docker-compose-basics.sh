@@ -37,9 +37,10 @@ echo '24-docker-compose-basics: configure and operate one HTTP application'
 # Tested on Fedora/aarch64 rootful Docker/classic overlay2. Other OS/CPU,
 # rootless, userns-remap and SELinux-enabled daemons remain untested.
 (( BASH_VERSINFO[0] >= 4 )) || die 'This lesson needs Bash 4 or later.'
-for TOOL in docker python3 jq curl cmp mktemp rm dirname sleep cat; do
+for TOOL in python3 jq curl cmp mktemp rm dirname sleep cat; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
 done
+die_if_not_docker_available
 COMPOSE_VERSION=$(docker compose version --short)
 if [[ $COMPOSE_VERSION =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
   (( BASH_REMATCH[1] > 2 || (BASH_REMATCH[1] == 2 && (BASH_REMATCH[2] > 32 || (BASH_REMATCH[2] == 32 && BASH_REMATCH[3] >= 2))) )) || die 'Install Compose plugin 2.32.2+ before this lesson.'
@@ -47,16 +48,13 @@ else
   die "Cannot identify Compose plugin version: $COMPOSE_VERSION"
 fi
 printf 'Compose plugin version: %s (minimum 2.32.2).\n' "$COMPOSE_VERSION"
-docker info >/dev/null
 docker buildx version >/dev/null
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
 BASE=almalinux:10-minimal
 EXISTING=$(docker image ls --quiet "$BASE")
 if [[ -n $EXISTING ]]; then
-  BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-  [[ $BASE_ARCH == "$NATIVE_ARCH" ]] || die "Base architecture $BASE_ARCH differs from daemon $NATIVE_ARCH."
+  die_if_image_not_native "$BASE"
 fi
 PORT=8084
 if ! python3 - "$PORT" <<'PYPORT'
@@ -123,8 +121,7 @@ assert_empty_project() {
   else
     [[ -z $IMAGE_ID ]] || { echo 'ERROR: Built image disappeared before setup.' >&2; return 1; }
   fi
-  ids=$(docker container ls --all --quiet --filter "name=^/$PROJECT-web-1$") || return $?
-  [[ -z $ids ]] || { echo 'ERROR: Generated service container name already exists; inspect it first.' >&2; return 1; }
+  die_if_docker_container_exists "$PROJECT-web-1"
   ids=$(docker network ls --quiet --filter "name=^${PROJECT}_default$") || return $?
   [[ -z $ids ]] || { echo 'ERROR: Generated default network name already exists; inspect it first.' >&2; return 1; }
 }
@@ -296,7 +293,7 @@ CONFIG=$(COMPOSE24_MESSAGE='Shell override' compose config --format json)
 printf '%s\n' "$CONFIG"
 jq -e '.services.web.environment == {"LESSON": "Shell override"}' <<<"$CONFIG" >/dev/null
 echo 'Verified default < env file < shell precedence; service commands now use the file value.'
-read -r -p 'Press ENTER to build and start this Compose project...'
+read -r -p 'Press ENTER to continue...'
 assert_empty_project
 # BuildKit resolves the native FROM into its cache. We do not explicitly
 # pull/tag the shared base; existing base tags are checked and left alone.
@@ -306,8 +303,7 @@ assert_empty_project
 cleanup_add compose-image remove_image
 compose build web
 IMAGE_ID=$(docker image inspect --format '{{.Id}}' "$IMAGE")
-BUILT_ARCH=$(docker image inspect --format '{{.Architecture}}' "$IMAGE")
-[[ $BUILT_ARCH == "$NATIVE_ARCH" ]] || die "Built architecture $BUILT_ARCH differs from daemon $NATIVE_ARCH."
+die_if_image_not_native "$IMAGE"
 cleanup_add compose-project cleanup_project
 # A build can take time. Recheck runtime names/project membership and the
 # recorded built-image ID/owner immediately before up, without reusing any
@@ -387,7 +383,7 @@ ONEOFFS=$(docker container ls --all --quiet --filter "label=com.docker.compose.p
 [[ -z $ONEOFFS ]] || die 'Disposable run container was not removed.'
 echo 'Verified exec retained its marker; run --rm used a separate container and removed it.'
 printf 'Inspect http://127.0.0.1:%s/ on this host.\n' "$PORT"
-read -r -p 'Press ENTER to compare stop, start and down...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. stop halts the service but retains its container and default network.
 verify_project
@@ -404,7 +400,7 @@ SAME_ID=$(compose ps --all --quiet web)
 compose exec -T web test -e /tmp/exec-marker
 verify_http
 echo 'Observed start: same container and marker retained; HTTP service ready again.'
-read -r -p 'Press ENTER to remove this Compose project...'
+read -r -p 'Press ENTER to continue...'
 
 # down removes service containers/default network, but not the built image.
 # No volumes are used here. Normally named/anonymous volumes remain; down

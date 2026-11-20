@@ -35,29 +35,22 @@ echo '17-docker-inspect: inspect images, containers and networks'
 # No ports, host mounts or firewall changes are needed. Only native arm64
 # on rootful Docker was tested; other architectures/daemon modes are untested.
 # Check jq BEFORE pulling/building; install missing tools yourself first.
-for TOOL in docker jq dirname sleep timeout; do
+for TOOL in jq dirname sleep timeout; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
 done
-docker info >/dev/null
+die_if_not_docker_available
 docker buildx version >/dev/null
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
 IMAGE=docker-basics-nginx
 NETWORK=docker-basics-inspect-network
 NETWORK_ID=
 BASE=almalinux:10-minimal
 RUN_TOKEN="inspect-$$-$RANDOM"
 OWNER_LABEL=io.github.svepa.docker-basics.inspect-run
-EXISTING=$(docker image ls --quiet "$IMAGE:latest")
-[[ -z $EXISTING ]] || die "Image name $IMAGE already exists." \
-  "Inspect it with docker image inspect $IMAGE before removing an unwanted tag."
+die_if_docker_image_exists "$IMAGE:latest"
 # The second container deliberately shares the image's name for section 4.
-for NAME in nginx-test-container "$IMAGE"; do
-  EXISTING=$(docker container ls --all --quiet --filter "name=^/$NAME$")
-  [[ -z $EXISTING ]] || die "Container name $NAME already exists." \
-    "Inspect it with docker container inspect $NAME before removing it."
-done
+die_if_docker_container_exists nginx-test-container "$IMAGE"
 
 EXISTING=$(docker network ls --quiet --filter "name=^$NETWORK$")
 [[ -z $EXISTING ]] || die "Network name $NETWORK already exists." \
@@ -102,16 +95,8 @@ remove_owned_image() {
   fi
   docker image rm "$tag" || return $?
 }
-BASE_CREATED=no
-EXISTING=$(docker image ls --quiet "$BASE")
-if [[ -z $EXISTING ]]; then
-  cleanup_add inspect-base remove_owned_image "$BASE"
-  BASE_CREATED=yes
-  docker image pull "$BASE"
-fi
-BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-[[ $BASE_ARCH == "$NATIVE_ARCH" ]] || die "Base architecture $BASE_ARCH differs from daemon architecture $NATIVE_ARCH."
-echo "Verified native base architecture: $BASE_ARCH"
+pull_image_if_absent "$BASE"
+die_if_image_not_native "$BASE"
 
 # 1. Build an image with labels, then inspect its complete JSON metadata
 # --tag assigns a local name (latest is the default tag). The last argument
@@ -153,7 +138,7 @@ docker image inspect "$IMAGE" | jq -e '
   (.[0].Config.Labels["org.opencontainers.image.description"] | contains("nginx"))
 ' >/dev/null
 echo 'Verified image command, exposed port, stop signal and description label.'
-read -r -p 'Press ENTER to start nginx and inspect its runtime state...'
+read -r -p 'Press ENTER to continue...'
 
 # Register the future network before either container: reverse cleanup must
 # remove their endpoints before the network, even if interrupted in section 5.
@@ -214,7 +199,7 @@ docker image inspect "$IMAGE" | jq -e '.[0].Config.Labels | has("inspection.exam
 CURRENT_IMAGE_CONFIG=$(docker image inspect --format '{{json .Config}}' "$IMAGE")
 [[ $CURRENT_IMAGE_CONFIG == "$IMAGE_CONFIG" ]] || die 'Image configuration changed unexpectedly.'
 echo 'Verified container-only label; image configuration is unchanged.'
-read -r -p 'Press ENTER to stop nginx and compare its runtime state...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. Stop the same container and compare the runtime fields
 # stop uses the image's SIGQUIT. wait returns the process exit status; the
@@ -248,7 +233,7 @@ SELECTED_CONTAINER=$(docker inspect --type=container --format '{{.Id}}' "$IMAGE"
    $SELECTED_IMAGE != "$SELECTED_CONTAINER" ]] || die 'Resource-type disambiguation did not select the expected IDs.'
 printf 'Explicit image ID: %s\nExplicit container ID: %s\n' "$SELECTED_IMAGE" "$SELECTED_CONTAINER"
 echo 'Verified --type disambiguation and explicit subcommand selection.'
-read -r -p 'Press ENTER to create a network and inspect its metadata...'
+read -r -p 'Press ENTER to continue...'
 
 # 5. Inspect a network's configuration and its current endpoint membership
 # Create our own bridge instead of changing the daemon's built-in bridge.
@@ -300,7 +285,7 @@ docker container inspect "$ID" | jq -e --arg network "$NETWORK" --arg id "$NETWO
   (.[0].NetworkSettings.Networks[$network].IPAddress | length) > 0
 ' >/dev/null
 echo 'Verified live endpoint membership in both network and container inspection.'
-read -r -p 'Press ENTER to remove the inspection examples...'
+read -r -p 'Press ENTER to continue...'
 
 # 6. Visible cleanup removes only this run's containers, network and image tags
 # Remove containers before their network and image. Keep fallbacks until
@@ -316,10 +301,7 @@ cleanup_cancel inspect-network
 echo 'Verified endpoints removed before owned network removal.'
 remove_owned_image "$IMAGE:latest"
 cleanup_cancel inspect-image
-if [[ $BASE_CREATED == yes ]]; then
-  remove_owned_image "$BASE"
-  cleanup_cancel inspect-base
-fi
+remove_pulled_image "$BASE"
 echo 'Lesson complete; owned inspection resources removed.'
 # SIGKILL cannot run traps; a killed Docker client can leave a container.
 # Inspect suspected leftovers first:

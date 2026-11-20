@@ -37,10 +37,10 @@ echo '14-docker-build-postgres-manual: initialize and start PostgreSQL manually'
 # database packages alone starts neither a cluster nor a database server.
 # No bind mounts: host SELinux labels do not apply. Other distributions,
 # CPUs, rootless/userns-remap and SELinux-enabled daemons are untested.
-for TOOL in cat docker curl sha256sum ss uname mktemp cp rm mkdir dirname sleep; do
+for TOOL in cat curl sha256sum ss uname mktemp cp rm mkdir dirname sleep; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
 done
-docker info >/dev/null
+die_if_not_docker_available
 docker buildx version >/dev/null
 CPU_ARCHITECTURE=$(uname -m)
 case $CPU_ARCHITECTURE in
@@ -51,10 +51,8 @@ esac
 DAEMON_ARCH=$(docker version --format '{{.Server.Arch}}')
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_ARCH == "$ARCH_SUFFIX" && $DAEMON_OS == linux ]] || die 'Use a local Linux daemon matching the host CPU.'
-EXISTING=$(docker image ls --quiet postgres-manual)
-[[ -z $EXISTING ]] || die 'Image name postgres-manual already exists. Inspect it with docker image ls postgres-manual.'
-EXISTING=$(docker container ls --all --quiet --filter 'name=^/postgres-manual-test$')
-[[ -z $EXISTING ]] || die 'Container name postgres-manual-test already exists. Inspect it with docker container inspect postgres-manual-test.'
+die_if_docker_image_exists postgres-manual
+die_if_docker_container_exists postgres-manual-test
 LISTENERS=$(ss --tcp --listening --no-header 'sport = :5432')
 [[ -z $LISTENERS ]] || die 'Host port 5432 is occupied; inspect its owner without stopping it.'
 
@@ -93,15 +91,8 @@ fi
 printf '%s  %s\n' "$GOSU_SHA" "$GOSU" | sha256sum --check
 
 # 2. Build PGDG's PG16 package layout, without obsolete EL9 module commands.
-EXISTING=$(docker image ls --quiet almalinux:10-minimal)
-if [[ -z $EXISTING ]]; then
-  # Register before pull: an interrupted pull may have acquired the tag.
-  cleanup_add postgres-base remove_owned_image almalinux:10-minimal
-  docker image pull almalinux:10-minimal
-fi
-BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' almalinux:10-minimal)
-[[ $BASE_ARCH == "$ARCH_SUFFIX" ]] || die "Base architecture $BASE_ARCH differs from host $ARCH_SUFFIX."
-echo "Verified native base architecture: $BASE_ARCH"
+pull_image_if_absent almalinux:10-minimal
+die_if_image_not_native almalinux:10-minimal
 cleanup_add postgres-image remove_owned_image postgres-manual
 docker image build --tag postgres-manual --build-arg "ARCH_SUFFIX=$ARCH_SUFFIX" "$CONTEXT"
 echo 'PostgreSQL image built; CMD is a shell, no database server yet.'
@@ -128,9 +119,9 @@ initialization stages; debug output never prints the password. For example:
   DOCKER_POSTGRES_DEBUG=1 /usr/local/bin/setup-postgres.sh
 or export DOCKER_POSTGRES_DEBUG=1 before manually invoking setup-postgres.sh.
 INSTRUCTIONS
-read -r -p 'Press ENTER to inspect the uninitialized container shell...'
+read -r -p 'Press ENTER to continue...'
 docker container exec --interactive --tty --env 'PS1=manual-postgres> ' "$CONTAINER_ID" /bin/bash --norc
-read -r -p 'Press ENTER to initialize the database manually...'
+read -r -p 'Press ENTER to continue...'
 # bash mode initializes without leaving the server running. With stdin
 # closed its inspection shell exits immediately; interactive callers can
 # inspect the initialized files before starting the server themselves.
@@ -176,7 +167,7 @@ setup-postgres.sh also accepts postgres flags, --version, --describe-config,
 custom POSTGRES_USER/DB, PGDATA, POSTGRES_DIST_DIR, POSTGRES_INITDB_ARGS,
 POSTGRES_INITDB_WALDIR and POSTGRES_HOST_AUTH_METHOD. See its help.
 CLIENT
-read -r -p 'Press ENTER to stop PostgreSQL and remove lesson resources...'
+read -r -p 'Press ENTER to continue...'
 # Stop the exec-started server explicitly before stopping PID1 (bash).
 docker container exec "$CONTAINER_ID" gosu postgres pg_ctl -D /var/lib/pgsql/16/data -m fast -w -t 30 stop
 docker container stop "$CONTAINER_ID"

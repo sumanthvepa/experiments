@@ -39,13 +39,11 @@ echo '13-docker-build-flask: build and query a Flask application'
 # SELinux-enabled daemons were not tested; only native arm64 was tested.
 # Dockerfile details build on lessons 08 (COPY/context), 09 (CMD/exec),
 # and 12 (AlmaLinux Python). This lesson adds a venv and HTTP service.
-for TOOL in docker curl jq sleep dirname; do
+for TOOL in curl jq sleep dirname; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
 done
-docker info >/dev/null
-EXISTING=$(docker container ls --all --quiet --filter 'name=^/flask-test$')
-[[ -z $EXISTING ]] || die 'Container name flask-test already exists.' \
-  'Inspect it with docker container inspect flask-test before removing it.'
+die_if_not_docker_available
+die_if_docker_container_exists flask-test
 
 # 1. Build the application
 # Read flask-test/Dockerfile: install Python, create an unprivileged user
@@ -57,7 +55,7 @@ EXISTING=$(docker container ls --all --quiet --filter 'name=^/flask-test$')
 # The helper refuses existing image tags and preserves an existing base.
 echo 'Building flask-test from its Dockerfile...'
 build_flask_test_image
-read -r -p 'Press ENTER to start the Flask container...'
+read -r -p 'Press ENTER to continue...'
 
 # 2. Start and query the service
 # --publish 127.0.0.1:5000:5000 maps host loopback port to container port.
@@ -67,7 +65,7 @@ read -r -p 'Press ENTER to start the Flask container...'
 # fixed startup sleep. curl --fail rejects HTTP errors; jq checks JSON.
 echo 'Starting Flask on http://127.0.0.1:5000/ ...'
 run_flask_test_container flask-test 5000
-read -r -p 'Press ENTER to query the Flask API...'
+read -r -p 'Press ENTER to continue...'
 RESPONSE=$(curl --noproxy '*' --fail --silent --show-error \
   --connect-timeout 1 --max-time 2 http://127.0.0.1:5000/)
 printf '%s\n' "$RESPONSE"
@@ -79,7 +77,7 @@ echo 'The API returned the expected JSON object.'
 # wait prints the exit status, then rm removes the stopped container.
 # The image tag follows the container, and a newly pulled base follows
 # the derived image. Build cache may remain; pre-existing images remain.
-read -r -p 'Press ENTER to remove the Flask container and image...'
+read -r -p 'Press ENTER to continue...'
 stop_and_remove_flask_test_container
 remove_flask_owned_image flask-test
 cleanup_cancel flask-image

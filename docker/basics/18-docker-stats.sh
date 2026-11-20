@@ -42,15 +42,13 @@ echo '18-docker-stats: interpret and stream metrics for one Flask container'
 # can expose different metrics. This lesson requires usable Linux stats.
 
 # 1. Build and verify the service independently of lesson 13
-command -v docker >/dev/null || die 'This lesson needs docker.'
+die_if_not_docker_available
 # Existing flask-test tags and stats-test containers are conflicts, never
 # resources to replace. Check the container name before even building.
-EXISTING=$(docker container ls --all --quiet --filter 'name=^/stats-test$')
-[[ -z $EXISTING ]] || die 'Container name stats-test already exists.' \
-  'Inspect it with docker container inspect stats-test before removing it.'
+die_if_docker_container_exists stats-test
 echo 'Building our own Flask image; existing images are preserved...'
 build_flask_test_image
-read -r -p 'Press ENTER to start the Flask container...'
+read -r -p 'Press ENTER to continue...'
 run_flask_test_container stats-test 5000
 ID=$FLASK_CONTAINER_ID
 echo "Owned stats container: $ID"
@@ -74,7 +72,7 @@ require_running() {
 # --all (-a) broadens that selection to stopped containers too. Keep those
 # broader views as reader variations, so unrelated workloads stay outside
 # this lesson. Names or IDs can be supplied for one or several containers.
-read -r -p 'Press ENTER to sample the owned container...'
+read -r -p 'Press ENTER to continue...'
 require_running
 echo 'One default-table sample, scoped to the owned ID:'
 docker container stats --no-stream --no-trunc "$ID"
@@ -127,7 +125,7 @@ echo 'Verified one metrics row with owned identity, memory and running tasks.'
 # a later Ctrl-C still aborts the lesson and invokes its EXIT cleanup.
 # Record that SIGINT actually arrived: status 0/130 alone must not turn
 # an unrelated client failure or unexpected end into successful teaching.
-read -r -p 'Press ENTER to stream the owned container; Ctrl-C once after a data row...'
+read -r -p 'Press ENTER to continue, then press Ctrl-C once after a data row...'
 require_running
 SAVED_INT_TRAP=$(trap -p INT)
 STREAM_INTERRUPTED=no
@@ -145,7 +143,7 @@ fi
 require_running
 wait_for_flask_test_http "$ID" 5000
 echo 'Verified stats stream ended; owned Flask service still running and serving HTTP.'
-read -r -p 'Press ENTER to stop the service and clean up...'
+read -r -p 'Press ENTER to continue...'
 
 # 4. Visible cleanup
 # Stats has no retained history for a stopped container. Some versions
@@ -157,14 +155,7 @@ stop_and_remove_flask_test_container "$ID"
 echo 'Removing the image built by this run...'
 remove_flask_owned_image flask-test
 cleanup_cancel flask-image
-# If the build pulled its base, remove only that added tag as well.
-for KEY in "${CLEANUP_KEYS[@]}"; do
-  if [[ $KEY == flask-base ]]; then
-    echo 'Removing the base image pulled by this run...'
-    remove_flask_owned_image almalinux:10-minimal
-    cleanup_cancel flask-base
-  fi
-done
+remove_pulled_image almalinux:10-minimal
 echo 'Lesson complete; owned container and added images removed.'
 # EXIT also cleans up failures/signals. SIGKILL/power loss cannot run it;
 # inspect possible leftovers before removing resources you still need:

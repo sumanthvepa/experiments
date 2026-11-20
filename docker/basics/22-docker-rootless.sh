@@ -36,10 +36,10 @@ echo '22-docker-rootless: Docker access, USER and gosu process identity'
 # rootful Docker was tested; amd64 and other daemon/OS modes are untested.
 # Container-local numeric IDs avoid host user, UID mapping and SELinux
 # bind-mount assumptions; lesson 06 owns the bind-mount examples.
-for TOOL in docker timeout sha256sum cp mktemp rm dirname sleep; do
+for TOOL in timeout sha256sum cp mktemp rm dirname sleep; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
 done
-docker info >/dev/null
+die_if_not_docker_available
 docker buildx version >/dev/null
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
@@ -57,14 +57,8 @@ RUN_TOKEN="identity-$$-$RANDOM"
 BASE_ID=
 BASE_CREATED=no
 declare -A CONTAINER_IDS=() IMAGE_IDS=()
-for IMAGE in "$USER_IMAGE" "$GOSU_IMAGE"; do
-  EXISTING=$(docker image ls --quiet "$IMAGE:latest")
-  [[ -z $EXISTING ]] || die "Image name $IMAGE already exists." \
-    "Inspect with docker image inspect $IMAGE before removing an unwanted tag."
-  EXISTING=$(docker container ls --all --quiet --filter "name=^/$IMAGE$")
-  [[ -z $EXISTING ]] || die "Container name $IMAGE already exists." \
-    "Inspect with docker container inspect $IMAGE before removing it."
-done
+die_if_docker_image_exists "$USER_IMAGE:latest" "$GOSU_IMAGE:latest"
+die_if_docker_container_exists "$USER_IMAGE" "$GOSU_IMAGE"
 
 # Arguments: container name. Prefer the returned immutable ID, with exact
 # name plus this run's label as a fallback during create/ID handoff.
@@ -103,9 +97,7 @@ if [[ -z $EXISTING ]]; then
   timeout --foreground 300 docker image pull "$BASE"
 fi
 BASE_ID=$(docker image inspect --format '{{.Id}}' "$BASE")
-BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-[[ $BASE_ARCH == "$NATIVE_ARCH" ]] || die "Base architecture $BASE_ARCH differs from daemon architecture $NATIVE_ARCH."
-echo "Verified native base architecture: $BASE_ARCH"
+die_if_image_not_native "$BASE"
 
 # Access to a rootful Docker daemon
 
@@ -161,7 +153,7 @@ for TARGET in direct-user initialized-gosu; do
     --label "$OWNER_LABEL=$RUN_TOKEN" "$SCRATCH"
   IMAGE_IDS[$IMAGE:latest]=$(docker image inspect --format '{{.Id}}' "$IMAGE:latest")
 done
-read -r -p 'Press ENTER to compare USER and root-owned directory permissions...'
+read -r -p 'Press ENTER to continue...'
 
 # Arguments: image/container name, mode (direct or gosu). Register before
 # create, save its returned ID, start, then wait at most 30 one-second
@@ -223,7 +215,7 @@ docker container exec "$USER_ID" bash -ec '
   test "$(stat --format=%u:%g:%a /demo/prepared)" = 10001:10001:700
   test "$(stat --format=%u:%g:%a /demo/runtime)" = 0:0:700'
 echo 'Verified USER: non-root PID 1 writes prepared data and cannot initialize root-owned data.'
-read -r -p 'Press ENTER to initialize as root and execute the application with gosu...'
+read -r -p 'Press ENTER to continue...'
 
 # 2. Root initialization followed by exec gosu.
 # The image defaults to 0:0 so its entrypoint can create a root-owned seed
@@ -249,7 +241,7 @@ docker container exec --user 10001:10001 "$GOSU_ID" bash -ec '
   test "$(stat --format=%u:%g /demo/runtime/seed)" = 10001:10001'
 echo 'Verified gosu: root initialized data, then non-root PID 1 wrote it successfully.'
 echo 'These container process demonstrations do not test or configure a rootless daemon.'
-read -r -p 'Press ENTER to remove the identity examples...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. Visible cleanup. Fallbacks remain registered until each removal succeeds.
 for IMAGE in "$GOSU_IMAGE" "$USER_IMAGE"; do

@@ -35,27 +35,21 @@ echo '20-docker-build-website: package and serve a static nginx website'
 # No host packages, mounts or credentials are needed. Only native arm64
 # on rootful Docker was tested; other OS/CPU/daemon modes are untested.
 # COPY avoids host bind-mount ownership/SELinux relabelling concerns.
-for TOOL in docker curl cmp python3 mktemp rm dirname sleep; do
+for TOOL in curl cmp python3 mktemp rm dirname sleep; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
 done
-docker info >/dev/null
+die_if_not_docker_available
 docker buildx version >/dev/null
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
 IMAGE=website-test
 BASE=almalinux:10-minimal
 WEBSITE_PORT=8080
 OWNER_LABEL=io.github.svepa.docker-basics.website-run
 RUN_TOKEN="website-$$-$RANDOM"
 ID=
-BASE_ID=
-EXISTING=$(docker image ls --quiet "$IMAGE:latest")
-[[ -z $EXISTING ]] || die "Image name $IMAGE already exists." \
-  "Inspect it with docker image inspect $IMAGE before removing an unwanted tag."
-EXISTING=$(docker container ls --all --quiet --filter "name=^/$IMAGE$")
-[[ -z $EXISTING ]] || die "Container name $IMAGE already exists." \
-  "Inspect it with docker container inspect $IMAGE before removing it."
+die_if_docker_image_exists "$IMAGE:latest"
+die_if_docker_container_exists "$IMAGE"
 # Check the chosen loopback port without touching a listener. Docker start
 # also checks it, covering a listener appearing after this preflight.
 if ! python3 - "$WEBSITE_PORT" <<'PYPORT'
@@ -84,29 +78,17 @@ remove_owned_container() {
   docker container rm --force "$existing" || return $?
 }
 remove_owned_image() {
-  local tag=$1 existing owner current_id
+  local tag=$1 existing owner
   existing=$(docker image ls --quiet "$tag") || return $?
   [[ -n $existing ]] || return 0
   if [[ $tag == "$IMAGE:latest" ]]; then
     owner=$(docker image inspect --format "{{index .Config.Labels \"$OWNER_LABEL\"}}" "$tag") || return $?
     [[ $owner == "$RUN_TOKEN" ]] || { echo "Refusing to remove changed image $tag." >&2; return 1; }
-  elif [[ -n $BASE_ID ]]; then
-    current_id=$(docker image inspect --format '{{.Id}}' "$tag") || return $?
-    [[ $current_id == "$BASE_ID" ]] || { echo "Refusing to remove changed base $tag." >&2; return 1; }
   fi
   docker image rm "$tag" || return $?
 }
-BASE_CREATED=no
-EXISTING=$(docker image ls --quiet "$BASE")
-if [[ -z $EXISTING ]]; then
-  cleanup_add website-base remove_owned_image "$BASE"
-  BASE_CREATED=yes
-  docker image pull "$BASE"
-fi
-BASE_ID=$(docker image inspect --format '{{.Id}}' "$BASE")
-BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-[[ $BASE_ARCH == "$NATIVE_ARCH" ]] || die "Base architecture $BASE_ARCH differs from daemon architecture $NATIVE_ARCH."
-echo "Verified native base architecture: $BASE_ARCH"
+pull_image_if_absent "$BASE"
+die_if_image_not_native "$BASE"
 
 # 1. Package local content in an image (build basics are in lesson 08).
 # The final argument is the build context. COPY reads paths relative to it,
@@ -118,7 +100,7 @@ echo "Verified native base architecture: $BASE_ARCH"
 cleanup_add website-image remove_owned_image "$IMAGE:latest"
 echo 'Building website-test from ./website-test...'
 docker image build --tag "$IMAGE:latest" --label "$OWNER_LABEL=$RUN_TOKEN" ./website-test
-read -r -p 'Press ENTER to serve the packaged website...'
+read -r -p 'Press ENTER to continue...'
 
 # 2. Run nginx as PID 1 in the foreground (CMD daemon off;). EXPOSE only
 # documents port 80; --publish (-p) maps host 127.0.0.1:8080 to container 80.
@@ -170,7 +152,7 @@ HTTP_STATUS=$(curl --noproxy '*' --silent --show-error --connect-timeout 1 \
 cmp website-test/style.css "$SCRATCH/style.css"
 echo 'Verified referenced stylesheet: HTTP 200 and exact packaged style.css content.'
 printf 'Open %s/ in a browser on this host.\n' "$URL"
-read -r -p 'Press ENTER to remove the website examples...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. Visible cleanup, with registered fallbacks until each step succeeds.
 docker container stop "$ID"
@@ -178,10 +160,7 @@ remove_owned_container
 cleanup_cancel website-container
 remove_owned_image "$IMAGE:latest"
 cleanup_cancel website-image
-if [[ $BASE_CREATED == yes ]]; then
-  remove_owned_image "$BASE"
-  cleanup_cancel website-base
-fi
+remove_pulled_image "$BASE"
 rm --recursive --force -- "$SCRATCH"
 cleanup_cancel website-files
 echo 'Lesson complete; owned website resources removed.'

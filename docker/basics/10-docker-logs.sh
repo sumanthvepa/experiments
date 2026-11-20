@@ -33,16 +33,14 @@ echo '10-docker-logs: retrieve, filter and follow container output'
 # Docker access may require sudo. No ports, host mounts or host settings
 # change; rootless Docker needs no bridge-network or mount workaround.
 # All commands run on the host; bash -c below runs INSIDE the container.
-for TOOL in docker date mktemp rm cat sleep; do
+for TOOL in date mktemp rm cat sleep; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
 done
+die_if_not_docker_available
 date --date='2000-01-01T00:00:00.000000001Z' +%s%N >/dev/null
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
-EXISTING=$(docker container ls --all --quiet --filter 'name=^/docker-basics-logs$')
-[[ -z $EXISTING ]] || die 'Container name docker-basics-logs already exists.' \
-  'Inspect it with docker container inspect docker-basics-logs before removing it.'
+die_if_docker_container_exists docker-basics-logs
 
 # 1. Output and logging drivers
 # docker container logs (short alias: docker logs) retrieves captured
@@ -62,28 +60,8 @@ echo "Daemon default logging driver: $DEFAULT_DRIVER"
 # Driver selection/rotation administration and external collection are
 # further study: do not edit daemon.json or Docker-managed log files here.
 BASE='almalinux:10-minimal'
-BASE_CREATED=no
-# On a failed pull, remove a tag added by that attempt too. Cleanup
-# functions check failures explicitly because the EXIT helper calls them
-# in a conditional, where Bash does not apply set -e within the function.
-remove_added_base() {
-  local image
-  image=$(docker image ls --quiet "$BASE") || return $?
-  if [[ -n $image ]]; then
-    docker image rm "$BASE" || return $?
-  fi
-  return 0
-}
-EXISTING=$(docker image ls --quiet "$BASE")
-if [[ -z $EXISTING ]]; then
-  cleanup_add base-image remove_added_base
-  BASE_CREATED=yes
-  docker image pull "$BASE"
-fi
-BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-[[ $BASE_ARCH == "$NATIVE_ARCH" ]] || \
-  die "Base architecture $BASE_ARCH differs from daemon architecture $NATIVE_ARCH."
-echo "Verified native base architecture: $BASE_ARCH"
+pull_image_if_absent "$BASE"
+die_if_image_not_native "$BASE"
 SCRATCH=$(mktemp --directory --tmpdir docker-basics-logs.XXXXXX)
 cleanup_add scratch rm -r -- "$SCRATCH"
 echo "Temporary capture directory: $SCRATCH"
@@ -138,7 +116,7 @@ wait_for_marker() {
 }
 wait_for_marker EARLY_STDOUT
 wait_for_marker EARLY_STDERR
-read -r -p 'Press ENTER to retrieve stdout and stderr...'
+read -r -p 'Press ENTER to continue...'
 
 # 2. Full retrieval and what is absent
 # Without --follow, logs prints the retained records and returns. On a
@@ -229,7 +207,7 @@ echo 'Verified timestamps, tail and since include late markers and exclude early
 # temporarily ignore the script's INT while the foreground client handles
 # it, then restore the cleanup helper's normal Ctrl-C behavior immediately.
 echo 'Follow fresh LIVE markers, then press Ctrl-C to continue the lesson.'
-read -r -p 'Press ENTER to follow new output...'
+read -r -p 'Press ENTER to continue...'
 docker container exec "$ID" touch /tmp/follow
 trap ':' INT
 FOLLOW_STATUS=0
@@ -241,7 +219,7 @@ STATE=$(docker container inspect --format '{{.State.Running}}' "$ID")
 docker container exec "$ID" touch /tmp/after-follow
 wait_for_marker AFTER_FOLLOW_MAIN
 echo 'Verified container still running and main process produced AFTER_FOLLOW_MAIN.'
-read -r -p 'Press ENTER to stop the container and read retained logs...'
+read -r -p 'Press ENTER to continue...'
 
 # stop asks the main process to exit (TERM here), then kills it if its
 # timeout expires. Our trap prints a final marker and exits normally.
@@ -257,7 +235,7 @@ for MARKER in EARLY_STDOUT EARLY_STDERR LATE_STDOUT LATE_STDERR LIVE_STDOUT_ LIV
 done
 [[ $STOPPED != *APP_FILE_ONLY* && $STOPPED != *EXEC_ATTACHMENT_ONLY* ]] || die 'File/exec output entered retained logs.'
 echo 'Verified retained logs remain readable after a clean container stop.'
-read -r -p 'Press ENTER to remove the owned resources...'
+read -r -p 'Press ENTER to continue...'
 
 # 5. Visible cleanup
 # Remove only the id this run owns; then its captures and an added base.
@@ -268,11 +246,7 @@ cleanup_cancel logs-container
 echo 'Removing temporary host captures...'
 rm -r -- "$SCRATCH"
 cleanup_cancel scratch
-if [[ $BASE_CREATED == yes ]]; then
-  echo "Removing base image pulled by this run: $BASE"
-  docker image rm "$BASE"
-  cleanup_cancel base-image
-fi
+remove_pulled_image "$BASE"
 echo 'Lesson complete; owned container, added base and temporary captures removed.'
 # A killed client can leave its container alive. EXIT cleanup handles
 # ordinary errors/signals, but cannot handle SIGKILL or power loss.

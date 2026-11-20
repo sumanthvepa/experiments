@@ -103,12 +103,11 @@ download_gosu_binary() {
 # Each shell builds once; it owns a context, derived tag and optional base.
 download_and_build_postgres_test_image() {
   local tag=${1:-postgres-test} name=${2:-postgres-test-test}
-  local tool existing daemon_arch daemon_os base_arch
-  for tool in docker curl sha256sum uname mktemp cp rm mkdir dirname sleep; do
+  local tool daemon_arch daemon_os
+  for tool in curl sha256sum uname mktemp cp rm mkdir dirname sleep; do
     command -v "$tool" >/dev/null || { echo "This lesson needs $tool." >&2; return 1; }
   done
   [[ -z ${POSTGRES_TEST_BUILD_CONTEXT:-} ]] || { echo 'This shell already prepared a PostgreSQL build.' >&2; return 1; }
-  docker info >/dev/null || return $?
   docker buildx version >/dev/null || return $?
   postgres_test_architecture || return $?
   daemon_arch=$(docker version --format '{{.Server.Arch}}') || return $?
@@ -116,24 +115,16 @@ download_and_build_postgres_test_image() {
   [[ $daemon_os == linux && $daemon_arch == "$ARCH_SUFFIX" ]] || {
     echo 'Use a local Linux daemon matching the host CPU.' >&2; return 1;
   }
-  existing=$(docker image ls --quiet "$tag") || return $?
-  [[ -z $existing ]] || { echo "Image name $tag already exists. Inspect it with docker image ls $tag." >&2; return 1; }
-  existing=$(docker container ls --all --quiet --filter "name=^/$name$") || return $?
-  [[ -z $existing ]] || { echo "Container name $name already exists. Inspect it with docker container inspect $name." >&2; return 1; }
+  die_if_docker_image_exists "$tag"
+  die_if_docker_container_exists "$name"
   POSTGRES_TEST_BUILD_CONTEXT=$(mktemp --directory --tmpdir docker-basics-postgres-test.XXXXXXXX) || return $?
   cleanup_add postgres-test-context rm -rf -- "$POSTGRES_TEST_BUILD_CONTEXT"
   cp -a "$POSTGRES_TEST_CONTEXT/." "$POSTGRES_TEST_BUILD_CONTEXT/" || return $?
   mkdir -p "$POSTGRES_TEST_BUILD_CONTEXT/$ARCH_SUFFIX" || return $?
   download_postgres_repo_rpm || return $?
   download_gosu_binary || return $?
-  existing=$(docker image ls --quiet almalinux:10-minimal) || return $?
-  if [[ -z $existing ]]; then
-    cleanup_add postgres-test-base remove_postgres_owned_tag almalinux:10-minimal
-    docker image pull almalinux:10-minimal || return $?
-  fi
-  base_arch=$(docker image inspect --format '{{.Architecture}}' almalinux:10-minimal) || return $?
-  [[ $base_arch == "$ARCH_SUFFIX" ]] || { echo "Base architecture $base_arch differs from host $ARCH_SUFFIX." >&2; return 1; }
-  echo "Verified native base architecture: $base_arch"
+  pull_image_if_absent almalinux:10-minimal
+  die_if_image_not_native almalinux:10-minimal
   POSTGRES_TEST_OWNED_IMAGE=$tag
   cleanup_add postgres-test-image remove_postgres_owned_tag "$tag"
   build_postgres_test_image "$tag" || return $?

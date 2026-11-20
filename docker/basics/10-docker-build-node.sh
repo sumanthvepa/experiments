@@ -38,10 +38,10 @@ echo '10-docker-build-node: install Node.js from the NodeSource RPM repository'
 # Other architectures are rejected before resources are created. Rootless,
 # userns-remap and daemon SELinux do not need bind-mount workarounds here,
 # but only the documented rootful arm64 host has been tested.
-for TOOL in docker curl mktemp cp chmod mv rm; do
+for TOOL in curl mktemp cp chmod mv rm; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
 done
-docker info >/dev/null
+die_if_not_docker_available
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
@@ -52,13 +52,8 @@ esac
 
 # Refuse every existing tag of this name: a build would move an existing
 # latest tag. Inspect conflicts first; remove only your own unwanted work.
-EXISTING=$(docker image ls --quiet node-test)
-[[ -z $EXISTING ]] || die 'Image name node-test already exists.' \
-  'Inspect it with docker image ls node-test before docker image rm node-test:TAG.'
-EXISTING=$(docker container ls --all --quiet \
-  --filter 'name=^/docker-basics-node$')
-[[ -z $EXISTING ]] || die 'Container name docker-basics-node already exists.' \
-  'Inspect it with docker container inspect docker-basics-node before removing it.'
+die_if_docker_image_exists node-test
+die_if_docker_container_exists docker-basics-node
 
 # 1. Prepare the build context
 # This repository-install approach lets RPM resolve Node's shared-library
@@ -103,20 +98,9 @@ mv "$CONTEXT/installer.part" "$CONTEXT/$SETUP_SCRIPT_FILENAME"
 echo "Prepared complete NodeSource installer for Node.js $NODEJS_MAJOR_VERSION."
 
 # 2. Build using a native base
-# Explicitly pull only an absent base and register its removal before the
-# build can fail. Existing bases stay untouched; build cache may remain.
 BASE='almalinux:10-minimal'
-BASE_CREATED=no
-EXISTING=$(docker image ls --quiet "$BASE")
-if [[ -z $EXISTING ]]; then
-  docker image pull "$BASE"
-  cleanup_add base-image docker image rm "$BASE"
-  BASE_CREATED=yes
-fi
-BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-[[ $BASE_ARCH == "$NATIVE_ARCH" ]] || \
-  die "Base architecture $BASE_ARCH differs from daemon architecture $NATIVE_ARCH."
-echo "Verified native base architecture: $BASE_ARCH"
+pull_image_if_absent "$BASE"
+die_if_image_not_native "$BASE"
 # --tag assigns node-test:latest. --build-arg supplies the Dockerfile ARG;
 # the last argument is the context whose files COPY can read (lesson 08).
 # The installer configures a repository INSIDE the image, then microdnf
@@ -125,7 +109,7 @@ echo "Building node-test with Node.js major $NODEJS_MAJOR_VERSION..."
 docker image build --tag node-test \
   --build-arg "NODEJS_MAJOR_VERSION=$NODEJS_MAJOR_VERSION" "$CONTEXT"
 cleanup_add node-image docker image rm node-test:latest
-read -r -p 'Press ENTER to verify the Node.js installation...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. Verify the result
 # CMD ["node"] is the default command. Words after the image name replace
@@ -143,17 +127,14 @@ echo "Verified Node.js version: $VERSION (configured major $NODEJS_MAJOR_VERSION
 echo 'Removing the verification container...'
 docker container rm "$ID"
 cleanup_cancel node-container
-read -r -p 'Press ENTER to remove the demonstration image...'
+read -r -p 'Press ENTER to continue...'
 
 # Visible cleanup teaches the commands; keep each fallback armed until its
 # removal succeeds. Remove the owned base after its derived image.
 echo 'Removing node-test:latest...'
 docker image rm node-test:latest
 cleanup_cancel node-image
-if [[ $BASE_CREATED == yes ]]; then
-  docker image rm "$BASE"
-  cleanup_cancel base-image
-fi
+remove_pulled_image "$BASE"
 echo "Removing temporary build context: $CONTEXT"
 rm -r -- "$CONTEXT"
 cleanup_cancel context

@@ -37,6 +37,7 @@ echo '18-docker-save-load: archive and restore a PostgreSQL image'
 for TOOL in tar ls cmp; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
 done
+die_if_not_docker_available
 postgres_test_architecture
 IMAGE_NAME="postgres-test:linux-$ARCH_SUFFIX"
 CONTAINER_NAME=postgres-save-load-test
@@ -46,12 +47,8 @@ IMPORT_IMAGE="postgres-filesystem:linux-$ARCH_SUFFIX"
 
 # Guard every additional fixed name before the builder acquires anything.
 # Conflicts are preserved; inspect them instead of deleting them to rerun.
-for NAME in "$EXPORT_CONTAINER" "$IMPORT_CONTAINER"; do
-  EXISTING=$(docker container ls --all --quiet --filter "name=^/$NAME$")
-  [[ -z $EXISTING ]] || die "Container name $NAME already exists. Inspect it with docker container inspect $NAME."
-done
-EXISTING=$(docker image ls --quiet "$IMPORT_IMAGE")
-[[ -z $EXISTING ]] || die "Image name $IMPORT_IMAGE already exists. Inspect it with docker image inspect $IMPORT_IMAGE."
+die_if_docker_container_exists "$EXPORT_CONTAINER" "$IMPORT_CONTAINER"
+die_if_docker_image_exists "$IMPORT_IMAGE"
 
 # A label unique to our private directory closes the create/import window:
 # even if the client fails before returning an ID, cleanup finds only this
@@ -87,7 +84,7 @@ IMAGE_PLATFORM=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$IMA
 IMAGE_TAGS=$(docker image inspect --format '{{json .RepoTags}}' "$IMAGE_NAME")
 [[ $IMAGE_PLATFORM == "linux/$ARCH_SUFFIX" ]] || die "Unexpected image platform: $IMAGE_PLATFORM"
 printf 'Before save: %s %s %s\n' "$IMAGE_ID" "$IMAGE_PLATFORM" "$IMAGE_TAGS"
-read -r -p 'Press ENTER to save the native image...'
+read -r -p 'Press ENTER to continue...'
 
 # 2. docker save (alias: docker image save) writes image layers, image
 # configuration and selected tags to a tar archive. Naming repo:tag here
@@ -104,7 +101,7 @@ tar --list --file "$TARBALL_NAME" > "$ARCHIVE_DIRECTORY/members.txt"
 sha256sum "$TARBALL_NAME" > "$ARCHIVE_DIRECTORY/archive.sha256"
 ls -lh -- "$TARBALL_NAME"
 echo "Verified nonempty tar archive: $TARBALL_NAME"
-read -r -p 'Press ENTER to remove the saved tag and load the archive...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. Remove only our tag; an image may still have other tags or consumers.
 # A failed removal stops the lesson, rather than claiming a restore test.
@@ -127,7 +124,7 @@ LOADED_TAGS=$(docker image inspect --format '{{json .RepoTags}}' "$IMAGE_NAME")
   die 'Loaded image ID, platform or tags differ from the saved image.'
 printf 'After load: %s %s %s\n' "$LOADED_ID" "$LOADED_PLATFORM" "$LOADED_TAGS"
 docker image ls -a
-read -r -p 'Press ENTER to run PostgreSQL from the restored image...'
+read -r -p 'Press ENTER to continue...'
 
 # 4. A successful load is storage, not proof of CPU compatibility/runtime
 # usability. Start the restored image and verify password-authenticated SQL
@@ -142,7 +139,7 @@ RESULT=$(docker container exec --env PGPASSWORD="$POSTGRES_PASSWORD" "$CONTAINER
   --dbname=postgres --tuples-only --no-align --command 'SELECT current_user, current_database(), 6 * 7;')
 [[ $RESULT == 'postgres|postgres|42' ]] || die "Unexpected restored database result: $RESULT"
 echo "Verified restored PostgreSQL TCP query: $RESULT"
-read -r -p 'Press ENTER to compare a stopped container filesystem...'
+read -r -p 'Press ENTER to continue...'
 
 # Loading foreign-architecture image data does not translate its programs.
 # Running it needs a compatible CPU or configured emulation; support depends
@@ -177,7 +174,7 @@ docker container export --output "$FILESYSTEM_TAR" "$EXPORT_ID"
 tar --extract --to-stdout --file "$FILESYSTEM_TAR" tutorial-filesystem-marker | \
   cmp --silent - <(printf 'filesystem marker: 42\n')
 echo "Verified stopped filesystem archive: $FILESYSTEM_TAR"
-read -r -p 'Press ENTER to import the filesystem under a separate tag...'
+read -r -p 'Press ENTER to continue...'
 
 # import (alias: docker image import) creates a new image from the tar.
 # Supply its tag separately. --change adds only our ownership LABEL here:
@@ -206,7 +203,7 @@ echo 'Verified imported filesystem marker bytes; startup defaults were not trans
 # save/load preserved the original image contract; export/import required
 # a new name and explicit runtime configuration. Archive sizes depend on
 # content/storage; this comparison is not a size benchmark.
-read -r -p 'Press ENTER to remove the restored image and archive...'
+read -r -p 'Press ENTER to continue...'
 
 # 6. Normal cleanup is visible; EXIT/INT/TERM cover earlier failures too.
 docker container rm "$IMPORT_ID"

@@ -26,6 +26,7 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 # Imports die, cleanup_add/cleanup_cancel and owned PostgreSQL build helpers.
 source ./docker-build-postgres-test-utilities.sh
+die_if_not_docker_available
 
 echo '15-docker-build-postgres-test: automate PostgreSQL initialization and startup'
 # Host: bash /path/to/15-docker-build-postgres-test.sh
@@ -51,7 +52,7 @@ echo '15-docker-build-postgres-test: automate PostgreSQL initialization and star
 # verifies the gosu checksum and registers cleanup before pull/build.
 echo 'Building postgres-test from its automated Dockerfile...'
 download_and_build_postgres_test_image
-read -r -p 'Press ENTER to inspect the image startup contract...'
+read -r -p 'Press ENTER to continue...'
 
 # 2. Informational flags bypass initialization
 # Docker appends a replacement CMD to ENTRYPOINT. --version requests a
@@ -94,7 +95,7 @@ echo "Verified automated PostgreSQL TCP query: $RESULT"
 # .sh, .sql, .sql.gz, .sql.xz, .sql.zst files. --describe-config also skips
 # initialization. A completed PGDATA restarts without rerunning init files;
 # this lesson uses disposable container storage, not a persistent volume.
-read -r -p 'Press ENTER to stop PostgreSQL and remove lesson resources...'
+read -r -p 'Press ENTER to continue...'
 
 # 4. Visible normal cleanup; EXIT also covers errors and Ctrl-C
 # exec makes postgres PID1, so Docker's STOPSIGNAL SIGINT reaches it.

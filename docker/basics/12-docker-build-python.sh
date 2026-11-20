@@ -35,21 +35,15 @@ echo '12-docker-build-python: build and try a packaged Python interpreter'
 # Host commands below ask Docker to run Python INSIDE containers. There
 # are no host mounts, published ports or firewall changes. Native image
 # support comes from AlmaLinux; only the recorded arm64 host was tested.
-for TOOL in docker dirname; do
+for TOOL in dirname; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
 done
-docker info >/dev/null
+die_if_not_docker_available
 docker buildx version >/dev/null
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
-EXISTING=$(docker image ls --quiet python-test)
-[[ -z $EXISTING ]] || die 'Image name python-test already exists.' \
-  'Inspect it with docker image ls python-test before removing an unwanted tag.'
-EXISTING=$(docker container ls --all --quiet \
-  --filter 'name=^/docker-basics-python$')
-[[ -z $EXISTING ]] || die 'Container name docker-basics-python already exists.' \
-  'Inspect it with docker container inspect docker-basics-python before removing it.'
+die_if_docker_image_exists python-test
+die_if_docker_container_exists docker-basics-python
 
 # 1. Build the interpreter image
 # Read python-test/Dockerfile: microdnf installs Python and pip from Alma
@@ -59,24 +53,15 @@ EXISTING=$(docker container ls --all --quiet \
 # See lesson 08 for build contexts and 09 for CMD replacement details.
 PYTHON_VERSION='3.12'
 BASE='almalinux:10-minimal'
-BASE_CREATED=no
-EXISTING=$(docker image ls --quiet "$BASE")
-if [[ -z $EXISTING ]]; then
-  docker image pull "$BASE"
-  cleanup_add base-image docker image rm "$BASE"
-  BASE_CREATED=yes
-fi
-BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-[[ $BASE_ARCH == "$NATIVE_ARCH" ]] || \
-  die "Base architecture $BASE_ARCH differs from daemon architecture $NATIVE_ARCH."
-echo "Verified native base architecture: $BASE_ARCH"
+pull_image_if_absent "$BASE"
+die_if_image_not_native "$BASE"
 # --tag names the result; --build-arg supplies the Dockerfile ARG. The
 # relative context works from any starting directory because of cd above.
 echo "Building python-test for Python $PYTHON_VERSION..."
 docker image build --tag python-test \
   --build-arg "PYTHON_VERSION=$PYTHON_VERSION" ./python-test
 cleanup_add python-image docker image rm python-test:latest
-read -r -p 'Press ENTER to verify Python and pip...'
+read -r -p 'Press ENTER to continue...'
 
 # 2. Run a command and verify the installation
 # python -c executes the following string as Python, then exits. Single
@@ -116,7 +101,7 @@ echo "$OUTPUT"
 echo "Verified Python $PYTHON_VERSION, pip and local aliases. Patch versions may vary."
 docker container rm "$ID"
 cleanup_cancel python-container
-read -r -p 'Press ENTER to open the Python REPL...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. Try the default command interactively
 # CMD ["python"] starts the interpreter when no command follows the image.
@@ -139,7 +124,7 @@ STATE=$(docker container inspect --format '{{.State.Status}} {{.State.ExitCode}}
 echo 'Removing the REPL container...'
 docker container rm "$ID"
 cleanup_cancel python-container
-read -r -p 'Press ENTER to remove the demonstration image...'
+read -r -p 'Press ENTER to continue...'
 
 # 4. Visible cleanup: containers before images, and only an owned base.
 # Keep fallbacks registered until each normal removal succeeds. Build
@@ -147,10 +132,7 @@ read -r -p 'Press ENTER to remove the demonstration image...'
 echo 'Removing python-test:latest...'
 docker image rm python-test:latest
 cleanup_cancel python-image
-if [[ $BASE_CREATED == yes ]]; then
-  docker image rm "$BASE"
-  cleanup_cancel base-image
-fi
+remove_pulled_image "$BASE"
 echo 'Lesson complete; owned containers and images removed.'
 
 # SIGKILL cannot run cleanup. A killed client may leave a container alive.

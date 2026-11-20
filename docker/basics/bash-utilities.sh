@@ -29,6 +29,24 @@
 #     Print an error message on stderr and exit the script.
 #   die_if_not_root [message...]
 #     Exit the script with an error message unless it is run by root.
+#   die_if_not_docker_available
+#     Exit the script with an error message unless the docker command
+#     is installed and can reach the Docker daemon.
+#   die_if_docker_image_exists name...
+#     Exit the script with an error message if any of the names is
+#     already used by an image.
+#   die_if_docker_container_exists name...
+#     Exit the script with an error message if any of the names is
+#     already used by a container, running or stopped.
+#   pull_image_if_absent image [pull-option...]
+#     Pull an image unless it is already on this machine. An image
+#     that this run pulls is removed when the script exits.
+#   remove_pulled_image image
+#     Remove an image now, if this run pulled it, and forget its
+#     saved cleanup command. An image that was already here is kept.
+#   die_if_image_not_native image
+#     Exit the script with an error message unless the image is built
+#     for the CPU architecture of the Docker daemon.
 #   cleanup_add key command...
 #     Save a command that undoes a step of the script. It runs when
 #     the script exits, unless cleanup_cancel forgets it first.
@@ -39,6 +57,8 @@
 #     returns a non-zero status, and explain what may have gone wrong.
 #
 # cleanup_on_exit is a helper for cleanup_add and cleanup_cancel.
+# remove_pulled_image_if_unchanged is a helper for pull_image_if_absent
+# and remove_pulled_image.
 
 # Source this file only once per shell. Sourcing it again must not
 # forget pending cleanup commands or replace function definitions.
@@ -79,6 +99,193 @@ die() {
 die_if_not_root() {
   if [[ $EUID -ne 0 ]]; then
     die "${@:-This script must be run as root. Try: sudo $0}"
+  fi
+}
+
+# die_if_not_docker_available: exit the script with an error message
+# unless Docker is usable. The docker command is only a client: every
+# real operation is a request to the Docker daemon. So check both that
+# the command is installed and that it can reach a running daemon that
+# you have permission to use. Call this before the first docker command,
+# so that a Docker problem is reported as such, and not in the middle
+# of a lesson step.
+#
+# Usage: die_if_not_docker_available
+#
+# docker info changes nothing. Only its standard output is discarded,
+# so if it fails, Docker's own explanation is printed before ours.
+# It uses die, so it exits the shell that it runs in.
+die_if_not_docker_available() {
+  command -v docker >/dev/null || die 'This lesson needs docker.'
+  docker info >/dev/null || die 'Docker cannot reach its daemon (see the' \
+    'error above). Check that the daemon is running and that you may use it.'
+}
+
+# die_if_docker_image_exists: exit the script with an error message if
+# any of the given names is already used by an image. A name such as
+# dig-cmd:latest is only a label that points at an image. Building with
+# --tag moves the label to the new image, and removing the name later
+# would remove someone else's image. So check the names that a script
+# will build before it builds anything.
+#
+# Usage: die_if_docker_image_exists name...
+#   name: an image name with a tag (dig-cmd:latest), or without one
+#         (dig-cmd). Without a tag, an image with any tag is a conflict.
+#
+# Every name is checked, so the message lists all the conflicts. It
+# uses die, so it exits the shell that it runs in.
+die_if_docker_image_exists() {
+  local name ids
+  local -a existing=()
+  for name in "$@"; do
+    ids=$(docker image ls --quiet "$name") ||
+      die "Could not list the images named $name."
+    if [[ -n $ids ]]; then
+      existing+=("$name")
+    fi
+  done
+  if [[ ${#existing[@]} -ne 0 ]]; then
+    die "Image names already in use: ${existing[*]}." \
+      'Inspect them with docker image ls NAME before removing any.'
+  fi
+}
+
+# die_if_docker_container_exists: exit the script with an error message
+# if any of the given names is already used by a container, running or
+# stopped. Container names are unique, and a stopped container keeps
+# its name until it is removed.
+#
+# Usage: die_if_docker_container_exists name...
+#   name: a container name, compared exactly with the names of all
+#         containers. (docker container inspect is not used, because it
+#         also matches a container whose id starts with the name.)
+#
+# Every name is checked, so the message lists all the conflicts. It
+# uses die, so it exits the shell that it runs in.
+die_if_docker_container_exists() {
+  local all name
+  local -a existing=()
+  all=$(docker container ls --all --format '{{.Names}}') ||
+    die 'Could not list the containers.'
+  for name in "$@"; do
+    if grep --quiet --line-regexp --fixed-strings -- "$name" <<<"$all"; then
+      existing+=("$name")
+    fi
+  done
+  if [[ ${#existing[@]} -ne 0 ]]; then
+    die "Container names already in use: ${existing[*]}." \
+      'Inspect them with docker container inspect NAME before removing any.'
+  fi
+}
+
+# The images pulled by pull_image_if_absent. The key is the image name;
+# the value is the id that the image had after the pull, or empty while
+# the pull runs.
+declare -gA PULLED_IMAGE_IDS=()
+
+# pull_image_if_absent: pull an image unless it is already on this
+# machine. A lesson that builds FROM a base image, or runs a container
+# from an image, needs the image locally. If it was already here, it is
+# yours, and the lesson must keep it. If the lesson pulls it, the
+# lesson removes it again: when the script exits, or earlier with
+# remove_pulled_image.
+#
+# Usage: pull_image_if_absent image [pull-option...]
+#   image:       the image name and tag, for example almalinux:10-minimal.
+#   pull-option: options for docker image pull, for example
+#                --platform linux/arm64.
+#
+# The cleanup command is saved before the pull starts, because an
+# interrupted pull may already have stored the image. The id of the
+# pulled image is recorded, and an image whose id has changed by the
+# time it is removed is kept: someone has replaced it with their own.
+# It uses die, so it exits the shell that it runs in.
+pull_image_if_absent() {
+  local image=${1:-} ids
+  if [[ $# -lt 1 ]]; then
+    die 'Usage: pull_image_if_absent image [pull-option...]'
+  fi
+  shift
+  ids=$(docker image ls --quiet "$image") ||
+    die "Could not list the images named $image."
+  if [[ -n $ids ]]; then
+    return 0
+  fi
+  PULLED_IMAGE_IDS[$image]=''
+  cleanup_add "pulled-image $image" remove_pulled_image_if_unchanged "$image"
+  docker image pull "$@" "$image" || die "Could not pull $image."
+  PULLED_IMAGE_IDS[$image]=$(docker image inspect --format '{{.Id}}' \
+    "$image") || die "Could not inspect $image."
+}
+
+# remove_pulled_image: remove an image that pull_image_if_absent pulled,
+# and forget its saved cleanup command. Lessons call it at the end, so
+# that the removal is visible. It does nothing for an image that was
+# already on this machine.
+#
+# Usage: remove_pulled_image image
+#
+# It uses die, so it exits the shell that it runs in.
+remove_pulled_image() {
+  local image=${1:-}
+  if [[ $# -ne 1 ]]; then
+    die 'Usage: remove_pulled_image image'
+  fi
+  if [[ ! -v PULLED_IMAGE_IDS[$image] ]]; then
+    return 0
+  fi
+  echo "Removing $image, which this run pulled:"
+  remove_pulled_image_if_unchanged "$image" ||
+    die "Could not remove $image."
+  cleanup_cancel "pulled-image $image"
+  unset 'PULLED_IMAGE_IDS[$image]'
+}
+
+# remove_pulled_image_if_unchanged: a helper for pull_image_if_absent
+# and remove_pulled_image. Remove the image if it is present and still
+# has the id that it had after the pull. It runs as a cleanup command,
+# so it returns instead of exiting (see cleanup_add).
+remove_pulled_image_if_unchanged() {
+  local image=$1 ids id expected=${PULLED_IMAGE_IDS[$1]:-}
+  ids=$(docker image ls --quiet "$image") || return $?
+  if [[ -z $ids ]]; then
+    return 0
+  fi
+  if [[ -n $expected ]]; then
+    id=$(docker image inspect --format '{{.Id}}' "$image") || return $?
+    if [[ $id != "$expected" ]]; then
+      echo "Keeping $image: it was replaced after this run pulled it." >&2
+      return 1
+    fi
+  fi
+  docker image rm "$image" || return $?
+}
+
+# die_if_image_not_native: exit the script with an error message unless
+# an image is built for the CPU architecture of the Docker daemon, for
+# example arm64 or amd64. An image tag can be published for several
+# architectures, but this machine keeps only one of them under the
+# name. A copy for another CPU runs only under emulation, slowly, or
+# not at all. If the image was already here, it is yours, so the lesson
+# stops rather than replace it.
+#
+# Usage: die_if_image_not_native image
+#   image: the image name and tag, for example almalinux:10-minimal.
+#          The image must already be on this machine.
+#
+# It uses die, so it exits the shell that it runs in.
+die_if_image_not_native() {
+  local image=${1:-} image_arch daemon_arch
+  if [[ $# -ne 1 ]]; then
+    die 'Usage: die_if_image_not_native image'
+  fi
+  daemon_arch=$(docker version --format '{{.Server.Arch}}') ||
+    die 'Could not read the CPU architecture of the Docker daemon.'
+  image_arch=$(docker image inspect --format '{{.Architecture}}' \
+    "$image") || die "Could not inspect $image."
+  if [[ $image_arch != "$daemon_arch" ]]; then
+    die "$image is built for $image_arch, but the Docker daemon runs on" \
+      "$daemon_arch. Inspect it with docker image inspect $image."
   fi
 }
 

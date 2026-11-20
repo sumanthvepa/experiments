@@ -28,15 +28,35 @@ echo '02-docker-container-basics'
 # run from. The exit stops the script if the cd fails.
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 
+# Stop now, with a clear message, unless Docker is installed and its
+# daemon can be reached. The check comes from bash-utilities.sh.
+source ./bash-utilities.sh
+die_if_not_docker_available
+
+# This lesson creates an image and containers with these names. Stop
+# now if any of them is already in use, so that the lesson never
+# replaces or removes something of yours.
+die_if_docker_image_exists docker-basics-ping
+die_if_docker_container_exists wait-demo hello-world-instance nginx-test \
+  docker-basics-bash docker-basics-ping docker-basics-signal \
+  docker-basics-init
+
+# The containers in this lesson run these images from Docker Hub. Keep
+# any that you already have; remove the ones the lesson pulls again at
+# the end.
+pull_image_if_absent hello-world
+pull_image_if_absent nginx
+pull_image_if_absent almalinux:10-minimal
+
 # To run a container image specify the name of the image. For example
 # you can run the docker hello world container image as follows:
 
 docker container run hello-world
 
-# The command above will download the hello-world container image
-# from the Docker registry, if it is not already available locally,
-# and run it. When the hello-world program exits, the
-# container will stop.
+# The command above runs the hello-world container image. If the
+# image were not available locally, it would first download it from
+# the Docker registry. (This lesson pulled it at the start.) When the
+# hello-world program exits, the container will stop.
 
 # However, the container will not be removed after it has
 # run. You can see all the containers, both running and stopped with:
@@ -582,3 +602,9 @@ read -r -p 'Press ENTER when done...'
 # Clean up, by stopping and removing the container
 docker container stop 'nginx-test'
 docker container rm 'nginx-test'
+
+# Remove the images that this lesson pulled. Images that you already
+# had are kept.
+remove_pulled_image almalinux:10-minimal
+remove_pulled_image nginx
+remove_pulled_image hello-world

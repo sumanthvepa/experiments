@@ -37,10 +37,10 @@ echo '11-docker-build-node-optimized: compare a Node.js binary distribution with
 # containers. Native amd64 and arm64 daemons are supported. No host mounts,
 # ports or firewall changes are used. Other distributions, rootless Docker,
 # userns-remap and daemon SELinux have not been tested for this lesson.
-for TOOL in docker curl tar mktemp cp mv rm mkdir chmod du; do
+for TOOL in curl tar mktemp cp mv rm mkdir chmod du; do
   command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
 done
-docker info >/dev/null
+die_if_not_docker_available
 DAEMON_OS=$(docker version --format '{{.Server.Os}}')
 [[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
@@ -51,15 +51,8 @@ case $NATIVE_ARCH in
   arm64) ARCH_SUFFIX=arm64 ;;
   *) die "Unsupported daemon architecture: $NATIVE_ARCH; use amd64 or arm64." ;;
 esac
-for IMAGE in node-test2 node-test2-repository-baseline; do
-  EXISTING=$(docker image ls --quiet "$IMAGE")
-  [[ -z $EXISTING ]] || die "Image name $IMAGE already exists." \
-    "Inspect with docker image ls $IMAGE before removing your own unused tag."
-done
-EXISTING=$(docker container ls --all --quiet \
-  --filter 'name=^/docker-basics-node-optimized$')
-[[ -z $EXISTING ]] || die 'Container name docker-basics-node-optimized already exists.' \
-  'Inspect it with docker container inspect docker-basics-node-optimized.'
+die_if_docker_image_exists node-test2 node-test2-repository-baseline
+die_if_docker_container_exists docker-basics-node-optimized
 
 # 1. Prepare a smaller runtime context without changing the saved archive
 NODEJS_VERSION='22.11.0'
@@ -127,16 +120,8 @@ cp "./node-test/nodesource_setup_${NODEJS_MAJOR_VERSION}.sh" \
   "$CONTEXT/repository/nodesource_setup_${NODEJS_MAJOR_VERSION}.sh"
 chmod a+x "$CONTEXT/repository/nodesource_setup_${NODEJS_MAJOR_VERSION}.sh"
 BASE='almalinux:10-minimal'
-BASE_CREATED=no
-EXISTING=$(docker image ls --quiet "$BASE")
-if [[ -z $EXISTING ]]; then
-  docker image pull --platform "linux/$NATIVE_ARCH" "$BASE"
-  cleanup_add base-image docker image rm "$BASE"
-  BASE_CREATED=yes
-fi
-BASE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BASE")
-[[ $BASE_ARCH == "$NATIVE_ARCH" ]] || die "Base architecture $BASE_ARCH differs from $NATIVE_ARCH."
-echo "Verified native base architecture: $BASE_ARCH"
+pull_image_if_absent "$BASE" --platform "linux/$NATIVE_ARCH"
+die_if_image_not_native "$BASE"
 echo 'Building binary-distribution image node-test2.'
 docker image build --platform "linux/$NATIVE_ARCH" --tag node-test2 \
   --build-arg "NODEJS_VERSION=$NODEJS_VERSION" \
@@ -147,7 +132,7 @@ docker image build --platform "linux/$NATIVE_ARCH" \
   --tag node-test2-repository-baseline \
   --build-arg "NODEJS_MAJOR_VERSION=$NODEJS_MAJOR_VERSION" "$CONTEXT/repository"
 cleanup_add repository-image docker image rm node-test2-repository-baseline
-read -r -p 'Press ENTER to verify both runtime installations...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. Check real runtime versions and CPU, then measure images
 # check_runtime IMAGE MODE: create a named, short-lived verification shell,
@@ -156,9 +141,8 @@ read -r -p 'Press ENTER to verify both runtime installations...'
 # process.arch identifies the Node binary itself; uname/image metadata alone
 # could conceal a wrong binary that happens to execute through QEMU.
 check_runtime() {
-  local image=$1 mode=$2 id status image_arch
-  image_arch=$(docker image inspect --format '{{.Architecture}}' "$image")
-  [[ $image_arch == "$NATIVE_ARCH" ]] || die "Wrong image architecture: $image_arch."
+  local image=$1 mode=$2 id status
+  die_if_image_not_native "$image"
   id=$(docker container create --name docker-basics-node-optimized "$image" \
     /bin/sh -eu -c '
       version=$(node --version)
@@ -199,7 +183,7 @@ echo "Repository minus binary distribution: $((REPOSITORY_SIZE - BINARY_SIZE)) b
 # npm/corepack and licenses. It is neither a static executable nor scratch.
 # RPM knows its Node package/dependencies; the copied distribution requires
 # you to track Node security updates and library compatibility yourself.
-read -r -p 'Press ENTER to remove both demonstration images...'
+read -r -p 'Press ENTER to continue...'
 
 # 4. Visible cleanup; EXIT traps also cover earlier failures/interruption
 for IMAGE in node-test2-repository-baseline node-test2; do
@@ -208,10 +192,7 @@ for IMAGE in node-test2-repository-baseline node-test2; do
 done
 cleanup_cancel repository-image
 cleanup_cancel binary-image
-if [[ $BASE_CREATED == yes ]]; then
-  docker image rm "$BASE"
-  cleanup_cancel base-image
-fi
+remove_pulled_image "$BASE"
 rm -r -- "$CONTEXT"
 cleanup_cancel context
 echo 'Lesson complete; owned containers, images and temporary files removed.'

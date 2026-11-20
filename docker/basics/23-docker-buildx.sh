@@ -34,9 +34,10 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 source ./bash-utilities.sh
 (( BASH_VERSINFO[0] >= 4 )) || die 'This lesson requires Bash 4 or newer.'
 [[ $# == 0 ]] || die 'Usage: 23-docker-buildx.sh (no arguments).'
-for TOOL in docker jq tar timeout sha256sum mktemp mkdir cat sort rm; do
+for TOOL in jq tar timeout sha256sum mktemp mkdir cat sort rm; do
   command -v "$TOOL" >/dev/null || die "Required host tool is missing: $TOOL"
 done
+die_if_not_docker_available
 docker buildx version || die 'Install Buildx before running this lesson.'
 DAEMON_OS=$(docker info --format '{{.OSType}}')
 DAEMON_ARCH=$(docker info --format '{{.Architecture}}')
@@ -55,12 +56,8 @@ fi
 NATIVE_IMAGE=sample-buildx-native
 FOREIGN_IMAGE=sample-buildx-foreign
 OWNER_LABEL=org.docker-basics.buildx-run
-for NAME in "$NATIVE_IMAGE" "$FOREIGN_IMAGE"; do
-  EXISTING=$(docker image ls --quiet "$NAME:latest")
-  [[ -z $EXISTING ]] || die "Image name $NAME already exists. Inspect it with docker image inspect $NAME; choose when to remove it yourself."
-  EXISTING=$(docker container ls --all --quiet --filter "name=^/$NAME$")
-  [[ -z $EXISTING ]] || die "Container name $NAME already exists. Inspect it with docker container inspect $NAME; choose when to remove it yourself."
-done
+die_if_docker_image_exists "$NATIVE_IMAGE:latest" "$FOREIGN_IMAGE:latest"
+die_if_docker_container_exists "$NATIVE_IMAGE" "$FOREIGN_IMAGE"
 
 # 1. A builder chooses a BuildKit backend; its driver determines where
 # BuildKit runs; an exporter determines where the RESULT goes. Lesson 08
@@ -175,8 +172,7 @@ BUILDKIT_ID=$(docker image inspect --format '{{.Id}}' "$BUILDKIT_IMAGE")
 BUILDKIT_REF=$(docker image inspect --format '{{json .RepoDigests}}' "$BUILDKIT_IMAGE" | \
   jq --raw-output 'map(select(startswith("moby/buildkit@sha256:"))) | first // empty')
 BUILDKIT_REF=${BUILDKIT_REF:-$BUILDKIT_ID}
-BUILDKIT_ARCH=$(docker image inspect --format '{{.Architecture}}' "$BUILDKIT_IMAGE")
-[[ $BUILDKIT_ARCH == "$NATIVE_ARCH" ]] || die "BuildKit image architecture is $BUILDKIT_ARCH, expected $NATIVE_ARCH."
+die_if_image_not_native "$BUILDKIT_IMAGE"
 # Update the callback with the immutable ID after pull; fallback above covers
 # a signal before this assignment. No force removal or daemon-wide prune.
 if [[ $BUILDKIT_CREATED == yes ]]; then
@@ -186,8 +182,7 @@ fi
 [[ ! -e $SCRATCH/buildx/instances/$BUILDER ]] || die 'Builder configuration already exists.'
 EXISTING=$(docker buildx ls --format '{{.Name}}')
 while IFS= read -r NAME; do [[ $NAME != "$BUILDER" ]] || die "Builder name $BUILDER already exists."; done <<< "$EXISTING"
-EXISTING=$(docker container ls --all --quiet --filter "name=^/$BUILDKIT_CONTAINER$")
-[[ -z $EXISTING ]] || die "BuildKit container $BUILDKIT_CONTAINER already exists."
+die_if_docker_container_exists "$BUILDKIT_CONTAINER"
 EXISTING=$(docker volume ls --quiet --filter "name=^$BUILDKIT_VOLUME$")
 [[ -z $EXISTING ]] || die "BuildKit volume $BUILDKIT_VOLUME already exists."
 # Pre-create our labelled volume before Buildx uses it; this also makes
@@ -203,7 +198,7 @@ echo "Bootstrapping disposable builder: $BUILDER"
 BUILDX_CONFIG="$SCRATCH/buildx" timeout --foreground 300 docker buildx --builder "$BUILDER" inspect --bootstrap
 BUILDKIT_CONTAINER_ID=$(docker container inspect --format '{{.Id}}' "$BUILDKIT_CONTAINER")
 echo "Builder ready: $BUILDER (docker-container); selection remains $ORIGINAL_BUILDER."
-read -r -p 'Press ENTER to build and load one native-platform image...'
+read -r -p 'Press ENTER to continue...'
 
 # 2. --platform chooses the TARGET output. --load is shorthand for a Docker
 # exporter loaded into the local image store; this single-platform result is
@@ -245,7 +240,7 @@ run_example() {
 }
 run_example "$NATIVE_IMAGE" "$NATIVE_UNAME"
 echo "Verified native loaded platform: $PLATFORM"
-read -r -p 'Press ENTER to export and inspect both target platforms...'
+read -r -p 'Press ENTER to continue...'
 
 # 3. --output type=oci,dest=... writes an OCI-layout tar archive on the HOST.
 # It is separate from the loaded image and requires no registry or push.
@@ -298,7 +293,7 @@ printf 'Verified two-platform OCI artifact: %s\n' "$ARCHIVE"
 # claim docker load can load this OCI artifact on every host. Keep the archive
 # for an OCI-aware consumer; a real distribution workflow could use --push to
 # a registry you control, after authentication. No such push is run here.
-read -r -p 'Press ENTER to check foreign runtime support without installing emulation...'
+read -r -p 'Press ENTER to continue...'
 
 # 4. Native CPUs execute their own ISA. A foreign binary needs working QEMU/
 # binfmt runtime support and may run more slowly. Builder-advertised platforms
@@ -312,7 +307,7 @@ IMAGE_IDS[$FOREIGN_IMAGE:latest]=$(docker image inspect --format '{{.Id}}' "$FOR
 PLATFORM=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$FOREIGN_IMAGE:latest")
 [[ $PLATFORM == "linux/$FOREIGN_ARCH" ]] || die "Unexpected foreign loaded platform: $PLATFORM"
 run_example "$FOREIGN_IMAGE" "$FOREIGN_UNAME"
-read -r -p 'Press ENTER to remove the Buildx examples and archive...'
+read -r -p 'Press ENTER to continue...'
 
 # 5. Visible cleanup. rm removes our builder and its cache volume, not the
 # pre-existing builders or their caches. Keep fallbacks until removal succeeds.

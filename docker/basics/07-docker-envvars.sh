@@ -34,6 +34,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # die, cleanup_add and cleanup_cancel come from bash-utilities.sh.
 source ./bash-utilities.sh
+die_if_not_docker_available
 
 # To demonstrate the use of environment variables in Docker containers
 # we are going to use a custom image, docker-basics-curl, built from
@@ -45,21 +46,18 @@ source ./bash-utilities.sh
 # We will build the docker image and then delete it at the end of the
 # script.
 
-# Building replaces any image with the same name. Check for it before
-# building, so that an existing image is kept. See
-# 03-docker-image-basics.sh for why the output of ls is saved in a
-# variable before it is tested.
-EXISTING_IMAGE_ID=$(docker image ls --quiet 'docker-basics-curl:latest')
-if [[ -n $EXISTING_IMAGE_ID ]]; then
-  die 'Image docker-basics-curl:latest already exists. Stopping. If it' \
-    'is left over from an earlier run of this script, remove it with:' \
-    'docker image rm docker-basics-curl'
-fi
+# Building replaces any image with the same name. Check for it, and
+# for the container name, before building, so that an existing image
+# or container is kept.
+die_if_docker_image_exists docker-basics-curl
+die_if_docker_container_exists docker-basics-envvars-curl
+
+# The image is built FROM almalinux:10-minimal. Keep it if you already
+# have it; if the lesson pulls it, remove it again at the end.
+pull_image_if_absent almalinux:10-minimal
 
 # If the script stops early, because a command fails or Ctrl-C is
-# pressed, the saved cleanup command removes the image. The build
-# downloads the base image, almalinux:10-minimal, if it is not already
-# on this machine.
+# pressed, the saved cleanup command removes the image.
 docker image build --tag docker-basics-curl ./curl-test
 cleanup_add curl-image docker image rm 'docker-basics-curl:latest'
 
@@ -527,6 +525,7 @@ cleanup_cancel env-container
 
 
 # Finally we delete the docker image, and forget the saved cleanup
-# command. The base image, almalinux:10-minimal, is kept.
+# command. Then remove the base image, if this lesson pulled it.
 docker image rm 'docker-basics-curl'
 cleanup_cancel curl-image
+remove_pulled_image almalinux:10-minimal

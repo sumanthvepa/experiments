@@ -32,6 +32,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # die, cleanup_add and cleanup_cancel come from bash-utilities.sh.
 source ./bash-utilities.sh
+die_if_not_docker_available
 
 # query_tcp_port, open_tcp_port and close_tcp_port come from
 # firewall-utilities.sh. See 02-docker-container-basics.sh.
@@ -50,18 +51,11 @@ fi
 # it. Check for them before building, so that an existing image keeps
 # its name. 02-docker-container-basics.sh and 03-docker-image-basics.sh
 # also build an image named docker-basics-ping, and remove it when they
-# finish. See 03-docker-image-basics.sh for why the output of ls is
-# saved in a variable before it is tested.
-for IMAGE_NAME in docker-basics-ping docker-basics-context \
-  docker-basics-arg docker-basics-nginx; do
-  EXISTING_IMAGE_IDS=$(docker image ls --quiet "$IMAGE_NAME")
-  if [[ -n $EXISTING_IMAGE_IDS ]]; then
-    die "An image named $IMAGE_NAME already exists. Stopping. If it is" \
-      'left over from an earlier run of this script, list the images' \
-      "with docker image ls $IMAGE_NAME and remove each one with" \
-      "docker image rm $IMAGE_NAME:TAG"
-  fi
-done
+# finish. The container names are checked too.
+die_if_docker_image_exists docker-basics-ping docker-basics-context \
+  docker-basics-arg docker-basics-nginx
+die_if_docker_container_exists docker-basics-build-ping \
+  docker-basics-build-nginx
 
 # The last example bind mounts ./hello-world-nginx into an nginx
 # container. If Docker uses SELinux, nginx in the container cannot
@@ -128,9 +122,10 @@ fi
 # then left without a name, and is called dangling. So the examples
 # below give each build a name of its own.
 #
-# The build downloads the base image, almalinux:10-minimal, if it is
-# not already on this machine. It is kept when the script ends, as in
-# 07-docker-envvars.sh.
+# All the images in this lesson are built FROM almalinux:10-minimal.
+# Keep it if you already have it; if the lesson pulls it, remove it
+# again at the end.
+pull_image_if_absent almalinux:10-minimal
 echo 'Building docker-basics-ping from ./docker-basics-ping:'
 docker image build --tag docker-basics-ping ./docker-basics-ping
 cleanup_add ping-image docker image rm 'docker-basics-ping:latest'
@@ -822,7 +817,8 @@ if [[ $PORT_IS_ALREADY_ACCESSIBLE == 'no' ]]; then
 fi
 
 # Finally we remove the custom image, and forget the saved cleanup
-# command. The base image, almalinux:10-minimal, is kept. The build
-# cache is kept too.
+# command. Then remove the base image, if this lesson pulled it. The
+# build cache is kept.
 docker image rm 'docker-basics-nginx:latest'
 cleanup_cancel nginx-image
+remove_pulled_image almalinux:10-minimal

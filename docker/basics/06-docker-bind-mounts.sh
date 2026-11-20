@@ -32,6 +32,9 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Use the same error and cleanup helpers as 05-docker-volume-mounts.sh.
 source ./bash-utilities.sh
+die_if_not_docker_available
+die_if_docker_container_exists docker-basics-bind-mount \
+  docker-basics-bind-readonly
 
 # The script uses cmp on the host to check that created-on-host.txt
 # holds its original contents. cmp is not part of coreutils. It is
@@ -41,6 +44,10 @@ if ! command -v cmp >/dev/null; then
   die 'This script needs cmp, usually in the diffutils package.' \
     'Install it with the package manager of your Linux distribution.'
 fi
+
+# The containers run almalinux:10-minimal. Keep it if you already have
+# it; if the lesson pulls it, remove it again at the end.
+pull_image_if_absent almalinux:10-minimal
 
 # Bind mounts
 
@@ -264,7 +271,7 @@ echo 'Back in the container, see the changes:'
 echo '    cat /mnt/created-on-host.txt /mnt/created-in-container.txt'
 echo 'Then leave the container with:'
 echo '    exit 0'
-read -r -p 'Press ENTER to start the container...'
+read -r -p 'Press ENTER to continue...'
 
 # Stop on every non-zero status. See 05-docker-volume-mounts.sh for
 # why to leave with exit 0, and why || saves the status.
@@ -439,7 +446,7 @@ echo '"Read-only file system":'
 echo '    touch /test/readonly-test.txt'
 echo 'Then leave the container with:'
 echo '    exit 0'
-read -r -p 'Press ENTER to start the container...'
+read -r -p 'Press ENTER to continue...'
 
 # Stop on every non-zero status, as above. The touch fails, so leave
 # with exit 0, and not plain exit.
@@ -549,9 +556,10 @@ docker container run --rm \
 # Recovering from an interrupted run
 
 # If the script is interrupted while a container is running, the
-# container may survive. The exit trap restores ./bind-test and
-# removes ./bind-missing, but it does not remove containers. A forced
-# kill (SIGKILL) cannot run the exit trap at all.
+# container may survive and keep its image in use. The exit trap
+# restores ./bind-test, removes ./bind-missing and attempts image
+# cleanup, but it does not remove containers. A forced kill (SIGKILL)
+# cannot run the exit trap at all.
 #
 # To recover, first list and inspect any surviving containers:
 #   docker container ls --all --filter 'name=^docker-basics-bind-'
@@ -567,6 +575,8 @@ docker container run --rm \
 #   rm --recursive --force ./bind-test/created-in-container.txt \
 #     ./bind-test/created-with-user.txt ./bind-missing
 #   git restore ./bind-test/created-on-host.txt
+# If you did not have almalinux:10-minimal before the run, remove it:
+#   docker image rm almalinux:10-minimal
 
 
 # Clean up
@@ -576,4 +586,5 @@ docker container run --rm \
 echo 'Cleaning up...'
 restore_bind_test
 cleanup_cancel bind-test
+remove_pulled_image almalinux:10-minimal
 echo '...cleanup completed.'

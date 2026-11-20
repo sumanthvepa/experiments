@@ -25,6 +25,7 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 source ./docker-build-postgres-test-utilities.sh
 source ./psql-utilities.sh
+die_if_not_docker_available
 
 echo '16-docker-run-postgres-test.sh: connect from the host and exercise SQL'
 # Host: bash /path/to/16-docker-run-postgres-test.sh
@@ -44,7 +45,7 @@ printf 'Host psql client: %s\n' "$PSQL_BINARY"
 # This run builds/owns its own image. The helper refuses existing image
 # and container names; it never removes someone else's resources.
 download_and_build_postgres_test_image
-read -r -p 'Press ENTER to start PostgreSQL with a published host port...'
+read -r -p 'Press ENTER to continue...'
 
 # Docker chooses a free host port. Bind only loopback so this disposable
 # database is reachable on this host without exposing it to the network.
@@ -124,7 +125,7 @@ printf "PGPASSWORD='postgres-demo-only' psql --host=127.0.0.1 --port=%s --userna
 # This initializes and opens bash without leaving a server running. Start
 # it explicitly with: exec gosu postgres postgres -D /var/lib/pgsql/16/data
 # A shell export affects only its container, not an already running server.
-read -r -p 'Press ENTER to stop PostgreSQL and remove lesson resources...'
+read -r -p 'Press ENTER to continue...'
 
 # 4. Graceful shutdown and owned cleanup, also covered by EXIT/INT/TERM
 # postgres is PID1 and the image's STOPSIGNAL SIGINT shuts it down cleanly.

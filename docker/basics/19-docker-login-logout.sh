@@ -75,8 +75,8 @@ docker() {
   DOCKER_TLS='' DOCKER_TLS_VERIFY='' DOCKER_CERT_PATH="$DOCKER_CONFIG" \
     PATH="$WORK/no-helpers" "$DOCKER_EXECUTABLE" --config "$DOCKER_CONFIG" "$@"
 }
+die_if_not_docker_available
 OS=$(docker version --format '{{.Server.Os}}')
-ARCH=$(docker version --format '{{.Server.Arch}}')
 [[ $OS == linux ]] || die 'This lesson requires a Linux Docker daemon.'
 
 # 1. Guard names and port before creating anything in Docker.
@@ -86,14 +86,8 @@ PORT=5500
 REGISTRY="127.0.0.1:$PORT"
 PAYLOAD_IMAGE='docker-basics-login-payload:demo'
 PUSH_IMAGE="$REGISTRY/demo/payload:demo"
-EXISTING=$(docker container ls --all --quiet --filter "name=^/$REGISTRY_NAME$")
-[[ -z $EXISTING ]] || die "Container name $REGISTRY_NAME already exists." \
-  "Inspect it with docker container inspect $REGISTRY_NAME."
-for IMAGE in "$PAYLOAD_IMAGE" "$PUSH_IMAGE"; do
-  EXISTING=$(docker image ls --quiet "$IMAGE")
-  [[ -z $EXISTING ]] || die "Image name $IMAGE already exists." \
-    "Inspect it with docker image inspect $IMAGE."
-done
+die_if_docker_container_exists "$REGISTRY_NAME"
+die_if_docker_image_exists "$PAYLOAD_IMAGE" "$PUSH_IMAGE"
 # bind() checks the exact host address, without opening a firewall port.
 # Docker's publish is the final authority if another process races this.
 python3 - "$PORT" <<'PYPORT' || die "Host port 127.0.0.1:$PORT is busy."
@@ -102,14 +96,8 @@ with socket.socket() as listener:
     listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     listener.bind(('127.0.0.1', int(sys.argv[1])))
 PYPORT
-EXISTING=$(docker image ls --quiet "$REGISTRY_IMAGE")
-if [[ -z $EXISTING ]]; then
-  # Register first: a cancelled pull may still have installed the tag.
-  cleanup_add registry-image docker image rm "$REGISTRY_IMAGE"
-  docker image pull "$REGISTRY_IMAGE"
-fi
-IMAGE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$REGISTRY_IMAGE")
-[[ $IMAGE_ARCH == "$ARCH" ]] || die "Registry image architecture $IMAGE_ARCH differs from $ARCH."
+pull_image_if_absent "$REGISTRY_IMAGE"
+die_if_image_not_native "$REGISTRY_IMAGE"
 
 # 2. Basic auth backed by a private bcrypt htpasswd file.
 # These are generated DEMONSTRATION credentials, never a reader password.
@@ -119,7 +107,7 @@ IMAGE_ARCH=$(docker image inspect --format '{{.Architecture}}' "$REGISTRY_IMAGE"
 DEMO_USER='tutorial'
 DEMO_PASSWORD=$(python3 -c 'import secrets; print(secrets.token_hex(24))')
 printf '%s\n' "$DEMO_PASSWORD" | htpasswd -i -B -c "$WORK/htpasswd" "$DEMO_USER"
-read -r -p 'Press ENTER to create the authenticated loopback registry...'
+read -r -p 'Press ENTER to continue...'
 # --publish maps HOST-IP:HOST-PORT:CONTAINER-PORT. Only 127.0.0.1:5500
 # is exposed; 5000 belongs to the Flask lesson. --env sets registry options,
 # containing no passwords. Registry creates an anonymous data volume;
@@ -194,7 +182,7 @@ expect_denied_push() {
     die "Push failed without an authentication denial $1 (status $status)."
   echo "Verified push denied $1 (status $status)."
 }
-read -r -p 'Press ENTER to push before login (expect authentication denial)...'
+read -r -p 'Press ENTER to continue...'
 expect_denied_push before-login
 CODE=$(registry_request /v2/demo/payload/tags/list "$WORK/tags.json")
 [[ $CODE == 404 ]] || die 'The unauthenticated push created an unexpected repository.'
@@ -203,7 +191,7 @@ echo 'Verified repository absent before login (HTTP 404).'
 # 4. login authenticates this registry host:port and stores client credentials.
 # --username (-u) supplies a name; --password-stdin avoids history/process
 # argument exposure. All credentials belong to this disposable demo only.
-read -r -p 'Press ENTER to login using the demonstration password on stdin...'
+read -r -p 'Press ENTER to continue...'
 if ! printf '%s\n' "$DEMO_PASSWORD" |
     docker login "$REGISTRY" --username "$DEMO_USER" --password-stdin; then
   die 'Local HTTP login failed: external validation blocker; do not change daemon or certificate trust settings.'
@@ -222,7 +210,7 @@ DECODED=$(printf '%s' "$ENCODED" | python3 -c \
 [[ $DECODED == "$DEMO_USER:$DEMO_PASSWORD" ]] || die 'Stored credential did not decode to the demonstration credentials.'
 unset DECODED
 echo "Decoded username: $DEMO_USER; password: [REDACTED]; exact match verified."
-read -r -p 'Press ENTER to push after login...'
+read -r -p 'Press ENTER to continue...'
 docker image push "$PUSH_IMAGE" || die 'Authenticated push failed.'
 CODE=$(registry_request /v2/demo/payload/tags/list "$WORK/tags.json")
 [[ $CODE == 200 ]] || die 'Pushed repository is not observable.'
@@ -232,7 +220,7 @@ echo 'Verified registry now contains demo/payload:demo (HTTP 200).'
 
 # 5. logout removes this registry's CLIENT credential, not the server image
 # or account. Supply the registry explicitly; logout accepts a SERVER.
-read -r -p 'Press ENTER to logout and push again (expect authentication denial)...'
+read -r -p 'Press ENTER to continue...'
 docker logout "$REGISTRY" || die 'Logout failed.'
 jq --exit-status --arg registry "$REGISTRY" \
   '(.auths[$registry].auth // "") == ""' "$DOCKER_CONFIG/config.json" \
@@ -272,17 +260,14 @@ echo 'Verified logout removed local auth; registry content is unchanged.'
 # https://distribution.github.io/distribution/spec/api/
 
 # 6. Visible cleanup, in reverse dependency order. No global prune.
-read -r -p 'Press ENTER to remove our registry, data, images and private files...'
+read -r -p 'Press ENTER to continue...'
 docker image rm "$PUSH_IMAGE"
 cleanup_cancel push-tag
 docker image rm "$PAYLOAD_ID"
 cleanup_cancel payload
 docker container rm --force --volumes "$ID"
 cleanup_cancel registry
-if [[ -z $EXISTING ]]; then
-  docker image rm "$REGISTRY_IMAGE"
-  cleanup_cancel registry-image
-fi
+remove_pulled_image "$REGISTRY_IMAGE"
 unset DEMO_PASSWORD ENCODED
 rm --recursive --force -- "$WORK"
 cleanup_cancel files
