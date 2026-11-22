@@ -21,81 +21,68 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# What this lesson teaches
+# ------------------------
+# This lesson builds a useful image: AlmaLinux 10 minimal with the
+# Node.js runtime installed, so that containers can run JavaScript
+# with node.
+#
+# It installs Node.js the way many vendors ship Linux software. A
+# setup script from NodeSource adds NodeSource's RPM repository to the
+# image, and the package manager then installs nodejs from it, along
+# with the shared libraries that it needs.
+#
+# Lesson 08 introduced COPY and ARG. Here they work together:
+#
+#   ARG NODEJS_MAJOR_VERSION   chooses the Node.js major release at
+#                              build time; --build-arg sets it.
+#   COPY nodesource_setup_${NODEJS_MAJOR_VERSION}.sh .
+#                              uses the argument to pick the matching
+#                              setup script from the build context.
+#
+# The new concept is the multi-stage build. Each FROM starts a stage,
+# and only the last stage becomes the image:
+#
+#   FROM almalinux:10-minimal AS unoptimized   installs Node.js.
+#   FROM scratch                               starts from nothing.
+#   COPY --from=unoptimized / /                copies the first
+#                                              stage's filesystem.
+#
+# The image is a single layer, without the base image's layers or the
+# layer that held the deleted setup script. It still contains the
+# whole AlmaLinux filesystem, so it is not a minimal image.
+#
+# Finally, the lesson runs node --version in a container, replacing
+# CMD ["node"] as in lesson 09, and checks the reported major release.
+# It removes everything that it creates.
+
 # Stop on unexpected errors, unset variables and failed pipelines.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
+
+# Import utility functions
 # die reports errors; cleanup_add/cleanup_cancel undo owned resources on
 # success, failure, Ctrl-C (130), and SIGTERM (143).
 source ./bash-utilities.sh
+source ./node-utilities.sh
 
 echo '10-docker-build-node: install Node.js from the NodeSource RPM repository'
-# Run on the host: bash /path/to/10-docker-build-node.sh
-# Needs Bash, Docker with access to a Linux daemon, curl, and network access
-# to AlmaLinux and NodeSource. Docker access may require sudo. All commands
-# below run on the host; Dockerfile RUN and node execute inside containers.
-# No host mounts, ports, host package installs or firewall changes are used.
-# Native amd64 and arm64 builds are supported by this saved RPM installer.
-# Other architectures are rejected before resources are created. Rootless,
-# userns-remap and daemon SELinux do not need bind-mount workarounds here,
-# but only the documented rootful arm64 host has been tested.
-for TOOL in curl mktemp cp chmod mv rm; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
-done
+# Check the prerequisites: that docker can reach the Docker daemon, and
+# that no image or container already uses a name that the script
+# creates. If one does, inspect it and remove it by hand before
+# running the script again.
 die_if_not_docker_available
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
-case $NATIVE_ARCH in
-  amd64|arm64) ;;
-  *) die "Unsupported daemon architecture: $NATIVE_ARCH; the RPM installer supports amd64 and arm64." ;;
-esac
-
-# Refuse every existing tag of this name: a build would move an existing
-# latest tag. Inspect conflicts first; remove only your own unwanted work.
 die_if_docker_image_exists node-test
 die_if_docker_container_exists docker-basics-node
 
-# 1. Prepare the build context
-# This repository-install approach lets RPM resolve Node's shared-library
-# dependencies. Lesson 11 compares installing a binary distribution instead.
-# ARG chooses the major release, not an exact patch: repository updates can
-# change the patch version. Keep the saved installer and this value aligned.
-NODEJS_MAJOR_VERSION='22'
-SETUP_SCRIPT_FILENAME="nodesource_setup_${NODEJS_MAJOR_VERSION}.sh"
-SETUP_SCRIPT_URL="https://rpm.nodesource.com/setup_${NODEJS_MAJOR_VERSION}.x"
-# The checked-in NodeSource script is third-party code. Preserve its bytes
-# and original notices. Only our temporary copy is made executable.
-# mktemp creates a unique directory, unlike deleting an existing extraction.
-# Under sudo it belongs to root and is still removed here: no chown or
-# SUDO_USER is needed, whether that optional variable is set or unset.
-CONTEXT=$(mktemp --directory --tmpdir docker-basics-node.XXXXXX)
-cleanup_add context rm -r -- "$CONTEXT"
-echo "Temporary build context: $CONTEXT"
-cp ./node-test/Dockerfile "$CONTEXT/Dockerfile"
-if [[ -f ./node-test/$SETUP_SCRIPT_FILENAME ]]; then
-  echo "Using saved NodeSource installer: $SETUP_SCRIPT_FILENAME"
-  cp "./node-test/$SETUP_SCRIPT_FILENAME" "$CONTEXT/installer.part"
-else
-  # --fail rejects HTTP errors; --silent hides the progress meter while
-  # --show-error keeps diagnostics; --location follows redirects. Finite
-  # connection/transfer timeouts bound essential setup. A failed transfer
-  # stops the lesson and cleanup removes its partial file.
-  echo "Downloading NodeSource installer from $SETUP_SCRIPT_URL"
-  curl --fail --silent --show-error --location --connect-timeout 15 \
-    --max-time 120 "$SETUP_SCRIPT_URL" --output "$CONTEXT/installer.part"
-fi
-# Accept the artifact only after a complete transfer/copy and syntax check.
-# This is a completeness check, not a cryptographic authenticity check.
-[[ -s $CONTEXT/installer.part ]] || die 'NodeSource installer is empty.'
-bash -n "$CONTEXT/installer.part"
-# The saved installer embeds its major release. Reject a mismatched file
-# before executing it during the build. Review downloaded code before use.
-INSTALLER_TEXT=$(<"$CONTEXT/installer.part")
-[[ $INSTALLER_TEXT == *"NODE_VERSION=\"${NODEJS_MAJOR_VERSION}.x\""* ]] || \
-  die 'NodeSource installer does not declare the configured major version.'
-chmod a+x "$CONTEXT/installer.part"
-mv "$CONTEXT/installer.part" "$CONTEXT/$SETUP_SCRIPT_FILENAME"
-echo "Prepared complete NodeSource installer for Node.js $NODEJS_MAJOR_VERSION."
+# 1. Download the NodeJS setup script
+# The setup script is downloaded (if not already present) into the
+# context directory where the Dockerfile for the node-test image is
+# located. This allows the COPY instruction in the Dockerfile to
+# locate the setup script during docker image build to copy the setup
+# script into the container image.
+NODEJS_MAJOR_VERSION='26'
+download_node_setup_script "$NODEJS_MAJOR_VERSION"
 
 # 2. Build using a native base
 BASE='almalinux:10-minimal'
@@ -107,45 +94,41 @@ die_if_image_not_native "$BASE"
 # installs nodejs with its dependencies and cleans its package cache.
 echo "Building node-test with Node.js major $NODEJS_MAJOR_VERSION..."
 docker image build --tag node-test \
-  --build-arg "NODEJS_MAJOR_VERSION=$NODEJS_MAJOR_VERSION" "$CONTEXT"
+  --build-arg "NODEJS_MAJOR_VERSION=$NODEJS_MAJOR_VERSION" ./node-test
 cleanup_add node-image docker image rm node-test:latest
+echo 'To explore node-test, run these in another terminal:'
+echo '  docker image history node-test'
+echo "  docker image inspect --format '{{json .Config.Cmd}}' node-test"
 read -r -p 'Press ENTER to continue...'
 
 # 3. Verify the result
 # CMD ["node"] is the default command. Words after the image name replace
 # CMD, so node --version reports the installed runtime without opening a
-# REPL. Create separately so cleanup can remove by id even if a killed
-# Docker client leaves its container behind; see lesson 09 for CMD details.
-ID=$(docker container create --name docker-basics-node node-test node --version)
-cleanup_add node-container docker container rm --force "$ID"
-VERSION=$(docker container start --attach "$ID")
-STATE=$(docker container inspect --format '{{.State.Status}} {{.State.ExitCode}}' "$ID")
-[[ $STATE == 'exited 0' ]] || die "Node.js verification failed: $STATE"
+# REPL; see lesson 09 for CMD details. --rm tells the Docker daemon to
+# remove the container when it exits, even if the docker client is killed.
+VERSION=$(docker container run --rm --name docker-basics-node node-test \
+  node --version) || die "Node.js verification failed with status $?."
 [[ $VERSION =~ ^v${NODEJS_MAJOR_VERSION}\.[0-9]+\.[0-9]+$ ]] || \
   die "Expected Node.js major $NODEJS_MAJOR_VERSION; got $VERSION"
 echo "Verified Node.js version: $VERSION (configured major $NODEJS_MAJOR_VERSION)."
-echo 'Removing the verification container...'
-docker container rm "$ID"
-cleanup_cancel node-container
+echo 'To try node interactively, run this in another terminal:'
+echo '  docker container run --rm --interactive --tty node-test'
+echo 'Exit node with .exit before you press ENTER: the image is removed next.'
 read -r -p 'Press ENTER to continue...'
 
-# Visible cleanup teaches the commands; keep each fallback armed until its
-# removal succeeds. Remove the owned base after its derived image.
+# 4. Remove the images this lesson built or pulled
 echo 'Removing node-test:latest...'
 docker image rm node-test:latest
 cleanup_cancel node-image
 remove_pulled_image "$BASE"
-echo "Removing temporary build context: $CONTEXT"
-rm -r -- "$CONTEXT"
-cleanup_cancel context
-echo 'Lesson complete; owned container, images and temporary files removed.'
+echo 'Lesson complete; owned container and images removed.'
 
 # SIGKILL cannot run traps. After a killed run, inspect before deleting:
 # docker container inspect docker-basics-node
 # docker image ls node-test
-# Inspect the printed temporary context path too. Remove only confirmed
-# leftovers with docker container rm --force ID, docker image rm NAME:TAG,
-# and rm -r -- /the/confirmed/context. Never prune unrelated resources.
+# Remove only confirmed leftovers with docker container rm --force ID and
+# docker image rm NAME:TAG. Never prune unrelated resources. A killed
+# download can leave node-test/nodesource_setup_*.sh.part; delete it.
 # References:
 # https://github.com/nodesource/distributions
 # https://docs.docker.com/reference/dockerfile/#arg

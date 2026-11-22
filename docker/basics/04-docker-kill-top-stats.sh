@@ -33,10 +33,7 @@ die_if_docker_container_exists docker-basics-nginx
 
 # The script uses curl on the host to find out when nginx is ready.
 # Check for it before creating anything.
-if ! command -v curl >/dev/null; then
-  die 'This script needs curl. Install it with the package manager' \
-    'of your Linux distribution.'
-fi
+die_if_not_available curl
 
 # The container runs the nginx image from Docker Hub. Keep it if you
 # already have it; if the lesson pulls it, remove it again at the end.

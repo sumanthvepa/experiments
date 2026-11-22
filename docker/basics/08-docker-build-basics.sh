@@ -41,10 +41,7 @@ source ./firewall-utilities.sh
 # The script uses curl on the host to find out when nginx is ready,
 # and to check the page that it serves. Check for it before creating
 # anything.
-if ! command -v curl >/dev/null; then
-  die 'This script needs curl. Install it with the package manager' \
-    'of your Linux distribution.'
-fi
+die_if_not_available curl
 
 # The script builds images with these names. Building gives the new
 # image the name, and takes it away from any image that already has

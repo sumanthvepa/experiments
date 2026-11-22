@@ -29,6 +29,9 @@
 #     Print an error message on stderr and exit the script.
 #   die_if_not_root [message...]
 #     Exit the script with an error message unless it is run by root.
+#   die_if_not_available command...
+#     Exit the script with an error message unless every command can be
+#     found.
 #   die_if_not_docker_available
 #     Exit the script with an error message unless the docker command
 #     is installed and can reach the Docker daemon.
@@ -102,6 +105,35 @@ die_if_not_root() {
   fi
 }
 
+# die_if_not_available: exit the script with an error message unless
+# every given command can be found. Call it before the script creates
+# anything, so that a missing command stops the script at the start,
+# and not halfway through, with work left to clean up.
+#
+# Usage: die_if_not_available command...
+#   command: the name of a command that the script runs, for example
+#            curl. command -v looks it up as bash would run it: in the
+#            directories on PATH, or as a shell builtin or function.
+#
+# Every command is checked, so the message lists all the missing ones.
+# It uses die, so it exits the shell that it runs in.
+die_if_not_available() {
+  local command
+  local -a missing=()
+  if [[ $# -lt 1 ]]; then
+    die 'Usage: die_if_not_available command...'
+  fi
+  for command in "$@"; do
+    if ! command -v "$command" >/dev/null; then
+      missing+=("$command")
+    fi
+  done
+  if [[ ${#missing[@]} -ne 0 ]]; then
+    die "Commands not found: ${missing[*]}." \
+      'Install them with the package manager of your Linux distribution.'
+  fi
+}
+
 # die_if_not_docker_available: exit the script with an error message
 # unless Docker is usable. The docker command is only a client: every
 # real operation is a request to the Docker daemon. So check both that
@@ -116,7 +148,7 @@ die_if_not_root() {
 # so if it fails, Docker's own explanation is printed before ours.
 # It uses die, so it exits the shell that it runs in.
 die_if_not_docker_available() {
-  command -v docker >/dev/null || die 'This lesson needs docker.'
+  die_if_not_available docker
   docker info >/dev/null || die 'Docker cannot reach its daemon (see the' \
     'error above). Check that the daemon is running and that you may use it.'
 }

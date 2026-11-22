@@ -30,19 +30,19 @@ FROM almalinux:10-minimal
 # default: an omitted argument must fail rather than select arm64 under QEMU.
 # The host passes x64 for amd64 or arm64 for arm64 explicitly.
 # https://docs.docker.com/reference/dockerfile/#arg
-ARG NODEJS_VERSION=22.11.0
+ARG NODEJS_VERSION=26.13.1
 ARG ARCH_SUFFIX
 RUN case "$ARCH_SUFFIX" in x64|arm64) ;; *) echo 'Pass ARCH_SUFFIX=x64 or arm64' >&2; exit 1 ;; esac \
-  && microdnf -y install libstdc++ \
+  && microdnf -y install libstdc++ libatomic \
   && microdnf clean all \
   && mkdir -p /opt/node \
   && ln -s /opt/node/${NODEJS_VERSION}/bin/node /usr/local/bin/node \
   && ln -s /opt/node/${NODEJS_VERSION}/bin/npm /usr/local/bin/npm \
-  && ln -s /opt/node/${NODEJS_VERSION}/bin/npx /usr/local/bin/npx \
-  && ln -s /opt/node/${NODEJS_VERSION}/bin/corepack /usr/local/bin/corepack
+  && ln -s /opt/node/${NODEJS_VERSION}/bin/npx /usr/local/bin/npx
 
 # bin and lib plus LICENSE come from a complete archive in a temporary
-# directory. libstdc++ supplies C++ runtime dependencies; AlmaLinux provides
-# glibc and other system libraries. This is a dynamically linked runtime.
+# directory. libstdc++ and libatomic supply C++ runtime dependencies;
+# AlmaLinux provides glibc and other system libraries. This is a
+# dynamically linked runtime.
 COPY node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX} /opt/node/${NODEJS_VERSION}
 CMD ["/usr/local/bin/node"]

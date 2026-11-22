@@ -35,13 +35,9 @@ echo '20-docker-build-website: package and serve a static nginx website'
 # No host packages, mounts or credentials are needed. Only native arm64
 # on rootful Docker was tested; other OS/CPU/daemon modes are untested.
 # COPY avoids host bind-mount ownership/SELinux relabelling concerns.
-for TOOL in curl cmp python3 mktemp rm dirname sleep; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
-done
+die_if_not_available curl cmp python3 mktemp rm dirname sleep
 die_if_not_docker_available
 docker buildx version >/dev/null
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 IMAGE=website-test
 BASE=almalinux:10-minimal
 WEBSITE_PORT=8080

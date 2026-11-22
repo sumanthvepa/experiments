@@ -38,9 +38,7 @@ echo '25-docker-compose-networking: discover services and verify network boundar
 # Tested on Fedora/arm64 rootful Docker with classic overlay2. Other hosts,
 # rootless, userns-remap and SELinux-enabled daemons have not been tested.
 (( BASH_VERSINFO[0] >= 4 )) || die 'This lesson needs Bash 4 or later.'
-for TOOL in jq python3 curl cmp mktemp rm dirname sleep cat kill; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
-done
+die_if_not_available jq python3 curl cmp mktemp rm dirname sleep cat kill
 die_if_not_docker_available
 COMPOSE_VERSION=$(docker compose version --short)
 if [[ $COMPOSE_VERSION =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
@@ -50,8 +48,6 @@ else
 fi
 printf 'Compose plugin: %s\n' "$COMPOSE_VERSION"
 docker buildx version >/dev/null
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 BASE=almalinux:10-minimal
 EXISTING=$(docker image ls --quiet "$BASE")
 if [[ -n $EXISTING ]]; then

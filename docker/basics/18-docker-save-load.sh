@@ -34,9 +34,7 @@ echo '18-docker-save-load: archive and restore a PostgreSQL image'
 # published port, firewall change or earlier tutorial resource is needed.
 # Use a local Linux daemon matching an x86_64 or arm64 host. Native arm64
 # with Docker's classic image store is tested; other daemon modes are not.
-for TOOL in tar ls cmp; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
-done
+die_if_not_available tar ls cmp
 die_if_not_docker_available
 postgres_test_architecture
 IMAGE_NAME="postgres-test:linux-$ARCH_SUFFIX"

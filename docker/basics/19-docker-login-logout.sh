@@ -45,9 +45,7 @@ echo '19-docker-login-logout: authenticate to our disposable local registry'
 # private auth file into the owned container: no host bind-mount relabeling
 # or container writes to a reader directory are needed.
 
-for TOOL in docker curl htpasswd jq python3 tar mktemp mkdir rm sleep; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
-done
+die_if_not_available docker curl htpasswd jq python3 tar mktemp mkdir rm sleep
 DOCKER_EXECUTABLE=$(command -v docker)
 # A private directory (0700) and umask protect every generated file (0600).
 # No reader config is opened, even by preliminary Docker commands. An
@@ -76,8 +74,6 @@ docker() {
     PATH="$WORK/no-helpers" "$DOCKER_EXECUTABLE" --config "$DOCKER_CONFIG" "$@"
 }
 die_if_not_docker_available
-OS=$(docker version --format '{{.Server.Os}}')
-[[ $OS == linux ]] || die 'This lesson requires a Linux Docker daemon.'
 
 # 1. Guard names and port before creating anything in Docker.
 REGISTRY_IMAGE='registry:3'

@@ -103,16 +103,13 @@ download_gosu_binary() {
 # Each shell builds once; it owns a context, derived tag and optional base.
 download_and_build_postgres_test_image() {
   local tag=${1:-postgres-test} name=${2:-postgres-test-test}
-  local tool daemon_arch daemon_os
-  for tool in curl sha256sum uname mktemp cp rm mkdir dirname sleep; do
-    command -v "$tool" >/dev/null || { echo "This lesson needs $tool." >&2; return 1; }
-  done
+  local daemon_arch
+  die_if_not_available curl sha256sum uname mktemp cp rm mkdir dirname sleep
   [[ -z ${POSTGRES_TEST_BUILD_CONTEXT:-} ]] || { echo 'This shell already prepared a PostgreSQL build.' >&2; return 1; }
   docker buildx version >/dev/null || return $?
   postgres_test_architecture || return $?
   daemon_arch=$(docker version --format '{{.Server.Arch}}') || return $?
-  daemon_os=$(docker version --format '{{.Server.Os}}') || return $?
-  [[ $daemon_os == linux && $daemon_arch == "$ARCH_SUFFIX" ]] || {
+  [[ $daemon_arch == "$ARCH_SUFFIX" ]] || {
     echo 'Use a local Linux daemon matching the host CPU.' >&2; return 1;
   }
   die_if_docker_image_exists "$tag"

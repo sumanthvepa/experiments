@@ -37,9 +37,7 @@ echo '14-docker-build-postgres-manual: initialize and start PostgreSQL manually'
 # database packages alone starts neither a cluster nor a database server.
 # No bind mounts: host SELinux labels do not apply. Other distributions,
 # CPUs, rootless/userns-remap and SELinux-enabled daemons are untested.
-for TOOL in cat curl sha256sum ss uname mktemp cp rm mkdir dirname sleep; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
-done
+die_if_not_available cat curl sha256sum ss uname mktemp cp rm mkdir dirname sleep
 die_if_not_docker_available
 docker buildx version >/dev/null
 CPU_ARCHITECTURE=$(uname -m)
@@ -49,8 +47,7 @@ case $CPU_ARCHITECTURE in
   *) die "Unsupported CPU architecture: $CPU_ARCHITECTURE (need x86_64 or aarch64).";;
 esac
 DAEMON_ARCH=$(docker version --format '{{.Server.Arch}}')
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_ARCH == "$ARCH_SUFFIX" && $DAEMON_OS == linux ]] || die 'Use a local Linux daemon matching the host CPU.'
+[[ $DAEMON_ARCH == "$ARCH_SUFFIX" ]] || die 'Use a local Linux daemon matching the host CPU.'
 die_if_docker_image_exists postgres-manual
 die_if_docker_container_exists postgres-manual-test
 LISTENERS=$(ss --tcp --listening --no-header 'sport = :5432')

@@ -37,9 +37,7 @@ echo '24-docker-compose-basics: configure and operate one HTTP application'
 # Tested on Fedora/aarch64 rootful Docker/classic overlay2. Other OS/CPU,
 # rootless, userns-remap and SELinux-enabled daemons remain untested.
 (( BASH_VERSINFO[0] >= 4 )) || die 'This lesson needs Bash 4 or later.'
-for TOOL in python3 jq curl cmp mktemp rm dirname sleep cat; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
-done
+die_if_not_available python3 jq curl cmp mktemp rm dirname sleep cat
 die_if_not_docker_available
 COMPOSE_VERSION=$(docker compose version --short)
 if [[ $COMPOSE_VERSION =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
@@ -49,8 +47,6 @@ else
 fi
 printf 'Compose plugin version: %s (minimum 2.32.2).\n' "$COMPOSE_VERSION"
 docker buildx version >/dev/null
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 BASE=almalinux:10-minimal
 EXISTING=$(docker image ls --quiet "$BASE")
 if [[ -n $EXISTING ]]; then

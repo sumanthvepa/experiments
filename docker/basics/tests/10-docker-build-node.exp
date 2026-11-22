@@ -43,8 +43,6 @@ set base_before ""
 if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
   set base_before [host_command docker image inspect almalinux:10-minimal]
 }
-set native_arch [host_command docker version --format {{{.Server.Arch}}}]
-set context ""
 switch -- [scenario] {
   conflict {
     # Guard every fixture target before any tag/build can overwrite it.
@@ -70,7 +68,7 @@ switch -- [scenario] {
     cleanup_on_host docker image rm node-test
     set tag_before [host_command docker image inspect node-test]
     start_terminal image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
-    wait_for -in image-conflict {Image name node-test already exists.}
+    wait_for -in image-conflict {Image names already in use: node-test.}
     finish_terminal image-conflict 1
     if {[host_command docker image inspect node-test] ne $tag_before} {
       fail {conflicting image changed}
@@ -82,7 +80,7 @@ switch -- [scenario] {
     cleanup_on_host docker container rm --force $id
     set container_before [host_command docker container inspect $id]
     start_tutorial
-    wait_for {Container name docker-basics-node already exists.}
+    wait_for {Container names already in use: docker-basics-node.}
     finish_tutorial 1
     # Full inspect covers identity, config, running state and networks.
     if {[host_command docker container inspect $id] ne $container_before} {
@@ -98,33 +96,29 @@ switch -- [scenario] {
     cancel_cleanup_on_host
   }
   interrupt {
-    # Interrupt at a deterministic pause after the image and context exist.
+    # Interrupt at a deterministic pause after the image exists.
     start_tutorial
-    set context [lindex [wait_for_regexp {Temporary build context: ([^\r\n]+)}] 1]
-    wait_for -time 900 {Press ENTER to verify the Node.js installation...}
+    wait_for -time 900 {Building node-test with Node.js major 26...}
+    wait_for -time 900 {Press ENTER to continue...}
     press_ctrl_c
     finish_tutorial 130
   }
   normal {
     start_tutorial
-    set context [lindex [wait_for_regexp {Temporary build context: ([^\r\n]+)}] 1]
-    wait_for {Prepared complete NodeSource installer for Node.js 22.}
-    wait_for "Verified native base architecture: $native_arch"
-    answer_pause -time 900 {Press ENTER to verify the Node.js installation...}
-    wait_for_regexp {Verified Node.js version: v22\.[0-9]+\.[0-9]+ \(configured major 22\)\.}
-    answer_pause {Press ENTER to remove the demonstration image...}
-    wait_for {Lesson complete; owned container, images and temporary files removed.}
+    wait_for -time 900 {Building node-test with Node.js major 26...}
+    answer_pause -time 900 {Press ENTER to continue...}
+    wait_for_regexp {Verified Node.js version: v26\.[0-9]+\.[0-9]+ \(configured major 26\)\.}
+    answer_pause {Press ENTER to continue...}
+    wait_for {Removing node-test:latest...}
+    wait_for {Lesson complete; owned container and images removed.}
     finish_tutorial 0
   }
 }
-if {$context ne "" && [file exists $context]} {
-  fail "temporary build context remains: $context"
-}
 if {[fixture_state] ne $fixtures_before} {
-  fail {tutorial directory, context content, permissions or ownership changed}
+  fail {tutorial directory, build context content, permissions or ownership changed}
 }
 if {$base_before ne "" &&
     [host_command docker image inspect almalinux:10-minimal] ne $base_before} {
   fail {pre-existing base image changed}
 }
-send_log "Supplemental context, fixture and existing-base preservation assertions passed.\n"
+send_log "Supplemental fixture and existing-base preservation assertions passed.\n"

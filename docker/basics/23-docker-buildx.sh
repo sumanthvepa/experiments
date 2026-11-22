@@ -34,14 +34,10 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 source ./bash-utilities.sh
 (( BASH_VERSINFO[0] >= 4 )) || die 'This lesson requires Bash 4 or newer.'
 [[ $# == 0 ]] || die 'Usage: 23-docker-buildx.sh (no arguments).'
-for TOOL in jq tar timeout sha256sum mktemp mkdir cat sort rm; do
-  command -v "$TOOL" >/dev/null || die "Required host tool is missing: $TOOL"
-done
+die_if_not_available jq tar timeout sha256sum mktemp mkdir cat sort rm
 die_if_not_docker_available
 docker buildx version || die 'Install Buildx before running this lesson.'
-DAEMON_OS=$(docker info --format '{{.OSType}}')
 DAEMON_ARCH=$(docker info --format '{{.Architecture}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson requires a Linux Docker daemon.'
 case $DAEMON_ARCH in
   aarch64|arm64) NATIVE_ARCH=arm64; FOREIGN_ARCH=amd64; NATIVE_UNAME=aarch64; FOREIGN_UNAME=x86_64;;
   x86_64|amd64) NATIVE_ARCH=amd64; FOREIGN_ARCH=arm64; NATIVE_UNAME=x86_64; FOREIGN_UNAME=aarch64;;

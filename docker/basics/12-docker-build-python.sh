@@ -35,13 +35,9 @@ echo '12-docker-build-python: build and try a packaged Python interpreter'
 # Host commands below ask Docker to run Python INSIDE containers. There
 # are no host mounts, published ports or firewall changes. Native image
 # support comes from AlmaLinux; only the recorded arm64 host was tested.
-for TOOL in dirname; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
-done
+die_if_not_available dirname
 die_if_not_docker_available
 docker buildx version >/dev/null
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 die_if_docker_image_exists python-test
 die_if_docker_container_exists docker-basics-python
 

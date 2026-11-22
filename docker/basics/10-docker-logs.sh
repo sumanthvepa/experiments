@@ -33,13 +33,9 @@ echo '10-docker-logs: retrieve, filter and follow container output'
 # Docker access may require sudo. No ports, host mounts or host settings
 # change; rootless Docker needs no bridge-network or mount workaround.
 # All commands run on the host; bash -c below runs INSIDE the container.
-for TOOL in date mktemp rm cat sleep; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
-done
+die_if_not_available date mktemp rm cat sleep
 die_if_not_docker_available
 date --date='2000-01-01T00:00:00.000000001Z' +%s%N >/dev/null
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 die_if_docker_container_exists docker-basics-logs
 
 # 1. Output and logging drivers

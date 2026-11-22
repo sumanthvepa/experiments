@@ -31,12 +31,12 @@
 # See https://docs.docker.com/build/building/multi-stage/
 FROM almalinux:10-minimal AS unoptimized
 
-# ARG declares a build-time variable with default 22. The host tutorial
-# passes --build-arg NODEJS_MAJOR_VERSION=22 explicitly. A matching saved
+# ARG declares a build-time variable with default 26. The host tutorial
+# passes --build-arg NODEJS_MAJOR_VERSION=26 explicitly. A matching saved
 # installer must exist in the context; its filename uses this ARG too.
 # This chooses a major release; NodeSource may update its patch version.
 # https://docs.docker.com/reference/dockerfile/#arg
-ARG NODEJS_MAJOR_VERSION=22
+ARG NODEJS_MAJOR_VERSION=26
 
 # Copy the script that installs the appropriate version of nodejs
 COPY nodesource_setup_${NODEJS_MAJOR_VERSION}.sh .

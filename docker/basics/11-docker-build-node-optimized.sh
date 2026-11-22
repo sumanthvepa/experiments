@@ -27,6 +27,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 # die reports errors; cleanup_add/cleanup_cancel remove owned resources on
 # success, failure, Ctrl-C (130) and SIGTERM (143).
 source ./bash-utilities.sh
+source ./node-utilities.sh
 
 echo '11-docker-build-node-optimized: compare a Node.js binary distribution with RPM installation'
 # Run on the host: bash /path/to/11-docker-build-node-optimized.sh
@@ -37,12 +38,8 @@ echo '11-docker-build-node-optimized: compare a Node.js binary distribution with
 # containers. Native amd64 and arm64 daemons are supported. No host mounts,
 # ports or firewall changes are used. Other distributions, rootless Docker,
 # userns-remap and daemon SELinux have not been tested for this lesson.
-for TOOL in curl tar mktemp cp mv rm mkdir chmod du; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
-done
+die_if_not_available curl tar mktemp cp mv rm mkdir du
 die_if_not_docker_available
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
 # Use the daemon's platform: it is the machine that executes the image.
 # Node calls amd64 x64, whereas both Docker and Node call aarch64 arm64.
@@ -55,8 +52,10 @@ die_if_docker_image_exists node-test2 node-test2-repository-baseline
 die_if_docker_container_exists docker-basics-node-optimized
 
 # 1. Prepare a smaller runtime context without changing the saved archive
-NODEJS_VERSION='22.11.0'
-NODEJS_MAJOR_VERSION='22'
+NODEJS_VERSION='26.13.1'
+NODEJS_MAJOR_VERSION='26'
+# The repository baseline in step 2 is built from node-test.
+download_node_setup_script "$NODEJS_MAJOR_VERSION"
 NODEJS_DIRECTORY="node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX}"
 NODEJS_TARBALL="${NODEJS_DIRECTORY}.tar.gz"
 # mktemp gives this run its own directory. No SUDO_USER, chown, or deletion
@@ -64,7 +63,7 @@ NODEJS_TARBALL="${NODEJS_DIRECTORY}.tar.gz"
 CONTEXT=$(mktemp --directory --tmpdir docker-basics-node-optimized.XXXXXX)
 cleanup_add context rm -r -- "$CONTEXT"
 echo "Temporary build workspace: $CONTEXT"
-mkdir "$CONTEXT/binary" "$CONTEXT/repository"
+mkdir "$CONTEXT/binary"
 cp ./node-test2/Dockerfile "$CONTEXT/binary/Dockerfile"
 if [[ -f ./node-test2/$NODEJS_TARBALL ]]; then
   echo "Using saved Node.js archive: $NODEJS_TARBALL"
@@ -95,12 +94,12 @@ tar --extract --gzip --file "$CONTEXT/$NODEJS_TARBALL" \
 DISTRIBUTION="$CONTEXT/binary/$NODEJS_DIRECTORY"
 echo 'Untrimmed extracted distribution (KiB of host disk usage):'
 du --summarize --block-size=1K "$DISTRIBUTION"
-# The runtime keeps bin (node and command links), lib (npm/corepack with
-# their dependency notices), and the upstream LICENSE. Only host-side
+# The runtime keeps bin (node and command links), lib (npm with its
+# dependency notices), and the upstream LICENSE. Only host-side
 # copies of headers, manuals/debugger helpers and top-level prose are cut.
 # Removing headers means compiling native addons needs a separate toolchain
-# and matching headers. npm/npx/corepack remain available; this does not
-# install a compiler or pre-download package-manager releases.
+# and matching headers. npm and npx remain available; this does not
+# install a compiler.
 rm -r -- "$DISTRIBUTION/include" "$DISTRIBUTION/share"
 rm -- "$DISTRIBUTION/CHANGELOG.md" "$DISTRIBUTION/README.md"
 [[ -s $DISTRIBUTION/LICENSE ]] || die 'The upstream Node.js LICENSE is missing.'
@@ -108,17 +107,14 @@ echo 'Trimmed distribution, retaining LICENSE (KiB of host disk usage):'
 du --summarize --block-size=1K "$DISTRIBUTION"
 
 # 2. Build both approaches independently
-# The baseline is exactly lesson 10's repository-install Dockerfile, using
-# the saved NodeSource major-22 installer. Its final scratch stage copies
-# the entire installed filesystem. This run builds it under a separate name;
-# lesson 10 need not have been run and any node-test image stays untouched.
-# NodeSource selects a current patch in major 22; the binary archive pins
-# 22.11.0. Report both versions: this is an approach comparison, not a
-# controlled same-patch benchmark. Package versions and bases change sizes.
-cp ./node-test/Dockerfile "$CONTEXT/repository/Dockerfile"
-cp "./node-test/nodesource_setup_${NODEJS_MAJOR_VERSION}.sh" \
-  "$CONTEXT/repository/nodesource_setup_${NODEJS_MAJOR_VERSION}.sh"
-chmod a+x "$CONTEXT/repository/nodesource_setup_${NODEJS_MAJOR_VERSION}.sh"
+# The baseline is built from lesson 10's build context, node-test: its
+# repository-install Dockerfile and the saved NodeSource major-26 setup
+# script. Its final scratch stage copies the entire installed filesystem.
+# This run builds it under a separate name, so any node-test image stays
+# untouched. NodeSource selects a current patch in major 26; the binary
+# archive pins 26.13.1. Report both versions: this is an approach
+# comparison, not a controlled same-patch benchmark. Package versions and
+# bases change sizes.
 BASE='almalinux:10-minimal'
 pull_image_if_absent "$BASE" --platform "linux/$NATIVE_ARCH"
 die_if_image_not_native "$BASE"
@@ -130,20 +126,23 @@ cleanup_add binary-image docker image rm node-test2
 echo 'Building repository baseline node-test2-repository-baseline.'
 docker image build --platform "linux/$NATIVE_ARCH" \
   --tag node-test2-repository-baseline \
-  --build-arg "NODEJS_MAJOR_VERSION=$NODEJS_MAJOR_VERSION" "$CONTEXT/repository"
+  --build-arg "NODEJS_MAJOR_VERSION=$NODEJS_MAJOR_VERSION" ./node-test
 cleanup_add repository-image docker image rm node-test2-repository-baseline
+echo 'To compare the two images, run this in another terminal:'
+echo "  docker image ls --filter 'reference=node-test2*'"
 read -r -p 'Press ENTER to continue...'
 
 # 3. Check real runtime versions and CPU, then measure images
-# check_runtime IMAGE MODE: create a named, short-lived verification shell,
-# register cleanup by id, run it and check its recorded exit code. Argument
-# expansion inside single quotes happens in the container, not on the host.
+# check_runtime IMAGE MODE: run a named, short-lived verification shell.
+# --rm tells the Docker daemon to remove the container when it exits, even
+# if the docker client is killed. Argument expansion inside single quotes
+# happens in the container, not on the host.
 # process.arch identifies the Node binary itself; uname/image metadata alone
 # could conceal a wrong binary that happens to execute through QEMU.
 check_runtime() {
-  local image=$1 mode=$2 id status
+  local image=$1 mode=$2
   die_if_image_not_native "$image"
-  id=$(docker container create --name docker-basics-node-optimized "$image" \
+  docker container run --rm --name docker-basics-node-optimized "$image" \
     /bin/sh -eu -c '
       version=$(node --version)
       arch=$(node -p process.arch)
@@ -155,18 +154,12 @@ check_runtime() {
         test ! -e "/opt/node/$3/share"
         npm --version
         npx --version
-        corepack --version
       else
         case $version in v"$4".*) ;; *) exit 1 ;; esac
       fi
       printf "Verified %s runtime: %s, process.arch=%s\n" "$2" "$version" "$arch"
-    ' sh "$ARCH_SUFFIX" "$mode" "$NODEJS_VERSION" "$NODEJS_MAJOR_VERSION")
-  cleanup_add verification-container docker container rm --force "$id"
-  docker container start --attach "$id"
-  status=$(docker container inspect --format '{{.State.ExitCode}}' "$id")
-  [[ $status == 0 ]] || die "Runtime verification for $image failed with status $status."
-  docker container rm "$id"
-  cleanup_cancel verification-container
+    ' sh "$ARCH_SUFFIX" "$mode" "$NODEJS_VERSION" "$NODEJS_MAJOR_VERSION" ||
+    die "Runtime verification for $image failed with status $?."
 }
 check_runtime node-test2 binary
 check_runtime node-test2-repository-baseline repository
@@ -180,12 +173,14 @@ echo "Measured repository-install baseline: $REPOSITORY_SIZE bytes."
 echo "Repository minus binary distribution: $((REPOSITORY_SIZE - BINARY_SIZE)) bytes."
 # A negative saving is valid evidence too: report the measurement as observed.
 # The binary image still includes AlmaLinux, shared libraries, microdnf,
-# npm/corepack and licenses. It is neither a static executable nor scratch.
+# npm and licenses. It is neither a static executable nor scratch.
 # RPM knows its Node package/dependencies; the copied distribution requires
 # you to track Node security updates and library compatibility yourself.
+echo 'To see the layers of the binary-distribution image, run this in another terminal:'
+echo '  docker image history node-test2'
 read -r -p 'Press ENTER to continue...'
 
-# 4. Visible cleanup; EXIT traps also cover earlier failures/interruption
+# 4. Remove the images this lesson built or pulled, and the temporary build context
 for IMAGE in node-test2-repository-baseline node-test2; do
   echo "Removing demonstration image: $IMAGE"
   docker image rm "$IMAGE"
@@ -201,11 +196,12 @@ echo 'Lesson complete; owned containers, images and temporary files removed.'
 # node-test2-repository-baseline and docker container inspect
 # docker-basics-node-optimized before removing confirmed leftovers with
 # rm -r -- PATH, docker image rm TAG, or docker container rm --force ID.
-# Never prune unrelated workloads. A killed Docker client can leave its
-# container alive; cleanup by its captured id handles ordinary failures.
+# Never prune unrelated workloads.
+# A killed download can leave node-test/nodesource_setup_*.sh.part;
+# delete it.
 # TODO (future work): investigate a fully static Node.js binary for scratch.
 # This lesson deliberately retains the supported binary distribution.
 # References:
-# https://nodejs.org/download/release/v22.11.0/docs/api/process.html#processarch
+# https://nodejs.org/download/release/v26.13.1/docs/api/process.html#processarch
 # https://docs.docker.com/reference/cli/docker/image/inspect/
 # https://docs.docker.com/build/building/multi-stage/

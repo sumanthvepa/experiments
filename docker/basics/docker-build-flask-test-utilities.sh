@@ -40,15 +40,8 @@ remove_flask_owned_image() {
 # this run pulls is removed when the script exits, after derived images.
 # Call directly, not in $(...), because cleanup lives in this shell.
 build_flask_test_image() {
-  local tool daemon_os
-  for tool in curl jq sleep dirname; do
-    command -v "$tool" >/dev/null || {
-      echo "This lesson needs $tool." >&2; return 1;
-    }
-  done
+  die_if_not_available curl jq sleep dirname
   docker buildx version >/dev/null || return $?
-  daemon_os=$(docker version --format '{{.Server.Os}}') || return $?
-  [[ $daemon_os == linux ]] || { echo 'A Linux daemon is required.' >&2; return 1; }
   die_if_docker_image_exists flask-test
   pull_image_if_absent almalinux:10-minimal
   die_if_image_not_native almalinux:10-minimal

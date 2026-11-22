@@ -39,9 +39,7 @@ echo '13-docker-build-flask: build and query a Flask application'
 # SELinux-enabled daemons were not tested; only native arm64 was tested.
 # Dockerfile details build on lessons 08 (COPY/context), 09 (CMD/exec),
 # and 12 (AlmaLinux Python). This lesson adds a venv and HTTP service.
-for TOOL in curl jq sleep dirname; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL."
-done
+die_if_not_available curl jq sleep dirname
 die_if_not_docker_available
 die_if_docker_container_exists flask-test
 

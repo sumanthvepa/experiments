@@ -400,11 +400,7 @@ else
 fi
 
 # Check the tools before running anything.
-for TOOL in expect docker timeout flock realpath comm; do
-  command -v "$TOOL" > /dev/null ||
-    die "This test needs $TOOL. Install it with the package manager" \
-      'of your Linux distribution.'
-done
+die_if_not_available expect docker timeout flock realpath comm
 docker buildx version > /dev/null 2>&1 ||
   die 'This test needs the docker buildx plugin.'
 

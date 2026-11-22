@@ -35,13 +35,9 @@ echo '17-docker-inspect: inspect images, containers and networks'
 # No ports, host mounts or firewall changes are needed. Only native arm64
 # on rootful Docker was tested; other architectures/daemon modes are untested.
 # Check jq BEFORE pulling/building; install missing tools yourself first.
-for TOOL in jq dirname sleep timeout; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
-done
+die_if_not_available jq dirname sleep timeout
 die_if_not_docker_available
 docker buildx version >/dev/null
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 IMAGE=docker-basics-nginx
 NETWORK=docker-basics-inspect-network
 NETWORK_ID=

@@ -36,13 +36,9 @@ echo '22-docker-rootless: Docker access, USER and gosu process identity'
 # rootful Docker was tested; amd64 and other daemon/OS modes are untested.
 # Container-local numeric IDs avoid host user, UID mapping and SELinux
 # bind-mount assumptions; lesson 06 owns the bind-mount examples.
-for TOOL in timeout sha256sum cp mktemp rm dirname sleep; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
-done
+die_if_not_available timeout sha256sum cp mktemp rm dirname sleep
 die_if_not_docker_available
 docker buildx version >/dev/null
-DAEMON_OS=$(docker version --format '{{.Server.Os}}')
-[[ $DAEMON_OS == linux ]] || die 'This lesson needs a Linux Docker daemon.'
 NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
 case $NATIVE_ARCH in
   amd64) GOSU_SHA=bbc4136d03ab138b1ad66fa4fc051bafc6cc7ffae632b069a53657279a450de3;;

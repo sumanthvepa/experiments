@@ -37,9 +37,7 @@ echo '21-docker-networking: inspect networks and run a three-container applicati
 # PGDG repository and packages. No host package installation, sudo, host
 # mount or firewall-cmd change is needed. Docker manages publishing rules.
 # Tested on native arm64/rootful Linux Docker; other hosts/modes untested.
-for TOOL in jq dirname curl sleep; do
-  command -v "$TOOL" >/dev/null || die "This lesson needs $TOOL before setup."
-done
+die_if_not_available jq dirname curl sleep
 die_if_not_docker_available
 PSQL_BINARY=$(psql_binary_path)
 "$PSQL_BINARY" --version

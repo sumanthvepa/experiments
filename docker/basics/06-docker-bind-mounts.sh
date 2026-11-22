@@ -40,10 +40,7 @@ die_if_docker_container_exists docker-basics-bind-mount \
 # holds its original contents. cmp is not part of coreutils. It is
 # usually in the diffutils package. Check for it before creating
 # anything, so that a missing cmp is not reported as a changed file.
-if ! command -v cmp >/dev/null; then
-  die 'This script needs cmp, usually in the diffutils package.' \
-    'Install it with the package manager of your Linux distribution.'
-fi
+die_if_not_available cmp
 
 # The containers run almalinux:10-minimal. Keep it if you already have
 # it; if the lesson pulls it, remove it again at the end.

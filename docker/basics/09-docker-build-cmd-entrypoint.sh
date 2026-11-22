@@ -62,6 +62,7 @@
 # Stop on unexpected errors, unset variables and failed pipelines.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
+# Import utility functions
 # die reports fatal errors; cleanup_add/cleanup_cancel undo owned resources
 # on normal completion, errors, Ctrl-C (130), and SIGTERM (143).
 source ./bash-utilities.sh
