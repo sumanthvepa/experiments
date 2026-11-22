@@ -2,6 +2,9 @@ For the rest of this session, DO NOT make changes to, create or delete
 any file without my explicit approval. This restriction does not apply
 to any temporary files you or the tools you invoke may create.
 
+After you finish any work in response to a prompt from me, always
+change the current working directory back to the project root.
+
 
 When creating or modifying Powerpoint presentations, follow the instructions
 in prompts/presentations.md
