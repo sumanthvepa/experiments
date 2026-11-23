@@ -164,7 +164,7 @@ docker container top 'docker-basics-nginx'
 
 # The logs of the container show that nginx received the signal. If
 # they do not, the examples that follow would be misleading, so stop.
-# nginx writes its log to stderr, hence the 2>&1. See 10-docker-logs.sh
+# nginx writes its log to stderr, hence the 2>&1. See 12-docker-logs.sh
 # for more about docker container logs.
 if ! docker container logs 'docker-basics-nginx' 2>&1 |
   grep 'SIGHUP'; then

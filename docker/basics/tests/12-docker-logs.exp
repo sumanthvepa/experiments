@@ -1,7 +1,7 @@
 #!/usr/bin/expect -f
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 10-docker-logs.exp: Verify log retrieval, filtering and interruption
+# 12-docker-logs.exp: Verify log retrieval, filtering and interruption
 #
 # Copyright (C) 2026 Sumanth Vepa.
 #
@@ -34,7 +34,7 @@ proc fixture_state {} {
     set -euo pipefail
     cd "$1"
     find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
-    sha256sum 10-docker-logs.sh bash-utilities.sh tests/10-docker-logs.exp
+    sha256sum 12-docker-logs.sh bash-utilities.sh tests/12-docker-logs.exp
   } bash $basics]
 }
 set before [fixture_state]

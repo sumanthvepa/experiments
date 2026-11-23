@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 10-docker-logs.sh: Explore Docker container logs
+# 12-docker-logs.sh: Explore Docker container logs
 #
 # Copyright (C) 2026 Sumanth Vepa.
 #
@@ -26,8 +26,8 @@ set -euo pipefail
 # run owns, including on unexpected failure, Ctrl-C (130) or TERM (143).
 source "$(dirname "${BASH_SOURCE[0]}")/bash-utilities.sh"
 
-echo '10-docker-logs: retrieve, filter and follow container output'
-# Run on the host: bash /path/to/10-docker-logs.sh
+echo '12-docker-logs: retrieve, filter and follow container output'
+# Run on the host: bash /path/to/12-docker-logs.sh
 # Needs Bash, GNU date/coreutils and access to a Linux Docker daemon.
 # Network access to the registry is needed only if the base is absent.
 # Docker access may require sudo. No ports, host mounts or host settings
