@@ -39,7 +39,7 @@ echo '22-docker-rootless: Docker access, USER and gosu process identity'
 die_if_not_available timeout sha256sum cp mktemp rm dirname sleep
 die_if_not_docker_available
 docker buildx version >/dev/null
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
+NATIVE_ARCH=$(docker_daemon_cpu_architecture)
 case $NATIVE_ARCH in
   amd64) GOSU_SHA=bbc4136d03ab138b1ad66fa4fc051bafc6cc7ffae632b069a53657279a450de3;;
   arm64) GOSU_SHA=c3805a85d17f4454c23d7059bcb97e1ec1af272b90126e79ed002342de08389b;;

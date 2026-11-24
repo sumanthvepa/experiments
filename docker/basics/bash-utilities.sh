@@ -35,6 +35,9 @@
 #   die_if_not_docker_available
 #     Exit the script with an error message unless the docker command
 #     is installed and can reach the Docker daemon.
+#   docker_daemon_cpu_architecture
+#     Print the CPU architecture of the Docker daemon, for example
+#     amd64 or arm64.
 #   die_if_docker_image_exists name...
 #     Exit the script with an error message if any of the names is
 #     already used by an image.
@@ -151,6 +154,28 @@ die_if_not_docker_available() {
   die_if_not_available docker
   docker info >/dev/null || die 'Docker cannot reach its daemon (see the' \
     'error above). Check that the daemon is running and that you may use it.'
+}
+
+# docker_daemon_cpu_architecture: print the CPU architecture of the
+# Docker daemon, in Docker's names, for example amd64 or arm64. The
+# daemon builds the images and runs the containers, so its CPU decides
+# which binaries an image needs. That is not always the CPU of the
+# machine that runs the docker command: docker can talk to a daemon on
+# another machine, or in a virtual machine, as Docker Desktop does.
+#
+# Usage: architecture=$(docker_daemon_cpu_architecture)
+#
+# Docker's names are not the kernel's: uname -m prints x86_64 for
+# amd64 and aarch64 for arm64. Software vendors may use other names
+# again; Node.js, for example, names its amd64 binaries x64.
+#
+# It uses die, so it exits the shell that it runs in.
+docker_daemon_cpu_architecture() {
+  if [[ $# -ne 0 ]]; then
+    die 'Usage: docker_daemon_cpu_architecture'
+  fi
+  docker version --format '{{.Server.Arch}}' ||
+    die 'Could not read the CPU architecture of the Docker daemon.'
 }
 
 # die_if_docker_image_exists: exit the script with an error message if
@@ -311,8 +336,7 @@ die_if_image_not_native() {
   if [[ $# -ne 1 ]]; then
     die 'Usage: die_if_image_not_native image'
   fi
-  daemon_arch=$(docker version --format '{{.Server.Arch}}') ||
-    die 'Could not read the CPU architecture of the Docker daemon.'
+  daemon_arch=$(docker_daemon_cpu_architecture) || exit $?
   image_arch=$(docker image inspect --format '{{.Architecture}}' \
     "$image") || die "Could not inspect $image."
   if [[ $image_arch != "$daemon_arch" ]]; then

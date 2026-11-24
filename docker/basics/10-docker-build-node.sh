@@ -71,6 +71,7 @@ echo '10-docker-build-node: install Node.js from the NodeSource RPM repository'
 # that no image or container already uses a name that the script
 # creates. If one does, inspect it and remove it by hand before
 # running the script again.
+die_if_not_available curl chmod mv rm grep
 die_if_not_docker_available
 die_if_docker_image_exists node-test
 die_if_docker_container_exists docker-basics-node

@@ -46,7 +46,7 @@ case $CPU_ARCHITECTURE in
   aarch64|arm64) CPU_ARCHITECTURE=aarch64; ARCH_SUFFIX=arm64; GOSU_SHA=c3805a85d17f4454c23d7059bcb97e1ec1af272b90126e79ed002342de08389b;;
   *) die "Unsupported CPU architecture: $CPU_ARCHITECTURE (need x86_64 or aarch64).";;
 esac
-DAEMON_ARCH=$(docker version --format '{{.Server.Arch}}')
+DAEMON_ARCH=$(docker_daemon_cpu_architecture)
 [[ $DAEMON_ARCH == "$ARCH_SUFFIX" ]] || die 'Use a local Linux daemon matching the host CPU.'
 die_if_docker_image_exists postgres-manual
 die_if_docker_container_exists postgres-manual-test

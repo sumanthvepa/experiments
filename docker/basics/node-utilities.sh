@@ -28,6 +28,9 @@
 #     Make sure that the node-test build context holds NodeSource's
 #     setup script for a Node.js major release, downloading the script
 #     if it is missing.
+#   arch_suffix native-arch
+#     Print the name that Node.js gives a CPU architecture in the names
+#     of its binary archives: x64 for amd64, arm64 for arm64.
 
 # Source by path so callers can run from another working directory.
 source "$(dirname "${BASH_SOURCE[0]}")/bash-utilities.sh"
@@ -65,4 +68,30 @@ download_node_setup_script() {
   fi
   grep --quiet --fixed-strings "NODE_VERSION=\"${major}.x\"" "$script" ||
     die "$script is not the Node.js $major setup script."
+}
+
+# arch_suffix: print the name that Node.js gives a CPU architecture in
+# the names of its binary archives, for example the x64 in
+# node-v26.13.1-linux-x64.tar.gz. Docker and Node.js name CPUs
+# differently: the kernel's x86_64 is amd64 to Docker and x64 to
+# Node.js, and its aarch64 is arm64 to both.
+#
+# Usage: suffix=$(arch_suffix native-arch)
+#   native-arch: a CPU architecture in Docker's names, for example the
+#                output of docker_daemon_cpu_architecture. The daemon
+#                runs the image, so its CPU decides which binary the
+#                image needs.
+#
+# Only amd64 and arm64 are supported. It uses die, so it exits the
+# shell that it runs in.
+arch_suffix() {
+  if [[ $# -ne 1 ]]; then
+    die 'Usage: arch_suffix native-arch'
+  fi
+  case $1 in
+    amd64) echo x64 ;;
+    arm64) echo arm64 ;;
+    *) die "The Docker daemon runs on $1, but this lesson supports only" \
+         'amd64 and arm64.' ;;
+  esac
 }

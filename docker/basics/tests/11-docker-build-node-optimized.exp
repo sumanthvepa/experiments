@@ -44,7 +44,6 @@ if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
   set base_before [host_command docker image inspect almalinux:10-minimal]
 }
 set native_arch [host_command docker version --format {{{.Server.Arch}}}]
-set context ""
 switch -- [scenario] {
   conflict {
     # Guard every fixture target before any tag/build can overwrite it.
@@ -101,9 +100,8 @@ switch -- [scenario] {
     cancel_cleanup_on_host
   }
   interrupt {
-    # Interrupt at a deterministic pause after the image and context exist.
+    # Interrupt at a deterministic pause after both images exist.
     start_tutorial
-    set context [lindex [wait_for_regexp {Temporary build workspace: ([^\r\n]+)}] 1]
     wait_for -time 900 {Building repository baseline node-test2-repository-baseline.}
     wait_for -time 900 {Press ENTER to continue...}
     press_ctrl_c
@@ -111,8 +109,7 @@ switch -- [scenario] {
   }
   normal {
     start_tutorial
-    set context [lindex [wait_for_regexp {Temporary build workspace: ([^\r\n]+)}] 1]
-    wait_for {Accepted complete Node.js archive: node-v26.13.1-linux-}
+    wait_for {Using saved Node.js archive: node-test2/node-v26.13.1-linux-}
     wait_for -time 900 {Building repository baseline node-test2-repository-baseline.}
     answer_pause -time 900 {Press ENTER to continue...}
     set node_arch $native_arch
@@ -127,18 +124,15 @@ switch -- [scenario] {
     }
     answer_pause {Press ENTER to continue...}
     wait_for {Removing demonstration image: node-test2-repository-baseline}
-    wait_for {Lesson complete; owned containers, images and temporary files removed.}
+    wait_for {Lesson complete; owned containers and images removed.}
     finish_tutorial 0
   }
 }
-if {$context ne "" && [file exists $context]} {
-  fail "temporary build context remains: $context"
-}
 if {[fixture_state] ne $fixtures_before} {
-  fail {tutorial directory, context content, permissions or ownership changed}
+  fail {tutorial directory, build context content, permissions or ownership changed}
 }
 if {$base_before ne "" &&
     [host_command docker image inspect almalinux:10-minimal] ne $base_before} {
   fail {pre-existing base image changed}
 }
-send_log "Supplemental context, fixture and existing-base preservation assertions passed.\n"
+send_log "Supplemental fixture and existing-base preservation assertions passed.\n"

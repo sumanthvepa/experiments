@@ -30,83 +30,44 @@ source ./bash-utilities.sh
 source ./node-utilities.sh
 
 echo '11-docker-build-node-optimized: compare a Node.js binary distribution with RPM installation'
-# Run on the host: bash /path/to/11-docker-build-node-optimized.sh
-# Needs Bash, Docker access to a Linux daemon, curl, tar, and network access
-# to AlmaLinux and NodeSource (and nodejs.org if the saved archive is absent).
-# Docker access may require sudo; nothing is installed on the host. Commands
-# here run on the host; Dockerfile RUN and verification shells run inside
-# containers. Native amd64 and arm64 daemons are supported. No host mounts,
-# ports or firewall changes are used. Other distributions, rootless Docker,
-# userns-remap and daemon SELinux have not been tested for this lesson.
-die_if_not_available curl tar mktemp cp mv rm mkdir du
+# Check the prerequisites: that the commands the script runs are
+# installed, that docker can reach the Docker daemon, and that no image
+# or container already uses a name that the script creates. If one
+# does, inspect it and remove it by hand before running the script
+# again.
+die_if_not_available curl mv rm
 die_if_not_docker_available
-NATIVE_ARCH=$(docker version --format '{{.Server.Arch}}')
-# Use the daemon's platform: it is the machine that executes the image.
-# Node calls amd64 x64, whereas both Docker and Node call aarch64 arm64.
-case $NATIVE_ARCH in
-  amd64) ARCH_SUFFIX=x64 ;;
-  arm64) ARCH_SUFFIX=arm64 ;;
-  *) die "Unsupported daemon architecture: $NATIVE_ARCH; use amd64 or arm64." ;;
-esac
 die_if_docker_image_exists node-test2 node-test2-repository-baseline
 die_if_docker_container_exists docker-basics-node-optimized
 
-# 1. Prepare a smaller runtime context without changing the saved archive
+# 1. Make sure that the build context holds the Node.js archive
 NODEJS_VERSION='26.13.1'
 NODEJS_MAJOR_VERSION='26'
-# The repository baseline in step 2 is built from node-test.
+NATIVE_ARCH=$(docker_daemon_cpu_architecture)
+ARCH_SUFFIX=$(arch_suffix "$NATIVE_ARCH")
+NODEJS_TARBALL="node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX}.tar.gz"
 download_node_setup_script "$NODEJS_MAJOR_VERSION"
-NODEJS_DIRECTORY="node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX}"
-NODEJS_TARBALL="${NODEJS_DIRECTORY}.tar.gz"
-# mktemp gives this run its own directory. No SUDO_USER, chown, or deletion
-# of an existing extraction is needed, even when invoked under sudo.
-CONTEXT=$(mktemp --directory --tmpdir docker-basics-node-optimized.XXXXXX)
-cleanup_add context rm -r -- "$CONTEXT"
-echo "Temporary build workspace: $CONTEXT"
-mkdir "$CONTEXT/binary"
-cp ./node-test2/Dockerfile "$CONTEXT/binary/Dockerfile"
+
+# node-test2 is the build context for the binary-distribution image,
+# and the Node.js archives for amd64 and arm64 are saved in it. The
+# builder reads only the files that the Dockerfile uses, so only the
+# archive for the daemon's CPU is sent to it.
 if [[ -f ./node-test2/$NODEJS_TARBALL ]]; then
-  echo "Using saved Node.js archive: $NODEJS_TARBALL"
-  cp "./node-test2/$NODEJS_TARBALL" "$CONTEXT/archive.part"
+  echo "Using saved Node.js archive: node-test2/$NODEJS_TARBALL"
 else
-  # --fail rejects HTTP errors, --silent/--show-error hide the progress
-  # meter but retain errors, --location follows redirects. Finite timeouts
-  # bound the transfer. A failed curl never becomes an accepted archive.
   URL="https://nodejs.org/dist/v${NODEJS_VERSION}/${NODEJS_TARBALL}"
-  echo "Downloading Node.js archive from $URL"
+  echo "Downloading node-test2/$NODEJS_TARBALL from $URL"
+  cleanup_add node-archive rm --force -- "./node-test2/$NODEJS_TARBALL.part"
   curl --fail --silent --show-error --location --connect-timeout 15 \
-    --max-time 180 "$URL" --output "$CONTEXT/archive.part"
+    --max-time 180 "$URL" --output "./node-test2/$NODEJS_TARBALL.part"
+  mv "./node-test2/$NODEJS_TARBALL.part" "./node-test2/$NODEJS_TARBALL"
+  cleanup_cancel node-archive
 fi
-[[ -s $CONTEXT/archive.part ]] || die 'Node.js archive is empty.'
-# Reading the complete table checks compression/archive completeness, not
-# authenticity. Obtain trusted release signatures/checksums for deployment.
-tar --list --gzip --file "$CONTEXT/archive.part" > "$CONTEXT/archive-members"
-# Official archives have one expected top-level directory. Reject absolute
-# paths and parent traversal before extraction; never use arbitrary archives.
-while IFS= read -r MEMBER; do
-  [[ $MEMBER == "$NODEJS_DIRECTORY/"* && $MEMBER != *'/../'* ]] || \
-    die 'Node.js archive contains an unexpected path.'
-done < "$CONTEXT/archive-members"
-mv "$CONTEXT/archive.part" "$CONTEXT/$NODEJS_TARBALL"
-echo "Accepted complete Node.js archive: $NODEJS_TARBALL"
-tar --extract --gzip --file "$CONTEXT/$NODEJS_TARBALL" \
-  --directory "$CONTEXT/binary" --no-same-owner
-DISTRIBUTION="$CONTEXT/binary/$NODEJS_DIRECTORY"
-echo 'Untrimmed extracted distribution (KiB of host disk usage):'
-du --summarize --block-size=1K "$DISTRIBUTION"
-# The runtime keeps bin (node and command links), lib (npm with its
-# dependency notices), and the upstream LICENSE. Only host-side
-# copies of headers, manuals/debugger helpers and top-level prose are cut.
-# Removing headers means compiling native addons needs a separate toolchain
-# and matching headers. npm and npx remain available; this does not
-# install a compiler.
-rm -r -- "$DISTRIBUTION/include" "$DISTRIBUTION/share"
-rm -- "$DISTRIBUTION/CHANGELOG.md" "$DISTRIBUTION/README.md"
-[[ -s $DISTRIBUTION/LICENSE ]] || die 'The upstream Node.js LICENSE is missing.'
-echo 'Trimmed distribution, retaining LICENSE (KiB of host disk usage):'
-du --summarize --block-size=1K "$DISTRIBUTION"
 
 # 2. Build both approaches independently
+# The binary-distribution image is built in two stages. The first
+# unpacks the archive; the second copies only bin, lib and LICENSE from
+# it, and only the second becomes the image. See node-test2/Dockerfile.
 # The baseline is built from lesson 10's build context, node-test: its
 # repository-install Dockerfile and the saved NodeSource major-26 setup
 # script. Its final scratch stage copies the entire installed filesystem.
@@ -121,7 +82,7 @@ die_if_image_not_native "$BASE"
 echo 'Building binary-distribution image node-test2.'
 docker image build --platform "linux/$NATIVE_ARCH" --tag node-test2 \
   --build-arg "NODEJS_VERSION=$NODEJS_VERSION" \
-  --build-arg "ARCH_SUFFIX=$ARCH_SUFFIX" "$CONTEXT/binary"
+  --build-arg "ARCH_SUFFIX=$ARCH_SUFFIX" ./node-test2
 cleanup_add binary-image docker image rm node-test2
 echo 'Building repository baseline node-test2-repository-baseline.'
 docker image build --platform "linux/$NATIVE_ARCH" \
@@ -180,7 +141,7 @@ echo 'To see the layers of the binary-distribution image, run this in another te
 echo '  docker image history node-test2'
 read -r -p 'Press ENTER to continue...'
 
-# 4. Remove the images this lesson built or pulled, and the temporary build context
+# 4. Remove the images this lesson built or pulled
 for IMAGE in node-test2-repository-baseline node-test2; do
   echo "Removing demonstration image: $IMAGE"
   docker image rm "$IMAGE"
@@ -188,17 +149,15 @@ done
 cleanup_cancel repository-image
 cleanup_cancel binary-image
 remove_pulled_image "$BASE"
-rm -r -- "$CONTEXT"
-cleanup_cancel context
-echo 'Lesson complete; owned containers, images and temporary files removed.'
-# Build cache may remain. SIGKILL cannot run traps: inspect the printed
-# workspace, docker image ls node-test2, docker image ls
+echo 'Lesson complete; owned containers and images removed.'
+# Build cache may remain. SIGKILL cannot run traps: inspect
+# docker image ls node-test2, docker image ls
 # node-test2-repository-baseline and docker container inspect
 # docker-basics-node-optimized before removing confirmed leftovers with
-# rm -r -- PATH, docker image rm TAG, or docker container rm --force ID.
+# docker image rm TAG or docker container rm --force ID.
 # Never prune unrelated workloads.
-# A killed download can leave node-test/nodesource_setup_*.sh.part;
-# delete it.
+# A killed download can leave node-test/nodesource_setup_*.sh.part or
+# node-test2/node-v*.tar.gz.part; delete it.
 # TODO (future work): investigate a fully static Node.js binary for scratch.
 # This lesson deliberately retains the supported binary distribution.
 # References:

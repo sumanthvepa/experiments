@@ -108,7 +108,7 @@ download_and_build_postgres_test_image() {
   [[ -z ${POSTGRES_TEST_BUILD_CONTEXT:-} ]] || { echo 'This shell already prepared a PostgreSQL build.' >&2; return 1; }
   docker buildx version >/dev/null || return $?
   postgres_test_architecture || return $?
-  daemon_arch=$(docker version --format '{{.Server.Arch}}') || return $?
+  daemon_arch=$(docker_daemon_cpu_architecture) || return $?
   [[ $daemon_arch == "$ARCH_SUFFIX" ]] || {
     echo 'Use a local Linux daemon matching the host CPU.' >&2; return 1;
   }
