@@ -51,8 +51,9 @@
 #     Remove an image now, if this run pulled it, and forget its
 #     saved cleanup command. An image that was already here is kept.
 #   die_if_image_not_native image
-#     Exit the script with an error message unless the image is built
-#     for the CPU architecture of the Docker daemon.
+#     Exit the script with an error message if the image is on this
+#     machine but not built for the CPU architecture of the Docker
+#     daemon.
 #   cleanup_add key command...
 #     Save a command that undoes a step of the script. It runs when
 #     the script exits, unless cleanup_cancel forgets it first.
@@ -326,15 +327,23 @@ remove_pulled_image_if_unchanged() {
 # not at all. If the image was already here, it is yours, so the lesson
 # stops rather than replace it.
 #
+# If the image is not on this machine, there is nothing to check, and
+# it returns success: a build or a run fetches the copy for the
+# daemon's CPU itself.
+#
 # Usage: die_if_image_not_native image
 #   image: the image name and tag, for example almalinux:10-minimal.
-#          The image must already be on this machine.
 #
 # It uses die, so it exits the shell that it runs in.
 die_if_image_not_native() {
-  local image=${1:-} image_arch daemon_arch
+  local image=${1:-} ids image_arch daemon_arch
   if [[ $# -ne 1 ]]; then
     die 'Usage: die_if_image_not_native image'
+  fi
+  ids=$(docker image ls --quiet "$image") ||
+    die "Could not list the images named $image."
+  if [[ -z $ids ]]; then
+    return 0
   fi
   daemon_arch=$(docker_daemon_cpu_architecture) || exit $?
   image_arch=$(docker image inspect --format '{{.Architecture}}' \

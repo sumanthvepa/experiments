@@ -66,15 +66,18 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 source ./bash-utilities.sh
 source ./node-utilities.sh
 
-echo '10-docker-build-node: install Node.js from the NodeSource RPM repository'
-# Check the prerequisites: that docker can reach the Docker daemon, and
-# that no image or container already uses a name that the script
-# creates. If one does, inspect it and remove it by hand before
+# Check the prerequisites: that the commands the script runs are
+# installed, that docker can reach the Docker daemon, that no image or
+# container already uses a name that the script creates, and that the
+# base image, if it is already here, is built for the daemon's CPU. If
+# a check fails, inspect what it names and fix it by hand before
 # running the script again.
+echo '10-docker-build-node: install Node.js from the NodeSource RPM repository'
 die_if_not_available curl chmod mv rm grep
 die_if_not_docker_available
 die_if_docker_image_exists node-test
 die_if_docker_container_exists docker-basics-node
+die_if_image_not_native almalinux:10-minimal
 
 # 1. Download the NodeJS setup script
 # The setup script is downloaded (if not already present) into the
@@ -83,12 +86,9 @@ die_if_docker_container_exists docker-basics-node
 # locate the setup script during docker image build to copy the setup
 # script into the container image.
 NODEJS_MAJOR_VERSION='26'
-download_node_setup_script "$NODEJS_MAJOR_VERSION"
+download_node_setup_script "$NODEJS_MAJOR_VERSION" node-test
 
-# 2. Build using a native base
-BASE='almalinux:10-minimal'
-pull_image_if_absent "$BASE"
-die_if_image_not_native "$BASE"
+# 2. Build the image
 # --tag assigns node-test:latest. --build-arg supplies the Dockerfile ARG;
 # the last argument is the context whose files COPY can read (lesson 08).
 # The installer configures a repository INSIDE the image, then microdnf
@@ -121,7 +121,6 @@ read -r -p 'Press ENTER to continue...'
 echo 'Removing node-test:latest...'
 docker image rm node-test:latest
 cleanup_cancel node-image
-remove_pulled_image "$BASE"
 echo 'Lesson complete; owned container and images removed.'
 
 # SIGKILL cannot run traps. After a killed run, inspect before deleting:

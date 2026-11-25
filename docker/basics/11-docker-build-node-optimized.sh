@@ -29,138 +29,76 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 source ./bash-utilities.sh
 source ./node-utilities.sh
 
-echo '11-docker-build-node-optimized: compare a Node.js binary distribution with RPM installation'
 # Check the prerequisites: that the commands the script runs are
-# installed, that docker can reach the Docker daemon, and that no image
-# or container already uses a name that the script creates. If one
-# does, inspect it and remove it by hand before running the script
-# again.
+# installed, that docker can reach the Docker daemon, that no image or
+# container already uses a name that the script creates, and that the
+# base image, if it is already here, is built for the daemon's CPU. If
+# a check fails, inspect what it names and fix it by hand before
+# running the script again.
+echo '11-docker-build-node-optimized: build a Node.js image from the binary tarball'
 die_if_not_available curl mv rm
 die_if_not_docker_available
-die_if_docker_image_exists node-test2 node-test2-repository-baseline
+die_if_docker_image_exists node-test2
 die_if_docker_container_exists docker-basics-node-optimized
+die_if_image_not_native almalinux:10-minimal
 
-# 1. Make sure that the build context holds the Node.js archive
+
+# 1. Download the node binary
+# Define the Node.js version and CPU architecture to be used for building the image.
 NODEJS_VERSION='26.13.1'
-NODEJS_MAJOR_VERSION='26'
 NATIVE_ARCH=$(docker_daemon_cpu_architecture)
 ARCH_SUFFIX=$(arch_suffix "$NATIVE_ARCH")
-NODEJS_TARBALL="node-v${NODEJS_VERSION}-linux-${ARCH_SUFFIX}.tar.gz"
-download_node_setup_script "$NODEJS_MAJOR_VERSION"
 
-# node-test2 is the build context for the binary-distribution image,
-# and the Node.js archives for amd64 and arm64 are saved in it. The
-# builder reads only the files that the Dockerfile uses, so only the
-# archive for the daemon's CPU is sent to it.
-if [[ -f ./node-test2/$NODEJS_TARBALL ]]; then
-  echo "Using saved Node.js archive: node-test2/$NODEJS_TARBALL"
-else
-  URL="https://nodejs.org/dist/v${NODEJS_VERSION}/${NODEJS_TARBALL}"
-  echo "Downloading node-test2/$NODEJS_TARBALL from $URL"
-  cleanup_add node-archive rm --force -- "./node-test2/$NODEJS_TARBALL.part"
-  curl --fail --silent --show-error --location --connect-timeout 15 \
-    --max-time 180 "$URL" --output "./node-test2/$NODEJS_TARBALL.part"
-  mv "./node-test2/$NODEJS_TARBALL.part" "./node-test2/$NODEJS_TARBALL"
-  cleanup_cancel node-archive
-fi
+download_node_archive "$NODEJS_VERSION" "$ARCH_SUFFIX" node-test2
 
-# 2. Build both approaches independently
-# The binary-distribution image is built in two stages. The first
-# unpacks the archive; the second copies only bin, lib and LICENSE from
-# it, and only the second becomes the image. See node-test2/Dockerfile.
-# The baseline is built from lesson 10's build context, node-test: its
-# repository-install Dockerfile and the saved NodeSource major-26 setup
-# script. Its final scratch stage copies the entire installed filesystem.
-# This run builds it under a separate name, so any node-test image stays
-# untouched. NodeSource selects a current patch in major 26; the binary
-# archive pins 26.13.1. Report both versions: this is an approach
-# comparison, not a controlled same-patch benchmark. Package versions and
-# bases change sizes.
-BASE='almalinux:10-minimal'
-pull_image_if_absent "$BASE" --platform "linux/$NATIVE_ARCH"
-die_if_image_not_native "$BASE"
+# 2. Build the optimized image
+# The image is built in two stages. The first unpacks the tarball; the
+# second copies only bin, lib and LICENSE from it, and only the second
+# becomes the image. See node-test2/Dockerfile.
 echo 'Building binary-distribution image node-test2.'
-docker image build --platform "linux/$NATIVE_ARCH" --tag node-test2 \
+docker image build --tag node-test2 \
   --build-arg "NODEJS_VERSION=$NODEJS_VERSION" \
   --build-arg "ARCH_SUFFIX=$ARCH_SUFFIX" ./node-test2
 cleanup_add binary-image docker image rm node-test2
-echo 'Building repository baseline node-test2-repository-baseline.'
-docker image build --platform "linux/$NATIVE_ARCH" \
-  --tag node-test2-repository-baseline \
-  --build-arg "NODEJS_MAJOR_VERSION=$NODEJS_MAJOR_VERSION" ./node-test
-cleanup_add repository-image docker image rm node-test2-repository-baseline
-echo 'To compare the two images, run this in another terminal:'
-echo "  docker image ls --filter 'reference=node-test2*'"
-read -r -p 'Press ENTER to continue...'
 
-# 3. Check real runtime versions and CPU, then measure images
-# check_runtime IMAGE MODE: run a named, short-lived verification shell.
-# --rm tells the Docker daemon to remove the container when it exits, even
-# if the docker client is killed. Argument expansion inside single quotes
-# happens in the container, not on the host.
-# process.arch identifies the Node binary itself; uname/image metadata alone
-# could conceal a wrong binary that happens to execute through QEMU.
-check_runtime() {
-  local image=$1 mode=$2
-  die_if_image_not_native "$image"
-  docker container run --rm --name docker-basics-node-optimized "$image" \
-    /bin/sh -eu -c '
-      version=$(node --version)
-      arch=$(node -p process.arch)
-      [ "$arch" = "$1" ]
-      if [ "$2" = binary ]; then
-        [ "$version" = "v$3" ]
-        test -s "/opt/node/$3/LICENSE"
-        test ! -e "/opt/node/$3/include"
-        test ! -e "/opt/node/$3/share"
-        npm --version
-        npx --version
-      else
-        case $version in v"$4".*) ;; *) exit 1 ;; esac
-      fi
-      printf "Verified %s runtime: %s, process.arch=%s\n" "$2" "$version" "$arch"
-    ' sh "$ARCH_SUFFIX" "$mode" "$NODEJS_VERSION" "$NODEJS_MAJOR_VERSION" ||
-    die "Runtime verification for $image failed with status $?."
-}
-check_runtime node-test2 binary
-check_runtime node-test2-repository-baseline repository
-# inspect Size is cumulative uncompressed image bytes, not compressed
-# registry download size or the extra disk space when layers are shared.
-# Fewer layers alone do not prove a smaller image (see lessons 08 and 10).
-BINARY_SIZE=$(docker image inspect --format '{{.Size}}' node-test2)
-REPOSITORY_SIZE=$(docker image inspect --format '{{.Size}}' node-test2-repository-baseline)
-echo "Measured binary-distribution image: $BINARY_SIZE bytes."
-echo "Measured repository-install baseline: $REPOSITORY_SIZE bytes."
-echo "Repository minus binary distribution: $((REPOSITORY_SIZE - BINARY_SIZE)) bytes."
-# A negative saving is valid evidence too: report the measurement as observed.
-# The binary image still includes AlmaLinux, shared libraries, microdnf,
-# npm and licenses. It is neither a static executable nor scratch.
+# 3. Verify the result
+# Words after the image name replace CMD; see lesson 09. --rm tells the
+# Docker daemon to remove the container when it exits, even if the
+# docker client is killed.
+VERSION=$(docker container run --rm --name docker-basics-node-optimized \
+  node-test2 node --version) || die "Node.js verification failed with status $?."
+[[ $VERSION == "v$NODEJS_VERSION" ]] ||
+  die "Expected Node.js v$NODEJS_VERSION; got $VERSION"
+NPM_VERSION=$(docker container run --rm --name docker-basics-node-optimized \
+  node-test2 npm --version) || die "npm verification failed with status $?."
+NPX_VERSION=$(docker container run --rm --name docker-basics-node-optimized \
+  node-test2 npx --version) || die "npx verification failed with status $?."
+echo "Verified Node.js $VERSION, npm $NPM_VERSION and npx $NPX_VERSION."
 # RPM knows its Node package/dependencies; the copied distribution requires
 # you to track Node security updates and library compatibility yourself.
-echo 'To see the layers of the binary-distribution image, run this in another terminal:'
-echo '  docker image history node-test2'
+echo 'To compare its size with the image that lesson 10 builds, run'
+echo '10-docker-build-node.sh in another terminal until its first'
+echo 'Press ENTER prompt, then run:'
+echo "  docker image ls --filter 'reference=node-test*'"
 read -r -p 'Press ENTER to continue...'
 
 # 4. Remove the images this lesson built or pulled
-for IMAGE in node-test2-repository-baseline node-test2; do
-  echo "Removing demonstration image: $IMAGE"
-  docker image rm "$IMAGE"
-done
-cleanup_cancel repository-image
+echo 'Removing demonstration image: node-test2'
+docker image rm node-test2
 cleanup_cancel binary-image
-remove_pulled_image "$BASE"
 echo 'Lesson complete; owned containers and images removed.'
-# Build cache may remain. SIGKILL cannot run traps: inspect
-# docker image ls node-test2, docker image ls
-# node-test2-repository-baseline and docker container inspect
-# docker-basics-node-optimized before removing confirmed leftovers with
-# docker image rm TAG or docker container rm --force ID.
-# Never prune unrelated workloads.
-# A killed download can leave node-test/nodesource_setup_*.sh.part or
-# node-test2/node-v*.tar.gz.part; delete it.
-# TODO (future work): investigate a fully static Node.js binary for scratch.
-# This lesson deliberately retains the supported binary distribution.
+
+# TODO (future work): investigate a fully static Node.js binary using FROM scratch.
+# The official binaries need glibc, libstdc++ and libatomic from an OS,
+# which is why this image is built on almalinux:10-minimal.
+
+# SIGKILL cannot run traps. After a killed run, inspect before deleting:
+# docker container inspect docker-basics-node-optimized
+# docker image ls node-test2
+# Remove only confirmed leftovers with docker container rm --force ID and
+# docker image rm NAME:TAG. Never prune unrelated resources. A killed
+# download can leave node-test2/node-v*.tar.gz.part; delete it.
 # References:
-# https://nodejs.org/download/release/v26.13.1/docs/api/process.html#processarch
-# https://docs.docker.com/reference/cli/docker/image/inspect/
+# https://nodejs.org/dist/
+# https://docs.docker.com/reference/dockerfile/#add
 # https://docs.docker.com/build/building/multi-stage/

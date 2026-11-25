@@ -1,7 +1,8 @@
 #!/usr/bin/expect -f
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------
-# 11-docker-build-node-optimized.exp: Verify binary runtime and sizes
+# 11-docker-build-node-optimized.exp: Verify the binary-distribution
+# Node.js image and preservation
 #
 # Copyright (C) 2026 Sumanth Vepa.
 #
@@ -33,9 +34,9 @@ proc fixture_state {} {
     set -euo pipefail
     cd "$1"
     find . -maxdepth 1 ! -name '*-improvements.md' -printf '%P %m %u %g %y\n' | sort
-    find node-test node-test2 -printf '%p %m %u %g %y\n' | sort
-    find node-test node-test2 -type f -exec sha256sum {} + | sort
-    sha256sum 11-docker-build-node-optimized.sh bash-utilities.sh
+    find node-test2 -printf '%p %m %u %g %y\n' | sort
+    find node-test2 -type f -exec sha256sum {} + | sort
+    sha256sum 11-docker-build-node-optimized.sh bash-utilities.sh node-utilities.sh
   } bash $basics]
 }
 set fixtures_before [fixture_state]
@@ -43,12 +44,11 @@ set base_before ""
 if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
   set base_before [host_command docker image inspect almalinux:10-minimal]
 }
-set native_arch [host_command docker version --format {{{.Server.Arch}}}]
 switch -- [scenario] {
   conflict {
     # Guard every fixture target before any tag/build can overwrite it.
     set fixture "docker-basics-node-optimized-test-[pid]"
-    foreach tag [list node-test2 node-test2-repository-baseline $fixture] {
+    foreach tag [list node-test2 $fixture] {
       if {[host_command docker image ls --quiet $tag] ne ""} {
         fail "Refusing conflict fixture: image name $tag already exists."
       }
@@ -65,20 +65,17 @@ switch -- [scenario] {
     cleanup_on_host docker image rm $fixture
     set image_before [host_command docker image inspect --format \
       { {{.Id}} {{json .Config}} {{json .RootFS}} } $fixture]
-    # Exercise both image-name conflicts, comparing full inspect state.
-    foreach tag {node-test2 node-test2-repository-baseline} {
-      host_command docker image tag $fixture $tag
-      cleanup_on_host docker image rm $tag
-      set tag_before [host_command docker image inspect $tag]
-      start_terminal conflict-$tag bash -- $env(TUTORIAL_TEST_TUTORIAL)
-      wait_for -in conflict-$tag "Image names already in use: $tag."
-      finish_terminal conflict-$tag 1
-      if {[host_command docker image inspect $tag] ne $tag_before} {
-        fail "conflicting image $tag changed"
-      }
-      host_command docker image rm $tag
-      cancel_cleanup_on_host
+    host_command docker image tag $fixture node-test2
+    cleanup_on_host docker image rm node-test2
+    set tag_before [host_command docker image inspect node-test2]
+    start_terminal image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
+    wait_for -in image-conflict {Image names already in use: node-test2.}
+    finish_terminal image-conflict 1
+    if {[host_command docker image inspect node-test2] ne $tag_before} {
+      fail {conflicting image changed}
     }
+    host_command docker image rm node-test2
+    cancel_cleanup_on_host
     set id [host_command docker container create --name docker-basics-node-optimized \
       $fixture /sentinel]
     cleanup_on_host docker container rm --force $id
@@ -100,30 +97,20 @@ switch -- [scenario] {
     cancel_cleanup_on_host
   }
   interrupt {
-    # Interrupt at a deterministic pause after both images exist.
+    # Interrupt at a deterministic pause after the image exists.
     start_tutorial
-    wait_for -time 900 {Building repository baseline node-test2-repository-baseline.}
+    wait_for -time 900 {Building binary-distribution image node-test2.}
     wait_for -time 900 {Press ENTER to continue...}
     press_ctrl_c
     finish_tutorial 130
   }
   normal {
     start_tutorial
-    wait_for {Using saved Node.js archive: node-test2/node-v26.13.1-linux-}
-    wait_for -time 900 {Building repository baseline node-test2-repository-baseline.}
-    answer_pause -time 900 {Press ENTER to continue...}
-    set node_arch $native_arch
-    if {$native_arch eq "amd64"} {set node_arch x64}
-    wait_for "Verified binary runtime: v26.13.1, process.arch=$node_arch"
-    wait_for_regexp [format {Verified repository runtime: v26\.[0-9]+\.[0-9]+, process.arch=%s} $node_arch]
-    set binary_size [lindex [wait_for_regexp {Measured binary-distribution image: ([0-9]+) bytes.}] 1]
-    set repository_size [lindex [wait_for_regexp {Measured repository-install baseline: ([0-9]+) bytes.}] 1]
-    set saving [lindex [wait_for_regexp {Repository minus binary distribution: (-?[0-9]+) bytes.}] 1]
-    if {$binary_size <= 0 || $repository_size <= 0 || $saving != $repository_size - $binary_size} {
-      fail {invalid image-size measurements}
-    }
+    wait_for -time 900 {Building binary-distribution image node-test2.}
+    wait_for_regexp -time 900 \
+      {Verified Node\.js v26\.13\.1, npm [0-9]+\.[0-9]+\.[0-9]+ and npx [0-9]+\.[0-9]+\.[0-9]+\.}
     answer_pause {Press ENTER to continue...}
-    wait_for {Removing demonstration image: node-test2-repository-baseline}
+    wait_for {Removing demonstration image: node-test2}
     wait_for {Lesson complete; owned containers and images removed.}
     finish_tutorial 0
   }

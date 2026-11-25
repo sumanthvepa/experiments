@@ -24,38 +24,45 @@
 # 11-docker-build-node-optimized.sh. It sources bash-utilities.sh and
 # defines:
 #
-#   download_node_setup_script major-version
-#     Make sure that the node-test build context holds NodeSource's
+#   download_node_setup_script major-version directory
+#     Make sure that a build context directory holds NodeSource's
 #     setup script for a Node.js major release, downloading the script
 #     if it is missing.
+#   download_node_archive version arch-suffix directory
+#     Make sure that a build context directory holds the Node.js binary
+#     distribution archive for a release and CPU, downloading it if it
+#     is missing.
 #   arch_suffix native-arch
 #     Print the name that Node.js gives a CPU architecture in the names
 #     of its binary archives: x64 for amd64, arm64 for arm64.
 
 # Source by path so callers can run from another working directory.
 source "$(dirname "${BASH_SOURCE[0]}")/bash-utilities.sh"
-NODE_TEST_CONTEXT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/node-test"
 
-# download_node_setup_script: make sure that the node-test build
-# context holds NodeSource's setup script for a Node.js major release.
-# The Dockerfile's COPY can read only files in the context, and the
-# build runs the script, so it is downloaded once, kept in node-test,
-# and reviewed before it is committed.
+# download_node_setup_script: make sure that a build context directory
+# holds NodeSource's setup script for a Node.js major release. The
+# Dockerfile's COPY can read only files in the context, and the build
+# runs the script, so it is downloaded once, kept in the context, and
+# reviewed before it is committed.
 #
-# Usage: download_node_setup_script major-version
-#   major-version: the Node.js major release, for example 26. The
-#                  script is node-test/nodesource_setup_26.sh.
+# Usage: download_node_setup_script major-version directory
+#   major-version: the Node.js major release, for example 26.
+#   directory:     the build context directory to keep the script in,
+#                  for example node-test. The script is then
+#                  node-test/nodesource_setup_26.sh.
 #
 # Call it before the script creates anything else. It exits the script
-# with an error message if the file is not the setup script for that
-# release.
+# with an error message if the directory does not exist, or if the
+# file is not the setup script for that release.
 download_node_setup_script() {
-  local major script
-  if [[ $# -ne 1 ]]; then
-    die 'Usage: download_node_setup_script major-version'
+  local major directory script
+  if [[ $# -ne 2 ]]; then
+    die 'Usage: download_node_setup_script major-version directory'
   fi
   major=$1
-  script="$NODE_TEST_CONTEXT/nodesource_setup_${major}.sh"
+  directory=$2
+  [[ -d $directory ]] || die "$directory is not a directory."
+  script="$directory/nodesource_setup_${major}.sh"
   die_if_not_available curl chmod mv rm grep
   if [[ ! -f $script ]]; then
     echo "Downloading $script; review it before you commit it."
@@ -68,6 +75,45 @@ download_node_setup_script() {
   fi
   grep --quiet --fixed-strings "NODE_VERSION=\"${major}.x\"" "$script" ||
     die "$script is not the Node.js $major setup script."
+}
+
+# download_node_archive: make sure that a build context directory holds
+# the Node.js binary distribution archive for a release and a CPU. The
+# Dockerfile's ADD can read only files in the context, so the archive
+# is downloaded from nodejs.org once, and kept in the context.
+#
+# Usage: download_node_archive version arch-suffix directory
+#   version:     the Node.js release, for example 26.13.1.
+#   arch-suffix: the Node.js name for the CPU, x64 or arm64, as
+#                arch_suffix prints it.
+#   directory:   the build context directory to keep the archive in,
+#                for example node-test2. The archive is then
+#                node-test2/node-v26.13.1-linux-arm64.tar.gz.
+#
+# Call it before the script creates anything else. It exits the script
+# with an error message if the directory does not exist, or if the
+# download fails.
+download_node_archive() {
+  local version suffix directory name archive url
+  if [[ $# -ne 3 ]]; then
+    die 'Usage: download_node_archive version arch-suffix directory'
+  fi
+  version=$1
+  suffix=$2
+  directory=$3
+  [[ -d $directory ]] || die "$directory is not a directory."
+  name="node-v${version}-linux-${suffix}.tar.gz"
+  archive="$directory/$name"
+  url="https://nodejs.org/dist/v${version}/${name}"
+  die_if_not_available curl mv rm
+  if [[ ! -f $archive ]]; then
+    echo "Downloading $archive from $url"
+    cleanup_add node-archive rm --force -- "$archive.part"
+    curl --fail --silent --show-error --location --output "$archive.part" \
+      "$url" || die "Could not download $url."
+    mv "$archive.part" "$archive"
+    cleanup_cancel node-archive
+  fi
 }
 
 # arch_suffix: print the name that Node.js gives a CPU architecture in
