@@ -29,7 +29,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/docker-build-flask-test-utilities.sh"
 
 echo '18-docker-stats: interpret and stream metrics for one Flask container'
 # Run on the HOST: bash /path/to/18-docker-stats.sh
-# Needs Bash, Docker with Buildx, curl, jq and a local Linux daemon.
+# Needs Bash, Docker, curl, jq and a local Linux daemon.
 # The helper checks these before building. Registry/package network access
 # is needed for an uncached build. Docker access may require sudo.
 # All executable commands below run on the host. The service runs inside

@@ -36,7 +36,8 @@ source ./bash-utilities.sh
 [[ $# == 0 ]] || die 'Usage: 23-docker-buildx.sh (no arguments).'
 die_if_not_available jq tar timeout sha256sum mktemp mkdir cat sort rm
 die_if_not_docker_available
-docker buildx version || die 'Install Buildx before running this lesson.'
+die_if_not_buildx_available
+docker buildx version
 DAEMON_ARCH=$(docker info --format '{{.Architecture}}')
 case $DAEMON_ARCH in
   aarch64|arm64) NATIVE_ARCH=arm64; FOREIGN_ARCH=amd64; NATIVE_UNAME=aarch64; FOREIGN_UNAME=x86_64;;

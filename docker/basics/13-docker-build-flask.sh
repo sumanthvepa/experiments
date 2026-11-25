@@ -28,7 +28,7 @@ source ./docker-build-flask-test-utilities.sh
 
 echo '13-docker-build-flask: build and query a Flask application'
 # Run on the host: bash /path/to/13-docker-build-flask.sh
-# Needs Bash, Docker/Buildx, curl, jq, sleep and a local Linux daemon,
+# Needs Bash, Docker, curl, jq, sleep and a local Linux daemon,
 # plus network access to Docker Hub, AlmaLinux repositories and PyPI.
 # Docker access may require sudo. No host Python or pip is required.
 # The host queries port 5000 on 127.0.0.1; a remote daemon is unsuitable.

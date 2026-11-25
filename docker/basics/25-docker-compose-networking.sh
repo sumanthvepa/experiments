@@ -47,7 +47,7 @@ else
   die "Cannot identify Compose plugin version: $COMPOSE_VERSION"
 fi
 printf 'Compose plugin: %s\n' "$COMPOSE_VERSION"
-docker buildx version >/dev/null
+die_if_not_buildx_available
 BASE=almalinux:10-minimal
 EXISTING=$(docker image ls --quiet "$BASE")
 if [[ -n $EXISTING ]]; then

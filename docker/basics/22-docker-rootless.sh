@@ -38,7 +38,7 @@ echo '22-docker-rootless: Docker access, USER and gosu process identity'
 # bind-mount assumptions; lesson 06 owns the bind-mount examples.
 die_if_not_available timeout sha256sum cp mktemp rm dirname sleep
 die_if_not_docker_available
-docker buildx version >/dev/null
+die_if_not_buildx_available
 NATIVE_ARCH=$(docker_daemon_cpu_architecture)
 case $NATIVE_ARCH in
   amd64) GOSU_SHA=bbc4136d03ab138b1ad66fa4fc051bafc6cc7ffae632b069a53657279a450de3;;

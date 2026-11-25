@@ -41,7 +41,6 @@ remove_flask_owned_image() {
 # Call directly, not in $(...), because cleanup lives in this shell.
 build_flask_test_image() {
   die_if_not_available curl jq sleep dirname
-  docker buildx version >/dev/null || return $?
   die_if_docker_image_exists flask-test
   pull_image_if_absent almalinux:10-minimal
   die_if_image_not_native almalinux:10-minimal

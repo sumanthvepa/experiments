@@ -39,7 +39,7 @@ echo '14-docker-build-postgres-manual: initialize and start PostgreSQL manually'
 # CPUs, rootless/userns-remap and SELinux-enabled daemons are untested.
 die_if_not_available cat curl sha256sum ss uname mktemp cp rm mkdir dirname sleep
 die_if_not_docker_available
-docker buildx version >/dev/null
+die_if_not_buildx_available
 CPU_ARCHITECTURE=$(uname -m)
 case $CPU_ARCHITECTURE in
   x86_64) ARCH_SUFFIX=amd64; GOSU_SHA=bbc4136d03ab138b1ad66fa4fc051bafc6cc7ffae632b069a53657279a450de3;;

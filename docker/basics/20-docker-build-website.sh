@@ -30,14 +30,13 @@ source ./bash-utilities.sh
 
 echo '20-docker-build-website: package and serve a static nginx website'
 # Host: bash /path/to/20-docker-build-website.sh
-# Needs Bash, Docker/Buildx, curl, cmp, Python 3 and network access to
+# Needs Bash, Docker, curl, cmp, Python 3 and network access to
 # Docker Hub/AlmaLinux repositories, with a local Linux Docker daemon.
 # No host packages, mounts or credentials are needed. Only native arm64
 # on rootful Docker was tested; other OS/CPU/daemon modes are untested.
 # COPY avoids host bind-mount ownership/SELinux relabelling concerns.
 die_if_not_available curl cmp python3 mktemp rm dirname sleep
 die_if_not_docker_available
-docker buildx version >/dev/null
 IMAGE=website-test
 BASE=almalinux:10-minimal
 WEBSITE_PORT=8080

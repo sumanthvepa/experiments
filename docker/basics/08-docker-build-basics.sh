@@ -33,6 +33,10 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 # die, cleanup_add and cleanup_cancel come from bash-utilities.sh.
 source ./bash-utilities.sh
 die_if_not_docker_available
+# The examples below use docker image build --progress=plain. Only
+# BuildKit has that option, and docker image build uses BuildKit when
+# the Buildx plugin is installed.
+die_if_not_buildx_available
 
 # query_tcp_port, open_tcp_port and close_tcp_port come from
 # firewall-utilities.sh. See 02-docker-container-basics.sh.

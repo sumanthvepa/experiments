@@ -106,7 +106,7 @@ download_and_build_postgres_test_image() {
   local daemon_arch
   die_if_not_available curl sha256sum uname mktemp cp rm mkdir dirname sleep
   [[ -z ${POSTGRES_TEST_BUILD_CONTEXT:-} ]] || { echo 'This shell already prepared a PostgreSQL build.' >&2; return 1; }
-  docker buildx version >/dev/null || return $?
+  die_if_not_buildx_available
   postgres_test_architecture || return $?
   daemon_arch=$(docker_daemon_cpu_architecture) || return $?
   [[ $daemon_arch == "$ARCH_SUFFIX" ]] || {

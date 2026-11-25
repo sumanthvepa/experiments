@@ -35,6 +35,9 @@
 #   die_if_not_docker_available
 #     Exit the script with an error message unless the docker command
 #     is installed and can reach the Docker daemon.
+#   die_if_not_buildx_available
+#     Exit the script with an error message unless the Docker Buildx
+#     plugin is installed.
 #   docker_daemon_cpu_architecture
 #     Print the CPU architecture of the Docker daemon, for example
 #     amd64 or arm64.
@@ -155,6 +158,26 @@ die_if_not_docker_available() {
   die_if_not_available docker
   docker info >/dev/null || die 'Docker cannot reach its daemon (see the' \
     'error above). Check that the daemon is running and that you may use it.'
+}
+
+# die_if_not_buildx_available: exit the script with an error message
+# unless the Buildx plugin is installed. With Buildx, docker image
+# build builds with BuildKit. Without it, docker falls back to the
+# legacy builder, which rejects BuildKit features such as COPY --chmod
+# and the --progress option. Call this before the first build, so
+# that a missing plugin stops the script at the start, and not
+# halfway through, with work left to clean up.
+#
+# Usage: die_if_not_buildx_available
+#
+# docker buildx version changes nothing and does not need the daemon.
+# Only its standard output is discarded, so if it fails, Docker's own
+# explanation is printed before ours.
+# It uses die, so it exits the shell that it runs in.
+die_if_not_buildx_available() {
+  die_if_not_available docker
+  docker buildx version >/dev/null || die 'The Docker Buildx plugin is' \
+    'not installed (see the error above). 01-install-docker.sh installs it.'
 }
 
 # docker_daemon_cpu_architecture: print the CPU architecture of the

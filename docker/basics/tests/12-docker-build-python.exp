@@ -43,7 +43,6 @@ set base_before ""
 if {[host_command_succeeds docker image inspect almalinux:10-minimal]} {
   set base_before [host_command docker image inspect almalinux:10-minimal]
 }
-set native_arch [host_command docker version --format {{{.Server.Arch}}}]
 
 switch -- [scenario] {
   conflict {
@@ -70,7 +69,7 @@ switch -- [scenario] {
     cleanup_on_host docker image rm python-test
     set tag_before [host_command docker image inspect python-test]
     start_terminal image-conflict bash -- $env(TUTORIAL_TEST_TUTORIAL)
-    wait_for -in image-conflict {Image name python-test already exists.}
+    wait_for -in image-conflict {Image names already in use: python-test.}
     finish_terminal image-conflict 1
     if {[host_command docker image inspect python-test] ne $tag_before} {
       fail {conflicting image changed}
@@ -82,7 +81,7 @@ switch -- [scenario] {
     cleanup_on_host docker container rm --force $id
     set container_before [host_command docker container inspect $id]
     start_tutorial
-    wait_for {Container name docker-basics-python already exists.}
+    wait_for {Container names already in use: docker-basics-python.}
     finish_tutorial 1
     # Full inspect covers identity, config, running state and networks.
     if {[host_command docker container inspect $id] ne $container_before} {
@@ -101,31 +100,35 @@ switch -- [scenario] {
     # Interrupt at a reader pause after the image exists. The runner
     # verifies removal of both it and a newly pulled base.
     start_tutorial
-    wait_for -time 900 {Press ENTER to verify Python and pip...}
+    wait_for -time 900 {Press ENTER to continue...}
     press_ctrl_c
     finish_tutorial 130
   }
   normal {
     start_tutorial
-    wait_for "Verified native base architecture: $native_arch"
-    answer_pause -time 900 {Press ENTER to verify Python and pip...}
+    wait_for {Building python-test for Python 3.14...}
+    answer_pause -time 900 {Press ENTER to continue...}
     wait_for {Hello, World!}
-    wait_for_regexp {Python 3\.12\.[0-9]+}
-    wait_for_regexp {pip [0-9.]+ from [^\r\n]+ \(python 3\.12\)}
-    wait_for {Verified Python 3.12, pip and local aliases.}
-    answer_pause {Press ENTER to open the Python REPL...}
+    wait_for_regexp {Python 3\.14\.[0-9]+}
+    wait_for_regexp {pip [0-9.]+ from [^\r\n]+ \(python 3\.14\)}
+    wait_for {Verified Python 3.14 and pip.}
+    answer_pause {Press ENTER to continue...}
+    # Python 3.14's REPL redraws the coloured input line as it is typed,
+    # and writes terminal control sequences before each result. Match
+    # each result with its line ending; the typed lines and the hints
+    # never contain those strings.
     wait_for {>>> }
     type_line {print("Hello from the REPL!")}
-    wait_for "\r\nHello from the REPL!\r\n"
+    wait_for "Hello from the REPL!\r\n"
     wait_for {>>> }
     type_line {6 * 7}
-    wait_for "\r\n42\r\n"
+    wait_for "42\r\n"
     wait_for {>>> }
     type_line {import sys; print(sys.version_info[:2])}
-    wait_for "\r\n(3, 12)\r\n"
+    wait_for "(3, 14)\r\n"
     wait_for {>>> }
     type_line {quit()}
-    answer_pause {Press ENTER to remove the demonstration image...}
+    answer_pause {Press ENTER to continue...}
     wait_for {Lesson complete; owned containers and images removed.}
     finish_tutorial 0
   }
