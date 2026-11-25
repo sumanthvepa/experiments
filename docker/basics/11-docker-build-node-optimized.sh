@@ -21,6 +21,35 @@
 # <https://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# What this lesson teaches
+# ------------------------
+# This lesson builds an AlmaLinux 10 minimal image with Node.js, npm
+# and npx installed from the binary distribution published on
+# nodejs.org, rather than from an RPM repository.
+#
+# The script downloads an archive for a specific Node.js version and
+# the Docker daemon's CPU architecture. The build arguments select
+# that archive:
+#
+#   NODEJS_VERSION   chooses the Node.js release.
+#   ARCH_SUFFIX      chooses x64 or arm64 for the daemon's CPU.
+#
+# The Dockerfile uses a multi-stage build. The first stage starts from
+# scratch and unpacks the archive. The second starts from AlmaLinux and
+# copies only bin, lib and LICENSE from the first stage. It also installs
+# the system libraries that the dynamically linked Node.js binary needs.
+# This makes the final image smaller than lesson 10's: its scratch stage
+# copies the entire filesystem of the AlmaLinux builder with the RPM-installed
+# Node.js. This image instead keeps AlmaLinux as its base and adds only the
+# required shared libraries and Node.js bin, lib and LICENSE files. It does
+# not copy the unpacking stage or the archive's headers, manual pages and
+# other unused files, so less data is added to the final image.
+#
+# Finally, the lesson checks the versions reported by node, npm and npx,
+# and lets you compare this image's size with lesson 10's RPM-based image.
+# With a binary distribution, you must track Node.js security updates and
+# library compatibility yourself. The script removes the images it builds.
+
 # Stop on unexpected errors, unset variables and failed pipelines.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
